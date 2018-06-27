@@ -1,0 +1,32 @@
+player: look at guy scotthrie
+Narrator: It’s Guy Scotthrie, our fearless hero! 
+
+player: look at groceries
+Guy: It's my shopping bag with groceries.
+Guy: I managed to get some nice discounts!
+
+player: look at grocery list
+Guy: It's my grocery list!
+Guy: I've bought everything that's on it!
+
+player: use grocery list with groceries
+Guy: Yep, I’ve got everything on the list!
+
+player: use groceries with grocery list
+Guy: Yep, I’ve got everything on the list!
+
+player: pick up newspaper
+{!newspaper}
+[AddToInventory=newspaper]
+Guy: Got it!
+{newspaper}
+Guy: I've already picked that up!
+
+player: look at newspaper
+{!newspaper}
+[Describe="You look at the newspaper with intense interest..."]
+Guy: It looks like an old newspaper!
+{newspaper}
+Guy: It's mine now!
+{}
+Guy: What's next?
