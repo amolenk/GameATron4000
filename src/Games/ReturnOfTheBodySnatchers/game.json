@@ -1,0 +1,6 @@
+{
+    "InitialRoom": "park",
+    "SupportsGui": true,
+    "PlayerAvatar": "Guy",
+    "BadCommandResponses": [ "Sorry, you can't do that." ]
+}

@@ -17,9 +17,9 @@ namespace GameATron4000.Dialogs
         public ScriptParser()
         {
             _preconditionExpression = new Regex(@"{(?<preconditions>!?\w+\s?)*}");
-            _commandExpression = new Regex("player:(?<text>.*)");
-            _speakExpression = new Regex("(?<actor>.*?):(?<text>.*)");
+            _commandExpression = new Regex("player:(?<text>.*)", RegexOptions.IgnoreCase);
             _actionExpression = new Regex(@"\[(?<name>.*)=(?<args>(\w+\s?)|(\"".*?\""\s?))+\]");
+            _speakExpression = new Regex("(?<actor>.*?):(?<text>.*)");
         }
 
         public List<Command> Parse(string path)
@@ -61,7 +61,6 @@ namespace GameATron4000.Dialogs
                             actionPreconditions = preconditions;
                         }
                     }
-
                     continue;
                 }
 
@@ -82,28 +81,25 @@ namespace GameATron4000.Dialogs
                     throw new IOException($"Error in script on line {lineNumber}: expected command.");
                 }
 
-                match = _speakExpression.Match(line);
-                if (match.Success)
-                {
-                    actions.Add(new Action(
-                        Action.Speak,
-                        new string[]
-                        {
-                            match.Groups["text"].Value.Trim(),
-                            match.Groups["actor"].Value
-                        },
-                        actionPreconditions));
-                    continue;
-                }
-
                 match = _actionExpression.Match(line);
                 if (match.Success)
                 {
-                    actions.Add(new Action(
-                        match.Groups["name"].Value,
-                        match.Groups["args"].Captures.Select(c => c.Value.Trim('"')).ToArray(),
-                        actionPreconditions
-                    ));
+                    actions.Add(new ActionBuilder()
+                        .WithName(match.Groups["name"].Value)
+                        .WithArguments(match.Groups["args"].Captures.Select(c => c.Value.Trim('"')))
+                        .Build());
+                    continue;
+                }
+
+                match = _speakExpression.Match(line);
+                if (match.Success)
+                {
+                    actions.Add(new ActionBuilder()
+                        .WithName(Action.Speak)
+                        .WithArgument(match.Groups["text"].Value.Trim())
+                        .WithArgument(match.Groups["actor"].Value)
+                        .WithPreconditions(actionPreconditions)
+                        .Build());
                     continue;
                 }
 
@@ -117,7 +113,6 @@ namespace GameATron4000.Dialogs
                         actions = new List<Action>();
                         commandPreconditions = null;
                     }
-
                     continue;
                 }
 

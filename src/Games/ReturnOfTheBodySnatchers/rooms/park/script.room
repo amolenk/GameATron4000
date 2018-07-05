@@ -1,3 +1,6 @@
+Player: <RoomEntered>
+Narrator: Welcome to the game!
+
 player: look at guy scotthrie
 Narrator: It’s Guy Scotthrie, our fearless hero! 
 
@@ -24,9 +27,14 @@ Guy: I've already picked that up!
 
 player: look at newspaper
 {!newspaper}
-[Describe="You look at the newspaper with intense interest..."]
+[Text:Describe="You look at the newspaper with intense interest..."]
 Guy: It looks like an old newspaper!
 {newspaper}
 Guy: It's mine now!
 {}
 Guy: What's next?
+
+player: talk to bird
+Guy: Not sure what you're expecting, but okay...
+[TalkTo=bird]
+Guy: That's one interesting bird!

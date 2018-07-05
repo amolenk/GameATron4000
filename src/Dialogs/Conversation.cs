@@ -1,14 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.Bot.Builder.Core.Extensions;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Schema;
 
 namespace GameATron4000.Dialogs
 {
-    public class ActorConversation : Dialog, IDialogContinue
+    public class Conversation : Dialog, IDialogContinue
     {
-        public ActorConversation()
+        public Conversation()
         {
         }
 
@@ -37,7 +38,13 @@ namespace GameATron4000.Dialogs
                 await dc.End();
             }
             else
-                await dc.Context.SendActivity("Yadayadayada");
+            {
+                await dc.Context.SendActivity("chirp-chirp");
+
+                var state = dc.Context.GetConversationState<Dictionary<string, object>>();
+
+                await dc.Context.SendActivity(string.Join(", ", state.Keys));
+            }   
         }
     }
 }
