@@ -7,20 +7,20 @@ using GameATron4000.Models;
 
 namespace GameATron4000.Dialogs
 {
-    public class ConversationScriptParser
+    public class DialogTreeParser
     {
         private readonly Regex _actionExpression;
         private readonly Regex _commandExpression;
         private readonly Regex _speakExpression; 
 
-        public ConversationScriptParser()
+        public DialogTreeParser()
         {
             _actionExpression = new Regex(@"\[(?<name>.*?)(=(?<args>(\w+\s?)|(\"".*?\""\s?))+)?\]");
             _commandExpression = new Regex("- (?<command>.*)");
             _speakExpression = new Regex("(?<actor>.*?):(?<text>.*)");
         }
 
-        public ConversationStep Parse(string path)
+        public DialogTreeNode Parse(string path)
         {
             using (var reader = File.OpenText(path))
             {
@@ -28,10 +28,11 @@ namespace GameATron4000.Dialogs
             }
         }
 
-        private ConversationStep ParseStep(TextReader reader, ParsingContext context, int indentLevel = 0)
+        private DialogTreeNode ParseStep(TextReader reader, ParsingContext context, int? parentId = null, int indentLevel = 0)
         {
+            var nodeId = context.NodeId++;
             var actions = new List<Action>();
-            var subSteps = new Dictionary<string, ConversationStep>();
+            var subSteps = new Dictionary<string, DialogTreeNode>();
 
             context.LineIndentSize = ReadIndentation(reader);
             string line;
@@ -46,7 +47,7 @@ namespace GameATron4000.Dialogs
                 {
                     subSteps.Add(
                         match.Groups["command"].Value,
-                        ParseStep(reader, context, indentLevel + 1));
+                        ParseStep(reader, context, nodeId, indentLevel + 1));
                     continue;
                 }
 
@@ -90,7 +91,7 @@ namespace GameATron4000.Dialogs
                 throw new IOException($"Parse error at line {context.LineNumber}: Unexpected line.");
             }
 
-            return new ConversationStep(actions, subSteps);
+            return new DialogTreeNode(nodeId++, actions, parentId, subSteps);
         }
 
         private int ReadIndentation(TextReader reader)
@@ -109,6 +110,8 @@ namespace GameATron4000.Dialogs
             public int LineIndentSize { get; set; }
 
             public int LineNumber { get; set; }
+
+            public int NodeId { get; set; } = 1;
         }
     }
 }

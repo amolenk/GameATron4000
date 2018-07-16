@@ -1,71 +1,75 @@
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using GameATron4000.Dialogs;
+using GameATron4000.Models;
 using Microsoft.Bot;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Core.Extensions;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Schema;
 using Newtonsoft.Json;
-using src.Models;
 
 namespace GameATron4000
 {
     public class GameBot : IBot
     {
-        private readonly GameInfo _game;
+        private const string MainMenuId = "mainMenu";
+
+        private readonly GameCatalog _gameCatalog;
+        private GameInfo _loadedGame;
 
         public GameBot()
         {
-            _game = LoadGame("ReturnOfTheBodySnatchers");
+            _gameCatalog = new GameCatalog("Games");
         }
 
         public async Task OnTurn(ITurnContext context)
         {
-            var state = ConversationState<Dictionary<string, object>>.Get(context);
-            var dc = _game.Dialogs.CreateContext(context, state);
-
-            // This bot is only handling Messages
-            if (context.Activity.Type == ActivityTypes.Message)
+            if (context.Activity.Type is ActivityTypes.ConversationUpdate)
             {
+                foreach (var newMember in context.Activity?.MembersAdded)
+                {
+                    if (newMember.Id != context.Activity.Recipient.Id)
+                    {
+                        var gameList = _gameCatalog.GetGameNames().ToList();
+                        await context.SendActivity(MessageFactory.SuggestedActions(gameList, "Which game do you want to play?"));
+                        return;
+                    }
+                }
+            }
+            else if (context.Activity.Type is ActivityTypes.Message)
+            {
+                // Get the conversation state from the turn context
+                var state = ConversationState<Dictionary<string, object>>.Get(context);
+
+                if (!state.ContainsKey("GameName"))
+                {
+                    // TODO Validate
+                    state.Add("GameName", context.Activity.Text);
+                }
+
+                var game = _gameCatalog.LoadGame(state["GameName"].ToString());
+
+                var dialogState = ConversationState<Dictionary<string, object>>.Get(context);
+
+                // Establish dialog context from the conversation state.
+                var dc = game.Dialogs.CreateContext(context, dialogState);
+
+                // Continue any current dialog.
                 await dc.Continue();
 
+                // Every turn sends a response, so if no response was sent,
+                // then there is no dialog currently active.
+                // TODO Find a better way to check this. Maybe check the active dialog?
                 if (!context.Responded)
                 {
-                    var rootDialog = _game.InitialRoom;
-
+                    // Start the game's first room.
+                    var rootDialog = game.InitialRoom;
                     await dc.Begin(rootDialog);
                 }
             }
-        }
-
-        private GameInfo LoadGame(string name)
-        {
-            var gameDir = Path.Combine("Games", name);
-            var scriptParser = new ScriptParser();
-            var conversationScriptParser = new ConversationScriptParser();
-
-            var infoPath = Path.Combine(gameDir, "game.json");
-            var infoJson = File.ReadAllText(infoPath);
-            var info = JsonConvert.DeserializeObject<GameInfo>(infoJson);
-            info.Dialogs = new DialogSet();
-
-            foreach (var roomDir in Directory.GetDirectories(Path.Combine(gameDir, "rooms")))
-            {
-                var commands = scriptParser.Parse(Path.Combine(roomDir, "script.room"));
-
-                info.Dialogs.Add(Path.GetFileName(roomDir), new Room(commands));
-
-                foreach (var conversationPath in Directory.GetFiles(roomDir, "*.conversation"))
-                {
-                    var result = conversationScriptParser.Parse(conversationPath);
-
-                    info.Dialogs.Add(Path.GetFileNameWithoutExtension(conversationPath), new Conversation());
-                }
-            }
-
-            return info;
         }
     }
 }

@@ -32,31 +32,19 @@ namespace GameATron4000.Dialogs
         {
             if (dc == null) throw new ArgumentNullException(nameof(dc));
 
-            var state = dc.Context.GetConversationState<Dictionary<string, object>>();
-            if (state.ContainsKey("actionStack"))
+            if (dc.Context.Activity.Type == ActivityTypes.Message)
             {
-                await RunCommand("", dc, (Stack<Models.Action>)state["actionStack"]);
+                await RunCommand(Command.RoomEntered, dc);
             }
-            else if (dc.Context.Activity.Type == ActivityTypes.Message)
-            {
-                await RunCommand(Command.RoomEntered, dc, dialogArgs);
-    //            await RunCommand(dc, new Dictionary<string, object> { { "Activity", dc.Context.Activity } });
-            }
-//            return RunCommand(dc, dialogArgs);
         }
 
         public async Task DialogContinue(DialogContext dc)
         {
             if (dc == null) throw new ArgumentNullException(nameof(dc));
 
-            var state = dc.Context.GetConversationState<Dictionary<string, object>>();
-            if (state.ContainsKey("actionStack"))
+            if (dc.Context.Activity.Type == ActivityTypes.Message)
             {
-                await RunCommand("", dc, (Stack<Models.Action>)state["actionStack"]);
-            }
-            else if (dc.Context.Activity.Type == ActivityTypes.Message)
-            {
-                await RunCommand(dc, new Dictionary<string, object> { { "Activity", dc.Context.Activity } });
+                await RunCommand(dc);
             }
         }
 
@@ -64,15 +52,23 @@ namespace GameATron4000.Dialogs
         {
             if (dc == null) throw new ArgumentNullException(nameof(dc));
 
-            await RunCommand(dc, result);
+            object onResumeActions = null;
+            if (dc.ActiveDialog.State.Remove("onResumeActions", out onResumeActions))
+            {
+                await ExecuteActions(dc, (Stack<Models.Action>)onResumeActions);
+            }
+            else
+            {
+                // What now??
+            }
         }
 
-        private Task RunCommand(DialogContext dc, IDictionary<string, object> result = null)
+        private Task RunCommand(DialogContext dc)
         {
-            return RunCommand(dc.Context.Activity.Text, dc, result);
+            return RunCommand(dc.Context.Activity.Text, dc);
         }
 
-        private async Task RunCommand(string commandText, DialogContext dc, IDictionary<string, object> result = null)
+        private async Task RunCommand(string commandText, DialogContext dc)
         {
             if (dc == null) throw new ArgumentNullException(nameof(dc));
 
@@ -90,68 +86,17 @@ namespace GameATron4000.Dialogs
                     && cmd.Preconditions.All(verifyPrecondition))
                 .FirstOrDefault();
 
-            //var activities = new List<IActivity>();
-            //var updatedFlags = new Dictionary<string, bool>();
-
             if (command != null)
             {
                 var actions = new Stack<Models.Action>(command.Actions
                     .Where(a => a.Preconditions.All(verifyPrecondition))
                     .Reverse());
 
-                await RunCommand(commandText, dc, actions);
-
-                // Models.Action action;
-                // while (actions.TryPop(out action))
-                // {
-                //     if (action.Name == Models.Action.TalkTo)
-                //     {
-                //         if (activities.Any())
-                //         {
-                //             await dc.Context.SendActivities(activities.ToArray());
-                //         }
-
-                //         state["actionStack"] = actions;
-
-                //         await dc.Begin(action.Args[0], state);
-                //         return;
-                //     }
-
-                //     switch (action.Name)
-                //     {
-                //         case Models.Action.AddToInventory:
-                //             // Don't update the state directly, because the behaviour of other actions may
-                //             // still depend on the original state.
-                //             updatedFlags[action.Args[0]] = true;
-                //             break;
-
-                //         case Models.Action.Speak:
-                //             activities.Add(MessageFactory.Text($"{action.Args[1]} > {action.Args[0]}"));
-                //             break;
-
-                //         case Models.Action.TextDescribe:
-                //             activities.Add(MessageFactory.Text(action.Args[0]));
-                //             break;
-                //     }
-                // }
+                await ExecuteActions(dc, actions);
             }
-
-            // if (!dc.Context.Responded)
-            // {
-            //     // If there's nothing to return to the player, reply with a standard response.
-            //     if (!activities.Any())
-            //     {
-            //         activities.Add(MessageFactory.Text("Narrator > " + _cannedResponses[_random.Next(0, _cannedResponses.Length)]));
-            //     }
-            // }
-
-            // // Commit the temporary updated flags dictionary to the actual state object.
-            // UpdateState(state, updatedFlags);
-
-            // await dc.Context.SendActivities(activities.ToArray());
         }
 
-        private async Task RunCommand(string commandText, DialogContext dc, Stack<Models.Action> actions)
+        private async Task ExecuteActions(DialogContext dc, Stack<Models.Action> actions)
         {
             if (dc == null) throw new ArgumentNullException(nameof(dc));
 

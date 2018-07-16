@@ -38,3 +38,9 @@ player: talk to bird
 Guy: Not sure what you're expecting, but okay...
 [TalkTo=bird]
 Guy: That's one interesting bird!
+
+player: look at list
+{!talkedAboutList}
+Guy: What list?
+{talkedAboutList}
+Guy: I need to find it first!
