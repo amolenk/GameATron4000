@@ -37,6 +37,8 @@ Guy: What's next?
 player: talk to al
 [TalkTo=al]
 Guy: That's one interesting bird!
+[TalkTo=al]
+Guy: And we're back again!
 
 player: look at list
 {!talkedAboutList}

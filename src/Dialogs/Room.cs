@@ -52,14 +52,12 @@ namespace GameATron4000.Dialogs
         {
             if (dc == null) throw new ArgumentNullException(nameof(dc));
 
+            var state = dc.Context.GetConversationState<Dictionary<string, object>>();
+
             object onResumeActions = null;
-            if (dc.ActiveDialog.State.Remove("onResumeActions", out onResumeActions))
+            if (state.Remove("actionStack", out onResumeActions))
             {
-                await ExecuteActions(dc, (Stack<Models.Action>)onResumeActions);
-            }
-            else
-            {
-                // What now??
+                await ExecuteActions(dc, (List<Models.Action>)onResumeActions);
             }
         }
 
@@ -88,9 +86,7 @@ namespace GameATron4000.Dialogs
 
             if (command != null)
             {
-                var actions = new Stack<Models.Action>(command.Actions
-                    .Where(a => a.Preconditions.All(verifyPrecondition))
-                    .Reverse());
+                var actions = command.Actions.Where(a => a.Preconditions.All(verifyPrecondition));
 
                 await ExecuteActions(dc, actions);
             }
@@ -102,7 +98,7 @@ namespace GameATron4000.Dialogs
             }
         }
 
-        private async Task ExecuteActions(DialogContext dc, Stack<Models.Action> actions)
+        private async Task ExecuteActions(DialogContext dc, IEnumerable<Models.Action> actions)
         {
             if (dc == null) throw new ArgumentNullException(nameof(dc));
 
@@ -110,9 +106,10 @@ namespace GameATron4000.Dialogs
             var updatedFlags = new Dictionary<string, bool>();
 
             var state = dc.Context.GetConversationState<Dictionary<string, object>>();
+            var actionStack = new Stack<Models.Action>(actions.Reverse());
 
             Models.Action action;
-            while (actions.TryPop(out action))
+            while (actionStack.TryPop(out action))
             {
                 if (action.Name == Models.Action.TalkTo)
                 {
@@ -121,9 +118,11 @@ namespace GameATron4000.Dialogs
                         await dc.Context.SendActivities(activities.ToArray());
                     }
 
-                    state["actionStack"] = actions;
+                    // Stacks don't serialize in the correct order.
+                    // See https://github.com/JamesNK/Newtonsoft.Json/issues/971.
+                    state["actionStack"] = actionStack.ToList();
 
-                    await dc.Begin(action.Args[0], state);
+                    await dc.Begin(action.Args[0]);
                     return;
                 }
 
