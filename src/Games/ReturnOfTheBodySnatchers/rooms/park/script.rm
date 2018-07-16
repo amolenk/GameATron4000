@@ -34,9 +34,8 @@ Guy: It's mine now!
 {}
 Guy: What's next?
 
-player: talk to bird
-Guy: Not sure what you're expecting, but okay...
-[TalkTo=bird]
+player: talk to al
+[TalkTo=al]
 Guy: That's one interesting bird!
 
 player: look at list

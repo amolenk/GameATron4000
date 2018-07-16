@@ -94,6 +94,12 @@ namespace GameATron4000.Dialogs
 
                 await ExecuteActions(dc, actions);
             }
+            else
+            {
+                // The player typed something we didn't expect; reply with a standard response.
+                await dc.Context.SendActivity(
+                    MessageFactory.Text("Narrator > " + _cannedResponses[_random.Next(0, _cannedResponses.Length)]));
+            }
         }
 
         private async Task ExecuteActions(DialogContext dc, Stack<Models.Action> actions)
@@ -136,15 +142,6 @@ namespace GameATron4000.Dialogs
                     case Models.Action.TextDescribe:
                         activities.Add(MessageFactory.Text(action.Args[0]));
                         break;
-                }
-            }
-
-            if (!dc.Context.Responded)
-            {
-                // If there's nothing to return to the player, reply with a standard response.
-                if (!activities.Any())
-                {
-                    activities.Add(MessageFactory.Text("Narrator > " + _cannedResponses[_random.Next(0, _cannedResponses.Length)]));
                 }
             }
 

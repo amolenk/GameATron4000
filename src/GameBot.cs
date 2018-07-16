@@ -57,18 +57,29 @@ namespace GameATron4000
                 // Establish dialog context from the conversation state.
                 var dc = game.Dialogs.CreateContext(context, dialogState);
 
-                // Continue any current dialog.
-                await dc.Continue();
-
-                // Every turn sends a response, so if no response was sent,
-                // then there is no dialog currently active.
-                // TODO Find a better way to check this. Maybe check the active dialog?
-                if (!context.Responded)
+                if (dc.ActiveDialog == null)
                 {
                     // Start the game's first room.
                     var rootDialog = game.InitialRoom;
                     await dc.Begin(rootDialog);
                 }
+                else
+                {
+                    await dc.Continue();
+                }
+
+                // Continue any current dialog.
+                // await dc.Continue();
+
+                // Every turn sends a response, so if no response was sent,
+                // then there is no dialog currently active.
+                // TODO Find a better way to check this. Maybe check the active dialog?
+                // if (!context.Responded)
+                // {
+                //     // Start the game's first room.
+                //     var rootDialog = game.InitialRoom;
+                //     await dc.Begin(rootDialog);
+                // }
             }
         }
     }
