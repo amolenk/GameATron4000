@@ -27,7 +27,7 @@ namespace GameATron4000
         public GameInfo LoadGame(string name)
         {
             var gameDir = Path.Combine(_baseDir, name);
-            var scriptParser = new ScriptParser();
+            var roomParser = new RoomParser();
             var dialogTreeParser = new DialogTreeParser();
 
             var infoPath = Path.Combine(gameDir, "game.json");
@@ -37,7 +37,7 @@ namespace GameATron4000
 
             foreach (var roomDir in Directory.GetDirectories(Path.Combine(gameDir, "rooms")))
             {
-                var commands = scriptParser.Parse(Path.Combine(roomDir, "script.rm"));
+                var commands = roomParser.Parse(Path.Combine(roomDir, "script.rm"));
 
                 info.Dialogs.Add(Path.GetFileName(roomDir), new Room(commands));
 

@@ -7,14 +7,14 @@ using GameATron4000.Models;
 
 namespace GameATron4000.Dialogs
 {
-    public class ScriptParser
+    public class RoomParser
     {
         private readonly Regex _preconditionExpression;
         private readonly Regex _commandExpression; 
         private readonly Regex _speakExpression; 
         private readonly Regex _actionExpression;
 
-        public ScriptParser()
+        public RoomParser()
         {
             _preconditionExpression = new Regex(@"{(?<preconditions>!?\w+\s?)*}");
             _commandExpression = new Regex("player:(?<text>.*)", RegexOptions.IgnoreCase);
