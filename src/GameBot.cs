@@ -18,7 +18,6 @@ namespace GameATron4000
         private const string MainMenuId = "mainMenu";
 
         private readonly GameCatalog _gameCatalog;
-        private GameInfo _loadedGame;
 
         public GameBot()
         {
@@ -67,19 +66,6 @@ namespace GameATron4000
                 {
                     await dc.Continue();
                 }
-
-                // Continue any current dialog.
-                // await dc.Continue();
-
-                // Every turn sends a response, so if no response was sent,
-                // then there is no dialog currently active.
-                // TODO Find a better way to check this. Maybe check the active dialog?
-                // if (!context.Responded)
-                // {
-                //     // Start the game's first room.
-                //     var rootDialog = game.InitialRoom;
-                //     await dc.Begin(rootDialog);
-                // }
             }
         }
     }
