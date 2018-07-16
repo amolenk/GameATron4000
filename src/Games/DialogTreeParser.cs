@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using GameATron4000.Models;
 
-namespace GameATron4000.Dialogs
+namespace GameATron4000.Games
 {
     public class DialogTreeParser
     {

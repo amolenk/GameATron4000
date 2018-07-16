@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using GameATron4000.Dialogs;
+using GameATron4000.Games;
 using GameATron4000.Models;
 using Microsoft.Bot;
 using Microsoft.Bot.Builder;
@@ -15,8 +16,6 @@ namespace GameATron4000
 {
     public class GameBot : IBot
     {
-        private const string MainMenuId = "mainMenu";
-
         private readonly GameCatalog _gameCatalog;
 
         public GameBot()

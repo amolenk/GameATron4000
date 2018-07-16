@@ -5,7 +5,7 @@ using GameATron4000.Models;
 using Microsoft.Bot.Builder.Dialogs;
 using Newtonsoft.Json;
 
-namespace GameATron4000
+namespace GameATron4000.Games
 {
     public class GameCatalog
     {
