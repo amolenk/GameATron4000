@@ -1,4 +1,4 @@
-Player: <enter>
+Player: <RoomEntered>
 [Text:Describe="Welcome to Zork - The Unofficial Game-a-Tron 4000 Version. This script is based on the Unofficial Python Version. See https://github.com/iamjawa/zork-py."]
 [Text:Describe="You are standing in an open field west of a white house, with a boarded front door."]
 [Text:Describe="(A secret path leads southwest into the forest.)"]

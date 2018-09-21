@@ -1,12 +1,17 @@
 Player: <RoomEntered>
+[Text:Describe="You enter the room"]
 Narrator: Welcome to the game!
 
 player: look at guy scotthrie
 Narrator: It’s Guy Scotthrie, our fearless hero! 
 
 player: look at groceries
+{!LookedAtGroceries}
+[AddToInventory=LookedAtGroceries]
 Guy: It's my shopping bag with groceries.
 Guy: I managed to get some nice discounts!
+{LookedAtGroceries}
+Guy: I've already looked at them! Nothing new!!!
 
 player: look at grocery list
 Guy: It's my grocery list!
@@ -35,8 +40,6 @@ Guy: It's mine now!
 Guy: What's next?
 
 player: talk to al
-[TalkTo=al]
-Guy: That's one interesting bird!
 [TalkTo=al]
 Guy: And we're back again!
 

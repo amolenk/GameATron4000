@@ -50,10 +50,8 @@ namespace GameATron4000
 
                 var game = _gameCatalog.LoadGame(state["GameName"].ToString());
 
-                var dialogState = ConversationState<Dictionary<string, object>>.Get(context);
-
                 // Establish dialog context from the conversation state.
-                var dc = game.Dialogs.CreateContext(context, dialogState);
+                var dc = game.Dialogs.CreateContext(context, state);
 
                 if (dc.ActiveDialog == null)
                 {

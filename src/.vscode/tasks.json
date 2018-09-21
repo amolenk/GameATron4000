@@ -9,7 +9,11 @@
                 "build",
                 "${workspaceFolder}/GameATron4000.csproj"
             ],
-            "problemMatcher": "$msCompile"
+            "problemMatcher": "$msCompile",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
         }
     ]
 }
