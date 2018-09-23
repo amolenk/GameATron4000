@@ -10,13 +10,13 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/bin/Debug/netcoreapp2.0/GameATron4000.dll",
+            "program": "${workspaceFolder}/src/bin/Debug/netcoreapp2.1/GameATron4000.dll",
             "args": [],
-            "cwd": "${workspaceFolder}",
+            "cwd": "${workspaceFolder}/src",
             "stopAtEntry": false,
             "internalConsoleOptions": "openOnSessionStart",
             "launchBrowser": {
-                "enabled": false,
+                "enabled": true,
                 "args": "${auto-detect-url}",
                 "windows": {
                     "command": "cmd.exe",

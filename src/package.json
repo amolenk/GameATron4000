@@ -1,0 +1,27 @@
+{
+  "name": "game-a-tron-4000",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "webpack --mode=development",
+    "release": "webpack --mode=production",
+    "publish": "npm run release && dotnet publish -c Release"
+  },
+  "private": true,
+  "dependencies": {
+    "botframework-directlinejs": "0.9.11",
+    "phaser": "2.6.2"
+  },
+  "devDependencies": {
+    "@types/webpack-env": "^1.13.6",
+    "aspnet-webpack": "^3.0.0",
+    "css-loader": "^1.0.0",
+    "style-loader": "^0.23.0",
+    "ts-loader": "^4.4.1",
+    "typescript": "^3.0.3",
+    "uglifyjs-webpack-plugin": "^2.0.1",
+    "webpack": "^4.19.1",
+    "webpack-cli": "^3.1.1",
+    "webpack-dev-middleware": "^3.3.0",
+    "webpack-hot-middleware": "^2.24.2"
+  }
+}
