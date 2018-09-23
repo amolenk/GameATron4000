@@ -69,6 +69,6 @@ Thumbs.db
 packages
 
 # dist
-/wwwroot/dist
+/src/wwwroot/dist
 
 /src/settings-secrets.ts
