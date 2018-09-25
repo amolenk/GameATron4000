@@ -7,6 +7,7 @@ using Microsoft.Bot.Builder.Integration.AspNet.Core;
 using Microsoft.Bot.Builder.Core.Extensions;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.SpaServices.Webpack;
+using Microsoft.AspNetCore.Mvc;
 
 namespace GameATron4000
 {
@@ -37,6 +38,8 @@ namespace GameATron4000
 
             //     options.Middleware.Add(new ConversationState<Dictionary<string, object>>(dataStore, settings));
             // });
+
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -51,8 +54,11 @@ namespace GameATron4000
                 });
             }
 
-            app.UseDefaultFiles();
+//            app.UseHttpsRedirection();
+            //app.UseDefaultFiles();
             app.UseStaticFiles();
+
+            app.UseMvc();
 
             // app.UseBotFramework();
         }
