@@ -2,5 +2,31 @@
     "InitialRoom": "park",
     "SupportsGui": true,
     "PlayerAvatar": "Guy",
-    "BadCommandResponses": [ "Sorry, you can't do that." ]
+    "BadCommandResponses": [ "Sorry, you can't do that." ],
+    "Assets": [
+        { "Key": "room-park", "Url": "/assets/backgrounds/park.png" },
+        { "Key": "room-ufo", "Url": "../assets/backgrounds/ufo.png" },
+        { "Key": "room-beach", "Url": "../assets/backgrounds/beach.png" },
+        { "Key": "object-fridge-closed", "Url": "../assets/objects/fridge-closed.png" },
+        { "Key": "object-fridge-open-empty", "Url": "../assets/objects/fridge-open-empty.png" },
+        { "Key": "object-fridge-open-full", "Url": "../assets/objects/fridge-open-full.png" },
+        { "Key": "object-grocerylist", "Url": "../assets/objects/grocerylist.png" },
+        { "Key": "object-newspaper", "Url": "../assets/objects/newspaper.png" },
+        { "Key": "object-todolist", "Url": "../assets/objects/todolist.png" },
+        { "Key": "object-tractorbeam", "Url": "../assets/objects/tractorbeam.png" },
+        { "Key": "inventory-newspaper", "Url": "../assets/inventory/newspaper.png" },
+        { "Key": "inventory-groceries", "Url": "../assets/inventory/groceries.png" },
+        { "Key": "inventory-todolist", "Url": "../assets/inventory/todolist.png" },
+        { "Key": "inventory-grocerylist", "Url": "../assets/inventory/grocerylist.png" },
+        { "Key": "closeup-newspaper", "Url": "../assets/closeups/newspaper.png" },
+        { "Key": "actor-player", "Url": "../assets/actors/guyscotthrie-talk.png", "FrameWidth": 69, "FrameHeight": 141 },
+        { "Key": "actor-player-walk", "Url": "../assets/actors/guyscotthrie-walk.png", "FrameWidth": 69, "FrameHeight": 144 },
+        { "Key": "actor-player-back", "Url": "../assets/actors/guyscotthrie-back.png" },
+        { "Key": "actor-al", "Url": "../assets/actors/al-talk.png", "FrameWidth": 66, "FrameHeight": 147 },
+        { "Key": "actor-al-walk", "Url": "../assets/actors/al-walk.png", "FrameWidth": 96, "FrameHeight": 150 },
+        { "Key": "actor-al-back", "Url": "../assets/actors/al-back.png" },
+        { "Key": "actor-ian", "Url": "../assets/actors/ian-talk.png", "FrameWidth": 66, "FrameHeight": 147 },
+        { "Key": "actor-ian-walk", "Url": "../assets/actors/ian-walk.png", "FrameWidth": 96, "FrameHeight": 150 },
+        { "Key": "actor-ian-back", "Url": "../assets/actors/ian-back.png" }
+    ]
 }

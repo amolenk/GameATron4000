@@ -2,6 +2,8 @@
 
 import '../css/site.css'
 const CursorImage = require('./images/cursor.png')
+const VerbsImage = require('./images/verbs.png')
+const VerbsImageData = require('./images/verbs.json')
 
 import { Assets } from "./assets"
 import { BotClient } from "./botclient"
@@ -37,6 +39,7 @@ class GameATron {
     private preload() {
 
         this.game.load.spritesheet("cursor", CursorImage, 58, 58);
+        this.game.load.atlas("verbs", VerbsImage, null, VerbsImageData);
 
         Assets.preload(this.game);
     }

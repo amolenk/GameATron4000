@@ -1,0 +1,118 @@
+{
+"frames": [
+	{
+		"filename": "01_give.png",
+		"frame": {"x":202, "y":246, "w":100, "h":40},
+		"spriteSourceSize": {"x":0,"y":0,"w":100,"h":40},
+		"sourceSize": {"w":100,"h":40}
+	},
+	{
+		"filename": "01_give_sel.png",
+		"frame": {"x":161, "y":205, "w":100, "h":40},
+		"spriteSourceSize": {"x":0,"y":0,"w":100,"h":40},
+		"sourceSize": {"w":100,"h":40}
+	},
+	{
+		"filename": "02_pickup.png",
+		"frame": {"x":0, "y":205, "w":160, "h":40},
+		"spriteSourceSize": {"x":0,"y":0,"w":160,"h":40},
+		"sourceSize": {"w":160,"h":40}
+	},
+	{
+		"filename": "02_pickup_sel.png",
+		"frame": {"x":0, "y":164, "w":160, "h":40},
+		"spriteSourceSize": {"x":0,"y":0,"w":160,"h":40},
+		"sourceSize": {"w":160,"h":40}
+	},
+	{
+		"filename": "03_use.png",
+		"frame": {"x":161, "y":82, "w":100, "h":40},
+		"spriteSourceSize": {"x":0,"y":0,"w":100,"h":40},
+		"sourceSize": {"w":100,"h":40}
+	},
+	{
+		"filename": "03_use_sel.png",
+		"frame": {"x":161, "y":123, "w":100, "h":40},
+		"spriteSourceSize": {"x":0,"y":0,"w":100,"h":40},
+		"sourceSize": {"w":100,"h":40}
+	},
+	{
+		"filename": "04_open.png",
+		"frame": {"x":161, "y":0, "w":100, "h":40},
+		"spriteSourceSize": {"x":0,"y":0,"w":100,"h":40},
+		"sourceSize": {"w":100,"h":40}
+	},
+	{
+		"filename": "04_open_sel.png",
+		"frame": {"x":161, "y":41, "w":100, "h":40},
+		"spriteSourceSize": {"x":0,"y":0,"w":100,"h":40},
+		"sourceSize": {"w":100,"h":40}
+	},
+	{
+		"filename": "05_lookat.png",
+		"frame": {"x":0, "y":0, "w":160, "h":40},
+		"spriteSourceSize": {"x":0,"y":0,"w":160,"h":40},
+		"sourceSize": {"w":160,"h":40}
+	},
+	{
+		"filename": "05_lookat_sel.png",
+		"frame": {"x":0, "y":41, "w":160, "h":40},
+		"spriteSourceSize": {"x":0,"y":0,"w":160,"h":40},
+		"sourceSize": {"w":160,"h":40}
+	},
+	{
+		"filename": "06_push.png",
+		"frame": {"x":101, "y":246, "w":100, "h":40},
+		"spriteSourceSize": {"x":0,"y":0,"w":100,"h":40},
+		"sourceSize": {"w":100,"h":40}
+	},
+	{
+		"filename": "06_push_sel.png",
+		"frame": {"x":0, "y":287, "w":100, "h":40},
+		"spriteSourceSize": {"x":0,"y":0,"w":100,"h":40},
+		"sourceSize": {"w":100,"h":40}
+	},
+	{
+		"filename": "07_close.png",
+		"frame": {"x":101, "y":287, "w":100, "h":40},
+		"spriteSourceSize": {"x":0,"y":0,"w":100,"h":40},
+		"sourceSize": {"w":100,"h":40}
+	},
+	{
+		"filename": "07_close_sel.png",
+		"frame": {"x":0, "y":246, "w":100, "h":40},
+		"spriteSourceSize": {"x":0,"y":0,"w":100,"h":40},
+		"sourceSize": {"w":100,"h":40}
+	},
+	{
+		"filename": "08_talkto.png",
+		"frame": {"x":0, "y":82, "w":160, "h":40},
+		"spriteSourceSize": {"x":0,"y":0,"w":160,"h":40},
+		"sourceSize": {"w":160,"h":40}
+	},
+	{
+		"filename": "08_talkto_sel.png",
+		"frame": {"x":0, "y":123, "w":160, "h":40},
+		"spriteSourceSize": {"x":0,"y":0,"w":160,"h":40},
+		"sourceSize": {"w":160,"h":40}
+	},
+	{
+		"filename": "09_pull.png",
+		"frame": {"x":202, "y":287, "w":100, "h":40},
+		"spriteSourceSize": {"x":0,"y":0,"w":100,"h":40},
+		"sourceSize": {"w":100,"h":40}
+	},
+	{
+		"filename": "09_pull_sel.png",
+		"frame": {"x":161, "y":164, "w":100, "h":40},
+		"spriteSourceSize": {"x":0,"y":0,"w":100,"h":40},
+		"sourceSize": {"w":100,"h":40}
+	}
+
+],
+"meta": {
+	"image": "main.png",
+	"size": {"w": 303, "h": 328},
+	"scale": "1"
+}
+}
