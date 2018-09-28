@@ -1,12 +1,14 @@
 const path = require('path');
+const CleanWebpackPlugin = require('clean-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 
 module.exports = {
-  entry: { 'main': './wwwroot/src/app.ts' },
+  entry: { 'main': './ClientApp/app.ts' },
   output: {
     path: path.resolve(__dirname, 'wwwroot/dist'),
     filename: 'bundle.js',
-    publicPath: 'dist/'
+    publicPath: '/'
   },
   module: {
     rules: [ 
@@ -28,6 +30,16 @@ module.exports = {
   optimization: {
     minimizer: [new UglifyJsPlugin()]
   },
+  plugins: [
+    new CleanWebpackPlugin('dist'),
+    new CopyWebpackPlugin([
+      {
+        from: './Games/*/assets/*/*.png',
+        to: 'games/[1]/[2]/[3].png',
+        test: /Games\/(.*?)\/assets\/(.*?)\/(.*?)\.png/
+      }
+    ])
+  ],
   resolve: {
     extensions: [ '.tsx', '.ts', '.js' ]
   }

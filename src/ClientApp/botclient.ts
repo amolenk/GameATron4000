@@ -1,10 +1,10 @@
-/// <reference path="../../node_modules/phaser/typescript/phaser.d.ts" />
-/// <reference path="../../node_modules/rx/ts/rx.d.ts" />
+/// <reference path="../node_modules/phaser/typescript/phaser.d.ts" />
+/// <reference path="../node_modules/rx/ts/rx.d.ts" />
 
 import { Action } from "./action"
-import { Activity, DirectLine } from "../../node_modules/botframework-directlinejs/built/directline";
+import { Activity, DirectLine } from "../node_modules/botframework-directlinejs/built/directline";
 import { Settings } from "./settings"
-import "../../node_modules/rxjs/add/operator/concatMap";
+import "../node_modules/rxjs/add/operator/concatMap";
 
 export class BotClient {
 

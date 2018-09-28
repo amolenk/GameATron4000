@@ -1,4 +1,4 @@
-/// <reference path="../../node_modules/phaser/typescript/phaser.d.ts" />
+/// <reference path="../node_modules/phaser/typescript/phaser.d.ts" />
 
 import { Actor } from "./actor"
 import { BotClient } from "./botclient"

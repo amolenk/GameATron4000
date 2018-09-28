@@ -1,9 +1,9 @@
-/// <reference path="../../node_modules/phaser/typescript/phaser.d.ts" />
+/// <reference path="../node_modules/phaser/typescript/phaser.d.ts" />
 
-import '../css/site.css'
-const CursorImage = require('./images/cursor.png')
-const VerbsImage = require('./images/verbs.png')
-const VerbsImageData = require('./images/verbs.json')
+import './styles/site.css'
+const CursorImage = require('./assets/cursor.png')
+const VerbsImage = require('./assets/verbs.png')
+const VerbsImageData = require('./assets/verbs.json')
 
 import { Assets } from "./assets"
 import { BotClient } from "./botclient"

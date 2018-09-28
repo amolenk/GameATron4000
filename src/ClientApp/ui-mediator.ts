@@ -1,5 +1,5 @@
-/// <reference path="../../node_modules/phaser/typescript/phaser.d.ts" />
-/// <reference path="../../node_modules/rx/ts/rx.d.ts" />
+/// <reference path="../node_modules/phaser/typescript/phaser.d.ts" />
+/// <reference path="../node_modules/rx/ts/rx.d.ts" />
 
 import { Action } from "./action"
 import { ActionUI } from "./ui-action"

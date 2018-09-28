@@ -1,4 +1,4 @@
-/// <reference path="../../node_modules/phaser/typescript/phaser.d.ts" />
+/// <reference path="../node_modules/phaser/typescript/phaser.d.ts" />
 
 declare var GameAssets: any;
 

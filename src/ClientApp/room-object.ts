@@ -1,5 +1,5 @@
-/// <reference path="../../node_modules/phaser/typescript/phaser.d.ts" />
-/// <reference path="../../node_modules/typescript/lib/lib.es6.d.ts" />
+/// <reference path="../node_modules/phaser/typescript/phaser.d.ts" />
+/// <reference path="../node_modules/typescript/lib/lib.es6.d.ts" />
 
 import { UIMediator } from "./ui-mediator"
 
