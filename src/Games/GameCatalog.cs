@@ -4,6 +4,8 @@ using GameATron4000.Dialogs;
 using GameATron4000.Models;
 using Microsoft.Bot.Builder.Dialogs;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System.Linq;
 
 namespace GameATron4000.Games
 {
@@ -27,6 +29,7 @@ namespace GameATron4000.Games
         public GameInfo LoadGame(string name)
         {
             var gameDir = Path.Combine(_baseDir, name);
+            var roomsDir = Path.Combine(gameDir, "rooms");
             var roomParser = new RoomParser();
             var dialogTreeParser = new DialogTreeParser();
 
@@ -35,18 +38,19 @@ namespace GameATron4000.Games
             var info = JsonConvert.DeserializeObject<GameInfo>(infoJson);
             info.Dialogs = new DialogSet();
 
-            foreach (var roomDir in Directory.GetDirectories(Path.Combine(gameDir, "rooms")))
+            foreach (var room in info.Rooms)
             {
+                var roomDir = Path.Combine(roomsDir, room.Id);
                 var commands = roomParser.Parse(Path.Combine(roomDir, "script.rm"));
+                
+                info.Dialogs.Add(Path.GetFileName(roomDir), new Room(room, commands));
 
-                info.Dialogs.Add(Path.GetFileName(roomDir), new Room(commands));
+                // foreach (var dialogTreePath in Directory.GetFiles(roomDir, "*.dt"))
+                // {
+                //     var rootNode = dialogTreeParser.Parse(dialogTreePath);
 
-                foreach (var dialogTreePath in Directory.GetFiles(roomDir, "*.dt"))
-                {
-                    var rootNode = dialogTreeParser.Parse(dialogTreePath);
-
-                    info.Dialogs.Add(Path.GetFileNameWithoutExtension(dialogTreePath), new DialogTree(rootNode));
-                }
+                //     info.Dialogs.Add(Path.GetFileNameWithoutExtension(dialogTreePath), new DialogTree(rootNode));
+                // }
             }
 
             return info;

@@ -1,32 +1,53 @@
 {
     "InitialRoom": "park",
     "SupportsGui": true,
-    "PlayerAvatar": "Guy",
+    "PlayerActor": "guy",
     "BadCommandResponses": [ "Sorry, you can't do that." ],
+    "Rooms": [
+        {
+            "id": "park",
+            "actors": [
+                { "id": "guy", "description": "Guy Scotthrie", "x": 600, "y": 430 }
+            ],
+            "inventoryItems": [
+                { "id": "groceries", "description": "bag of groceries" }
+            ],
+            "objects": [
+                { "id": "newspaper", "description": "newspaper", "x": 362, "y": 400 }
+            ]
+        },
+        {
+            "id": "ufo",
+            "actors": [
+                { "id": "al", "description": "Al", "textColor": "#92F6F0" },
+                { "id": "ian", "description": "Ian", "textColor": "Yellow" }
+            ]
+        }
+    ],
     "Assets": [
-        { "Key": "room-park", "Url": "/assets/backgrounds/park.png" },
-        { "Key": "room-ufo", "Url": "/assets/backgrounds/ufo.png" },
-        { "Key": "room-beach", "Url": "/assets/backgrounds/beach.png" },
-        { "Key": "object-fridge-closed", "Url": "/assets/objects/fridge-closed.png" },
-        { "Key": "object-fridge-open-empty", "Url": "/assets/objects/fridge-open-empty.png" },
-        { "Key": "object-fridge-open-full", "Url": "/assets/objects/fridge-open-full.png" },
-        { "Key": "object-grocerylist", "Url": "/assets/objects/grocerylist.png" },
-        { "Key": "object-newspaper", "Url": "/assets/objects/newspaper.png" },
-        { "Key": "object-todolist", "Url": "/assets/objects/todolist.png" },
-        { "Key": "object-tractorbeam", "Url": "/assets/objects/tractorbeam.png" },
-        { "Key": "inventory-newspaper", "Url": "/assets/inventory/newspaper.png" },
-        { "Key": "inventory-groceries", "Url": "/assets/inventory/groceries.png" },
-        { "Key": "inventory-todolist", "Url": "/assets/inventory/todolist.png" },
-        { "Key": "inventory-grocerylist", "Url": "/assets/inventory/grocerylist.png" },
-        { "Key": "closeup-newspaper", "Url": "/assets/closeups/newspaper.png" },
-        { "Key": "actor-player", "Url": "/assets/actors/guyscotthrie-talk.png", "FrameWidth": 69, "FrameHeight": 141 },
-        { "Key": "actor-player-walk", "Url": "/assets/actors/guyscotthrie-walk.png", "FrameWidth": 69, "FrameHeight": 144 },
-        { "Key": "actor-player-back", "Url": "/assets/actors/guyscotthrie-back.png" },
-        { "Key": "actor-al", "Url": "/assets/actors/al-talk.png", "FrameWidth": 66, "FrameHeight": 147 },
-        { "Key": "actor-al-walk", "Url": "/assets/actors/al-walk.png", "FrameWidth": 96, "FrameHeight": 150 },
-        { "Key": "actor-al-back", "Url": "/assets/actors/al-back.png" },
-        { "Key": "actor-ian", "Url": "/assets/actors/ian-talk.png", "FrameWidth": 66, "FrameHeight": 147 },
-        { "Key": "actor-ian-walk", "Url": "/assets/actors/ian-walk.png", "FrameWidth": 96, "FrameHeight": 150 },
-        { "Key": "actor-ian-back", "Url": "/assets/actors/ian-back.png" }
+        { "Key": "room-park", "Url": "/backgrounds/park.png" },
+        { "Key": "room-ufo", "Url": "/backgrounds/ufo.png" },
+        { "Key": "room-beach", "Url": "/backgrounds/beach.png" },
+        { "Key": "object-fridge-closed", "Url": "/objects/fridge-closed.png" },
+        { "Key": "object-fridge-open-empty", "Url": "/objects/fridge-open-empty.png" },
+        { "Key": "object-fridge-open-full", "Url": "/objects/fridge-open-full.png" },
+        { "Key": "object-grocerylist", "Url": "/objects/grocerylist.png" },
+        { "Key": "object-newspaper", "Url": "/objects/newspaper.png" },
+        { "Key": "object-todolist", "Url": "/objects/todolist.png" },
+        { "Key": "object-tractorbeam", "Url": "/objects/tractorbeam.png" },
+        { "Key": "inventory-newspaper", "Url": "/inventory/newspaper.png" },
+        { "Key": "inventory-groceries", "Url": "/inventory/groceries.png" },
+        { "Key": "inventory-todolist", "Url": "/inventory/todolist.png" },
+        { "Key": "inventory-grocerylist", "Url": "/inventory/grocerylist.png" },
+        { "Key": "closeup-newspaper", "Url": "/closeups/newspaper.png" },
+        { "Key": "actor-guy", "Url": "/actors/guy-talk.png", "FrameWidth": 69, "FrameHeight": 141 },
+        { "Key": "actor-guy-walk", "Url": "/actors/guy-walk.png", "FrameWidth": 96, "FrameHeight": 144 },
+        { "Key": "actor-guy-back", "Url": "/actors/guy-back.png" },
+        { "Key": "actor-al", "Url": "/actors/al-talk.png", "FrameWidth": 66, "FrameHeight": 147 },
+        { "Key": "actor-al-walk", "Url": "/actors/al-walk.png", "FrameWidth": 96, "FrameHeight": 150 },
+        { "Key": "actor-al-back", "Url": "/actors/al-back.png" },
+        { "Key": "actor-ian", "Url": "/actors/ian-talk.png", "FrameWidth": 66, "FrameHeight": 147 },
+        { "Key": "actor-ian-walk", "Url": "/actors/ian-walk.png", "FrameWidth": 96, "FrameHeight": 150 },
+        { "Key": "actor-ian-back", "Url": "/actors/ian-back.png" }
     ]
 }

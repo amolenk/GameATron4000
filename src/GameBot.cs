@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -5,6 +6,7 @@ using System.Threading.Tasks;
 using GameATron4000.Dialogs;
 using GameATron4000.Games;
 using GameATron4000.Models;
+using GameATron4000.Models.Actions;
 using Microsoft.Bot;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Core.Extensions;
@@ -29,7 +31,7 @@ namespace GameATron4000
             {
                 foreach (var newMember in context.Activity?.MembersAdded)
                 {
-                    if (newMember.Id != context.Activity.Recipient.Id)
+                    if (newMember.Id == context.Activity.Recipient.Id)
                     {
                         var gameList = _gameCatalog.GetGameNames().ToList();
                         await context.SendActivity(MessageFactory.SuggestedActions(gameList, "Which game do you want to play?"));
@@ -56,6 +58,23 @@ namespace GameATron4000
                 if (dc.ActiveDialog == null)
                 {
                     // Start the game's first room.
+
+                    // TODO RoomInfo vs GameRoom???
+                    var roomInfo = game.Rooms.FirstOrDefault(g => g.Id == game.InitialRoom);
+                    if (roomInfo != null)
+                    {
+                        // TODO
+                        // var activities = new List<IActivity>();
+
+                        // foreach (var inventoryItem in roomInfo.InventoryItems)
+                        // {
+                        //     var addToInventoryAction = new AddToInventoryAction(inventoryItem.Id, inventoryItem.Description);
+                        //     addToInventoryAction.Execute(dc, activities, state, roomInfo);
+                        // }
+
+                        // await dc.Context.SendActivities(activities.ToArray());
+                    }
+
                     var rootDialog = game.InitialRoom;
                     await dc.Begin(rootDialog);
                 }

@@ -10,9 +10,11 @@ namespace GameATron4000.Models
 
         public bool SupportsGui { get; set; }
 
-        public string PlayerAvatar { get; set; }
+        public string PlayerActor { get; set; }
 
         public string[] BadCommandResponses { get; set; }
+
+        public GameRoom[] Rooms { get; set; }
 
         [JsonIgnore]
         public DialogSet Dialogs { get; set; }

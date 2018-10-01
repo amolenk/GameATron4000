@@ -27,7 +27,8 @@ export class Room {
         uiMediator: UIMediator,
         layers: Layers,
         objects?: any,
-        actors?: any) {
+        actors?: any,
+        inventoryItems?: any) {
         
         this.game = game;
         this.uiMediator = uiMediator;
@@ -36,19 +37,20 @@ export class Room {
         var background = this.game.add.sprite(0, 0, "room-" + this.name);
         this.layers.background.add(background);
 
-        if (objects) {
-            for (var objectData of objects) {
-                var object = new RoomObject("object-" + objectData.id, objectData.description);
-                this.addObject(object, objectData.x, objectData.y);
-            }
-        }
+        // TODO
+        // if (objects) {
+        //     for (var objectData of objects) {
+        //         var object = new RoomObject("object-" + objectData.id, objectData.description);
+        //         this.addObject(object, objectData.x, objectData.y);
+        //     }
+        // }
 
-        if (actors) {
-            for (var actorData of actors) {
-                var actor = new Actor("actor-" + actorData.id, actorData.description, actorData.textColor);
-                this.addActor(actor, actorData.x, actorData.y);
-            }
-        }
+        // if (actors) {
+        //     for (var actorData of actors) {
+        //         var actor = new Actor("actor-" + actorData.id, actorData.description, actorData.textColor);
+        //         this.addActor(actor, actorData.x, actorData.y);
+        //     }
+        // }
 
         this.narrator = new Narrator(game, layers);
         this.narrator.create();

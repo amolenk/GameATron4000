@@ -22,6 +22,9 @@ class GameATron {
     private uiMediator: UIMediator;
 
     constructor() {
+
+        console.log("Welcome to Game-a-Tron 4000 🤖")
+
         this.game = new Phaser.Game(
             800,
             600,
@@ -37,6 +40,8 @@ class GameATron {
     }
 
     private preload() {
+
+        console.log(CursorImage);
 
         this.game.load.spritesheet("cursor", CursorImage, 58, 58);
         this.game.load.atlas("verbs", VerbsImage, null, VerbsImageData);

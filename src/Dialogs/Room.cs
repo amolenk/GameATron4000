@@ -6,6 +6,7 @@ using GameATron4000.Models;
 using Microsoft.Bot.Builder.Core.Extensions;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Schema;
+using Newtonsoft.Json.Linq;
 
 namespace GameATron4000.Dialogs
 {
@@ -20,17 +21,23 @@ namespace GameATron4000.Dialogs
         };
 
         private readonly Random _random;
+        private readonly GameRoom _roomDefinition;
         private readonly List<Command> _commands;
 
-        public Room(List<Command> commands)
+        public Room(GameRoom roomDefinition, List<Command> commands)
         {
             _random = new Random();
+            _roomDefinition = roomDefinition;
             _commands = commands;
         }
 
         public async Task DialogBegin(DialogContext dc, IDictionary<string, object> dialogArgs = null)
         {
             if (dc == null) throw new ArgumentNullException(nameof(dc));
+
+            // Send a RoomEntered event to the client so the GUI can show the images for the room.
+            var roomEnteredActivity = CreateEventActivity(dc, "RoomEntered", _roomDefinition.ToJObject());
+            await dc.Context.SendActivity(roomEnteredActivity);
 
             if (dc.Context.Activity.Type == ActivityTypes.Message)
             {
@@ -57,7 +64,7 @@ namespace GameATron4000.Dialogs
             object onResumeActions = null;
             if (state.Remove("actionStack", out onResumeActions))
             {
-                await ExecuteActions(dc, (List<Models.Action>)onResumeActions);
+                await ExecuteActions(dc, (List<RoomAction>)onResumeActions);
             }
         }
 
@@ -98,74 +105,73 @@ namespace GameATron4000.Dialogs
             }
         }
 
-        private async Task ExecuteActions(DialogContext dc, IEnumerable<Models.Action> actions)
+        private async Task ExecuteActions(DialogContext dc, IEnumerable<RoomAction> actions)
         {
             if (dc == null) throw new ArgumentNullException(nameof(dc));
 
             var activities = new List<IActivity>();
-            var updatedFlags = new Dictionary<string, bool>();
+            var updatedFlags = new Dictionary<string, object>();
 
             var state = dc.Context.GetConversationState<Dictionary<string, object>>();
-            var actionStack = new Stack<Models.Action>(actions.Reverse());
+            var actionStack = new Stack<RoomAction>(actions.Reverse());
 
-            Models.Action action;
+            RoomAction action;
             while (actionStack.TryPop(out action))
             {
-                if (action.Name == Models.Action.TalkTo)
+                var nextDialogId = action.Execute(dc, activities, updatedFlags, _roomDefinition);
+                if (!string.IsNullOrEmpty(nextDialogId))
                 {
                     if (activities.Any())
                     {
                         await dc.Context.SendActivities(activities.ToArray());
                     }
 
+                    // TODO Make sure we don't loose the updated flags!!!
+
                     // Stacks don't serialize in the correct order.
                     // See https://github.com/JamesNK/Newtonsoft.Json/issues/971.
                     state["actionStack"] = actionStack.ToList();
 
-                    await dc.Begin(action.Args[0]);
+                    await dc.Begin(nextDialogId);
                     return;
-                }
-
-                switch (action.Name)
-                {
-                    case Models.Action.AddToInventory:
-                        // Don't update the state directly, because the behaviour of other actions may
-                        // still depend on the original state.
-                        updatedFlags[action.Args[0]] = true;
-                        break;
-
-                    case Models.Action.Speak:
-                        activities.Add(MessageFactory.Text($"{action.Args[1]} > {action.Args[0]}"));
-                        break;
-
-                    case Models.Action.TextDescribe:
-                        activities.Add(MessageFactory.Text(action.Args[0]));
-                        break;
                 }
             }
 
             // Commit the temporary updated flags dictionary to the actual state object.
             UpdateState(state, updatedFlags);
 
+            // Add an Idle activity to let the GUI know that we're waiting for user interaction.
+            // TODO Use action for this???
+            activities.Add(CreateEventActivity(dc, "Idle"));
+
             await dc.Context.SendActivities(activities.ToArray());
         }
 
-        private void UpdateState(Dictionary<string, object> state, Dictionary<string, bool> updatedFlags)
+        private void UpdateState(Dictionary<string, object> state, Dictionary<string, object> updatedFlags)
         {
             foreach (var updatedFlag in updatedFlags)
             {
                 var key = "flag_" + updatedFlag.Key;
                 var flagIsSet = state.ContainsKey(key);
 
-                if (flagIsSet && !updatedFlag.Value)
+                if (flagIsSet && !((bool)updatedFlag.Value))
                 {
                     state.Remove(key);
                 }
-                else if (!flagIsSet && updatedFlag.Value)
+                else if (!flagIsSet && ((bool)updatedFlag.Value))
                 {
                     state.Add(key, true);
                 }
             }
+        }
+
+        private static Activity CreateEventActivity(DialogContext dc, string name, JObject properties = null)
+        {
+            var eventActivity = dc.Context.Activity.CreateReply();
+            eventActivity.Type = "event";
+            eventActivity.Name = name;
+            eventActivity.Properties = properties;
+            return eventActivity;
         }
     }
 }

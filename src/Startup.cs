@@ -13,31 +13,31 @@ namespace GameATron4000
 {
     public class Startup
     {
-        // public Startup(IHostingEnvironment env)
-        // {
-        //     var builder = new ConfigurationBuilder()
-        //         .SetBasePath(env.ContentRootPath)
-        //         .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-        //         .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
-        //         .AddEnvironmentVariables();
+        public Startup(IHostingEnvironment env)
+        {
+            var builder = new ConfigurationBuilder()
+                .SetBasePath(env.ContentRootPath)
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
+                .AddEnvironmentVariables();
 
-        //     Configuration = builder.Build();
-        // }
+            Configuration = builder.Build();
+        }
 
-        // public IConfiguration Configuration { get; }
+        public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            // services.AddBot<GameBot>(options =>
-            // {
-            //     options.CredentialProvider = new ConfigurationCredentialProvider(Configuration);
+            services.AddBot<GameBot>(options =>
+            {
+                options.CredentialProvider = new ConfigurationCredentialProvider(Configuration);
 
-            //     IStorage dataStore = new MemoryStorage();
-            //     StateSettings settings = new StateSettings();
+                IStorage dataStore = new MemoryStorage();
+                StateSettings settings = new StateSettings();
 
-            //     options.Middleware.Add(new ConversationState<Dictionary<string, object>>(dataStore, settings));
-            // });
+                options.Middleware.Add(new ConversationState<Dictionary<string, object>>(dataStore, settings));
+            });
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
@@ -55,12 +55,10 @@ namespace GameATron4000
             }
 
 //            app.UseHttpsRedirection();
-            //app.UseDefaultFiles();
             app.UseStaticFiles();
 
             app.UseMvc();
-
-            // app.UseBotFramework();
+            app.UseBotFramework();
         }
     }
 }

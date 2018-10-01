@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using GameATron4000.Models;
+using GameATron4000.Models.Actions;
 
 namespace GameATron4000.Games
 {
@@ -28,7 +29,7 @@ namespace GameATron4000.Games
             var lines = File.ReadAllLines(path);
 
             string commandText = string.Empty;
-            List<Action> actions = new List<Action>();
+            List<RoomAction> actions = new List<RoomAction>();
             List<Precondition> commandPreconditions = null;
             List<Precondition> actionPreconditions = null;
 
@@ -73,7 +74,7 @@ namespace GameATron4000.Games
                     }
 
                     commandText = match.Groups["text"].Value.Trim();
-                    actions = new List<Action>();
+                    actions = new List<RoomAction>();
                     continue;
                 }
                 else if (commandText.Length == 0)
@@ -84,9 +85,10 @@ namespace GameATron4000.Games
                 match = _actionExpression.Match(line);
                 if (match.Success)
                 {
+                    // TODO Shouldn't preconditions be added here?
                     actions.Add(new ActionBuilder()
                         .WithName(match.Groups["name"].Value)
-                        .WithArguments(match.Groups["args"].Captures.Select(c => c.Value.Trim('"')))
+                        .WithArguments(match.Groups["args"].Captures.Select(c => c.Value.Trim('"', ' ')))
                         .Build());
                     continue;
                 }
@@ -94,12 +96,10 @@ namespace GameATron4000.Games
                 match = _speakExpression.Match(line);
                 if (match.Success)
                 {
-                    actions.Add(new ActionBuilder()
-                        .WithName(Action.Speak)
-                        .WithArgument(match.Groups["text"].Value.Trim())
-                        .WithArgument(match.Groups["actor"].Value)
-                        .WithPreconditions(actionPreconditions)
-                        .Build());
+                    actions.Add(new SpeakAction(
+                        match.Groups["text"].Value.Trim(),
+                        match.Groups["actor"].Value,
+                        actionPreconditions));
                     continue;
                 }
 
@@ -110,7 +110,7 @@ namespace GameATron4000.Games
                         result.Add(new Command(commandText, actions, commandPreconditions));
 
                         commandText = string.Empty;
-                        actions = new List<Action>();
+                        actions = new List<RoomAction>();
                         commandPreconditions = null;
                     }
                     continue;

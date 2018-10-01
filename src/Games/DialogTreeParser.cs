@@ -1,8 +1,10 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using GameATron4000.Models.Actions;
 using GameATron4000.Models;
 
 namespace GameATron4000.Games
@@ -31,7 +33,7 @@ namespace GameATron4000.Games
         private DialogTreeNode ParseStep(TextReader reader, ParsingContext context, int? parentId = null, int indentLevel = 0)
         {
             var nodeId = context.NodeId++;
-            var actions = new List<Action>();
+            var actions = new List<RoomAction>();
             var subSteps = new Dictionary<string, DialogTreeNode>();
 
             context.LineIndentSize = ReadIndentation(reader);
@@ -57,11 +59,7 @@ namespace GameATron4000.Games
                     match = _speakExpression.Match(line);
                     if (match.Success)
                     {
-                        actions.Add(new ActionBuilder()
-                            .WithName(Action.Speak)
-                            .WithArgument(match.Groups["text"].Value.Trim())
-                            .WithArgument(match.Groups["actor"].Value)
-                            .Build());
+                        actions.Add(new SpeakAction(match.Groups["text"].Value.Trim(), match.Groups["actor"].Value));
 
                         context.LineIndentSize = ReadIndentation(reader);
                         continue;
@@ -74,17 +72,19 @@ namespace GameATron4000.Games
                             .WithName(match.Groups["name"].Value)
                             .WithArguments(match.Groups["args"].Captures.Select(c => c.Value.Trim('"')));
 
-                        if (actionBuilder.IsValid())
-                        {
+                        // TODO
+                        // if (actionBuilder.IsValid())
+                        // {
                             actions.Add(actionBuilder.Build());
 
                             context.LineIndentSize = ReadIndentation(reader);
                             continue;
-                        }
-                        else
-                        {
-                            throw new IOException($"Parse error at line {context.LineNumber}: Unsupported action.");
-                        }
+                        // }
+                        // else
+                        // {
+                            // TODO THIS:::
+                        //     throw new IOException($"Parse error at line {context.LineNumber}: Unsupported action.");
+                        // }
                     }
                 }
 

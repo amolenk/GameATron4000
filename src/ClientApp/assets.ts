@@ -8,10 +8,10 @@ export class Assets {
 
         for (let asset of GameAssets) {
 
-            if (asset.FrameWidth && asset.FrameHeight) {
-                game.load.spritesheet(asset.Key, asset.Url, asset.FrameWidth, asset.FrameHeight);
+            if (asset.frameWidth && asset.frameHeight) {
+                game.load.spritesheet(asset.key, asset.url, asset.frameWidth, asset.frameHeight);
             } else {
-                game.load.image(asset.Key, asset.Url);
+                game.load.image(asset.key, asset.url);
             }
         }
     }

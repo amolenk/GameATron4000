@@ -1,0 +1,23 @@
+{
+    "name": "GameATron4000",
+    "description": "",
+    "secretKey": "",
+    "services": [
+        {
+            "id": "232",
+            "name": "GameATron4000",
+            "type": "endpoint",
+            "appId": "b0de18a0-3219-4ef1-b4a7-f144e26fa92f",
+            "appPassword": "axelNUXP7771*bizBCA7!]|",
+            "endpoint": "http://localhost:5000/api/messages"
+        },
+        {
+            "type": "abs",
+            "name": "Game-A-Tron 4000",
+            "id": "GameATron4000",
+            "tenantId": "c916455d-ec0d-4d68-8fa7-3d0f896c6e3f",
+            "subscriptionId": "3cabbfa5-126e-4dc3-b68d-1d7fd2ad4583",
+            "resourceGroup": "GameATron4000"
+        }
+    ]
+}

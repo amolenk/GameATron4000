@@ -4,7 +4,7 @@ namespace GameATron4000.Models
 {
     public class DialogTreeNode
     {
-        public DialogTreeNode(int id, List<Action> actions, int? parentId, Dictionary<string, DialogTreeNode> childNodes)
+        public DialogTreeNode(int id, List<RoomAction> actions, int? parentId, Dictionary<string, DialogTreeNode> childNodes)
         {
             this.Id = id;
             this.Actions = actions;
@@ -14,7 +14,7 @@ namespace GameATron4000.Models
 
         public int Id { get; }
 
-        public IEnumerable<Action> Actions { get; }
+        public IEnumerable<RoomAction> Actions { get; }
 
         public int? ParentId { get; }
 

@@ -20,23 +20,29 @@ export class BotClient {
 
     public connect(onMessage: Function, onEvent: Function) {
 
-        console.log("Connecting to Botty McBot...");
-        
         this.directLine.activity$
             .filter(activity => (activity.type === "message" || activity.type === "event") && activity.from.id === Settings.BOT_ID)
             .concatMap(async x => {
 
                 var activity = <any>x;
 
+                console.log("🤖 " + this.activityToString(activity));
                 console.log(activity);
+                
 
-                if (activity.roomId) {
+                //TODO
+                if (!this.conversationId) {
                     this.conversationId = activity.conversation.id;
                 }
 
                 if (activity.type == "message")
                 {
-                    await onMessage(activity);
+                    if (activity.text == "Which game do you want to play?") {
+                        // TODO
+                        this.sendMessageToBot("ReturnOfTheBodySnatchers");
+                    } else {
+                        await onMessage(activity);
+                    }
                 }
                 else if (activity.type == "event")
                 {
@@ -44,6 +50,8 @@ export class BotClient {
                 }
             })
             .subscribe();
+
+        console.log("Subscribed to 🤖")
     }
 
     public async sendActionToBot(action: Action) {
@@ -55,7 +63,7 @@ export class BotClient {
 
     public async sendMessageToBot(text: string) {
         
-        console.log("Player: " + text);
+        console.log("👩‍💻 " + text);
 
         this.directLine.postActivity({
             from: { id: this.conversationId },
@@ -63,5 +71,53 @@ export class BotClient {
             text: text
         })        
         .subscribe();
+    }
+
+    private activityToString(activity: any) {
+
+        var result = activity.type;
+        var properties = [];
+
+        if (activity.name) {
+            properties.push({ name: 'name', value: activity.name })
+        }
+
+        if (activity.actorId) {
+            properties.push({ name: 'actorId', value: activity.actorId })
+        }
+
+        if (activity.inventoryItemId) {
+            properties.push({ name: 'inventoryItemId', value: activity.inventoryItemId })
+        }
+
+        if (activity.objectId) {
+            properties.push({ name: 'objectId', value: activity.objectId })
+        }
+
+        if (activity.text) {
+            properties.push({ name: 'text', value: activity.text })
+        }
+
+        if (activity.description) {
+            properties.push({ name: 'description', value: activity.description })
+        }
+
+        if (activity.roomId) {
+            properties.push({ name: 'roomId', value: activity.roomId })
+        }
+
+        if (activity.x) {
+            properties.push({ name: 'x', value: activity.x })
+        }
+
+        if (activity.y) {
+            properties.push({ name: 'y', value: activity.y })
+        }
+
+        if (properties.length > 0) {
+            return result + ' (' + properties.map((p : any) => p.name + '=' + p.value).join(', ') + ')';
+        }
+
+        return result;
     }
 }
