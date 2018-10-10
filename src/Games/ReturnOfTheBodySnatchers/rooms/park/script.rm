@@ -4,50 +4,43 @@ Player: <RoomEntered>
 [GUI:PlaceObject=newspaper "newspaper" 362 400]
 [Text:Describe="You enter the room"]
 
-player: look at guy scotthrie
-Narrator: It’s Guy Scotthrie, our fearless hero! 
-
-player: look at bag of groceries
-{!LookedAtGroceries}
-[SetFlag=LookedAtGroceries]
+Player: look at bag of groceries
 Guy: It's my shopping bag with groceries.
-Guy: There's even a bottle of Info Support Awesome Sauce™!
-{LookedAtGroceries}
-Guy: I've already looked at them! Nothing new!!!
+Guy: There's even a bottle of Info Support Awesome Sauce™ in there!
 
-player: look at grocery list
+Player: look at grocery list
 Guy: It's my grocery list!
 Guy: I've bought everything that's on it!
 
-player: use grocery list with groceries
+Player: look at guy scotthrie
+Narrator: It’s Guy Scotthrie, our fearless hero! 
+
+Player: use grocery list with groceries
 Guy: Yep, I’ve got everything on the list!
 
-player: use groceries with grocery list
+Player: use groceries with grocery list
 Guy: Yep, I’ve got everything on the list!
 
-player: pick up newspaper
-[GUI:MoveActor=Guy 400 430]
-{!newspaper}
-[AddToInventory=newspaper "old newspaper"]
-Guy: Got it!
+Player: look at newspaper
+Guy: It looks like an old newspaper!
+
+Player: pick up newspaper
 {newspaper}
 Guy: I've already picked that up!
-
-player: look at newspaper
 {!newspaper}
-[Text:Describe="You look at the newspaper with intense interest..."]
-Guy: It looks like an old newspaper!
-{newspaper}
-Guy: It's mine now!
-{}
-Guy: What's next?
-
-player: talk to al
-[TalkTo=al]
-Guy: And we're back again!
-
-player: look at list
-{!talkedAboutList}
-Guy: What list?
-{talkedAboutList}
-Guy: I need to find it first!
+[GUI:MoveActor=Guy 360 430]
+[GUI:RemoveObject=newspaper]
+[AddToInventory=newspaper "old newspaper"]
+Guy: It's yesterday's newspaper!
+[GUI:OpenCloseUp=newspaper]
+[GUI:Delay=4000]
+Narrator: Hmm, there seems to be a LOT of UFO sightings lately!
+[GUI:Delay=500]
+[GUI:CloseCloseUp=newspaper]
+Guy: What a bunch of nonsense!
+[GUI:Delay=1000]
+[GUI:PlaceObject=tractorbeam "" 360 225 true]
+[GUI:Delay=1000]
+Guy: Uh oh...
+[GUI:Delay=3000]
+[SwitchRoom=ufo]

@@ -7,23 +7,21 @@ using Newtonsoft.Json.Linq;
 
 namespace GameATron4000.Models.Actions
 {
-    public class SetFlagAction : RoomAction
+    public class SwitchRoomAction : RoomAction
     {
-        public const string Name = "SetFlag";
+        public const string Name = "SwitchRoom";
 
-        private readonly string _flagName;
+        private readonly string _roomId;
 
-        public SetFlagAction(List<string> args, Precondition[] preconditions)
+        public SwitchRoomAction(List<string> args, Precondition[] preconditions)
             : base(preconditions)
         {
-            _flagName = args[0];
+            _roomId = args[0];
         }
 
         public override string Execute(DialogContext dc, IList<IActivity> activities, IDictionary<string, object> state) {
 
-            state["flag_" + _flagName] = true;
-
-            return string.Empty;
+            return _roomId;
         }
     }
 }

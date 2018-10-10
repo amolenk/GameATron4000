@@ -25,7 +25,7 @@ namespace GameATron4000.Models.Actions
             _y = int.Parse(args[3]);
         }
 
-        public override string Execute(DialogContext dc, IList<IActivity> activities, IDictionary<string, object> state, GameRoom roomInfo) {
+        public override string Execute(DialogContext dc, IList<IActivity> activities, IDictionary<string, object> state) {
 
             activities.Add(CreateEventActivity(dc, "ActorPlacedInRoom", JObject.FromObject(new
             {

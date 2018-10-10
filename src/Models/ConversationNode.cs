@@ -2,9 +2,9 @@ using System.Collections.Generic;
 
 namespace GameATron4000.Models
 {
-    public class DialogTreeNode
+    public class ConversationNode
     {
-        public DialogTreeNode(int id, List<RoomAction> actions, int? parentId, Dictionary<string, DialogTreeNode> childNodes)
+        public ConversationNode(int id, List<RoomAction> actions, int? parentId, Dictionary<string, ConversationNode> childNodes)
         {
             this.Id = id;
             this.Actions = actions;
@@ -18,11 +18,11 @@ namespace GameATron4000.Models
 
         public int? ParentId { get; }
 
-        public Dictionary<string, DialogTreeNode> ChildNodes { get; }
+        public Dictionary<string, ConversationNode> ChildNodes { get; }
 
-        public DialogTreeNode Find(int nodeId)
+        public ConversationNode Find(int nodeId)
         {
-            DialogTreeNode result = null;
+            ConversationNode result = null;
 
             if (Id == nodeId)
             {

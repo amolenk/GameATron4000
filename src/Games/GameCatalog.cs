@@ -31,7 +31,7 @@ namespace GameATron4000.Games
             var gameDir = Path.Combine(_baseDir, name);
             var roomsDir = Path.Combine(gameDir, "rooms");
             var roomParser = new RoomParser();
-            var dialogTreeParser = new DialogTreeParser();
+            var conversationParser = new ConversationParser();
 
             var infoPath = Path.Combine(gameDir, "game.json");
             var infoJson = File.ReadAllText(infoPath);
@@ -45,12 +45,12 @@ namespace GameATron4000.Games
                 
                 info.Dialogs.Add(Path.GetFileName(roomDir), new Room(room, commands));
 
-                // foreach (var dialogTreePath in Directory.GetFiles(roomDir, "*.dt"))
-                // {
-                //     var rootNode = dialogTreeParser.Parse(dialogTreePath);
+                foreach (var conversationPath in Directory.GetFiles(roomDir, "*.dt"))
+                {
+                    var rootNode = conversationParser.Parse(conversationPath);
 
-                //     info.Dialogs.Add(Path.GetFileNameWithoutExtension(dialogTreePath), new DialogTree(rootNode));
-                // }
+                    info.Dialogs.Add(Path.GetFileNameWithoutExtension(conversationPath), new Conversation(rootNode));
+                }
             }
 
             return info;

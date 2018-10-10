@@ -9,20 +9,20 @@ using GameATron4000.Models;
 
 namespace GameATron4000.Games
 {
-    public class DialogTreeParser
+    public class ConversationParser
     {
         private readonly Regex _actionExpression;
         private readonly Regex _commandExpression;
         private readonly Regex _speakExpression; 
 
-        public DialogTreeParser()
+        public ConversationParser()
         {
             _actionExpression = new Regex(@"\[(?<name>.*?)(=(?<args>(\w+\s?)|(\"".*?\""\s?))+)?\]");
             _commandExpression = new Regex("- (?<command>.*)");
             _speakExpression = new Regex("(?<actor>.*?):(?<text>.*)");
         }
 
-        public DialogTreeNode Parse(string path)
+        public ConversationNode Parse(string path)
         {
             using (var reader = File.OpenText(path))
             {
@@ -30,11 +30,11 @@ namespace GameATron4000.Games
             }
         }
 
-        private DialogTreeNode ParseStep(TextReader reader, ParsingContext context, int? parentId = null, int indentLevel = 0)
+        private ConversationNode ParseStep(TextReader reader, ParsingContext context, int? parentId = null, int indentLevel = 0)
         {
             var nodeId = context.NodeId++;
             var actions = new List<RoomAction>();
-            var subSteps = new Dictionary<string, DialogTreeNode>();
+            var subSteps = new Dictionary<string, ConversationNode>();
 
             context.LineIndentSize = ReadIndentation(reader);
             string line;
@@ -91,7 +91,7 @@ namespace GameATron4000.Games
                 throw new IOException($"Parse error at line {context.LineNumber}: Unexpected line.");
             }
 
-            return new DialogTreeNode(nodeId++, actions, parentId, subSteps);
+            return new ConversationNode(nodeId++, actions, parentId, subSteps);
         }
 
         private int ReadIndentation(TextReader reader)

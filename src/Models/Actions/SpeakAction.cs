@@ -29,7 +29,7 @@ namespace GameATron4000.Models.Actions
             _actorName = args[1];
         }
 
-        public override string Execute(DialogContext dc, IList<IActivity> activities, IDictionary<string, object> state, GameRoom roomInfo) {
+        public override string Execute(DialogContext dc, IList<IActivity> activities, IDictionary<string, object> state) {
 
             activities.Add(MessageFactory.Text($"{_actorName} > {_text}"));
 

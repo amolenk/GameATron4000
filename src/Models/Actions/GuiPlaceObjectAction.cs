@@ -15,6 +15,7 @@ namespace GameATron4000.Models.Actions
         private readonly string _description;
         private readonly int _x;
         private readonly int _y;
+        private readonly bool _foreground;
 
         public GuiPlaceObjectAction(List<string> args, Precondition[] preconditions)
             : base(preconditions)
@@ -23,16 +24,22 @@ namespace GameATron4000.Models.Actions
             _description = args[1];
             _x = int.Parse(args[2]);
             _y = int.Parse(args[3]);
+
+            if (args.Count > 4)
+            {
+                _foreground = bool.Parse(args[4]);
+            }
         }
 
-        public override string Execute(DialogContext dc, IList<IActivity> activities, IDictionary<string, object> state, GameRoom roomInfo) {
+        public override string Execute(DialogContext dc, IList<IActivity> activities, IDictionary<string, object> state) {
 
             activities.Add(CreateEventActivity(dc, "ObjectPlacedInRoom", JObject.FromObject(new
             {
                 objectId = _objectId,
                 description = _description,
                 x = _x,
-                y = _y
+                y = _y,
+                foreground = _foreground
             })));
 
             return string.Empty;

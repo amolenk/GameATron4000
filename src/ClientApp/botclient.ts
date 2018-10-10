@@ -27,7 +27,6 @@ export class BotClient {
                 var activity = <any>x;
 
                 console.log("🤖 " + this.activityToString(activity));
-                console.log(activity);
                 
 
                 //TODO
@@ -84,6 +83,10 @@ export class BotClient {
 
         if (activity.actorId) {
             properties.push({ name: 'actorId', value: activity.actorId })
+        }
+
+        if (activity.closeUpId) {
+            properties.push({ name: 'closeUpId', value: activity.closeUpId })
         }
 
         if (activity.inventoryItemId) {

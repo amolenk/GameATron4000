@@ -10,13 +10,18 @@ namespace GameATron4000.Models
             = new Dictionary<string, Func<List<string>, Precondition[], RoomAction>>
             {
                 [ AddToInventoryAction.Name ] = (args, preconditions) => new AddToInventoryAction(args, preconditions),
-                [ GuiAddRoomObjectAction.Name ] = (args, preconditions) => new GuiAddRoomObjectAction(args, preconditions),
+                [ EndConversationAction.Name ] = (args, preconditions) => new EndConversationAction(args, preconditions),
+                [ GoToConversationTopicAction.Name ] = (args, preconditions) => new GoToConversationTopicAction(args, preconditions),
+                [ GuiCloseCloseUpAction.Name ] = (args, preconditions) => new GuiCloseCloseUpAction(args, preconditions),
                 [ GuiDelayAction.Name ] = (args, preconditions) => new GuiDelayAction(args, preconditions),
                 [ GuiMoveActorAction.Name ] = (args, preconditions) => new GuiMoveActorAction(args, preconditions),
+                [ GuiOpenCloseUpAction.Name ] = (args, preconditions) => new GuiOpenCloseUpAction(args, preconditions),
                 [ GuiPlaceActorAction.Name ] = (args, preconditions) => new GuiPlaceActorAction(args, preconditions),
                 [ GuiPlaceObjectAction.Name ] = (args, preconditions) => new GuiPlaceObjectAction(args, preconditions),
+                [ GuiRemoveObjectAction.Name ] = (args, preconditions) => new GuiRemoveObjectAction(args, preconditions),
                 [ SetFlagAction.Name ] = (args, preconditions) => new SetFlagAction(args, preconditions),
                 [ SpeakAction.Name ] = (args, preconditions) => new SpeakAction(args, preconditions),
+                [ SwitchRoomAction.Name ] = (args, preconditions) => new SwitchRoomAction(args, preconditions),
                 [ TalkToAction.Name ] = (args, preconditions) => new TalkToAction(args, preconditions),
                 [ TextDescribeAction.Name ] = (args, preconditions) => new TextDescribeAction(args, preconditions)
             };

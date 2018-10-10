@@ -50,11 +50,10 @@ namespace GameATron4000
                 app.UseDeveloperExceptionPage();
                 app.UseWebpackDevMiddleware(new WebpackDevMiddlewareOptions
                 {
-                    HotModuleReplacement = true                    
+                    HotModuleReplacement = true
                 });
             }
 
-//            app.UseHttpsRedirection();
             app.UseStaticFiles();
 
             app.UseMvc();

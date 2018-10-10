@@ -9,7 +9,7 @@ namespace GameATron4000.Models.Actions
 {
     public class GuiDelayAction : RoomAction
     {
-        public const string Name = "GuiDelay";
+        public const string Name = "GUI:Delay";
 
         private readonly int _milliseconds;
 
@@ -19,8 +19,7 @@ namespace GameATron4000.Models.Actions
             _milliseconds = int.Parse(args[0]);
         }
 
-        // TODO Can't we simply cache the room definition on the client??
-        public override string Execute(DialogContext dc, IList<IActivity> activities, IDictionary<string, object> state, GameRoom roomInfo) {
+        public override string Execute(DialogContext dc, IList<IActivity> activities, IDictionary<string, object> state) {
 
             activities.Add(CreateEventActivity(dc, "Delayed", JObject.FromObject(new
             {

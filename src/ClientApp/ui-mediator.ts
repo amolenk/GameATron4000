@@ -133,13 +133,13 @@ export class UIMediator {
                     }
 
                     case "CloseUpOpened": {
-                        var roomObject = new RoomObject("closeup-" + event.objectId, "");
+                        var roomObject = new RoomObject("closeup-" + event.closeUpId, "");
                         this.room.addActor(roomObject, 400, 300);
                         break;
                     }
 
                     case "CloseUpClosed": {
-                        var roomObject = this.room.getObject("closeup-" + event.objectId);
+                        var roomObject = this.room.getObject("closeup-" + event.closeUpId);
                         if (roomObject) {
                             this.room.removeObject(roomObject);
                         }
@@ -171,12 +171,8 @@ export class UIMediator {
 
                     case "ObjectPlacedInRoom": {
                         var roomObject = new RoomObject("object-" + event.objectId, event.description);
-                        this.room.addObject(roomObject, event.x, event.y);
-                        break;
-                    }
-
-                    case "RoomObjectAdded": {
-                        var roomObject = new RoomObject("object-" + event.objectId, event.description);
+                        // Dirty hack: when an object needs to be shown in the foreground, place it in
+                        // the actor layer.
                         if (event.foreground) {
                             this.room.addActor(roomObject, event.x, event.y);                            
                         } else {
@@ -185,7 +181,7 @@ export class UIMediator {
                         break;
                     }
 
-                    case "RoomObjectRemoved": {
+                    case "ObjectRemovedFromRoom": {
                         var roomObject = this.room.getObject("object-" + event.objectId);
                         if (roomObject) {
                             this.room.removeObject(roomObject);

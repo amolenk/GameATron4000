@@ -60,9 +60,9 @@ namespace GameATron4000
                     // Start the game's first room.
 
                     // TODO RoomInfo vs GameRoom???
-                    var roomInfo = game.Rooms.FirstOrDefault(g => g.Id == game.InitialRoom);
-                    if (roomInfo != null)
-                    {
+                    // var roomInfo = game.Rooms.FirstOrDefault(g => g.Id == game.InitialRoom);
+                    // if (roomInfo != null)
+                    // {
                         // TODO
                         // var activities = new List<IActivity>();
 
@@ -73,7 +73,7 @@ namespace GameATron4000
                         // }
 
                         // await dc.Context.SendActivities(activities.ToArray());
-                    }
+                    // }
 
                     var rootDialog = game.InitialRoom;
                     await dc.Begin(rootDialog);

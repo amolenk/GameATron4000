@@ -3,17 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using GameATron4000.Models;
+using GameATron4000.Models.Actions;
 using Microsoft.Bot.Builder.Core.Extensions;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Schema;
 
 namespace GameATron4000.Dialogs
 {
-    public class DialogTree : Dialog, IDialogContinue
+    public class Conversation : Dialog, IDialogContinue
     {
-        private readonly DialogTreeNode _rootNode;
+        private readonly ConversationNode _rootNode;
 
-        public DialogTree(DialogTreeNode rootNode)
+        public Conversation(ConversationNode rootNode)
         {
             _rootNode = rootNode;
         }
@@ -52,34 +53,30 @@ namespace GameATron4000.Dialogs
             // Process the actions, creating a list of activities to send back to the player.
             var activities = new List<IActivity>();
             //
-            // foreach (var action in nextNode.Actions)
-            // {
-            //     switch (action.Name)
-            //     {
-            //         case Models.Action.Speak:
-            //             activities.Add(MessageFactory.Text($"{action.Args[1]} > {action.Args[0]}"));
-            //             break;
+            foreach (var action in nextNode.Actions)
+            {
+                switch (action)
+                {
+                    case GoToConversationTopicAction goToConversationTopicAction:
+                        if (string.Equals(goToConversationTopicAction.Topic, "root", StringComparison.OrdinalIgnoreCase))
+                        {
+                            nextNode = _rootNode;
+                        }
+                        else if (node.ParentId.HasValue)
+                        {
+                            nextNode = _rootNode.Find(node.ParentId.Value);
+                        }
+                        break;
 
-            //         case Models.Action.AddAchievement:
-            //             state["flag_" + action.Args[0]] = true;
-            //             break;
+                    case EndConversationAction endConversationAction:
+                        nextNode = null;
+                        break;
 
-            //         case Models.Action.GoToConversationTopic:
-            //             if (string.Equals(action.Args[0], "root", StringComparison.OrdinalIgnoreCase))
-            //             {
-            //                 nextNode = _rootNode;
-            //             }
-            //             else if (node.ParentId.HasValue)
-            //             {
-            //                 nextNode = _rootNode.Find(node.ParentId.Value);
-            //             }
-            //             break;
-
-            //         case Models.Action.EndConversation:
-            //             nextNode = null;
-            //             break;
-            //     }
-            // }
+                    default:
+                        action.Execute(dc, activities, state);
+                        break;
+                }
+            }
 
             // Check if the dialog tree should continue;
             if (nextNode != null)

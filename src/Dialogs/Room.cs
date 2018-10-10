@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using GameATron4000.Models;
+using GameATron4000.Models.Actions;
 using Microsoft.Bot.Builder.Core.Extensions;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Schema;
@@ -35,6 +36,7 @@ namespace GameATron4000.Dialogs
         {
             if (dc == null) throw new ArgumentNullException(nameof(dc));
 
+            // TODO No room definition blob needed anymore???
             // Send a RoomEntered event to the client so the GUI can show the images for the room.
             var roomEnteredActivity = CreateEventActivity(dc, "RoomEntered", _roomDefinition.ToJObject());
             await dc.Context.SendActivity(roomEnteredActivity);
@@ -100,8 +102,11 @@ namespace GameATron4000.Dialogs
             else
             {
                 // The player typed something we didn't expect; reply with a standard response.
-                await dc.Context.SendActivity(
-                    MessageFactory.Text("Narrator > " + _cannedResponses[_random.Next(0, _cannedResponses.Length)]));
+                await ExecuteActions(dc, new RoomAction[]
+                {
+                    // TODO Constant?
+                    new SpeakAction(_cannedResponses[_random.Next(0, _cannedResponses.Length)], "Narrator")
+                }); 
             }
         }
 
@@ -110,7 +115,7 @@ namespace GameATron4000.Dialogs
             if (dc == null) throw new ArgumentNullException(nameof(dc));
 
             var activities = new List<IActivity>();
-            var updatedFlags = new Dictionary<string, object>();
+            // var updatedFlags = new Dictionary<string, object>();
 
             var state = dc.Context.GetConversationState<Dictionary<string, object>>();
             var actionStack = new Stack<RoomAction>(actions.Reverse());
@@ -118,7 +123,7 @@ namespace GameATron4000.Dialogs
             RoomAction action;
             while (actionStack.TryPop(out action))
             {
-                var nextDialogId = action.Execute(dc, activities, updatedFlags, _roomDefinition);
+                var nextDialogId = action.Execute(dc, activities, state);
                 if (!string.IsNullOrEmpty(nextDialogId))
                 {
                     if (activities.Any())
@@ -138,7 +143,7 @@ namespace GameATron4000.Dialogs
             }
 
             // Commit the temporary updated flags dictionary to the actual state object.
-            UpdateState(state, updatedFlags);
+            // UpdateState(state, updatedFlags);
 
             // Add an Idle activity to let the GUI know that we're waiting for user interaction.
             // TODO Use action for this???
@@ -147,23 +152,23 @@ namespace GameATron4000.Dialogs
             await dc.Context.SendActivities(activities.ToArray());
         }
 
-        private void UpdateState(Dictionary<string, object> state, Dictionary<string, object> updatedFlags)
-        {
-            foreach (var updatedFlag in updatedFlags)
-            {
-                var key = "flag_" + updatedFlag.Key;
-                var flagIsSet = state.ContainsKey(key);
+        // private void UpdateState(Dictionary<string, object> state, Dictionary<string, object> updatedFlags)
+        // {
+        //     foreach (var updatedFlag in updatedFlags)
+        //     {
+        //         var key = "flag_" + updatedFlag.Key;
+        //         var flagIsSet = state.ContainsKey(key);
 
-                if (flagIsSet && !((bool)updatedFlag.Value))
-                {
-                    state.Remove(key);
-                }
-                else if (!flagIsSet && ((bool)updatedFlag.Value))
-                {
-                    state.Add(key, true);
-                }
-            }
-        }
+        //         if (flagIsSet && !((bool)updatedFlag.Value))
+        //         {
+        //             state.Remove(key);
+        //         }
+        //         else if (!flagIsSet && ((bool)updatedFlag.Value))
+        //         {
+        //             state.Add(key, true);
+        //         }
+        //     }
+        // }
 
         private static Activity CreateEventActivity(DialogContext dc, string name, JObject properties = null)
         {
