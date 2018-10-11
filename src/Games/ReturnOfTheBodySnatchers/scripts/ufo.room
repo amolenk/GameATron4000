@@ -1,0 +1,8 @@
+Player: <RoomEntered>
+[Text:Describe="You are in an UFO!"]
+
+Player: look at ufo
+Guy: Yep, It's definitely a UFO!
+
+Player: talk to al
+[StartConversation=al]

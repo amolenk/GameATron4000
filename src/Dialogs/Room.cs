@@ -22,13 +22,13 @@ namespace GameATron4000.Dialogs
         };
 
         private readonly Random _random;
-        private readonly GameRoom _roomDefinition;
+        private readonly string _roomId;
         private readonly List<Command> _commands;
 
-        public Room(GameRoom roomDefinition, List<Command> commands)
+        public Room(string roomId, List<Command> commands)
         {
             _random = new Random();
-            _roomDefinition = roomDefinition;
+            _roomId = roomId;
             _commands = commands;
         }
 
@@ -38,7 +38,10 @@ namespace GameATron4000.Dialogs
 
             // TODO No room definition blob needed anymore???
             // Send a RoomEntered event to the client so the GUI can show the images for the room.
-            var roomEnteredActivity = CreateEventActivity(dc, "RoomEntered", _roomDefinition.ToJObject());
+            var roomEnteredActivity = CreateEventActivity(dc, "RoomEntered", JObject.FromObject(new
+            {
+                roomId = _roomId
+            }));
             await dc.Context.SendActivity(roomEnteredActivity);
 
             if (dc.Context.Activity.Type == ActivityTypes.Message)

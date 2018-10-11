@@ -21,8 +21,8 @@ namespace GameATron4000.Models
                 [ GuiRemoveObjectAction.Name ] = (args, preconditions) => new GuiRemoveObjectAction(args, preconditions),
                 [ SetFlagAction.Name ] = (args, preconditions) => new SetFlagAction(args, preconditions),
                 [ SpeakAction.Name ] = (args, preconditions) => new SpeakAction(args, preconditions),
+                [ StartConversationAction.Name ] = (args, preconditions) => new StartConversationAction(args, preconditions),
                 [ SwitchRoomAction.Name ] = (args, preconditions) => new SwitchRoomAction(args, preconditions),
-                [ TalkToAction.Name ] = (args, preconditions) => new TalkToAction(args, preconditions),
                 [ TextDescribeAction.Name ] = (args, preconditions) => new TextDescribeAction(args, preconditions)
             };
 

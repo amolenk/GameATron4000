@@ -29,31 +29,33 @@ namespace GameATron4000.Games
         public GameInfo LoadGame(string name)
         {
             var gameDir = Path.Combine(_baseDir, name);
-            var roomsDir = Path.Combine(gameDir, "rooms");
             var roomParser = new RoomParser();
             var conversationParser = new ConversationParser();
 
-            var infoPath = Path.Combine(gameDir, "game.json");
-            var infoJson = File.ReadAllText(infoPath);
-            var info = JsonConvert.DeserializeObject<GameInfo>(infoJson);
-            info.Dialogs = new DialogSet();
+            var gameInfoPath = Path.Combine(gameDir, "game.json");
+            var gameInfoJson = File.ReadAllText(gameInfoPath);
+            var gameInfo = JsonConvert.DeserializeObject<GameInfo>(gameInfoJson);
+            gameInfo.Dialogs = new DialogSet();
 
-            foreach (var room in info.Rooms)
+            var scriptDir = Path.Combine(gameDir, "scripts");
+
+            foreach (var roomScriptPath in Directory.GetFiles(scriptDir, "*.room"))
             {
-                var roomDir = Path.Combine(roomsDir, room.Id);
-                var commands = roomParser.Parse(Path.Combine(roomDir, "script.rm"));
-                
-                info.Dialogs.Add(Path.GetFileName(roomDir), new Room(room, commands));
+                var roomId = Path.GetFileNameWithoutExtension(roomScriptPath);
+                var commands = roomParser.Parse(roomScriptPath);
 
-                foreach (var conversationPath in Directory.GetFiles(roomDir, "*.dt"))
-                {
-                    var rootNode = conversationParser.Parse(conversationPath);
-
-                    info.Dialogs.Add(Path.GetFileNameWithoutExtension(conversationPath), new Conversation(rootNode));
-                }
+                gameInfo.Dialogs.Add(roomId, new Room(roomId, commands));
             }
 
-            return info;
+            foreach (var conversationScriptPath in Directory.GetFiles(scriptDir, "*.conversation"))
+            {
+                var conversationId = Path.GetFileNameWithoutExtension(conversationScriptPath);
+                var conversationRootNode = conversationParser.Parse(conversationScriptPath);
+
+                gameInfo.Dialogs.Add(conversationId, new Conversation(conversationRootNode));
+            }
+
+            return gameInfo;
         }
     }
 }

@@ -14,8 +14,6 @@ namespace GameATron4000.Models
 
         public string[] BadCommandResponses { get; set; }
 
-        public GameRoom[] Rooms { get; set; }
-
         [JsonIgnore]
         public DialogSet Dialogs { get; set; }
 

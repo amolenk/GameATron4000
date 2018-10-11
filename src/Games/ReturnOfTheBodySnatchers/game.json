@@ -1,29 +1,8 @@
 {
-    "InitialRoom": "park",
+    "InitialRoom": "ufo",
     "SupportsGui": true,
     "PlayerActor": "guy",
     "BadCommandResponses": [ "Sorry, you can't do that." ],
-    "Rooms": [
-        {
-            "id": "park",
-            "actors": [
-                { "id": "guy", "description": "Guy Scotthrie", "x": 600, "y": 430 }
-            ],
-            "inventoryItems": [
-                { "id": "groceries", "description": "bag of groceries" }
-            ],
-            "objects": [
-                { "id": "newspaper", "description": "newspaper", "x": 362, "y": 400 }
-            ]
-        },
-        {
-            "id": "ufo",
-            "actors": [
-                { "id": "al", "description": "Al", "textColor": "#92F6F0" },
-                { "id": "ian", "description": "Ian", "textColor": "Yellow" }
-            ]
-        }
-    ],
     "Assets": [
         { "Key": "room-park", "Url": "/backgrounds/park.png" },
         { "Key": "room-ufo", "Url": "/backgrounds/ufo.png" },

@@ -9,13 +9,13 @@ using System.Threading.Tasks;
 
 namespace GameATron4000.Models.Actions
 {
-    public class TalkToAction : RoomAction
+    public class StartConversationAction : RoomAction
     {
-        public const string Name = "TalkTo";
+        public const string Name = "StartConversation";
 
         private readonly string _conversationId;
 
-        public TalkToAction(List<string> args, Precondition[] preconditions)
+        public StartConversationAction(List<string> args, Precondition[] preconditions)
             : base(preconditions)
         {
             _conversationId = args[0];

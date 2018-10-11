@@ -195,7 +195,7 @@ export class UIMediator {
                         }
                         this.game.lockRender = true;
                         this.room = new Room(event.roomId);
-                        this.room.create(this.game, this, this.layers, event.objects, event.actors);
+                        this.room.create(this.game, this, this.layers);
                         break;
                     }
 

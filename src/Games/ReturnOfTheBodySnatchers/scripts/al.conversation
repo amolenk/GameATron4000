@@ -18,7 +18,7 @@ Al: Hi there!
     Al: Sure!
     Ian: NO WAY!
     Ian: We need to get everything on the list!
-    [AddAchievement=talkedAboutList]
+    [SetFlag=talkedAboutList]
     - Please?
         Al: Ok, because you asked nicely!
         Ian: NO! The mission isn't completed yet!
