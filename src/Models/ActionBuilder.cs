@@ -6,19 +6,23 @@ namespace GameATron4000.Models
 {
     public class ActionBuilder
     {
-        private static readonly Dictionary<string, Func<List<string>, Precondition[], RoomAction>> Factories
-            = new Dictionary<string, Func<List<string>, Precondition[], RoomAction>>
+        private static readonly Dictionary<string, Func<List<string>, Precondition[], CommandAction>> Factories
+            = new Dictionary<string, Func<List<string>, Precondition[], CommandAction>>
             {
                 [ AddToInventoryAction.Name ] = (args, preconditions) => new AddToInventoryAction(args, preconditions),
+                [ ClearFlagAction.Name ] = (args, preconditions) => new ClearFlagAction(args, preconditions),
                 [ EndConversationAction.Name ] = (args, preconditions) => new EndConversationAction(args, preconditions),
                 [ GoToConversationTopicAction.Name ] = (args, preconditions) => new GoToConversationTopicAction(args, preconditions),
                 [ GuiCloseCloseUpAction.Name ] = (args, preconditions) => new GuiCloseCloseUpAction(args, preconditions),
                 [ GuiDelayAction.Name ] = (args, preconditions) => new GuiDelayAction(args, preconditions),
+                [ GuiFaceActorAwayAction.Name ] = (args, preconditions) => new GuiFaceActorAwayAction(args, preconditions),
+                [ GuiFaceActorFrontAction.Name ] = (args, preconditions) => new GuiFaceActorFrontAction(args, preconditions),
                 [ GuiMoveActorAction.Name ] = (args, preconditions) => new GuiMoveActorAction(args, preconditions),
                 [ GuiOpenCloseUpAction.Name ] = (args, preconditions) => new GuiOpenCloseUpAction(args, preconditions),
                 [ GuiPlaceActorAction.Name ] = (args, preconditions) => new GuiPlaceActorAction(args, preconditions),
                 [ GuiPlaceObjectAction.Name ] = (args, preconditions) => new GuiPlaceObjectAction(args, preconditions),
                 [ GuiRemoveObjectAction.Name ] = (args, preconditions) => new GuiRemoveObjectAction(args, preconditions),
+                [ RemoveFromInventoryAction.Name] = (args, preconditions) => new RemoveFromInventoryAction(args, preconditions),
                 [ SetFlagAction.Name ] = (args, preconditions) => new SetFlagAction(args, preconditions),
                 [ SpeakAction.Name ] = (args, preconditions) => new SpeakAction(args, preconditions),
                 [ StartConversationAction.Name ] = (args, preconditions) => new StartConversationAction(args, preconditions),
@@ -96,9 +100,9 @@ namespace GameATron4000.Models
 
         // }
 
-        public RoomAction Build()
+        public CommandAction Build()
         {
-            Func<List<string>, Precondition[], RoomAction> factory;
+            Func<List<string>, Precondition[], CommandAction> factory;
 
             if (Factories.TryGetValue(_name, out factory))
             {

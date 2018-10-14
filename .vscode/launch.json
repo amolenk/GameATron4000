@@ -16,7 +16,7 @@
             "stopAtEntry": false,
             "internalConsoleOptions": "openOnSessionStart",
             "launchBrowser": {
-                "enabled": false,
+                "enabled": true,
                 "args": "http://localhost:5000/Play?game=ReturnOfTheBodySnatchers",
                 "windows": {
                     "command": "cmd.exe",

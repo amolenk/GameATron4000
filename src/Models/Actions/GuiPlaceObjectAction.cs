@@ -2,44 +2,59 @@ using System.Collections.Generic;
 using GameATron4000.Models;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Schema;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Linq;
 
 namespace GameATron4000.Models.Actions
 {
-    public class GuiPlaceObjectAction : RoomAction
+    public class GuiPlaceObjectAction : CommandAction
     {
         public const string Name = "GUI:PlaceObject";
 
-        private readonly string _objectId;
-        private readonly string _description;
-        private readonly int _x;
-        private readonly int _y;
-        private readonly bool _foreground;
+        [JsonConstructor]
+        private GuiPlaceObjectAction()
+        {
+        }
 
         public GuiPlaceObjectAction(List<string> args, Precondition[] preconditions)
             : base(preconditions)
         {
-            _objectId = args[0];
-            _description = args[1];
-            _x = int.Parse(args[2]);
-            _y = int.Parse(args[3]);
+            ObjectId = args[0];
+            Description = args[1];
+            X = int.Parse(args[2]);
+            Y = int.Parse(args[3]);
 
             if (args.Count > 4)
             {
-                _foreground = bool.Parse(args[4]);
+                Foreground = bool.Parse(args[4]);
             }
         }
+
+        [JsonProperty]
+        public string ObjectId { get; private set; }
+
+        [JsonProperty]
+        public string Description { get; private set; }
+
+        [JsonProperty]
+        public int X { get; private set; }
+
+        [JsonProperty]
+        public int Y { get; private set; }
+
+        [JsonProperty]
+        public bool Foreground { get; private set; }
 
         public override string Execute(DialogContext dc, IList<IActivity> activities, IDictionary<string, object> state) {
 
             activities.Add(CreateEventActivity(dc, "ObjectPlacedInRoom", JObject.FromObject(new
             {
-                objectId = _objectId,
-                description = _description,
-                x = _x,
-                y = _y,
-                foreground = _foreground
+                objectId = ObjectId,
+                description = Description,
+                x = X,
+                y = Y,
+                foreground = Foreground
             })));
 
             return string.Empty;

@@ -29,8 +29,8 @@ namespace GameATron4000.Games
             var lines = File.ReadAllLines(path);
 
             string commandText = string.Empty;
-            List<RoomAction> actions = new List<RoomAction>();
-            List<Precondition> commandPreconditions = null;
+            List<CommandAction> actions = new List<CommandAction>();
+            //List<Precondition> commandPreconditions = null;
             List<Precondition> actionPreconditions = null;
 
             var lineNumber = 0;
@@ -43,7 +43,7 @@ namespace GameATron4000.Games
                 {
                     var preconditions = match.Groups["preconditions"].Captures
                         .Select(c => new Precondition(
-                            c.Value.TrimStart('!'),
+                            c.Value.Trim().TrimStart('!'),
                             !c.Value.StartsWith('!')))
                         .ToList();
 
@@ -55,7 +55,7 @@ namespace GameATron4000.Games
                     {
                         if (commandText.Length == 0)
                         {
-                            commandPreconditions = preconditions;
+                            //commandPreconditions = preconditions;
                         }
                         else
                         {
@@ -74,7 +74,8 @@ namespace GameATron4000.Games
                     }
 
                     commandText = match.Groups["text"].Value.Trim();
-                    actions = new List<RoomAction>();
+                    actions = new List<CommandAction>();
+                    actionPreconditions = null;
                     continue;
                 }
                 else if (commandText.Length == 0)
@@ -85,10 +86,13 @@ namespace GameATron4000.Games
                 match = _actionExpression.Match(line);
                 if (match.Success)
                 {
+                    // TODO Check that command text isn't empty!
+
                     // TODO Shouldn't preconditions be added here?
                     actions.Add(new ActionBuilder()
                         .WithName(match.Groups["name"].Value)
                         .WithArguments(match.Groups["args"].Captures.Select(c => c.Value.Trim('"', ' ')))
+                        .WithPreconditions(actionPreconditions)
                         .Build());
                     continue;
                 }
@@ -107,11 +111,12 @@ namespace GameATron4000.Games
                 {
                     if (commandText.Length > 0)
                     {
-                        result.Add(new Command(commandText, actions, commandPreconditions));
+                        result.Add(new Command(commandText, actions));//, commandPreconditions));
 
                         commandText = string.Empty;
-                        actions = new List<RoomAction>();
-                        commandPreconditions = null;
+//                        actions = new List<RoomAction>();
+//                        actionPreconditions = new List<Precondition>();
+//                        commandPreconditions = null;
                     }
                     continue;
                 }
@@ -121,7 +126,7 @@ namespace GameATron4000.Games
 
             if (commandText.Length > 0)
             {
-                result.Add(new Command(commandText, actions, commandPreconditions));
+                result.Add(new Command(commandText, actions));//, commandPreconditions));
             }
 
             return result;

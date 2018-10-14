@@ -8,29 +8,30 @@ using System.Linq;
 
 namespace GameATron4000.Models.Actions
 {
-    public class GuiCloseCloseUpAction : CommandAction
+    // TODO Make all action classes serializable!!!
+    public class GuiFaceActorFrontAction : CommandAction
     {
-        public const string Name = "GUI:CloseCloseUp";
+        public const string Name = "GUI:FaceActorFront";
 
         [JsonConstructor]
-        private GuiCloseCloseUpAction()
+        private GuiFaceActorFrontAction()
         {
         }
 
-        public GuiCloseCloseUpAction(List<string> args, Precondition[] preconditions)
+        public GuiFaceActorFrontAction(List<string> args, Precondition[] preconditions)
             : base(preconditions)
         {
-            CloseUpId = args[0];
+            ActorId = args[0];
         }
 
         [JsonProperty]
-        public string CloseUpId { get; private set; }
+        public string ActorId { get; private set; }
 
         public override string Execute(DialogContext dc, IList<IActivity> activities, IDictionary<string, object> state) {
 
-            activities.Add(CreateEventActivity(dc, "CloseUpClosed", JObject.FromObject(new
+            activities.Add(CreateEventActivity(dc, "ActorFacedFront", JObject.FromObject(new
             {
-                closeUpId = CloseUpId
+                actorId = ActorId
             })));
 
             return string.Empty;

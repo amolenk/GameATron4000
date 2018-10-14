@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using GameATron4000.Extensions;
 using GameATron4000.Models;
 using GameATron4000.Models.Actions;
 using Microsoft.Bot.Builder.Core.Extensions;
@@ -13,6 +14,7 @@ namespace GameATron4000.Dialogs
 {
     public class Room : Dialog, IDialogContinue, IDialogResume
     {
+        // TODO Let player actor speak these and also show them if command is known, but no actions performed
         private static readonly string[] _cannedResponses = new string[]
         {
             "You can't do that.",
@@ -36,18 +38,25 @@ namespace GameATron4000.Dialogs
         {
             if (dc == null) throw new ArgumentNullException(nameof(dc));
 
-            // TODO No room definition blob needed anymore???
-            // Send a RoomEntered event to the client so the GUI can show the images for the room.
-            var roomEnteredActivity = CreateEventActivity(dc, "RoomEntered", JObject.FromObject(new
+            // TODO Use RoomInitializationStarted/Completed in separate private method.
+
+            // Send a RoomSwitched event to the client so the GUI can populate the new room.
+            await dc.Context.SendActivity(CreateEventActivity(dc, "RoomSwitched", JObject.FromObject(new
             {
                 roomId = _roomId
-            }));
+            })));
+
+            await RunCommand(Command.RoomSwitched, dc);
+
+            // Send a RoomEntered event to the client so the GUI can show the images for the room.
+            var roomEnteredActivity = CreateEventActivity(dc, "RoomEntered");
             await dc.Context.SendActivity(roomEnteredActivity);
 
-            if (dc.Context.Activity.Type == ActivityTypes.Message)
-            {
+//            if (dc.Context.Activity.Type == ActivityTypes.Message)
+  //          {
+    //            await RunCommand(Command.PopulateRoom, dc);
                 await RunCommand(Command.RoomEntered, dc);
-            }
+      //      }
         }
 
         public async Task DialogContinue(DialogContext dc)
@@ -69,7 +78,7 @@ namespace GameATron4000.Dialogs
             object onResumeActions = null;
             if (state.Remove("actionStack", out onResumeActions))
             {
-                await ExecuteActions(dc, (List<RoomAction>)onResumeActions);
+                await ExecuteActions(dc, (List<CommandAction>)onResumeActions, true);
             }
         }
 
@@ -84,46 +93,39 @@ namespace GameATron4000.Dialogs
 
             var state = dc.Context.GetConversationState<Dictionary<string, object>>();
 
-            // Function to check if the dialog state contains the given flag.
-            Func<Precondition, bool> verifyPrecondition = new Func<Precondition, bool>(pc =>
-            {
-                var key = "flag_" + pc.Flag;
-                return pc.Value ? state.ContainsKey(key) : !state.ContainsKey(key);
-            });
-
             var command = _commands
-                .Where(cmd => string.Equals(cmd.Text, commandText, StringComparison.OrdinalIgnoreCase)
-                    && cmd.Preconditions.All(verifyPrecondition))
+                .Where(cmd => string.Equals(cmd.Text, commandText, StringComparison.OrdinalIgnoreCase))
                 .FirstOrDefault();
 
             if (command != null)
             {
-                var actions = command.Actions.Where(a => a.Preconditions.All(verifyPrecondition));
+                var actions = command.Actions
+                    .Where(a => a.Preconditions.All(pc => state.SatifiesPrecondition(pc)));
 
-                await ExecuteActions(dc, actions);
+                // Execute the actions, but don't send an Idle event yet if we've just switched rooms.
+                await ExecuteActions(dc, actions, command.Text != Command.RoomSwitched);
             }
             else
             {
                 // The player typed something we didn't expect; reply with a standard response.
-                await ExecuteActions(dc, new RoomAction[]
+                await ExecuteActions(dc, new CommandAction[]
                 {
                     // TODO Constant?
                     new SpeakAction(_cannedResponses[_random.Next(0, _cannedResponses.Length)], "Narrator")
-                }); 
+                }, true); 
             }
         }
 
-        private async Task ExecuteActions(DialogContext dc, IEnumerable<RoomAction> actions)
+        private async Task ExecuteActions(DialogContext dc, IEnumerable<CommandAction> actions, bool sendIdleEvent)
         {
             if (dc == null) throw new ArgumentNullException(nameof(dc));
 
             var activities = new List<IActivity>();
-            // var updatedFlags = new Dictionary<string, object>();
 
             var state = dc.Context.GetConversationState<Dictionary<string, object>>();
-            var actionStack = new Stack<RoomAction>(actions.Reverse());
+            var actionStack = new Stack<CommandAction>(actions.Reverse());
 
-            RoomAction action;
+            CommandAction action;
             while (actionStack.TryPop(out action))
             {
                 var nextDialogId = action.Execute(dc, activities, state);
@@ -134,44 +136,24 @@ namespace GameATron4000.Dialogs
                         await dc.Context.SendActivities(activities.ToArray());
                     }
 
-                    // TODO Make sure we don't loose the updated flags!!!
-
                     // Stacks don't serialize in the correct order.
                     // See https://github.com/JamesNK/Newtonsoft.Json/issues/971.
                     state["actionStack"] = actionStack.ToList();
 
+                    // TODO We should replace when switching rooms!
                     await dc.Begin(nextDialogId);
                     return;
                 }
             }
 
-            // Commit the temporary updated flags dictionary to the actual state object.
-            // UpdateState(state, updatedFlags);
-
             // Add an Idle activity to let the GUI know that we're waiting for user interaction.
-            // TODO Use action for this???
-            activities.Add(CreateEventActivity(dc, "Idle"));
+            if (sendIdleEvent)
+            {
+                activities.Add(CreateEventActivity(dc, "Idle"));
+            }
 
             await dc.Context.SendActivities(activities.ToArray());
         }
-
-        // private void UpdateState(Dictionary<string, object> state, Dictionary<string, object> updatedFlags)
-        // {
-        //     foreach (var updatedFlag in updatedFlags)
-        //     {
-        //         var key = "flag_" + updatedFlag.Key;
-        //         var flagIsSet = state.ContainsKey(key);
-
-        //         if (flagIsSet && !((bool)updatedFlag.Value))
-        //         {
-        //             state.Remove(key);
-        //         }
-        //         else if (!flagIsSet && ((bool)updatedFlag.Value))
-        //         {
-        //             state.Add(key, true);
-        //         }
-        //     }
-        // }
 
         private static Activity CreateEventActivity(DialogContext dc, string name, JObject properties = null)
         {

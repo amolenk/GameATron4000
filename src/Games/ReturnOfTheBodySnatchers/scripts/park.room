@@ -1,7 +1,10 @@
-Player: <RoomEntered>
+Player: <RoomSwitched>
 [AddToInventory=groceries "bag of groceries"]
+[AddToInventory=grocerylist "grocery list"]
 [GUI:PlaceActor=guy "Guy Scotthrie" 600 430]
 [GUI:PlaceObject=newspaper "newspaper" 362 400]
+
+player: <RoomEntered>
 [Text:Describe="You enter the room"]
 
 Player: look at bag of groceries
@@ -15,10 +18,10 @@ Guy: I've bought everything that's on it!
 Player: look at guy scotthrie
 Narrator: It’s Guy Scotthrie, our fearless hero! 
 
-Player: use grocery list with groceries
+Player: use grocery list with bag of groceries
 Guy: Yep, I’ve got everything on the list!
 
-Player: use groceries with grocery list
+Player: use bag of groceries with grocery list
 Guy: Yep, I’ve got everything on the list!
 
 Player: look at newspaper
@@ -30,7 +33,7 @@ Guy: I've already picked that up!
 {!newspaper}
 [GUI:MoveActor=Guy 360 430]
 [GUI:RemoveObject=newspaper]
-[AddToInventory=newspaper "old newspaper"]
+[AddToInventory=newspaper "newspaper"]
 Guy: It's yesterday's newspaper!
 [GUI:OpenCloseUp=newspaper]
 [GUI:Delay=4000]

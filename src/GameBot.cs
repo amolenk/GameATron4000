@@ -58,23 +58,6 @@ namespace GameATron4000
                 if (dc.ActiveDialog == null)
                 {
                     // Start the game's first room.
-
-                    // TODO RoomInfo vs GameRoom???
-                    // var roomInfo = game.Rooms.FirstOrDefault(g => g.Id == game.InitialRoom);
-                    // if (roomInfo != null)
-                    // {
-                        // TODO
-                        // var activities = new List<IActivity>();
-
-                        // foreach (var inventoryItem in roomInfo.InventoryItems)
-                        // {
-                        //     var addToInventoryAction = new AddToInventoryAction(inventoryItem.Id, inventoryItem.Description);
-                        //     addToInventoryAction.Execute(dc, activities, state, roomInfo);
-                        // }
-
-                        // await dc.Context.SendActivities(activities.ToArray());
-                    // }
-
                     var rootDialog = game.InitialRoom;
                     await dc.Begin(rootDialog);
                 }

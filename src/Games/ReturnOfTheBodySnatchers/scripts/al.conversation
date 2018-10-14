@@ -17,7 +17,7 @@ Al: Hi there!
 - Can you beam me down back to the park?
     Al: Sure!
     Ian: NO WAY!
-    Ian: We need to get everything on the list!
+    Ian: We need to get everything on the list first!
     [SetFlag=talkedAboutList]
     - Please?
         Al: Ok, because you asked nicely!

@@ -3,27 +3,34 @@ using GameATron4000.Models;
 using Microsoft.Bot.Builder.Core.Extensions;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Schema;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace GameATron4000.Models.Actions
 {
-    public class StartConversationAction : RoomAction
+    public class StartConversationAction : CommandAction
     {
         public const string Name = "StartConversation";
 
-        private readonly string _conversationId;
+        [JsonConstructor]
+        private StartConversationAction()
+        {
+        }
 
         public StartConversationAction(List<string> args, Precondition[] preconditions)
             : base(preconditions)
         {
-            _conversationId = args[0];
+            ConversationId = args[0];
         }
+
+        [JsonProperty]
+        public string ConversationId { get; private set; }
 
         public override string Execute(DialogContext dc, IList<IActivity> activities, IDictionary<string, object> state)
         {
-            return _conversationId;
+            return ConversationId;
         }
     }
 }

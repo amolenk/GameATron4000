@@ -7,13 +7,10 @@ import { Actor } from "./actor"
 import { BotClient } from "./botclient"
 import { ConversationUI } from "./ui-conversation"
 import { Cursor } from "./cursor"
-import { InventoryItem } from "./inventory-item"
 import { InventoryUI } from "./ui-inventory"
 import { Layers } from "./layers"
-import { Narrator } from "./narrator"
 import { Room } from "./room"
 import { RoomObject } from "./room-object"
-import { Settings } from "./settings"
 import { VerbsUI } from "./ui-verbs"
 
 declare var PlayerActor: any;
@@ -127,7 +124,7 @@ export class UIMediator {
 
                     case "ActorPlacedInRoom": {
 
-                        var actor = new Actor("actor-" + event.actorId, event.description, 'White');
+                        var actor = new Actor("actor-" + event.actorId, event.description, event.textColor);
                         this.room.addActor(actor, event.x, event.y);
                         break;
                     }
@@ -152,20 +149,12 @@ export class UIMediator {
                     }
 
                     case "InventoryItemAdded": {
-                        // Remove the object from the room (if it currently exists in a room).
-                        // TODO
-                        // if (this.room) {
-                        //     var roomObject = this.room.getObject("object-" + event.objectId);
-                        //     if (roomObject) {
-                        //         this.room.removeObject(roomObject);
-                        //     }
-                        // }
                         await this.inventoryUI.addToInventory(event.inventoryItemId, event.description);
                         break;
                     }
 
                     case "InventoryItemRemoved": {
-                        await this.inventoryUI.removeFromInventory(event.objectId);
+                        await this.inventoryUI.removeFromInventory(event.inventoryItemId);
                         break;
                     }
 
@@ -189,7 +178,7 @@ export class UIMediator {
                         break;
                     }
 
-                    case "RoomEntered": {
+                    case "RoomSwitched": {
                         if (this.room != null) {
                             this.room.kill();
                         }
@@ -199,9 +188,14 @@ export class UIMediator {
                         break;
                     }
 
+                    case "RoomEntered": {
+                        this.game.lockRender = false;
+                        break;
+                    }
+
                     case "Idle": {
                         this.setUIVisible(true);
-                        this.game.lockRender = false;
+//                        this.game.lockRender = false;
                         break;
                     }
                 }    

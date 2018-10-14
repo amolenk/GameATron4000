@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
-using GameATron4000.Extensions;
 using GameATron4000.Models;
+using GameATron4000.Extensions;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Schema;
 using Newtonsoft.Json;
@@ -9,36 +9,31 @@ using Newtonsoft.Json.Linq;
 
 namespace GameATron4000.Models.Actions
 {
-    public class AddToInventoryAction : CommandAction
+    public class RemoveFromInventoryAction : CommandAction
     {
-        public const string Name = "AddToInventory";
+        public const string Name = "RemoveFromInventory";
 
         [JsonConstructor]
-        private AddToInventoryAction()
+        private RemoveFromInventoryAction()
         {
         }
 
-        public AddToInventoryAction(List<string> args, Precondition[] preconditions)
+        public RemoveFromInventoryAction(List<string> args, Precondition[] preconditions)
             : base(preconditions)
         {
             InventoryItemId = args[0];
-            Description = args[1];
         }
 
         [JsonProperty]
         public string InventoryItemId { get; private set; }
 
-        [JsonProperty]
-        public string Description { get; private set; }
-
         public override string Execute(DialogContext dc, IList<IActivity> activities, IDictionary<string, object> state)
         {
-            state.SetFlag(InventoryItemId);
-
-            activities.Add(CreateEventActivity(dc, "InventoryItemAdded", JObject.FromObject(new
+            state.ClearFlag(InventoryItemId);
+            
+            activities.Add(CreateEventActivity(dc, "InventoryItemRemoved", JObject.FromObject(new
             {
-                inventoryItemId = InventoryItemId,
-                description = Description
+                inventoryItemId = InventoryItemId
             })));
 
             return string.Empty;

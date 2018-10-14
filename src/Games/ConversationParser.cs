@@ -33,7 +33,7 @@ namespace GameATron4000.Games
         private ConversationNode ParseStep(TextReader reader, ParsingContext context, int? parentId = null, int indentLevel = 0)
         {
             var nodeId = context.NodeId++;
-            var actions = new List<RoomAction>();
+            var actions = new List<CommandAction>();
             var subSteps = new Dictionary<string, ConversationNode>();
 
             context.LineIndentSize = ReadIndentation(reader);

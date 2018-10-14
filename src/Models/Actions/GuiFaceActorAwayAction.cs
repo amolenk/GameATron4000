@@ -8,29 +8,29 @@ using System.Linq;
 
 namespace GameATron4000.Models.Actions
 {
-    public class GuiCloseCloseUpAction : CommandAction
+    public class GuiFaceActorAwayAction : CommandAction
     {
-        public const string Name = "GUI:CloseCloseUp";
+        public const string Name = "GUI:FaceActorAway";
 
         [JsonConstructor]
-        private GuiCloseCloseUpAction()
+        private GuiFaceActorAwayAction()
         {
         }
 
-        public GuiCloseCloseUpAction(List<string> args, Precondition[] preconditions)
+        public GuiFaceActorAwayAction(List<string> args, Precondition[] preconditions)
             : base(preconditions)
         {
-            CloseUpId = args[0];
+            ActorId = args[0];
         }
 
         [JsonProperty]
-        public string CloseUpId { get; private set; }
+        public string ActorId { get; private set; }
 
         public override string Execute(DialogContext dc, IList<IActivity> activities, IDictionary<string, object> state) {
 
-            activities.Add(CreateEventActivity(dc, "CloseUpClosed", JObject.FromObject(new
+            activities.Add(CreateEventActivity(dc, "ActorFacedAway", JObject.FromObject(new
             {
-                closeUpId = CloseUpId
+                actorId = ActorId
             })));
 
             return string.Empty;

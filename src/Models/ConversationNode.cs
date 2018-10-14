@@ -4,7 +4,7 @@ namespace GameATron4000.Models
 {
     public class ConversationNode
     {
-        public ConversationNode(int id, List<RoomAction> actions, int? parentId, Dictionary<string, ConversationNode> childNodes)
+        public ConversationNode(int id, List<CommandAction> actions, int? parentId, Dictionary<string, ConversationNode> childNodes)
         {
             this.Id = id;
             this.Actions = actions;
@@ -14,7 +14,7 @@ namespace GameATron4000.Models
 
         public int Id { get; }
 
-        public IEnumerable<RoomAction> Actions { get; }
+        public IEnumerable<CommandAction> Actions { get; }
 
         public int? ParentId { get; }
 

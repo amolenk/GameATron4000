@@ -1,5 +1,5 @@
 {
-    "InitialRoom": "ufo",
+    "InitialRoom": "park",
     "SupportsGui": true,
     "PlayerActor": "guy",
     "BadCommandResponses": [ "Sorry, you can't do that." ],
