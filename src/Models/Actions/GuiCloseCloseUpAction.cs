@@ -26,14 +26,14 @@ namespace GameATron4000.Models.Actions
         [JsonProperty]
         public string CloseUpId { get; private set; }
 
-        public override string Execute(DialogContext dc, IList<IActivity> activities, IDictionary<string, object> state) {
+        public override CommandActionResult Execute(DialogContext dc, IList<IActivity> activities, IDictionary<string, object> state) {
 
             activities.Add(CreateEventActivity(dc, "CloseUpClosed", JObject.FromObject(new
             {
                 closeUpId = CloseUpId
             })));
 
-            return string.Empty;
+            return CommandActionResult.None;
         }
     }
 }

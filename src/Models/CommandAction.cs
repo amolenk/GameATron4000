@@ -24,7 +24,7 @@ namespace GameATron4000.Models
         [JsonProperty]
         public Precondition[] Preconditions { get; private set; }
 
-        public abstract string Execute(DialogContext dc, IList<IActivity> activities, IDictionary<string, object> state);
+        public abstract CommandActionResult Execute(DialogContext dc, IList<IActivity> activities, IDictionary<string, object> state);
 
         protected static Activity CreateEventActivity(DialogContext dc, string name, JObject properties = null)
         {

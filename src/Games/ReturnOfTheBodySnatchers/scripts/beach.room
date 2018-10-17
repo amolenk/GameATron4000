@@ -1,12 +1,12 @@
-player: <RoomSwitched>
-[GUI:PlaceActor=guy "Guy Scotthrie" 490 420]
+Player: <InitializeRoom>
+[GUI:PlaceActor=Guy "Guy Scotthrie" 490 420]
 [GUI:PlaceObject=tractorbeam "" 490 225 true]
 
-player: <RoomEntered>
+Player: <EnterRoom>
 [GUI:Delay=1500]
 [GUI:RemoveObject=tractorbeam]
 [GUI:Delay=1000]
-guy: That's just great!
-guy: I hope there's a supermarket around here...
+Guy: That's just great!
+Guy: I hope there's a supermarket around here...
 [GUI:Delay=1000]
 [GUI:MoveActor=guy 850 430]

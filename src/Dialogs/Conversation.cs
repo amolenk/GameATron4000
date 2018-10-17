@@ -38,11 +38,9 @@ namespace GameATron4000.Dialogs
 
         private async Task RunStep(DialogContext dc, string option = null)
         {
-            if (dc == null) throw new ArgumentNullException(nameof(dc));
-
             var state = dc.Context.GetConversationState<Dictionary<string, object>>();
 
-            // Find the current dialog tree node using the saved Step state.
+            // Find the current conversation tree node using the saved Step state.
             var node = dc.ActiveDialog.Step == 0 ? _rootNode : _rootNode.Find(dc.ActiveDialog.Step);
 
             // Find the node that contains the actions for the reply.
@@ -78,7 +76,7 @@ namespace GameATron4000.Dialogs
                 }
             }
 
-            // Check if the dialog tree should continue;
+            // Check if the conversation tree should continue;
             if (nextNode != null)
             {
                 // If there are no child nodes in the next node, there's nothing for the player to do.
@@ -88,10 +86,10 @@ namespace GameATron4000.Dialogs
                     nextNode = node;
                 }
 
-                // List the dialog tree options for the player.
+                // List the conversation tree options for the player.
                 var options = nextNode.ChildNodes.Select(s => s.Key).ToArray();
 
-                // Add the dialog tree options to the last outbound messages activity.
+                // Add the conversation tree options to the last outbound messages activity.
                 var lastMessageIndex = activities.FindLastIndex(a => a.Type == ActivityTypes.Message);
                 var text = activities[lastMessageIndex].AsMessageActivity().Text;
                 activities[lastMessageIndex] = MessageFactory.SuggestedActions(options, text);

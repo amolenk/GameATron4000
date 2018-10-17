@@ -50,7 +50,7 @@ namespace GameATron4000.Models.Actions
         [JsonProperty]
         public string TextColor { get; private set; }
 
-        public override string Execute(DialogContext dc, IList<IActivity> activities, IDictionary<string, object> state) {
+        public override CommandActionResult Execute(DialogContext dc, IList<IActivity> activities, IDictionary<string, object> state) {
 
             activities.Add(CreateEventActivity(dc, "ActorPlacedInRoom", JObject.FromObject(new
             {
@@ -61,7 +61,7 @@ namespace GameATron4000.Models.Actions
                 textColor = TextColor
             })));
 
-            return string.Empty;
+            return CommandActionResult.None;
         }
     }
 }

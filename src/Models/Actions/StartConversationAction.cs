@@ -28,9 +28,9 @@ namespace GameATron4000.Models.Actions
         [JsonProperty]
         public string ConversationId { get; private set; }
 
-        public override string Execute(DialogContext dc, IList<IActivity> activities, IDictionary<string, object> state)
+        public override CommandActionResult Execute(DialogContext dc, IList<IActivity> activities, IDictionary<string, object> state)
         {
-            return ConversationId;
+            return CommandActionResult.StartConversation(ConversationId);
         }
     }
 }

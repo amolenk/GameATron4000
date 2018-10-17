@@ -1,35 +1,35 @@
+
 using System.Collections.Generic;
-using System.Linq;
-using GameATron4000.Extensions;
 using GameATron4000.Models;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Schema;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Linq;
 
 namespace GameATron4000.Models.Actions
 {
-    public class ClearFlagAction : CommandAction
+    public class GuiRoomInitializationStartedAction : CommandAction
     {
-        public const string Name = "ClearFlag";
-
         [JsonConstructor]
-        private ClearFlagAction()
+        private GuiRoomInitializationStartedAction()
         {
         }
 
-        public ClearFlagAction(List<string> args, Precondition[] preconditions)
-            : base(preconditions)
+        public GuiRoomInitializationStartedAction(string roomId)
         {
-            FlagName = args[0];
+            RoomId = roomId;
         }
 
         [JsonProperty]
-        public string FlagName { get; private set; }
+        public string RoomId { get; private set; }
 
         public override CommandActionResult Execute(DialogContext dc, IList<IActivity> activities, IDictionary<string, object> state)
         {
-            state.ClearFlag(FlagName);
+            activities.Add(CreateEventActivity(dc, "RoomInitializationStarted", JObject.FromObject(new
+            {
+                roomId = RoomId
+            })));
 
             return CommandActionResult.None;
         }

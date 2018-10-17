@@ -44,7 +44,7 @@ namespace GameATron4000.Games
                 var roomId = Path.GetFileNameWithoutExtension(roomScriptPath);
                 var commands = roomParser.Parse(roomScriptPath);
 
-                gameInfo.Dialogs.Add(roomId, new Room(roomId, commands));
+                gameInfo.Dialogs.Add(roomId, new Room(roomId, commands, gameInfo.BadCommandResponses, gameInfo.PlayerActor));
             }
 
             foreach (var conversationScriptPath in Directory.GetFiles(scriptDir, "*.conversation"))

@@ -46,7 +46,6 @@ namespace GameATron4000
 
                 if (!state.ContainsKey("GameName"))
                 {
-                    // TODO Validate
                     state.Add("GameName", context.Activity.Text);
                 }
 

@@ -22,9 +22,9 @@ namespace GameATron4000.Models.Actions
         {
         }
 
-        public override string Execute(DialogContext dc, IList<IActivity> activities, IDictionary<string, object> state)
+        public override CommandActionResult Execute(DialogContext dc, IList<IActivity> activities, IDictionary<string, object> state)
         {
-            return string.Empty;
+            return CommandActionResult.None;
         }
     }
 }

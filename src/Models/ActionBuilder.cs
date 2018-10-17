@@ -18,6 +18,7 @@ namespace GameATron4000.Models
                 [ GuiFaceActorAwayAction.Name ] = (args, preconditions) => new GuiFaceActorAwayAction(args, preconditions),
                 [ GuiFaceActorFrontAction.Name ] = (args, preconditions) => new GuiFaceActorFrontAction(args, preconditions),
                 [ GuiMoveActorAction.Name ] = (args, preconditions) => new GuiMoveActorAction(args, preconditions),
+                [ GuiNarratorAction.Name ] = (args, preconditions) => new GuiNarratorAction(args, preconditions),
                 [ GuiOpenCloseUpAction.Name ] = (args, preconditions) => new GuiOpenCloseUpAction(args, preconditions),
                 [ GuiPlaceActorAction.Name ] = (args, preconditions) => new GuiPlaceActorAction(args, preconditions),
                 [ GuiPlaceObjectAction.Name ] = (args, preconditions) => new GuiPlaceObjectAction(args, preconditions),

@@ -4,9 +4,9 @@ namespace GameATron4000.Models
 {
     public class Command
     {
-        public const string RoomSwitched = "<RoomSwitched>";
+        public const string InitializeRoom = "<InitializeRoom>";
 
-        public const string RoomEntered = "<RoomEntered>";
+        public const string EnterRoom = "<EnterRoom>";
 
         private static readonly IEnumerable<Precondition> EmptyPreconditions = new Precondition[0];
         

@@ -11,6 +11,8 @@ namespace GameATron4000.Pages
 {
     public class PlayModel : PageModel
     {
+        public string GameTitle { get; private set; }
+
         public string PlayerActor { get; private set; }
 
         public string GameAssetsJson { get; private set; }
@@ -20,6 +22,7 @@ namespace GameATron4000.Pages
             var gameCatalog = new GameCatalog("Games");
             var gameInfo = gameCatalog.LoadGame(game);
 
+            GameTitle = gameInfo.Title;
             PlayerActor = gameInfo.PlayerActor;
             GameAssetsJson = JsonConvert.SerializeObject(gameInfo.Assets
                 .Select(asset => new

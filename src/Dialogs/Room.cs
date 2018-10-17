@@ -14,59 +14,65 @@ namespace GameATron4000.Dialogs
 {
     public class Room : Dialog, IDialogContinue, IDialogResume
     {
-        // TODO Let player actor speak these and also show them if command is known, but no actions performed
-        private static readonly string[] _cannedResponses = new string[]
-        {
-            "You can't do that.",
-            "Why?",
-            "Hmm, better not.",
-            "That will probably crash the game!"
-        };
-
-        private readonly Random _random;
         private readonly string _roomId;
         private readonly List<Command> _commands;
+        private readonly string[] _badCommandResponses;
+        private readonly string _playerActorId;
+        private readonly Random _random;
 
-        public Room(string roomId, List<Command> commands)
+        public Room(string roomId, List<Command> commands, string[] badCommandResponses, string playerActorId)
         {
-            _random = new Random();
             _roomId = roomId;
             _commands = commands;
+            _badCommandResponses = badCommandResponses;
+            _playerActorId = playerActorId;
+            _random = new Random();
         }
 
         public async Task DialogBegin(DialogContext dc, IDictionary<string, object> dialogArgs = null)
         {
             if (dc == null) throw new ArgumentNullException(nameof(dc));
 
-            // TODO Use RoomInitializationStarted/Completed in separate private method.
+            var state = dc.Context.GetConversationState<Dictionary<string, object>>();
 
-            // Send a RoomSwitched event to the client so the GUI can populate the new room.
-            await dc.Context.SendActivity(CreateEventActivity(dc, "RoomSwitched", JObject.FromObject(new
-            {
-                roomId = _roomId
-            })));
+            // When the player enters a new room, send a bunch of activities to initialize the room.
+            var actions = new List<CommandAction>();
 
-            await RunCommand(Command.RoomSwitched, dc);
+            // Room initialization takes care of populating the room with actors and objects.
+            actions.Add(new GuiRoomInitializationStartedAction(_roomId));
+            actions.AddRange(GetActions(Command.InitializeRoom, state));
+            actions.Add(new GuiRoomInitializationCompletedAction());
 
-            // Send a RoomEntered event to the client so the GUI can show the images for the room.
-            var roomEnteredActivity = CreateEventActivity(dc, "RoomEntered");
-            await dc.Context.SendActivity(roomEnteredActivity);
+            // There may be some actions that must be performed immediately after the player
+            // enters the room (e.g. walk to a specific spot). Add those actions to the list as well.
+            actions.AddRange(GetActions(Command.EnterRoom, state));
 
-//            if (dc.Context.Activity.Type == ActivityTypes.Message)
-  //          {
-    //            await RunCommand(Command.PopulateRoom, dc);
-                await RunCommand(Command.RoomEntered, dc);
-      //      }
+            // Map the actions to Bot Framework activities and send them to the client.
+            await ExecuteActions(dc, actions, state);
         }
 
         public async Task DialogContinue(DialogContext dc)
         {
             if (dc == null) throw new ArgumentNullException(nameof(dc));
 
-            if (dc.Context.Activity.Type == ActivityTypes.Message)
+            // The activity text contains the player command.
+            var command = dc.Context.Activity.Text;
+            var state = dc.Context.GetConversationState<Dictionary<string, object>>();
+
+            // Get the actions for the command from the game script.
+            var actions = GetActions(command,state);
+
+            // If there are no actions; reply with a standard response.
+            if (!actions.Any())
             {
-                await RunCommand(dc);
+                actions = new CommandAction[]
+                {
+                    new SpeakAction(_badCommandResponses[_random.Next(0, _badCommandResponses.Length)], _playerActorId)
+                };
             }
+
+            // Map the actions to Bot Framework activities and send them to the client.
+            await ExecuteActions(dc, actions, state);
         }
 
         public async Task DialogResume(DialogContext dc, IDictionary<string, object> result)
@@ -75,82 +81,78 @@ namespace GameATron4000.Dialogs
 
             var state = dc.Context.GetConversationState<Dictionary<string, object>>();
 
+            // We've just finished a conversation with an actor. Check the state if the game script
+            // contains any further actions to execute.
             object onResumeActions = null;
             if (state.Remove("actionStack", out onResumeActions))
             {
-                await ExecuteActions(dc, (List<CommandAction>)onResumeActions, true);
+                // Map the actions to Bot Framework activities and send them to the client.
+                await ExecuteActions(dc, (List<CommandAction>)onResumeActions, state);
             }
         }
 
-        private Task RunCommand(DialogContext dc)
+        private IEnumerable<CommandAction> GetActions(string commandText, Dictionary<string, object> state)
         {
-            return RunCommand(dc.Context.Activity.Text, dc);
-        }
-
-        private async Task RunCommand(string commandText, DialogContext dc)
-        {
-            if (dc == null) throw new ArgumentNullException(nameof(dc));
-
-            var state = dc.Context.GetConversationState<Dictionary<string, object>>();
-
+            // Try to find a matching command for the player's input.
             var command = _commands
                 .Where(cmd => string.Equals(cmd.Text, commandText, StringComparison.OrdinalIgnoreCase))
                 .FirstOrDefault();
 
-            if (command != null)
-            {
-                var actions = command.Actions
-                    .Where(a => a.Preconditions.All(pc => state.SatifiesPrecondition(pc)));
-
-                // Execute the actions, but don't send an Idle event yet if we've just switched rooms.
-                await ExecuteActions(dc, actions, command.Text != Command.RoomSwitched);
-            }
-            else
-            {
-                // The player typed something we didn't expect; reply with a standard response.
-                await ExecuteActions(dc, new CommandAction[]
-                {
-                    // TODO Constant?
-                    new SpeakAction(_cannedResponses[_random.Next(0, _cannedResponses.Length)], "Narrator")
-                }, true); 
-            }
+            // If we've found a matching command, return all actions for which the preconditions can be
+            // satisfied.
+            return (command != null)
+                ? command.Actions.Where(a => a.Preconditions.All(pc => state.SatifiesPrecondition(pc)))
+                : Enumerable.Empty<CommandAction>();
         }
 
-        private async Task ExecuteActions(DialogContext dc, IEnumerable<CommandAction> actions, bool sendIdleEvent)
+        private async Task ExecuteActions(DialogContext dc, IEnumerable<CommandAction> actions, Dictionary<string, object> state)
         {
-            if (dc == null) throw new ArgumentNullException(nameof(dc));
-
             var activities = new List<IActivity>();
-
-            var state = dc.Context.GetConversationState<Dictionary<string, object>>();
             var actionStack = new Stack<CommandAction>(actions.Reverse());
 
+            // Process each action in turn, populating the activities list.
             CommandAction action;
             while (actionStack.TryPop(out action))
             {
-                var nextDialogId = action.Execute(dc, activities, state);
-                if (!string.IsNullOrEmpty(nextDialogId))
+                var nextDialogAction = action.Execute(dc, activities, state);
+                if (nextDialogAction.NextDialogType != DialogType.None)
                 {
+                    // If the result of the action indicates that we need to start a new dialog
+                    // (e.g. conversation with an actor, or a switch to a new room), first send all
+                    // activities collected up to this point to the client.
                     if (activities.Any())
                     {
                         await dc.Context.SendActivities(activities.ToArray());
                     }
 
-                    // Stacks don't serialize in the correct order.
-                    // See https://github.com/JamesNK/Newtonsoft.Json/issues/971.
-                    state["actionStack"] = actionStack.ToList();
+                    if (nextDialogAction.NextDialogType == DialogType.Conversation)
+                    {
+                        // If the player starts a conversation, save any remaining actions to the state.
+                        // These will be executed when the conversation is done and this dialog
+                        // continues.
+                        if (actionStack.Any())
+                        {
+                            // Conver to List because Stacks don't serialize in the correct order.
+                            // See https://github.com/JamesNK/Newtonsoft.Json/issues/971.
+                            state["actionStack"] = actionStack.ToList();
+                        }
 
-                    // TODO We should replace when switching rooms!
-                    await dc.Begin(nextDialogId);
+                        // Start the conversation.
+                        await dc.Begin(nextDialogAction.NextDialogId);
+                    }
+                    else
+                    {
+                        // Switch to the new room.
+                        await dc.Replace(nextDialogAction.NextDialogId);
+                    }
+
+                    // Stop processing any further actions now that we've switched to a new dialog.
                     return;
                 }
             }
 
             // Add an Idle activity to let the GUI know that we're waiting for user interaction.
-            if (sendIdleEvent)
-            {
-                activities.Add(CreateEventActivity(dc, "Idle"));
-            }
+            activities.Add(CreateEventActivity(dc, "Idle"));
 
             await dc.Context.SendActivities(activities.ToArray());
         }

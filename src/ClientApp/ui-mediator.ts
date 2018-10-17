@@ -83,20 +83,13 @@ export class UIMediator {
                 var match = /(.*?) \> (.*)/.exec(message.text);
                 if (match) {
 
-                    var actorId = match[1].toLowerCase();
+                    var actor = this.room.getActor(match[1]);
+                    await actor.say(match[2]);
 
-                    if (actorId != 'narrator') {
-                        var actor = this.room.getActor(actorId);
-                        await actor.say(match[2]);
-
-                        if (message.suggestedActions) {
-                            this.conversationUI.displaySuggestedActions(
-                                this.room.getActor(PlayerActor),
-                                message.suggestedActions.actions);
-                        }
-                    }
-                    else {
-                        await this.room.narrator.say(match[2]);
+                    if (message.suggestedActions) {
+                        this.conversationUI.displaySuggestedActions(
+                            this.room.getActor(PlayerActor),
+                            message.suggestedActions.actions);
                     }
                 }
             },
@@ -105,7 +98,7 @@ export class UIMediator {
                 switch (event.name) {
                     
                     case "ActorMoved": {
-                        var actor = this.room.getActor(event.actorId.toLowerCase());
+                        var actor = this.room.getActor(event.actorId);
                         await actor.walkTo(event.x, event.y);
                         break;
                     }
@@ -158,6 +151,11 @@ export class UIMediator {
                         break;
                     }
 
+                    case "Narrated": {
+                        await this.room.narrator.say(event.text);
+                        break;
+                    }
+
                     case "ObjectPlacedInRoom": {
                         var roomObject = new RoomObject("object-" + event.objectId, event.description);
                         // Dirty hack: when an object needs to be shown in the foreground, place it in
@@ -178,7 +176,7 @@ export class UIMediator {
                         break;
                     }
 
-                    case "RoomSwitched": {
+                    case "RoomInitializationStarted": {
                         if (this.room != null) {
                             this.room.kill();
                         }
@@ -188,14 +186,13 @@ export class UIMediator {
                         break;
                     }
 
-                    case "RoomEntered": {
+                    case "RoomInitializationCompleted": {
                         this.game.lockRender = false;
                         break;
                     }
 
                     case "Idle": {
                         this.setUIVisible(true);
-//                        this.game.lockRender = false;
                         break;
                     }
                 }    

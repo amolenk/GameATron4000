@@ -6,6 +6,8 @@ namespace GameATron4000.Models
 {
     public class GameInfo
     {
+        public string Title { get; set; }
+        
         public string InitialRoom { get; set; }
 
         public bool SupportsGui { get; set; }

@@ -26,14 +26,14 @@ namespace GameATron4000.Models.Actions
         [JsonProperty]
         public string ActorId { get; private set; }
 
-        public override string Execute(DialogContext dc, IList<IActivity> activities, IDictionary<string, object> state) {
+        public override CommandActionResult Execute(DialogContext dc, IList<IActivity> activities, IDictionary<string, object> state) {
 
             activities.Add(CreateEventActivity(dc, "ActorFacedAway", JObject.FromObject(new
             {
                 actorId = ActorId
             })));
 
-            return string.Empty;
+            return CommandActionResult.None;
         }
     }
 }

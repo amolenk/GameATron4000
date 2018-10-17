@@ -31,7 +31,7 @@ namespace GameATron4000.Models.Actions
         [JsonProperty]
         public string Description { get; private set; }
 
-        public override string Execute(DialogContext dc, IList<IActivity> activities, IDictionary<string, object> state)
+        public override CommandActionResult Execute(DialogContext dc, IList<IActivity> activities, IDictionary<string, object> state)
         {
             state.SetFlag(InventoryItemId);
 
@@ -41,7 +41,7 @@ namespace GameATron4000.Models.Actions
                 description = Description
             })));
 
-            return string.Empty;
+            return CommandActionResult.None;
         }
     }
 }
