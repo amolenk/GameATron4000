@@ -46,7 +46,7 @@ module.exports = {
       {
         from: './Games/*/assets/*/*.png',
         to: 'games/[1]/[2]/[3].png',
-        test: /Games\/(.*?)\/assets\/(.*?)\/(.*?)\.png/
+        test: /Games[\\\/](.*?)[\\\/]assets[\\\/](.*?)[\\\/](.*?)\.png/
       }
     ])
   ],
