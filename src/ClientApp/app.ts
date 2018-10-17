@@ -9,14 +9,12 @@ import { Assets } from "./assets"
 import { BotClient } from "./botclient"
 import { Cursor } from "./cursor"
 import { Layers } from "./layers"
-import { Room } from "./room"
 import { UIMediator } from "./ui-mediator"
 
 class GameATron {
 
     private game: Phaser.Game;
     private cursor: Cursor;
-    private room: Room;
 
     private layers: Layers;
     private uiMediator: UIMediator;
@@ -40,8 +38,6 @@ class GameATron {
     }
 
     private preload() {
-
-        console.log(CursorImage);
 
         this.game.load.spritesheet("cursor", CursorImage, 58, 58);
         this.game.load.atlas("verbs", VerbsImage, null, VerbsImageData);

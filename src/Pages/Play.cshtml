@@ -7,6 +7,7 @@
 @section Scripts {
     <script>
     @Html.Raw($"const PlayerActor = '{Model.PlayerActor}';")
+    @Html.Raw($"const GameName = '{Model.GameName}';")
     @Html.Raw($"const GameAssets = {Model.GameAssetsJson};")
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/2.6.2/phaser.js"></script>

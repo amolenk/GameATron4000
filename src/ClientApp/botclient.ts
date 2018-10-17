@@ -2,9 +2,11 @@
 /// <reference path="../node_modules/rx/ts/rx.d.ts" />
 
 import { Action } from "./action"
-import { Activity, DirectLine } from "../node_modules/botframework-directlinejs/built/directline";
+import { DirectLine } from "../node_modules/botframework-directlinejs/built/directline";
 import { Settings } from "./settings"
 import "../node_modules/rxjs/add/operator/concatMap";
+
+declare var GameName: any;
 
 export class BotClient {
 
@@ -26,19 +28,17 @@ export class BotClient {
 
                 var activity = <any>x;
 
-                console.log("🤖 " + this.activityToString(activity));
-                
-
-                //TODO
                 if (!this.conversationId) {
                     this.conversationId = activity.conversation.id;
+                    console.log("Connected to 🤖")
                 }
 
+                console.log("🤖 " + this.activityToString(activity));
+                
                 if (activity.type == "message")
                 {
                     if (activity.text == "Which game do you want to play?") {
-                        // TODO
-                        this.sendMessageToBot("ReturnOfTheBodySnatchers");
+                        this.sendMessageToBot(GameName);
                     } else {
                         await onMessage(activity);
                     }
@@ -49,8 +49,6 @@ export class BotClient {
                 }
             })
             .subscribe();
-
-        console.log("Subscribed to 🤖")
     }
 
     public async sendActionToBot(action: Action) {
