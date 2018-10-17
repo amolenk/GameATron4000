@@ -16,8 +16,8 @@ Guy: It's my grocery list!
 Guy: I've bought everything that's on it!
 
 Player: look at guy scotthrie
-[GUI:Narrator]: "It’s Guy Scotthrie, our fearless hero!"
-[Text:Describe]: "It’s Guy Scotthrie, our fearless hero!"
+[GUI:Narrator="It’s Guy Scotthrie, our fearless hero!"]
+[Text:Describe="It’s Guy Scotthrie, our fearless hero!"]
 
 Player: use grocery list with bag of groceries
 Guy: Yep, I’ve got everything on the list!

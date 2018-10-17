@@ -60,7 +60,7 @@ namespace GameATron4000.Dialogs
             var state = dc.Context.GetConversationState<Dictionary<string, object>>();
 
             // Get the actions for the command from the game script.
-            var actions = GetActions(command,state);
+            var actions = GetActions(command, state);
 
             // If there are no actions; reply with a standard response.
             if (!actions.Any())

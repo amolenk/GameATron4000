@@ -68,8 +68,8 @@ Guy: He looks a bit more important than the other one!
 Al: Hey, I'm right here!
 
 Player: look at guy scotthrie
-[GUI:Narrator]: "It’s Guy Scotthrie, our fearless hero!"
-[Text:Describe]: "It’s Guy Scotthrie, our fearless hero!"
+[GUI:Narrator="It’s Guy Scotthrie, our fearless hero!"]
+[Text:Describe="It’s Guy Scotthrie, our fearless hero!"]
 
 Player: talk to al
 [GUI:MoveActor=Guy 430 420]
