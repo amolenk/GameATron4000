@@ -74,7 +74,7 @@ Player: look at guy scotthrie
 Player: talk to al
 [GUI:MoveActor=Guy 430 420]
 [GUI:FaceActorAway=Guy]
-[StartConversation=Al true]
+[StartConversation=al true]
 [GUI:FaceActorFront=Guy]
 
 Player: open fridge
