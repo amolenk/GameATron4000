@@ -7,7 +7,7 @@ Player: <InitializeRoom>
 [GUI:FaceActorAway=Ian]
 
 Player: <EnterRoom>
-[Text:Describe="You have been transported to an actual UFO!. There are two aliens in the room with you with 'Al' and 'Ian' name tags. There's a device that somewhat resembles a fridge, and Ian seems to be very interested in a to-do list hanging on the wall."]
+[Text:Describe="You have been transported to an actual UFO! There are two aliens in the room with you with 'Al' and 'Ian' name tags. There's a device that somewhat resembles a fridge, and Ian seems to be very interested in a to-do list hanging on the wall."]
 Guy: I guess you CAN believe everything you read in the newspapers!
 [GUI:FaceActorFront=Ian]
 [GUI:MoveActor=Ian 530 390]
