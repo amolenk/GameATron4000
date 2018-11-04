@@ -1,47 +1,59 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using GameATron4000.Models;
 using GameATron4000.Models.Actions;
-using Microsoft.Bot.Builder.Core.Extensions;
+using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Schema;
 
 namespace GameATron4000.Dialogs
 {
-    public class Conversation : Dialog, IDialogContinue
+    public class Conversation : Dialog
     {
+        private readonly string _conversationId;
         private readonly ConversationNode _rootNode;
+        private GameBotAccessors _stateAccessors;
 
-        public Conversation(ConversationNode rootNode)
+        public Conversation( string conversationId, ConversationNode rootNode, GameBotAccessors stateAccessors) : base(conversationId)
         {
+            _conversationId = conversationId;
             _rootNode = rootNode;
+            _stateAccessors = stateAccessors;
         }
 
-        public Task DialogBegin(DialogContext dc, IDictionary<string, object> dialogArgs = null)
+        public override async Task<DialogTurnResult> BeginDialogAsync(DialogContext dc, object options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (dc == null) throw new ArgumentNullException(nameof(dc));
 
-            return RunStep(dc);
+            return await RunStepAsync(dc);
         }
 
-        public async Task DialogContinue(DialogContext dc)
+        public override async Task<DialogTurnResult> ContinueDialogAsync(DialogContext dc, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (dc == null) throw new ArgumentNullException(nameof(dc));
 
             if (dc.Context.Activity.Type == ActivityTypes.Message)
             {
-                await RunStep(dc, dc.Context.Activity.Text);
+                return await RunStepAsync(dc, dc.Context.Activity.Text);
             }
+
+            return new DialogTurnResult(DialogTurnStatus.Empty);
         }
 
-        private async Task RunStep(DialogContext dc, string option = null)
+        private async Task<DialogTurnResult> RunStepAsync(DialogContext dc, string option = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var state = dc.Context.GetConversationState<Dictionary<string, object>>();
+            var state = await _stateAccessors.GameState.GetAsync(dc.Context, 
+                () => new Dictionary<string,object>(), cancellationToken);
 
             // Find the current conversation tree node using the saved Step state.
-            var node = dc.ActiveDialog.Step == 0 ? _rootNode : _rootNode.Find(dc.ActiveDialog.Step);
+            var node = _rootNode;
+            if (dc.ActiveDialog.State.ContainsKey("Step"))
+            {
+                node = _rootNode.Find(Convert.ToInt32(dc.ActiveDialog.State["Step"]));
+            } 
 
             // Find the node that contains the actions for the reply.
             var nextNode = (option != null && node.ChildNodes.ContainsKey(option))
@@ -96,18 +108,20 @@ namespace GameATron4000.Dialogs
             }
 
             // Send all activities to the client.
-            await dc.Context.SendActivities(activities.ToArray());
+            await dc.Context.SendActivitiesAsync(activities.ToArray());
 
             // Update the state so the next turn will start at the correct location in the dialog tree.
             if (nextNode != null)
             {
-                dc.ActiveDialog.Step = nextNode.Id;
+                dc.ActiveDialog.State["Step"] = nextNode.Id;
             }
             // Or end the dialog tree if there's no next node.
             else
             {
-                await dc.End();
+                await dc.EndDialogAsync();
             }
+
+            return new DialogTurnResult(DialogTurnStatus.Waiting);
         }
     }
 }

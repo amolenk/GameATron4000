@@ -19,9 +19,9 @@ namespace GameATron4000.Pages
 
         public string GameAssetsJson { get; private set; }
     
-        public void OnGet(string game)
+        public void OnGet(string game, GameBotAccessors stateAccessors)
         {
-            var gameCatalog = new GameCatalog("Games");
+            var gameCatalog = new GameCatalog("Games", stateAccessors);
             var gameInfo = gameCatalog.LoadGame(game);
 
             GameName = game;

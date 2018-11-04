@@ -14,9 +14,7 @@ namespace GameATron4000.Pages
 
         public void OnGet()
         {
-            var gameCatalog = new GameCatalog("Games");
-
-            GameNames = gameCatalog.GetGameNames().OrderBy(n => n);
+            GameNames = GameCatalog.GetGameNames("Games").OrderBy(n => n);
         }
     }
 }

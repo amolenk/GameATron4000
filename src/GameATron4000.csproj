@@ -14,11 +14,12 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.App" />
-    <PackageReference Include="Microsoft.Bot.Builder.Core" Version="4.0.1-preview"/>
-    <PackageReference Include="Microsoft.Bot.Builder.Core.Extensions" Version="4.0.1-preview"/>
-    <PackageReference Include="Microsoft.Bot.Builder.Integration.AspNet.Core" Version="4.0.1-preview"/>
-    <PackageReference Include="Microsoft.Bot.Builder.Dialogs" Version="4.0.1-preview"/>
-    <PackageReference Include="Newtonsoft.Json" Version="11.0.2"/>
+    <PackageReference Include="Microsoft.Bot.Builder.AI.Luis" Version="4.1.1" />
+    <PackageReference Include="Microsoft.Bot.Builder" Version="4.1.1" />
+    <PackageReference Include="Microsoft.Bot.Configuration" Version="4.1.1" />    
+    <PackageReference Include="Microsoft.Bot.Builder.Integration.AspNet.Core" Version="4.1.1" />
+    <PackageReference Include="Microsoft.Bot.Builder.Dialogs" Version="4.1.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
   </ItemGroup>
 
   <Target Name="DebugRunWebpack" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('wwwroot\dist') ">

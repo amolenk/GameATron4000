@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using GameATron4000.Models;
-using Microsoft.Bot.Builder.Core.Extensions;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Schema;
 using Newtonsoft.Json;

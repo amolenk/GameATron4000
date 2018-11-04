@@ -18,6 +18,15 @@
             "tenantId": "c916455d-ec0d-4d68-8fa7-3d0f896c6e3f",
             "subscriptionId": "3cabbfa5-126e-4dc3-b68d-1d7fd2ad4583",
             "resourceGroup": "GameATron4000"
+        },
+        {
+            "type": "luis",
+            "name": "gameatron4000",
+            "AppId": "GAMEATRON4000_LUIS_APPID",
+            "SubscriptionKey": "GAMEATRON4000_LUIS_KEY",
+            "AuthoringKey": "GAMEATRON4000_LUIS_KEY",
+            "GetEndpoint": "GAMEATRON4000_LUIS_EP",
+            "Region": "westus"
         }
     ]
 }

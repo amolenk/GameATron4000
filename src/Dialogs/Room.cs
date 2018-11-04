@@ -1,39 +1,43 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using GameATron4000.Extensions;
 using GameATron4000.Models;
 using GameATron4000.Models.Actions;
-using Microsoft.Bot.Builder.Core.Extensions;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Schema;
 using Newtonsoft.Json.Linq;
 
 namespace GameATron4000.Dialogs
 {
-    public class Room : Dialog, IDialogContinue, IDialogResume
+    public class Room : Dialog
     {
         private readonly string _roomId;
         private readonly List<Command> _commands;
         private readonly string[] _badCommandResponses;
         private readonly string _playerActorId;
         private readonly Random _random;
+        private readonly GameBotAccessors _stateAccessors;
 
-        public Room(string roomId, List<Command> commands, string[] badCommandResponses, string playerActorId)
+        public Room(string roomId, List<Command> commands, string[] badCommandResponses, string playerActorId,
+            GameBotAccessors stateAccessors) : base(roomId)
         {
             _roomId = roomId;
             _commands = commands;
             _badCommandResponses = badCommandResponses;
             _playerActorId = playerActorId;
             _random = new Random();
+            _stateAccessors = stateAccessors;
         }
 
-        public async Task DialogBegin(DialogContext dc, IDictionary<string, object> dialogArgs = null)
+        public override async Task<DialogTurnResult> BeginDialogAsync(DialogContext dc, object options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (dc == null) throw new ArgumentNullException(nameof(dc));
 
-            var state = dc.Context.GetConversationState<Dictionary<string, object>>();
+            var state = await _stateAccessors.GameState.GetAsync(dc.Context, 
+                () => new Dictionary<string,object>(), cancellationToken);
 
             // When the player enters a new room, send a bunch of activities to initialize the room.
             var actions = new List<CommandAction>();
@@ -49,15 +53,18 @@ namespace GameATron4000.Dialogs
 
             // Map the actions to Bot Framework activities and send them to the client.
             await ExecuteActions(dc, actions, state);
+
+            return new DialogTurnResult(DialogTurnStatus.Waiting);
         }
 
-        public async Task DialogContinue(DialogContext dc)
+        public override async Task<DialogTurnResult> ContinueDialogAsync(DialogContext dc, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (dc == null) throw new ArgumentNullException(nameof(dc));
 
             // The activity text contains the player command.
             var command = dc.Context.Activity.Text;
-            var state = dc.Context.GetConversationState<Dictionary<string, object>>();
+            var state = await _stateAccessors.GameState.GetAsync(dc.Context, 
+                () => new Dictionary<string,object>(), cancellationToken);
 
             // Get the actions for the command from the game script.
             var actions = GetActions(command, state);
@@ -73,13 +80,16 @@ namespace GameATron4000.Dialogs
 
             // Map the actions to Bot Framework activities and send them to the client.
             await ExecuteActions(dc, actions, state);
+
+            return new DialogTurnResult(DialogTurnStatus.Waiting);
         }
 
-        public async Task DialogResume(DialogContext dc, IDictionary<string, object> result)
+        public override async Task<DialogTurnResult> ResumeDialogAsync(DialogContext dc, DialogReason reason, object result = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (dc == null) throw new ArgumentNullException(nameof(dc));
 
-            var state = dc.Context.GetConversationState<Dictionary<string, object>>();
+            var state = await _stateAccessors.GameState.GetAsync(dc.Context, 
+                () => new Dictionary<string,object>(), cancellationToken);
 
             // We've just finished a conversation with an actor. Check the state if the game script
             // contains any further actions to execute.
@@ -89,9 +99,15 @@ namespace GameATron4000.Dialogs
                 // Map the actions to Bot Framework activities and send them to the client.
                 await ExecuteActions(dc, (List<CommandAction>)onResumeActions, state);
             }
+
+            // save state
+            await _stateAccessors.GameState.SetAsync(dc.Context, state);
+            await _stateAccessors.ConversationState.SaveChangesAsync(dc.Context, true, cancellationToken);
+
+            return new DialogTurnResult(DialogTurnStatus.Waiting);
         }
 
-        private IEnumerable<CommandAction> GetActions(string commandText, Dictionary<string, object> state)
+        private IEnumerable<CommandAction> GetActions(string commandText, IDictionary<string, object> state)
         {
             // Try to find a matching command for the player's input.
             var command = _commands
@@ -105,7 +121,7 @@ namespace GameATron4000.Dialogs
                 : Enumerable.Empty<CommandAction>();
         }
 
-        private async Task ExecuteActions(DialogContext dc, IEnumerable<CommandAction> actions, Dictionary<string, object> state)
+        private async Task ExecuteActions(DialogContext dc, IEnumerable<CommandAction> actions, IDictionary<string, object> state)
         {
             var activities = new List<IActivity>();
             var actionStack = new Stack<CommandAction>(actions.Reverse());
@@ -122,7 +138,7 @@ namespace GameATron4000.Dialogs
                     // activities collected up to this point to the client.
                     if (activities.Any())
                     {
-                        await dc.Context.SendActivities(activities.ToArray());
+                        await dc.Context.SendActivitiesAsync(activities.ToArray());
                     }
 
                     if (nextDialogAction.NextDialogType == DialogType.Conversation)
@@ -138,12 +154,12 @@ namespace GameATron4000.Dialogs
                         }
 
                         // Start the conversation.
-                        await dc.Begin(nextDialogAction.NextDialogId);
+                        await dc.BeginDialogAsync(nextDialogAction.NextDialogId);
                     }
                     else
                     {
                         // Switch to the new room.
-                        await dc.Replace(nextDialogAction.NextDialogId);
+                        await dc.ReplaceDialogAsync(nextDialogAction.NextDialogId);
                     }
 
                     // Stop processing any further actions now that we've switched to a new dialog.
@@ -154,7 +170,7 @@ namespace GameATron4000.Dialogs
             // Add an Idle activity to let the GUI know that we're waiting for user interaction.
             activities.Add(CreateEventActivity(dc, "Idle"));
 
-            await dc.Context.SendActivities(activities.ToArray());
+            await dc.Context.SendActivitiesAsync(activities.ToArray());
         }
 
         private static Activity CreateEventActivity(DialogContext dc, string name, JObject properties = null)
