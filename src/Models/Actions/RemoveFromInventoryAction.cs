@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using GameATron4000.Models;
-using GameATron4000.Extensions;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Schema;
 using Newtonsoft.Json;
@@ -27,9 +26,9 @@ namespace GameATron4000.Models.Actions
         [JsonProperty]
         public string InventoryItemId { get; private set; }
 
-        public override CommandActionResult Execute(DialogContext dc, IList<IActivity> activities, IDictionary<string, object> state)
+        public override CommandActionResult Execute(DialogContext dc, IList<IActivity> activities, GameFlags flags)
         {
-            state.ClearFlag(InventoryItemId);
+            flags.ClearFlag(InventoryItemId);
             
             activities.Add(CreateEventActivity(dc, "InventoryItemRemoved", JObject.FromObject(new
             {

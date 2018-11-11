@@ -38,7 +38,7 @@ namespace GameATron4000.Models.Actions
         [JsonProperty]
         public string ActorId { get; private set; }
 
-        public override CommandActionResult Execute(DialogContext dc, IList<IActivity> activities, IDictionary<string, object> state) {
+        public override CommandActionResult Execute(DialogContext dc, IList<IActivity> activities, GameFlags flags) {
 
             activities.Add(MessageFactory.Text($"{ActorId} > {Text}"));
 

@@ -26,7 +26,7 @@ namespace GameATron4000.Models.Actions
         [JsonProperty]
         public int Milliseconds { get; private set; }
 
-        public override CommandActionResult Execute(DialogContext dc, IList<IActivity> activities, IDictionary<string, object> state) {
+        public override CommandActionResult Execute(DialogContext dc, IList<IActivity> activities, GameFlags flags) {
 
             activities.Add(CreateEventActivity(dc, "Delayed", JObject.FromObject(new
             {

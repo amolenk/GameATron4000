@@ -1,32 +1,71 @@
 {
     "name": "GameATron4000",
     "description": "",
-    "secretKey": "",
     "services": [
         {
-            "id": "232",
-            "name": "GameATron4000",
             "type": "endpoint",
             "appId": "b0de18a0-3219-4ef1-b4a7-f144e26fa92f",
-            "appPassword": "axelNUXP7771*bizBCA7!]|",
+            "appPassword": "GNQPaw1TbrP+KK5S4wsJ+A==!2otAv9Vix0XqD2Nu+DSPIpBfrrF54pKSumriaU62ywc=",
+            "endpoint": "https://gameatron4000.azurewebsites.net/api/messages",
+            "id": "2",
+            "name": "Azure"
+        },
+        {
+            "id": "232",
+            "name": "development",
+            "type": "endpoint",
+            "appId": "b0de18a0-3219-4ef1-b4a7-f144e26fa92f",
+            "appPassword": "GNQPaw1TbrP+KK5S4wsJ+A==!2otAv9Vix0XqD2Nu+DSPIpBfrrF54pKSumriaU62ywc=",
             "endpoint": "http://localhost:5000/api/messages"
         },
         {
             "type": "abs",
-            "name": "Game-A-Tron 4000",
+            "appId": "b0de18a0-3219-4ef1-b4a7-f144e26fa92f",
             "id": "GameATron4000",
-            "tenantId": "c916455d-ec0d-4d68-8fa7-3d0f896c6e3f",
+            "name": "Game-A-Tron 4000",
+            "resourceGroup": "GameATron4000",
             "subscriptionId": "3cabbfa5-126e-4dc3-b68d-1d7fd2ad4583",
-            "resourceGroup": "GameATron4000"
+            "tenantId": "c916455d-ec0d-4d68-8fa7-3d0f896c6e3f"
         },
         {
             "type": "luis",
+            "appId": "46904df5-f37e-4beb-bac2-ad6790d45ea5",
+            "authoringKey": "CqLpvmt1tyevEhledE8IPw==!NaocaOWfKnGArojv5vN+vl/UvzkqYSgealt6jNx9uyPpYTbmY1Om0CfhBuMaRRqJ",
+            "id": "138",
             "name": "gameatron4000",
-            "AppId": "GAMEATRON4000_LUIS_APPID",
-            "SubscriptionKey": "GAMEATRON4000_LUIS_KEY",
-            "AuthoringKey": "GAMEATRON4000_LUIS_KEY",
-            "GetEndpoint": "GAMEATRON4000_LUIS_EP",
-            "Region": "westus"
+            "region": "westus",
+            "subscriptionKey": "Fm/O8/x0Oxr2V9orF2xNvw==!m8u9Ou3R43fbPxL3uOQFWNsdz7nNxQTXtdAYjv4+Tq1dlZhVRIlMgxfRUlNI44Z3",
+            "version": "0.1"
+        },
+        {
+            "type": "generic",
+            "configuration": {
+                "secret": "ByGa7M50qhBYqldfimVUgw==!9fAH9QMVTdl51fde7lN0Hy/8He8I5VsyJ4pYLbELAoiDrcDzWzZGjh+emauaeMNMxl7yPc+XMc0rgsI1gxqLtQ=="
+            },
+            "id": "55",
+            "name": "DirectLine",
+            "url": "GameATron4000"
+        },
+        {
+            "type": "abs",
+            "appId": "b0de18a0-3219-4ef1-b4a7-f144e26fa92f",
+            "resourceGroup": "GameATron4000",
+            "serviceName": "GameATron4000",
+            "subscriptionId": "3cabbfa5-126e-4dc3-b68d-1d7fd2ad4583",
+            "id": "62"
+        },
+        {
+            "type": "endpoint",
+            "appId": "b0de18a0-3219-4ef1-b4a7-f144e26fa92f",
+            "appPassword": "b7IDJTLkKWGsVNZhax9l+g==!xjb35dBUPGQGOt/74ukNf/+RtxPT5Muc3xmRT0ZO3D4=",
+            "endpoint": "https://25c86982.ngrok.io/api/messages",
+            "name": "ngrok",
+            "id": "250"
         }
-    ]
+    ],
+    "padlock": "8Vn5laavMC4F/JUy8UjeYA==!B/SilmGrGi0al61EDZxUOCTLvLDeG8hwDhJvdtza3BuAuSr+hPo4QhPzGOb/c+me",
+    "version": "2.0",
+    "path": "/Users/sander/git/GameATron4000/src/GameATron4000.bot",
+    "overrides": null,
+    "secretKey": ""
 }

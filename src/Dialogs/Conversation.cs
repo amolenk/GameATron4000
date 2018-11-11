@@ -13,15 +13,17 @@ namespace GameATron4000.Dialogs
 {
     public class Conversation : Dialog
     {
+        private const string DialogStateCurrentNodeId = "CurrentNodeId";
         private readonly string _conversationId;
         private readonly ConversationNode _rootNode;
-        private GameBotAccessors _stateAccessors;
+        private GameFlags _gameFlags;
 
-        public Conversation( string conversationId, ConversationNode rootNode, GameBotAccessors stateAccessors) : base(conversationId)
+        public Conversation(string conversationId, ConversationNode rootNode, GameFlags gameFlags)
+            : base(conversationId)
         {
             _conversationId = conversationId;
             _rootNode = rootNode;
-            _stateAccessors = stateAccessors;
+            _gameFlags = gameFlags;
         }
 
         public override async Task<DialogTurnResult> BeginDialogAsync(DialogContext dc, object options = null, CancellationToken cancellationToken = default(CancellationToken))
@@ -43,16 +45,13 @@ namespace GameATron4000.Dialogs
             return new DialogTurnResult(DialogTurnStatus.Empty);
         }
 
-        private async Task<DialogTurnResult> RunStepAsync(DialogContext dc, string option = null, CancellationToken cancellationToken = default(CancellationToken))
+        private async Task<DialogTurnResult> RunStepAsync(DialogContext dc, string option = null)
         {
-            var state = await _stateAccessors.GameState.GetAsync(dc.Context, 
-                () => new Dictionary<string,object>(), cancellationToken);
-
             // Find the current conversation tree node using the saved Step state.
             var node = _rootNode;
-            if (dc.ActiveDialog.State.ContainsKey("Step"))
+            if (dc.ActiveDialog.State.ContainsKey(DialogStateCurrentNodeId))
             {
-                node = _rootNode.Find(Convert.ToInt32(dc.ActiveDialog.State["Step"]));
+                node = _rootNode.Find(Convert.ToInt32(dc.ActiveDialog.State[DialogStateCurrentNodeId]));
             } 
 
             // Find the node that contains the actions for the reply.
@@ -83,7 +82,7 @@ namespace GameATron4000.Dialogs
                         break;
 
                     default:
-                        action.Execute(dc, activities, state);
+                        action.Execute(dc, activities, _gameFlags);
                         break;
                 }
             }
@@ -113,15 +112,14 @@ namespace GameATron4000.Dialogs
             // Update the state so the next turn will start at the correct location in the dialog tree.
             if (nextNode != null)
             {
-                dc.ActiveDialog.State["Step"] = nextNode.Id;
-            }
-            // Or end the dialog tree if there's no next node.
-            else
-            {
-                await dc.EndDialogAsync();
+                dc.ActiveDialog.State[DialogStateCurrentNodeId] = nextNode.Id;
+                return new DialogTurnResult(DialogTurnStatus.Waiting);
             }
 
-            return new DialogTurnResult(DialogTurnStatus.Waiting);
+            // Or end the dialog tree if there's no next node.
+            await dc.EndDialogAsync();
+
+            return new DialogTurnResult(DialogTurnStatus.Complete);
         }
     }
 }

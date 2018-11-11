@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using GameATron4000.Models;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;
 
@@ -13,20 +14,20 @@ namespace GameATron4000
     /// </summary>
     public class GameBotAccessors
     {
-        public GameBotAccessors(ConversationState conversationState)
-        {
-            ConversationState = conversationState ?? throw new ArgumentNullException(nameof(conversationState));
-        }
+        public static readonly string DialogStateAccessorName = $"{nameof(GameBotAccessors)}.{nameof(DialogStateAccessor)}";
 
-        public static string GameStateName { get; } = $"{nameof(GameBotAccessors)}.GameState";
-
-
-        public static string DialogStateAccessorName { get; } = $"{nameof(GameBotAccessors)}.DialogState";
-
-        public IStatePropertyAccessor<DialogState> DialogState { get; set; }
-
-        public IStatePropertyAccessor<IDictionary<string,object>> GameState { get; set; }
+        public static readonly string GameStateAccessorName = $"{nameof(GameBotAccessors)}.{nameof(GameStateAccessor)}";
 
         public ConversationState ConversationState { get; }
+
+        public IStatePropertyAccessor<DialogState> DialogStateAccessor { get; set; }
+
+        public IStatePropertyAccessor<GameState> GameStateAccessor { get; set; }
+
+        public GameBotAccessors(ConversationState conversationState)
+        {
+            this.ConversationState = conversationState
+                ?? throw new ArgumentNullException(nameof(conversationState));
+        }
     }
 }

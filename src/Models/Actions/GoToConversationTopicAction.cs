@@ -26,7 +26,7 @@ namespace GameATron4000.Models.Actions
         [JsonProperty]
         public string Topic { get; private set; }
 
-        public override CommandActionResult Execute(DialogContext dc, IList<IActivity> activities, IDictionary<string, object> state)
+        public override CommandActionResult Execute(DialogContext dc, IList<IActivity> activities, GameFlags flags)
         {
             return CommandActionResult.None;
         }

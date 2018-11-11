@@ -1,7 +1,8 @@
 /// <reference path="../node_modules/phaser/typescript/phaser.d.ts" />
 
 import { Layers } from "./layers"
-import { Settings } from "./settings"
+
+declare var options: any;
 
 export class Narrator {
 
@@ -46,7 +47,7 @@ export class Narrator {
         return new Promise((resolve) => {
             
             this.game.time.events.add(
-                Math.max(text.length * Settings.TEXT_SPEED, Settings.MIN_TEXT_DURATION),
+                Math.max(text.length * options.textSpeed, options.minTextDuration),
                 () => {
                     this.text.setText('');
                     resolve();

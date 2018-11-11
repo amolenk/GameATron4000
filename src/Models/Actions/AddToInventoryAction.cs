@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using GameATron4000.Extensions;
 using GameATron4000.Models;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Schema;
@@ -31,9 +30,9 @@ namespace GameATron4000.Models.Actions
         [JsonProperty]
         public string Description { get; private set; }
 
-        public override CommandActionResult Execute(DialogContext dc, IList<IActivity> activities, IDictionary<string, object> state)
+        public override CommandActionResult Execute(DialogContext dc, IList<IActivity> activities, GameFlags flags)
         {
-            state.SetFlag(InventoryItemId);
+            flags.SetFlag(InventoryItemId);
 
             activities.Add(CreateEventActivity(dc, "InventoryItemAdded", JObject.FromObject(new
             {
