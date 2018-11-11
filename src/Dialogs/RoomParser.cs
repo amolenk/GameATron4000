@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using GameATron4000.Models;
 using GameATron4000.Models.Actions;
 
-namespace GameATron4000.Games
+namespace GameATron4000.Dialogs
 {
     public class RoomParser
     {
