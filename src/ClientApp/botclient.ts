@@ -35,7 +35,7 @@ export class BotClient {
                     console.log("Connected to 🤖")
                 }
 
-                console.log("🤖 " + activity);// this.activityToString(activity));
+                console.log("🤖 " + this.activityToString(activity));
                 
                 if (activity.type == "message")
                 {

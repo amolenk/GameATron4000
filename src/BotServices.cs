@@ -9,43 +9,43 @@ namespace GameATron4000
 {
     public class BotServices
     {
+        public string BotId { get; private set; }
+
+        public string DirectLineSecret { get; private set; }
+
         /// Gets the set of LUIS Services used.
         /// LuisServices is represented as a dictionary.  
         public Dictionary<string, LuisRecognizer> LuisServices { get; } = new Dictionary<string, LuisRecognizer>();
 
-        public string DirectLinkSecret { get; private set; }
-
         /// Initializes a new instance of the BotServices class
-        public BotServices(BotConfiguration botConfiguration, LUISOptions luisOptions)
+        public BotServices(BotConfiguration botConfiguration)
         {
             foreach (var service in botConfiguration.Services)
             {
                 switch (service.Type)
                 {
+                    case ServiceTypes.Bot:
+                    {
+                        var botService = (BotService)service;
+                        BotId = botService.Id;
+                        break;
+                    }
                     case ServiceTypes.Generic:
                     {
-                        if (service.Name == "DirectLink")
+                        if (service.Name == "DirectLine")
                         {
-                            var directLinkService = (GenericService)service;
-                            DirectLinkSecret = directLinkService.Configuration["Secret"];
+                            var directLineService = (GenericService)service;
+                            DirectLineSecret = directLineService.Configuration["secret"];
                         }
 
                         break;
                     }
                     case ServiceTypes.Luis:
                     {
-                        // if (luisOptions.Enabled)
-                        // {
-                        //     var luis = (LuisService)service;
-                        //     if (luis == null)
-                        //     {
-                        //         throw new InvalidOperationException("The LUIS service is not configured correctly in your '.bot' file.");
-                        //     }
-
-                        //     var app = new LuisApplication(luisOptions.AppId, luisOptions.Key, luisOptions.Endpoint);
-                        //     var recognizer = new LuisRecognizer(app);
-                        //     this.LuisServices.Add(luis.Name, recognizer);
-                        // }
+                        var luis = (LuisService)service;
+                        var app = new LuisApplication(luis.AppId, luis.SubscriptionKey, luis.GetEndpoint());
+                        var recognizer = new LuisRecognizer(app);
+                        LuisServices.Add(luis.Name, recognizer);
                         break;
                     }
                 }

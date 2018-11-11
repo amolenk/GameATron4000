@@ -1,33 +1,31 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System;
+using System.IO;
+using System.Linq;
+using GameATron4000.Configuration;
+using GameATron4000.Models;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SpaServices.Webpack;
+using Microsoft.Bot.Builder;
+using Microsoft.Bot.Builder.Dialogs;
+using Microsoft.Bot.Builder.Integration;
+using Microsoft.Bot.Builder.Integration.AspNet.Core;
+using Microsoft.Bot.Configuration;
+using Microsoft.Bot.Connector.Authentication;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Bot.Builder.BotFramework;
-using Microsoft.Bot.Builder.Integration.AspNet.Core;
-using System.Collections.Generic;
-using Microsoft.AspNetCore.SpaServices.Webpack;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Bot.Configuration;
-using System;
-using Microsoft.Bot.Builder;
 using Microsoft.Extensions.Options;
-using Microsoft.Bot.Builder.Integration;
-using System.Linq;
-using Microsoft.Bot.Builder.Dialogs;
-using GameATron4000.Models;
-using System.IO;
-using GameATron4000.Configuration;
-using Microsoft.Bot.Connector.Authentication;
 
 namespace GameATron4000
 {
     public class Startup
     {
-        private bool _isProduction = false;
+        private readonly string _environmentName;
 
         public Startup(IHostingEnvironment env)
         {
-            _isProduction = env.IsProduction();
+            _environmentName = env.EnvironmentName;
 
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
@@ -49,36 +47,31 @@ namespace GameATron4000
         public void ConfigureServices(IServiceCollection services)
         {
             // Configure custom options classes for Bot and LUIS configuration sections.
-            services.Configure<BotOptions>(Configuration.GetSection("Bot"));
             services.Configure<GuiOptions>(Configuration.GetSection("GUI"));
             services.Configure<LUISOptions>(Configuration.GetSection("LUIS"));
 
-            var secretKey = Configuration.GetSection("botFileSecret")?.Value;
-            var botFilePath = Configuration.GetSection("botFilePath")?.Value;
-            if (!File.Exists(botFilePath))
+            var botConfigKey = Configuration.GetValue<string>("Bot:FileSecret");
+            var botConfigPath = Configuration.GetValue<string>("Bot:FilePath");
+            if (!File.Exists(botConfigPath))
             {
-                throw new FileNotFoundException($"The .bot configuration file was not found. botFilePath: {botFilePath}");
+                throw new FileNotFoundException($"The .bot configuration file was not found. botConfigPath: '{botConfigPath}'");
             }
 
-            // Loads .bot configuration file and adds a singleton that your Bot can access through dependency injection.
-            var botConfig = BotConfiguration.Load(botFilePath, secretKey);
-            services.AddSingleton(sp => botConfig ?? throw new InvalidOperationException($"The .bot configuration file could not be loaded. botFilePath: {botFilePath}"));
+            // Loads .bot configuration file and adds a singleton that the Bot can access through dependency injection.
+            var botConfig = BotConfiguration.Load(botConfigPath, botConfigKey);
+            services.AddSingleton(sp => botConfig ?? throw new InvalidOperationException($"The .bot configuration file could not be loaded. botFilePath: {botConfigPath}"));
 
             // Initialize Bot Connected Services clients.
-            var luisOptions = new LUISOptions();
-            Configuration.GetSection("LUIS").Bind(luisOptions);
-            //
-            var connectedServices = new BotServices(botConfig, luisOptions);
+            var connectedServices = new BotServices(botConfig);
             services.AddSingleton(sp => connectedServices);
 
             services.AddBot<GameBot>(options =>
             {
                 // Retrieve current endpoint.
-                var environment = _isProduction ? "production" : "development";
-                var service = botConfig.Services.FirstOrDefault(s => s.Type == "endpoint" && s.Name == environment);
+                var service = botConfig.Services.FirstOrDefault(s => s.Type == "endpoint" && s.Name == _environmentName);
                 if (!(service is EndpointService endpointService))
                 {
-                    throw new InvalidOperationException($"The .bot file does not contain an endpoint with name '{environment}'.");
+                    throw new InvalidOperationException($"The .bot file does not contain an endpoint with name '{_environmentName}'.");
                 }
 
                 options.CredentialProvider = new SimpleCredentialProvider(endpointService.AppId, endpointService.AppPassword);

@@ -15,28 +15,20 @@ namespace GameATron4000.Pages
 {
     public class PlayModel : PageModel
     {
-        private const string DirectLineServiceName = "directline";
-
         public string GameTitle { get; private set; }
 
         public string OptionsJson { get; private set; }
 
         public string GameInfoJson { get; private set; }
 
-        public PlayModel(BotConfiguration botConfig, IOptions<BotOptions> botOptionsAccessor, IOptions<GuiOptions> guiOptionsAccessor)
+        public PlayModel(BotServices botServices, IOptions<GuiOptions> guiOptionsAccessor)
         {
-            var service = botConfig.Services.FirstOrDefault(s => s.Name == DirectLineServiceName);
-            if (!(service is GenericService genericService))
-            {
-                throw new InvalidOperationException($"The .bot file does not contain a generic service with name '{DirectLineServiceName}'.");
-            }
-
             var guiOptions = guiOptionsAccessor.Value;
 
             OptionsJson = JsonConvert.SerializeObject(new
             {
-                botId = genericService.Configuration["BotId"],
-                directLineSecret = genericService.Configuration["DirectLineSecret"],
+                botId = botServices.BotId,
+                directLineSecret = botServices.DirectLineSecret,
                 enableFullScreen = guiOptions.EnableFullScreen,
                 minTextDuration = guiOptions.MinTextDuration,
                 textSpeed = guiOptions.TextSpeed
