@@ -12,9 +12,9 @@ namespace GameATron4000.Pages
     {
         public IEnumerable<string> GameNames { get; private set; }
 
-        public void OnGet()
+        public IndexModel(GameCatalog gameCatalog)
         {
-            GameNames = GameCatalog.GetGameNames("Games").OrderBy(n => n);
+            GameNames = gameCatalog.GetGameNames().OrderBy(n => n);
         }
     }
 }

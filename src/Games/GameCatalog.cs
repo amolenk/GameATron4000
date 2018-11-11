@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using GameATron4000.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System.Linq;
 
 namespace GameATron4000.Games
 {
@@ -16,17 +16,12 @@ namespace GameATron4000.Games
             _baseDir = baseDir;
         }
 
-        public static IEnumerable<string> GetGameNames(string baseDir)
+        public IEnumerable<string> GetGameNames()
         {
-            foreach (var gameDir in Directory.GetDirectories(baseDir))
+            foreach (var gameDir in Directory.GetDirectories(_baseDir))
             {
                 yield return Path.GetFileName(gameDir);
             }
-        }
-
-        public IEnumerable<string> GetGameNames()
-        {
-            return GameCatalog.GetGameNames(_baseDir);
         }
 
         public GameInfo GetGameInfo(string gameName)

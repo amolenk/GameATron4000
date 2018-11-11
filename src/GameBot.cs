@@ -27,12 +27,12 @@ namespace GameATron4000
         private readonly LUISOptions _luisOptions;
         private readonly GameCatalog _gameCatalog;
 
-        public GameBot(BotServices services, GameBotAccessors stateAccessors, IOptions<LUISOptions> luisOptionsAccessor)
+        public GameBot(BotServices services, GameBotAccessors stateAccessors, IOptions<LUISOptions> luisOptionsAccessor, GameCatalog gameCatalog)
         {
             _services = services;
             _stateAccessors = stateAccessors;
             _luisOptions = luisOptionsAccessor.Value;
-            _gameCatalog = new GameCatalog("Games");
+            _gameCatalog = gameCatalog;
         }
 
         public async Task OnTurnAsync(ITurnContext context, CancellationToken cancellationToken)

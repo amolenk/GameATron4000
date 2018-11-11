@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using GameATron4000.Configuration;
+using GameATron4000.Games;
 using GameATron4000.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -46,6 +47,9 @@ namespace GameATron4000
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // Register the game catalog.
+            services.AddSingleton(sp => new GameCatalog("Games"));
+            
             // Configure custom options classes for Bot and LUIS configuration sections.
             services.Configure<GuiOptions>(Configuration.GetSection("GUI"));
             services.Configure<LUISOptions>(Configuration.GetSection("LUIS"));
