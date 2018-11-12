@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using GameATron4000.Models.Actions;
 using GameATron4000.Models;
 
-namespace GameATron4000.Games
+namespace GameATron4000.Dialogs
 {
     public class ConversationParser
     {

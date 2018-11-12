@@ -9,6 +9,14 @@
         "Hmm, better not.",
         "That will probably crash the game!"
     ],
+    "RoomScripts": [
+        { "Key": "park", "Path": "park.room" },
+        { "Key": "ufo", "Path": "ufo.room" },
+        { "Key": "beach", "Path": "beach.room" }
+    ],
+    "ConversationScripts": [
+        { "Key": "al", "Path": "al.conversation" }
+    ],
     "Assets": [
         { "Key": "room-park", "Url": "/backgrounds/park.png" },
         { "Key": "room-ufo", "Url": "/backgrounds/ufo.png" },

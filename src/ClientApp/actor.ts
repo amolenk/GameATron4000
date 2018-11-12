@@ -1,8 +1,9 @@
 /// <reference path="../node_modules/phaser/typescript/phaser.d.ts" />
 
 import { RoomObject } from "./room-object"
-import { Settings } from "./settings"
 import { UIMediator } from "./ui-mediator"
+
+declare var options: any;
 
 export class Actor extends RoomObject {
 
@@ -159,7 +160,7 @@ export class Actor extends RoomObject {
         return new Promise((resolve) => {
             
             this.game.time.events.add(
-                Math.max(text.length * Settings.TEXT_SPEED, Settings.MIN_TEXT_DURATION),
+                Math.max(text.length * options.textSpeed, options.minTextDuration),
                 () => {
                     this.text.setText('');
                     if (!this.backSprite.visible) {

@@ -3,10 +3,10 @@
 
 import { Action } from "./action"
 import { DirectLine } from "../node_modules/botframework-directlinejs/built/directline";
-import { Settings } from "./settings"
 import "../node_modules/rxjs/add/operator/concatMap";
 
-declare var GameName: any;
+declare var gameInfo: any;
+declare var options: any;
 
 export class BotClient {
 
@@ -16,14 +16,16 @@ export class BotClient {
     constructor() {
 
         this.directLine = new DirectLine({
-            secret: Settings.DIRECT_LINE_SECRET
+            secret: options.directLineSecret
         });
     }
 
     public connect(onMessage: Function, onEvent: Function) {
 
+        console.log("Connecting to 🤖 ...")
+
         this.directLine.activity$
-            .filter(activity => (activity.type === "message" || activity.type === "event") && activity.from.id === Settings.BOT_ID)
+            .filter(activity => (activity.type === "message" || activity.type === "event") && activity.from.id === options.botId)
             .concatMap(async x => {
 
                 var activity = <any>x;
@@ -38,7 +40,7 @@ export class BotClient {
                 if (activity.type == "message")
                 {
                     if (activity.text == "Which game do you want to play?") {
-                        this.sendMessageToBot(GameName);
+                        this.sendMessageToBot(gameInfo.gameName);
                     } else {
                         await onMessage(activity);
                     }

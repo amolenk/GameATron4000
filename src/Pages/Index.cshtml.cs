@@ -12,10 +12,8 @@ namespace GameATron4000.Pages
     {
         public IEnumerable<string> GameNames { get; private set; }
 
-        public void OnGet()
+        public IndexModel(GameCatalog gameCatalog)
         {
-            var gameCatalog = new GameCatalog("Games");
-
             GameNames = gameCatalog.GetGameNames().OrderBy(n => n);
         }
     }

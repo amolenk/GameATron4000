@@ -1,7 +1,8 @@
 /// <reference path="../node_modules/phaser/typescript/phaser.d.ts" />
 
 import { Layers } from "./layers"
-import { Settings } from "./settings"
+
+declare var options: any;
 
 export class Cursor {
 
@@ -25,7 +26,7 @@ export class Cursor {
         // Go to full screen on mousedown.
         this.game.canvas.addEventListener("mousedown", () => {
             
-            if (Settings.ENABLE_FULL_SCREEN)
+            if (options.enableFullScreen)
             {
                 this.game.scale.startFullScreen(false);
             }

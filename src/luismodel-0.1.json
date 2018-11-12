@@ -1,0 +1,335 @@
+{
+  "luis_schema_version": "3.1.0",
+  "versionId": "0.1",
+  "name": "gameatron4000",
+  "desc": "LUIS for the Game-a-tron 4000 (TM) Game Engine",
+  "culture": "en-us",
+  "intents": [
+    {
+      "name": "look at"
+    },
+    {
+      "name": "None"
+    },
+    {
+      "name": "pick up"
+    },
+    {
+      "name": "talk to"
+    }
+  ],
+  "entities": [
+    {
+      "name": "Al",
+      "roles": []
+    },
+    {
+      "name": "Guy Scotthrie",
+      "roles": []
+    },
+    {
+      "name": "Ian",
+      "roles": []
+    },
+    {
+      "name": "newspaper",
+      "roles": []
+    }
+  ],
+  "composites": [],
+  "closedLists": [],
+  "patternAnyEntities": [],
+  "regex_entities": [],
+  "prebuiltEntities": [],
+  "model_features": [],
+  "regex_features": [],
+  "patterns": [],
+  "utterances": [
+    {
+      "text": "chat with al",
+      "intent": "talk to",
+      "entities": [
+        {
+          "entity": "Al",
+          "startPos": 10,
+          "endPos": 11
+        }
+      ]
+    },
+    {
+      "text": "chat with guy scotthrie",
+      "intent": "talk to",
+      "entities": [
+        {
+          "entity": "Guy Scotthrie",
+          "startPos": 10,
+          "endPos": 22
+        }
+      ]
+    },
+    {
+      "text": "chat with ian",
+      "intent": "talk to",
+      "entities": [
+        {
+          "entity": "Ian",
+          "startPos": 10,
+          "endPos": 12
+        }
+      ]
+    },
+    {
+      "text": "converse with al",
+      "intent": "talk to",
+      "entities": [
+        {
+          "entity": "Al",
+          "startPos": 14,
+          "endPos": 15
+        }
+      ]
+    },
+    {
+      "text": "converse with guy scotthrie",
+      "intent": "talk to",
+      "entities": [
+        {
+          "entity": "Guy Scotthrie",
+          "startPos": 14,
+          "endPos": 26
+        }
+      ]
+    },
+    {
+      "text": "converse with ian",
+      "intent": "talk to",
+      "entities": [
+        {
+          "entity": "Ian",
+          "startPos": 14,
+          "endPos": 16
+        }
+      ]
+    },
+    {
+      "text": "exchange words with al",
+      "intent": "talk to",
+      "entities": [
+        {
+          "entity": "Al",
+          "startPos": 20,
+          "endPos": 21
+        }
+      ]
+    },
+    {
+      "text": "exchange words with guy scotthrie",
+      "intent": "talk to",
+      "entities": [
+        {
+          "entity": "Guy Scotthrie",
+          "startPos": 20,
+          "endPos": 32
+        }
+      ]
+    },
+    {
+      "text": "exchange words with ian",
+      "intent": "talk to",
+      "entities": [
+        {
+          "entity": "Ian",
+          "startPos": 20,
+          "endPos": 22
+        }
+      ]
+    },
+    {
+      "text": "inspect newspaper",
+      "intent": "look at",
+      "entities": [
+        {
+          "entity": "newspaper",
+          "startPos": 8,
+          "endPos": 16
+        }
+      ]
+    },
+    {
+      "text": "look at news",
+      "intent": "look at",
+      "entities": [
+        {
+          "entity": "newspaper",
+          "startPos": 8,
+          "endPos": 11
+        }
+      ]
+    },
+    {
+      "text": "look at newspaper",
+      "intent": "look at",
+      "entities": [
+        {
+          "entity": "newspaper",
+          "startPos": 8,
+          "endPos": 16
+        }
+      ]
+    },
+    {
+      "text": "look at paper",
+      "intent": "look at",
+      "entities": [
+        {
+          "entity": "newspaper",
+          "startPos": 8,
+          "endPos": 12
+        }
+      ]
+    },
+    {
+      "text": "pick up newspaper",
+      "intent": "pick up",
+      "entities": [
+        {
+          "entity": "newspaper",
+          "startPos": 8,
+          "endPos": 16
+        }
+      ]
+    },
+    {
+      "text": "rap with guy scotthrie",
+      "intent": "talk to",
+      "entities": [
+        {
+          "entity": "Guy Scotthrie",
+          "startPos": 9,
+          "endPos": 21
+        }
+      ]
+    },
+    {
+      "text": "talk to al",
+      "intent": "talk to",
+      "entities": [
+        {
+          "entity": "Al",
+          "startPos": 8,
+          "endPos": 9
+        },
+        {
+          "entity": "Guy Scotthrie",
+          "startPos": 8,
+          "endPos": 9
+        }
+      ]
+    },
+    {
+      "text": "talk to cloud boss",
+      "intent": "talk to",
+      "entities": [
+        {
+          "entity": "Guy Scotthrie",
+          "startPos": 8,
+          "endPos": 17
+        }
+      ]
+    },
+    {
+      "text": "talk to cloud man",
+      "intent": "talk to",
+      "entities": [
+        {
+          "entity": "Guy Scotthrie",
+          "startPos": 8,
+          "endPos": 16
+        }
+      ]
+    },
+    {
+      "text": "talk to guy",
+      "intent": "talk to",
+      "entities": [
+        {
+          "entity": "Guy Scotthrie",
+          "startPos": 8,
+          "endPos": 10
+        }
+      ]
+    },
+    {
+      "text": "talk to guy scotthrie",
+      "intent": "talk to",
+      "entities": [
+        {
+          "entity": "Guy Scotthrie",
+          "startPos": 8,
+          "endPos": 20
+        }
+      ]
+    },
+    {
+      "text": "talk to ian",
+      "intent": "talk to",
+      "entities": [
+        {
+          "entity": "Guy Scotthrie",
+          "startPos": 8,
+          "endPos": 10
+        },
+        {
+          "entity": "Ian",
+          "startPos": 8,
+          "endPos": 10
+        }
+      ]
+    },
+    {
+      "text": "talk to red shirt",
+      "intent": "talk to",
+      "entities": [
+        {
+          "entity": "Guy Scotthrie",
+          "startPos": 8,
+          "endPos": 16
+        }
+      ]
+    },
+    {
+      "text": "talk to scotthrie",
+      "intent": "talk to",
+      "entities": [
+        {
+          "entity": "Guy Scotthrie",
+          "startPos": 8,
+          "endPos": 16
+        }
+      ]
+    },
+    {
+      "text": "watch newspaper",
+      "intent": "look at",
+      "entities": [
+        {
+          "entity": "newspaper",
+          "startPos": 6,
+          "endPos": 14
+        }
+      ]
+    },
+    {
+      "text": "watch paper",
+      "intent": "look at",
+      "entities": [
+        {
+          "entity": "newspaper",
+          "startPos": 6,
+          "endPos": 10
+        }
+      ]
+    }
+  ],
+  "settings": []
+}

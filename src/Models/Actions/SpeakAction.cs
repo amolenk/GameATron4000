@@ -5,7 +5,7 @@ using Microsoft.Bot.Schema;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Linq;
-using Microsoft.Bot.Builder.Core.Extensions;
+using Microsoft.Bot.Builder;
 
 namespace GameATron4000.Models.Actions
 {
@@ -38,7 +38,7 @@ namespace GameATron4000.Models.Actions
         [JsonProperty]
         public string ActorId { get; private set; }
 
-        public override CommandActionResult Execute(DialogContext dc, IList<IActivity> activities, IDictionary<string, object> state) {
+        public override CommandActionResult Execute(DialogContext dc, IList<IActivity> activities, GameFlags flags) {
 
             activities.Add(MessageFactory.Text($"{ActorId} > {Text}"));
 

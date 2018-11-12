@@ -1,11 +1,9 @@
 using System.Collections.Generic;
 using System.IO;
-using GameATron4000.Dialogs;
+using System.Linq;
 using GameATron4000.Models;
-using Microsoft.Bot.Builder.Dialogs;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System.Linq;
 
 namespace GameATron4000.Games
 {
@@ -26,33 +24,19 @@ namespace GameATron4000.Games
             }
         }
 
-        public GameInfo LoadGame(string name)
+        public GameInfo GetGameInfo(string gameName)
         {
-            var gameDir = Path.Combine(_baseDir, name);
-            var roomParser = new RoomParser();
-            var conversationParser = new ConversationParser();
+            var gameDir = Path.Combine(_baseDir, gameName);
+            var scriptDir = Path.Combine(gameDir, "scripts");
 
             var gameInfoPath = Path.Combine(gameDir, "game.json");
             var gameInfoJson = File.ReadAllText(gameInfoPath);
             var gameInfo = JsonConvert.DeserializeObject<GameInfo>(gameInfoJson);
-            gameInfo.Dialogs = new DialogSet();
 
-            var scriptDir = Path.Combine(gameDir, "scripts");
-
-            foreach (var roomScriptPath in Directory.GetFiles(scriptDir, "*.room"))
+            // Update the paths of the loaded scripts to absolute paths.
+            foreach (var script in gameInfo.RoomScripts.Concat(gameInfo.ConversationScripts))
             {
-                var roomId = Path.GetFileNameWithoutExtension(roomScriptPath);
-                var commands = roomParser.Parse(roomScriptPath);
-
-                gameInfo.Dialogs.Add(roomId, new Room(roomId, commands, gameInfo.BadCommandResponses, gameInfo.PlayerActor));
-            }
-
-            foreach (var conversationScriptPath in Directory.GetFiles(scriptDir, "*.conversation"))
-            {
-                var conversationId = Path.GetFileNameWithoutExtension(conversationScriptPath);
-                var conversationRootNode = conversationParser.Parse(conversationScriptPath);
-
-                gameInfo.Dialogs.Add(conversationId, new Conversation(conversationRootNode));
+                script.Path = Path.Combine(scriptDir, script.Path);
             }
 
             return gameInfo;

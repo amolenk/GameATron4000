@@ -5,7 +5,6 @@ using Microsoft.Bot.Schema;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Linq;
-using Microsoft.Bot.Builder.Core.Extensions;
 
 namespace GameATron4000.Models.Actions
 {
@@ -27,7 +26,7 @@ namespace GameATron4000.Models.Actions
         [JsonProperty]
         public string Text { get; private set; }
 
-        public override CommandActionResult Execute(DialogContext dc, IList<IActivity> activities, IDictionary<string, object> state) {
+        public override CommandActionResult Execute(DialogContext dc, IList<IActivity> activities, GameFlags flags) {
 
             activities.Add(CreateEventActivity(dc, "Narrated", JObject.FromObject(new
             {
