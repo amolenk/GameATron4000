@@ -1,0 +1,15 @@
+version: '3.4'
+
+# Visual Studio Code doesn't look at the compose.override.yml file (https://github.com/Microsoft/vscode-docker/issues/379).
+# For now, set all debug environment settings here.
+
+services:
+  gameatron4000:
+    image: gameatron4000:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    environment:
+      - GAMEATRON4000__BOT__FILESECRET=${GAMEATRON4000__BOT__FILESECRET}

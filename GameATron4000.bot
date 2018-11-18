@@ -11,6 +11,14 @@
             "endpoint": "http://localhost:5000/api/messages"
         },
         {
+            "type": "endpoint",
+            "id": "235",
+            "name": "Production",
+            "appId": "b0de18a0-3219-4ef1-b4a7-f144e26fa92f",
+            "appPassword": "lQ9HGAE6ARckW/sDWMvK7A==!stHJ30Y1dm/CzMJSdtWsVqORQlPSAwf4MTEMQvSip6U=",
+            "endpoint": "http://localhost/api/messages"
+        },
+        {
             "type": "abs",
             "appId": "b0de18a0-3219-4ef1-b4a7-f144e26fa92f",
             "id": "GameATron4000",
