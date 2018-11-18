@@ -41,7 +41,7 @@ module.exports = {
     minimizer: [new UglifyJsPlugin()]
   },
   plugins: [
-    new CleanWebpackPlugin('dist'),
+    new CleanWebpackPlugin('./wwwroot/dist'),
     new CopyWebpackPlugin([
       {
         from: './Games/*/assets/*/*.png',
