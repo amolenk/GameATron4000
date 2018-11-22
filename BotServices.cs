@@ -27,7 +27,7 @@ namespace GameATron4000
                     case ServiceTypes.Bot:
                     {
                         var botService = (BotService)service;
-                        BotId = botService.Id;
+                        BotId = botService.ServiceName;
                         break;
                     }
                     case ServiceTypes.Generic:

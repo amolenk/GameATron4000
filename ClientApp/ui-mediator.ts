@@ -13,7 +13,7 @@ import { Room } from "./room"
 import { RoomObject } from "./room-object"
 import { VerbsUI } from "./ui-verbs"
 
-declare var PlayerActor: any;
+declare var gameInfo: any;
 
 export class UIMediator {
     
@@ -88,7 +88,7 @@ export class UIMediator {
 
                     if (message.suggestedActions) {
                         this.conversationUI.displaySuggestedActions(
-                            this.room.getActor(PlayerActor),
+                            this.room.getActor(gameInfo.playerActor),
                             message.suggestedActions.actions);
                     }
                 }
