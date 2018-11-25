@@ -77,10 +77,10 @@ namespace GameATron4000
                     // get intent and entity from LUIS (if enabled).
                     if (_luisOptions.Enabled)
                     {
-                        string luisResult = await GetLUISIntentAsync(context, cancellationToken);
-                        if (!string.IsNullOrEmpty(luisResult))
+                        string command = await DetermineCommandAsync(context, cancellationToken);
+                        if (!string.IsNullOrEmpty(command))
                         {
-                            context.Activity.Text = luisResult;
+                            context.Activity.Text = command;
                         }
                     }
 
@@ -92,59 +92,83 @@ namespace GameATron4000
             }
         }
 
-        private async Task<string> GetLUISIntentAsync(ITurnContext context, CancellationToken cancellationToken)
+        private async Task<string> DetermineCommandAsync(ITurnContext context, CancellationToken cancellationToken)
         {
-            var recognizerResult = await _services.LuisServices["gameatron4000"].RecognizeAsync<LUISModel>(context, cancellationToken);
-            var topIntent = recognizerResult.TopIntent();
-            if (topIntent.intent  != LUISModel.Intent.None)
-            {
-                string intent = topIntent.intent.ToString().Replace("_", " ");
-                string entity = null;
+            var recognizerResult = await _services.LuisServices["gameatron4000"]
+                .RecognizeAsync<LUISModel>(context, cancellationToken);
 
-                double largestScore = 0;
-                if (recognizerResult.Entities._instance.Al != null)
-                {
-                    var entityHit = recognizerResult.Entities._instance.Al.FirstOrDefault(id => id.Score > _luisOptions.ScoreThreshold);
-                    if (entityHit != null)
-                    {
-                        largestScore = entityHit.Score.Value > largestScore ? entityHit.Score.Value : largestScore;
-                        entity = "al";
-                    }
-                }
-                if (recognizerResult.Entities.Guy_Scotthrie != null)
-                {
-                    var entityHit = recognizerResult.Entities._instance.Guy_Scotthrie.FirstOrDefault(id => id.Score > _luisOptions.ScoreThreshold);
-                    if (entityHit != null)
-                    {
-                        largestScore = entityHit.Score.Value > largestScore ? entityHit.Score.Value : largestScore;
-                        entity = "guy scotthrie";
-                    }
-                }
-                if (recognizerResult.Entities.Ian != null)
-                {
-                    var entityHit = recognizerResult.Entities._instance.Ian.FirstOrDefault(id => id.Score > _luisOptions.ScoreThreshold);
-                    if (entityHit != null)
-                    {
-                        largestScore = entityHit.Score.Value > largestScore ? entityHit.Score.Value : largestScore;
-                        entity = "ian";
-                    }
-                }
-                if (recognizerResult.Entities.newspaper != null)
-                {
-                    var entityHit = recognizerResult.Entities._instance.newspaper.FirstOrDefault(id => id.Score > _luisOptions.ScoreThreshold);
-                    if (entityHit != null)
-                    {
-                        largestScore = entityHit.Score.Value > largestScore ? entityHit.Score.Value : largestScore;
-                        entity = "newspaper";
-                    }
-                }
-                
+            // parse LUIS results to get intent and entity
+            string intent = GetLUISIntent(recognizerResult);
+            if (intent != null)
+            {
+                string entity = GetLUISEntity(recognizerResult);
                 if (entity != null)
                 {
                     return $"{intent} {entity}";
                 }
             }
+
             return null;
         }
+
+        #region LUIS result parsing
+
+        private string GetLUISIntent(LUISModel luisResult)
+        {
+            string intent = null;
+            var topIntent = luisResult.TopIntent();
+            if (topIntent.intent  != LUISModel.Intent.None)
+            {
+                intent = topIntent.intent.ToString().Replace("_", " ");
+            }
+            return intent;
+        }
+
+        private string GetLUISEntity(LUISModel luisResult)
+        {
+            string entity = null;
+
+            double largestScore = 0;
+            if (luisResult.Entities._instance.Al != null)
+            {
+                var entityHit = luisResult.Entities._instance.Al.FirstOrDefault(id => id.Score > _luisOptions.ScoreThreshold);
+                if (entityHit != null)
+                {
+                    largestScore = entityHit.Score.Value > largestScore ? entityHit.Score.Value : largestScore;
+                    entity = "al";
+                }
+            }
+            if (luisResult.Entities.Guy_Scotthrie != null)
+            {
+                var entityHit = luisResult.Entities._instance.Guy_Scotthrie.FirstOrDefault(id => id.Score > _luisOptions.ScoreThreshold);
+                if (entityHit != null)
+                {
+                    largestScore = entityHit.Score.Value > largestScore ? entityHit.Score.Value : largestScore;
+                    entity = "guy scotthrie";
+                }
+            }
+            if (luisResult.Entities.Ian != null)
+            {
+                var entityHit = luisResult.Entities._instance.Ian.FirstOrDefault(id => id.Score > _luisOptions.ScoreThreshold);
+                if (entityHit != null)
+                {
+                    largestScore = entityHit.Score.Value > largestScore ? entityHit.Score.Value : largestScore;
+                    entity = "ian";
+                }
+            }
+            if (luisResult.Entities.newspaper != null)
+            {
+                var entityHit = luisResult.Entities._instance.newspaper.FirstOrDefault(id => id.Score > _luisOptions.ScoreThreshold);
+                if (entityHit != null)
+                {
+                    largestScore = entityHit.Score.Value > largestScore ? entityHit.Score.Value : largestScore;
+                    entity = "newspaper";
+                }
+            }
+
+            return entity;
+        }
+
+        #endregion
     }
 }
