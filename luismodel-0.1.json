@@ -6,38 +6,100 @@
   "culture": "en-us",
   "intents": [
     {
+      "name": "close"
+    },
+    {
+      "name": "give"
+    },
+    {
       "name": "look at"
     },
     {
       "name": "None"
     },
     {
+      "name": "open"
+    },
+    {
       "name": "pick up"
     },
     {
       "name": "talk to"
+    },
+    {
+      "name": "use"
     }
   ],
-  "entities": [
-    {
-      "name": "Al",
-      "roles": []
-    },
-    {
-      "name": "Guy Scotthrie",
-      "roles": []
-    },
-    {
-      "name": "Ian",
-      "roles": []
-    },
-    {
-      "name": "newspaper",
-      "roles": []
-    }
-  ],
+  "entities": [],
   "composites": [],
-  "closedLists": [],
+  "closedLists": [
+    {
+      "name": "GameActor",
+      "subLists": [
+        {
+          "canonicalForm": "Al",
+          "list": [
+            "Green batch",
+            "Green"
+          ]
+        },
+        {
+          "canonicalForm": "Ian",
+          "list": [
+            "Red batch",
+            "Red"
+          ]
+        }
+      ],
+      "roles": []
+    },
+    {
+      "name": "GameObject",
+      "subLists": [
+        {
+          "canonicalForm": "newspaper",
+          "list": [
+            "paper",
+            "papers",
+            "tabloid",
+            "news",
+            "newspapers"
+          ]
+        },
+        {
+          "canonicalForm": "fridge",
+          "list": [
+            "refrigerator",
+            "freezer"
+          ]
+        },
+        {
+          "canonicalForm": "todolist",
+          "list": [
+            "tasklist",
+            "worklist"
+          ]
+        },
+        {
+          "canonicalForm": "bag of groceries",
+          "list": [
+            "groceries",
+            "grocerybag",
+            "shoppingbag",
+            "shopping bag",
+            "bag"
+          ]
+        },
+        {
+          "canonicalForm": "grocery list",
+          "list": [
+            "grocerylist"
+          ]
+        }
+      ],
+      "roles": []
+    }
+  ],
   "patternAnyEntities": [],
   "regex_entities": [],
   "prebuiltEntities": [],
@@ -46,289 +108,234 @@
   "patterns": [],
   "utterances": [
     {
-      "text": "chat with al",
-      "intent": "talk to",
-      "entities": [
-        {
-          "entity": "Al",
-          "startPos": 10,
-          "endPos": 11
-        }
-      ]
+      "text": "but we're decades away from realizing full artificial general intelligence!",
+      "intent": "None",
+      "entities": []
     },
     {
-      "text": "chat with guy scotthrie",
-      "intent": "talk to",
-      "entities": [
-        {
-          "entity": "Guy Scotthrie",
-          "startPos": 10,
-          "endPos": 22
-        }
-      ]
+      "text": "but, but...",
+      "intent": "None",
+      "entities": []
     },
     {
-      "text": "chat with ian",
-      "intent": "talk to",
-      "entities": [
-        {
-          "entity": "Ian",
-          "startPos": 10,
-          "endPos": 12
-        }
-      ]
+      "text": "bye!",
+      "intent": "None",
+      "entities": []
+    },
+    {
+      "text": "can you beam me down back to the park?",
+      "intent": "None",
+      "entities": []
+    },
+    {
+      "text": "close fridge",
+      "intent": "close",
+      "entities": []
     },
     {
       "text": "converse with al",
       "intent": "talk to",
-      "entities": [
-        {
-          "entity": "Al",
-          "startPos": 14,
-          "endPos": 15
-        }
-      ]
-    },
-    {
-      "text": "converse with guy scotthrie",
-      "intent": "talk to",
-      "entities": [
-        {
-          "entity": "Guy Scotthrie",
-          "startPos": 14,
-          "endPos": 26
-        }
-      ]
+      "entities": []
     },
     {
       "text": "converse with ian",
       "intent": "talk to",
-      "entities": [
-        {
-          "entity": "Ian",
-          "startPos": 14,
-          "endPos": 16
-        }
-      ]
+      "entities": []
+    },
+    {
+      "text": "examine newspaper",
+      "intent": "look at",
+      "entities": []
     },
     {
       "text": "exchange words with al",
       "intent": "talk to",
-      "entities": [
-        {
-          "entity": "Al",
-          "startPos": 20,
-          "endPos": 21
-        }
-      ]
+      "entities": []
     },
     {
-      "text": "exchange words with guy scotthrie",
-      "intent": "talk to",
-      "entities": [
-        {
-          "entity": "Guy Scotthrie",
-          "startPos": 20,
-          "endPos": 32
-        }
-      ]
+      "text": "exit",
+      "intent": "None",
+      "entities": []
     },
     {
-      "text": "exchange words with ian",
-      "intent": "talk to",
-      "entities": [
-        {
-          "entity": "Ian",
-          "startPos": 20,
-          "endPos": 22
-        }
-      ]
+      "text": "gaze upon newspaper",
+      "intent": "look at",
+      "entities": []
+    },
+    {
+      "text": "get newspaper",
+      "intent": "pick up",
+      "entities": []
+    },
+    {
+      "text": "give newspaper to al",
+      "intent": "give",
+      "entities": []
+    },
+    {
+      "text": "grab newspaper",
+      "intent": "pick up",
+      "entities": []
+    },
+    {
+      "text": "hand newspaper to al",
+      "intent": "give",
+      "entities": []
+    },
+    {
+      "text": "i give up…",
+      "intent": "None",
+      "entities": []
     },
     {
       "text": "inspect newspaper",
       "intent": "look at",
-      "entities": [
-        {
-          "entity": "newspaper",
-          "startPos": 8,
-          "endPos": 16
-        }
-      ]
+      "entities": []
     },
     {
-      "text": "look at news",
+      "text": "inspect papers",
       "intent": "look at",
-      "entities": [
-        {
-          "entity": "newspaper",
-          "startPos": 8,
-          "endPos": 11
-        }
-      ]
+      "entities": []
+    },
+    {
+      "text": "is this an actual spaceship?",
+      "intent": "None",
+      "entities": []
+    },
+    {
+      "text": "look at fridge",
+      "intent": "look at",
+      "entities": []
     },
     {
       "text": "look at newspaper",
       "intent": "look at",
-      "entities": [
-        {
-          "entity": "newspaper",
-          "startPos": 8,
-          "endPos": 16
-        }
-      ]
+      "entities": []
     },
     {
       "text": "look at paper",
       "intent": "look at",
-      "entities": [
-        {
-          "entity": "newspaper",
-          "startPos": 8,
-          "endPos": 12
-        }
-      ]
+      "entities": []
+    },
+    {
+      "text": "look newspaper",
+      "intent": "look at",
+      "entities": []
+    },
+    {
+      "text": "loom at newspaper",
+      "intent": "look at",
+      "entities": []
+    },
+    {
+      "text": "offer newspaper to al",
+      "intent": "give",
+      "entities": []
+    },
+    {
+      "text": "open fridge",
+      "intent": "open",
+      "entities": []
+    },
+    {
+      "text": "operate newspaper with al",
+      "intent": "use",
+      "entities": []
+    },
+    {
+      "text": "operate newspaper with fridge",
+      "intent": "use",
+      "entities": []
+    },
+    {
+      "text": "pick up fridge",
+      "intent": "pick up",
+      "entities": []
     },
     {
       "text": "pick up newspaper",
       "intent": "pick up",
-      "entities": [
-        {
-          "entity": "newspaper",
-          "startPos": 8,
-          "endPos": 16
-        }
-      ]
+      "entities": []
     },
     {
-      "text": "rap with guy scotthrie",
+      "text": "pick up paper",
+      "intent": "pick up",
+      "entities": []
+    },
+    {
+      "text": "please?",
+      "intent": "None",
+      "entities": []
+    },
+    {
+      "text": "rap with al",
       "intent": "talk to",
-      "entities": [
-        {
-          "entity": "Guy Scotthrie",
-          "startPos": 9,
-          "endPos": 21
-        }
-      ]
+      "entities": []
+    },
+    {
+      "text": "returnofthebodysnatchers",
+      "intent": "None",
+      "entities": []
+    },
+    {
+      "text": "talk to a",
+      "intent": "talk to",
+      "entities": []
     },
     {
       "text": "talk to al",
       "intent": "talk to",
-      "entities": [
-        {
-          "entity": "Al",
-          "startPos": 8,
-          "endPos": 9
-        },
-        {
-          "entity": "Guy Scotthrie",
-          "startPos": 8,
-          "endPos": 9
-        }
-      ]
-    },
-    {
-      "text": "talk to cloud boss",
-      "intent": "talk to",
-      "entities": [
-        {
-          "entity": "Guy Scotthrie",
-          "startPos": 8,
-          "endPos": 17
-        }
-      ]
-    },
-    {
-      "text": "talk to cloud man",
-      "intent": "talk to",
-      "entities": [
-        {
-          "entity": "Guy Scotthrie",
-          "startPos": 8,
-          "endPos": 16
-        }
-      ]
-    },
-    {
-      "text": "talk to guy",
-      "intent": "talk to",
-      "entities": [
-        {
-          "entity": "Guy Scotthrie",
-          "startPos": 8,
-          "endPos": 10
-        }
-      ]
+      "entities": []
     },
     {
       "text": "talk to guy scotthrie",
       "intent": "talk to",
-      "entities": [
-        {
-          "entity": "Guy Scotthrie",
-          "startPos": 8,
-          "endPos": 20
-        }
-      ]
+      "entities": []
     },
     {
       "text": "talk to ian",
       "intent": "talk to",
-      "entities": [
-        {
-          "entity": "Guy Scotthrie",
-          "startPos": 8,
-          "endPos": 10
-        },
-        {
-          "entity": "Ian",
-          "startPos": 8,
-          "endPos": 10
-        }
-      ]
+      "entities": []
     },
     {
-      "text": "talk to red shirt",
-      "intent": "talk to",
-      "entities": [
-        {
-          "entity": "Guy Scotthrie",
-          "startPos": 8,
-          "endPos": 16
-        }
-      ]
+      "text": "use newspaper with al",
+      "intent": "use",
+      "entities": []
     },
     {
-      "text": "talk to scotthrie",
-      "intent": "talk to",
-      "entities": [
-        {
-          "entity": "Guy Scotthrie",
-          "startPos": 8,
-          "endPos": 16
-        }
-      ]
+      "text": "utilize newspaper with al",
+      "intent": "use",
+      "entities": []
+    },
+    {
+      "text": "utilize newspaper with fridge",
+      "intent": "use",
+      "entities": []
     },
     {
       "text": "watch newspaper",
       "intent": "look at",
-      "entities": [
-        {
-          "entity": "newspaper",
-          "startPos": 6,
-          "endPos": 14
-        }
-      ]
+      "entities": []
     },
     {
       "text": "watch paper",
       "intent": "look at",
-      "entities": [
-        {
-          "entity": "newspaper",
-          "startPos": 6,
-          "endPos": 10
-        }
-      ]
+      "entities": []
+    },
+    {
+      "text": "watch tabloid",
+      "intent": "look at",
+      "entities": []
+    },
+    {
+      "text": "whatch newspaper",
+      "intent": "look at",
+      "entities": []
+    },
+    {
+      "text": "what's going on here?",
+      "intent": "None",
+      "entities": []
     }
   ],
   "settings": []

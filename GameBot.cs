@@ -9,6 +9,7 @@ using GameATron4000.Dialogs;
 using GameATron4000.Games;
 using GameATron4000.Models;
 using GameATron4000.Models.Actions;
+using Luis;
 using Microsoft.Bot;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.AI.Luis;
@@ -77,10 +78,10 @@ namespace GameATron4000
                     // get intent and entity from LUIS (if enabled).
                     if (_luisOptions.Enabled)
                     {
-                        string luisResult = await GetLUISIntentAsync(context, cancellationToken);
-                        if (!string.IsNullOrEmpty(luisResult))
+                        string command = await DetermineCommandAsync(context, cancellationToken);
+                        if (!string.IsNullOrEmpty(command))
                         {
-                            context.Activity.Text = luisResult;
+                            context.Activity.Text = command;
                         }
                     }
 
@@ -92,59 +93,64 @@ namespace GameATron4000
             }
         }
 
-        private async Task<string> GetLUISIntentAsync(ITurnContext context, CancellationToken cancellationToken)
+        private async Task<string> DetermineCommandAsync(ITurnContext context, CancellationToken cancellationToken)
         {
-            var recognizerResult = await _services.LuisServices["gameatron4000"].RecognizeAsync<LUISModel>(context, cancellationToken);
-            var topIntent = recognizerResult.TopIntent();
-            if (topIntent.intent  != LUISModel.Intent.None)
-            {
-                string intent = topIntent.intent.ToString().Replace("_", " ");
-                string entity = null;
+            var recognizerResult = await _services.LuisServices["gameatron4000"]
+                .RecognizeAsync<LUISModel>(context, cancellationToken);
 
-                double largestScore = 0;
-                if (recognizerResult.Entities._instance.Al != null)
+            // parse LUIS results to get intent and entity
+            string intent = GetLUISIntent(recognizerResult);
+            if (intent != null)
+            {
+                IEnumerable<string> entities = GetLUISEntities(recognizerResult);
+                if (entities.Count() > 0)
                 {
-                    var entityHit = recognizerResult.Entities._instance.Al.FirstOrDefault(id => id.Score > _luisOptions.ScoreThreshold);
-                    if (entityHit != null)
+                    switch(intent)
                     {
-                        largestScore = entityHit.Score.Value > largestScore ? entityHit.Score.Value : largestScore;
-                        entity = "al";
+                        case "use":
+                            return $"use {entities.First()} with {entities.Last()}";
+
+                        case "give":
+                            return $"give {entities.First()} to {entities.Last()}";
+                        
+                        default:
+                            return $"{intent} {entities.First()}";        
                     }
-                }
-                if (recognizerResult.Entities.Guy_Scotthrie != null)
-                {
-                    var entityHit = recognizerResult.Entities._instance.Guy_Scotthrie.FirstOrDefault(id => id.Score > _luisOptions.ScoreThreshold);
-                    if (entityHit != null)
-                    {
-                        largestScore = entityHit.Score.Value > largestScore ? entityHit.Score.Value : largestScore;
-                        entity = "guy scotthrie";
-                    }
-                }
-                if (recognizerResult.Entities.Ian != null)
-                {
-                    var entityHit = recognizerResult.Entities._instance.Ian.FirstOrDefault(id => id.Score > _luisOptions.ScoreThreshold);
-                    if (entityHit != null)
-                    {
-                        largestScore = entityHit.Score.Value > largestScore ? entityHit.Score.Value : largestScore;
-                        entity = "ian";
-                    }
-                }
-                if (recognizerResult.Entities.newspaper != null)
-                {
-                    var entityHit = recognizerResult.Entities._instance.newspaper.FirstOrDefault(id => id.Score > _luisOptions.ScoreThreshold);
-                    if (entityHit != null)
-                    {
-                        largestScore = entityHit.Score.Value > largestScore ? entityHit.Score.Value : largestScore;
-                        entity = "newspaper";
-                    }
-                }
-                
-                if (entity != null)
-                {
-                    return $"{intent} {entity}";
                 }
             }
+
             return null;
         }
+
+        #region LUIS result parsing
+
+        private string GetLUISIntent(LUISModel luisResult)
+        {
+            string intent = null;
+            var topIntent = luisResult.TopIntent();
+            if (topIntent.intent  != LUISModel.Intent.None)
+            {
+                intent = topIntent.intent.ToString().Replace("_", " ");
+            }
+            return intent;
+        }
+
+        private IEnumerable<string> GetLUISEntities(LUISModel luisResult)
+        {
+            List<string> entities = new List<string>();
+
+            if (luisResult.Entities.GameObject?.Count() > 0)
+            {
+                entities.AddRange(luisResult.Entities.GameObject.Select(o => o[0]).ToList());
+            }
+            if (luisResult.Entities.GameActor?.Count() > 0)
+            {
+                entities.AddRange(luisResult.Entities.GameActor.Select(o => o[0]).ToList());
+            }
+
+            return entities;
+        }
+
+        #endregion
     }
 }
