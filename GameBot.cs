@@ -75,7 +75,7 @@ namespace GameATron4000
                 }
                 else
                 {
-                    // get intent and entity from LUIS (if enabled).
+                    // get command from LUIS (if enabled)
                     if (_luisOptions.Enabled)
                     {
                         var recognizerResult = await _services.LuisServices["gameatron4000"]
