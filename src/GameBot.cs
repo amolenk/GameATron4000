@@ -9,6 +9,7 @@ using GameATron4000.Dialogs;
 using GameATron4000.Games;
 using GameATron4000.Models;
 using GameATron4000.Models.Actions;
+using Luis;
 using Microsoft.Bot;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.AI.Luis;
@@ -101,10 +102,20 @@ namespace GameATron4000
             string intent = GetLUISIntent(recognizerResult);
             if (intent != null)
             {
-                string entity = GetLUISEntity(recognizerResult);
-                if (entity != null)
+                IEnumerable<string> entities = GetLUISEntities(recognizerResult);
+                if (entities.Count() > 0)
                 {
-                    return $"{intent} {entity}";
+                    switch(intent)
+                    {
+                        case "use":
+                            return $"use {entities.First()} with {entities.Last()}";
+
+                        case "give":
+                            return $"give {entities.First()} to {entities.Last()}";
+                        
+                        default:
+                            return $"{intent} {entities.First()}";        
+                    }
                 }
             }
 
@@ -124,49 +135,20 @@ namespace GameATron4000
             return intent;
         }
 
-        private string GetLUISEntity(LUISModel luisResult)
+        private IEnumerable<string> GetLUISEntities(LUISModel luisResult)
         {
-            string entity = null;
+            List<string> entities = new List<string>();
 
-            double largestScore = 0;
-            if (luisResult.Entities._instance.Al != null)
+            if (luisResult.Entities.GameObject?.Count() > 0)
             {
-                var entityHit = luisResult.Entities._instance.Al.FirstOrDefault(id => id.Score > _luisOptions.ScoreThreshold);
-                if (entityHit != null)
-                {
-                    largestScore = entityHit.Score.Value > largestScore ? entityHit.Score.Value : largestScore;
-                    entity = "al";
-                }
+                entities.AddRange(luisResult.Entities.GameObject.Select(o => o[0]).ToList());
             }
-            if (luisResult.Entities.Guy_Scotthrie != null)
+            if (luisResult.Entities.GameActor?.Count() > 0)
             {
-                var entityHit = luisResult.Entities._instance.Guy_Scotthrie.FirstOrDefault(id => id.Score > _luisOptions.ScoreThreshold);
-                if (entityHit != null)
-                {
-                    largestScore = entityHit.Score.Value > largestScore ? entityHit.Score.Value : largestScore;
-                    entity = "guy scotthrie";
-                }
-            }
-            if (luisResult.Entities.Ian != null)
-            {
-                var entityHit = luisResult.Entities._instance.Ian.FirstOrDefault(id => id.Score > _luisOptions.ScoreThreshold);
-                if (entityHit != null)
-                {
-                    largestScore = entityHit.Score.Value > largestScore ? entityHit.Score.Value : largestScore;
-                    entity = "ian";
-                }
-            }
-            if (luisResult.Entities.newspaper != null)
-            {
-                var entityHit = luisResult.Entities._instance.newspaper.FirstOrDefault(id => id.Score > _luisOptions.ScoreThreshold);
-                if (entityHit != null)
-                {
-                    largestScore = entityHit.Score.Value > largestScore ? entityHit.Score.Value : largestScore;
-                    entity = "newspaper";
-                }
+                entities.AddRange(luisResult.Entities.GameActor.Select(o => o[0]).ToList());
             }
 
-            return entity;
+            return entities;
         }
 
         #endregion
