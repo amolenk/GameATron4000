@@ -75,10 +75,12 @@ namespace GameATron4000
                 }
                 else
                 {
-                    // get intent and entity from LUIS (if enabled).
+                    // get command from LUIS (if enabled)
                     if (_luisOptions.Enabled)
                     {
-                        string command = await DetermineCommandAsync(context, cancellationToken);
+                        var recognizerResult = await _services.LuisServices["gameatron4000"]
+                            .RecognizeAsync<LUISModel>(context, cancellationToken);
+                        string command  = recognizerResult.ToCommand();
                         if (!string.IsNullOrEmpty(command))
                         {
                             context.Activity.Text = command;
@@ -92,65 +94,5 @@ namespace GameATron4000
                 await _stateAccessors.ConversationState.SaveChangesAsync(context, false, cancellationToken);
             }
         }
-
-        private async Task<string> DetermineCommandAsync(ITurnContext context, CancellationToken cancellationToken)
-        {
-            var recognizerResult = await _services.LuisServices["gameatron4000"]
-                .RecognizeAsync<LUISModel>(context, cancellationToken);
-
-            // parse LUIS results to get intent and entity
-            string intent = GetLUISIntent(recognizerResult);
-            if (intent != null)
-            {
-                IEnumerable<string> entities = GetLUISEntities(recognizerResult);
-                if (entities.Count() > 0)
-                {
-                    switch(intent)
-                    {
-                        case "use":
-                            return $"use {entities.First()} with {entities.Last()}";
-
-                        case "give":
-                            return $"give {entities.First()} to {entities.Last()}";
-                        
-                        default:
-                            return $"{intent} {entities.First()}";        
-                    }
-                }
-            }
-
-            return null;
-        }
-
-        #region LUIS result parsing
-
-        private string GetLUISIntent(LUISModel luisResult)
-        {
-            string intent = null;
-            var topIntent = luisResult.TopIntent();
-            if (topIntent.intent  != LUISModel.Intent.None)
-            {
-                intent = topIntent.intent.ToString().Replace("_", " ");
-            }
-            return intent;
-        }
-
-        private IEnumerable<string> GetLUISEntities(LUISModel luisResult)
-        {
-            List<string> entities = new List<string>();
-
-            if (luisResult.Entities.GameObject?.Count() > 0)
-            {
-                entities.AddRange(luisResult.Entities.GameObject.Select(o => o[0]).ToList());
-            }
-            if (luisResult.Entities.GameActor?.Count() > 0)
-            {
-                entities.AddRange(luisResult.Entities.GameActor.Select(o => o[0]).ToList());
-            }
-
-            return entities;
-        }
-
-        #endregion
     }
 }
