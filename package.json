@@ -3,12 +3,11 @@
   "version": "1.0.0",
   "scripts": {
     "build": "webpack --mode=development",
-    "release": "webpack --mode=production",
-    "publish": "npm run release && dotnet publish -c Release"
+    "release": "webpack --mode=production"
   },
   "private": true,
   "dependencies": {
-    "botframework-directlinejs": "^0.9.17",
+    "botframework-directlinejs": "0.10.0",
     "phaser": "2.6.2"
   },
   "devDependencies": {

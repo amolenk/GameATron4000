@@ -9,4 +9,6 @@ Player: <EnterRoom>
 Guy: That's just great!
 Guy: I hope there's a supermarket around here...
 [GUI:Delay=1000]
-[GUI:MoveActor=guy 850 430]
+[GUI:MoveActor=Guy 850 430]
+[GUI:Narrator="Thanks for playing!"]
+[GUI:Narrator="GAME OVER"]

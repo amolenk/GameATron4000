@@ -2,7 +2,7 @@
 /// <reference path="../node_modules/rx/ts/rx.d.ts" />
 
 import { Action } from "./action"
-import { DirectLine } from "../node_modules/botframework-directlinejs/built/directline";
+import { DirectLine } from "botframework-directlinejs";
 import "../node_modules/rxjs/add/operator/concatMap";
 
 declare var gameInfo: any;

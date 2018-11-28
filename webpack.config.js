@@ -8,7 +8,7 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, 'wwwroot/dist'),
     filename: 'bundle.js',
-    publicPath: '/'
+    publicPath: '/dist/'
   },
   module: {
     rules: [ 
@@ -41,7 +41,7 @@ module.exports = {
     minimizer: [new UglifyJsPlugin()]
   },
   plugins: [
-    new CleanWebpackPlugin('dist'),
+    new CleanWebpackPlugin('./wwwroot/dist'),
     new CopyWebpackPlugin([
       {
         from: './Games/*/assets/*/*.png',

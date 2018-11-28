@@ -60,4 +60,6 @@ window.onload = () => {
     new GameATron();
 };
 
-module.hot.accept();
+if (module.hot) {
+    module.hot.accept();
+}
