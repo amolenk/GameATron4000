@@ -2,6 +2,7 @@ using System.IO;
 using GameATron4000.Dialogs;
 using GameATron4000.Games;
 using GameATron4000.Models;
+using GameATron4000.Scripting;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;
 
