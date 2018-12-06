@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using GameATron4000.Models;
 using GameATron4000.Models.Actions;
+using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Schema;
 using Newtonsoft.Json.Linq;
@@ -120,19 +121,157 @@ namespace GameATron4000.Dialogs
             CommandAction action;
             while (actionStack.TryPop(out action))
             {
-                var nextDialogAction = action.Execute(dc, activities, _gameFlags);
-                if (nextDialogAction.NextDialogType != DialogType.None)
+                switch (action)
                 {
-                    // If the result of the action indicates that we need to start a new dialog
-                    // (e.g. conversation with an actor, or a switch to a new room), first send all
-                    // activities collected up to this point to the client.
-                    if (activities.Any())
+                    case AddToInventoryAction addToInventory:
                     {
-                        await dc.Context.SendActivitiesAsync(activities.ToArray());
-                    }
+                        _gameFlags.SetFlag(addToInventory.InventoryItemId);
 
-                    if (nextDialogAction.NextDialogType == DialogType.Conversation)
+                        activities.Add(CreateEventActivity(dc, "InventoryItemAdded", new
+                        {
+                            inventoryItemId = addToInventory.InventoryItemId,
+                            description = addToInventory.Description
+                        }));
+                        break;
+                    }
+                    case ClearFlagAction clearFlag:
                     {
+                        _gameFlags.ClearFlag(clearFlag.FlagName);
+                        break;
+                    }
+                    case GuiCloseCloseUpAction guiCloseCloseUp:
+                    {
+                        activities.Add(CreateEventActivity(dc, "CloseUpClosed", new
+                        {
+                            closeUpId = guiCloseCloseUp.CloseUpId
+                        }));
+                        break;
+                    }
+                    case GuiDelayAction guiDelay:
+                    {
+                        activities.Add(CreateEventActivity(dc, "Delayed", new
+                        {
+                            time = guiDelay.Milliseconds
+                        }));
+                        break;
+                    }
+                    case GuiFaceActorAwayAction guiFaceActorAway:
+                    {
+                        activities.Add(CreateEventActivity(dc, "ActorFacedAway", new
+                        {
+                            actorId = guiFaceActorAway.ActorId
+                        }));
+                        break;
+                    }
+                    case GuiFaceActorFrontAction guiFaceActorFront:
+                    {
+                        activities.Add(CreateEventActivity(dc, "ActorFacedFront", new
+                        {
+                            actorId = guiFaceActorFront.ActorId
+                        }));
+                        break;
+                    }
+                    case GuiMoveActorAction guiMoveActor:
+                    {
+                        activities.Add(CreateEventActivity(dc, "ActorMoved", new
+                        {
+                            actorId = guiMoveActor.ActorId,
+                            x = guiMoveActor.X,
+                            y = guiMoveActor.Y
+                        }));
+                        break;
+                    }
+                    case GuiNarratorAction guiNarrator:
+                    {
+                        activities.Add(CreateEventActivity(dc, "Narrated", new
+                        {
+                            text = guiNarrator.Text
+                        }));
+                        break;
+                    }
+                    case GuiOpenCloseUpAction guiOpenCloseUp:
+                    {
+                        activities.Add(CreateEventActivity(dc, "CloseUpOpened", new
+                        {
+                            closeUpId = guiOpenCloseUp.CloseUpId
+                        }));
+                        break;
+                    }
+                    case GuiPlaceActorAction guiPlaceActor:
+                    {
+                        activities.Add(CreateEventActivity(dc, "ActorPlacedInRoom", new
+                        {
+                            actorId = guiPlaceActor.ActorId,
+                            description = guiPlaceActor.Description,
+                            x = guiPlaceActor.X,
+                            y = guiPlaceActor.Y,
+                            textColor = guiPlaceActor.TextColor
+                        }));
+                        break;
+                    }
+                    case GuiPlaceObjectAction guiPlaceObject:
+                    {
+                        activities.Add(CreateEventActivity(dc, "ObjectPlacedInRoom", new
+                        {
+                            objectId = guiPlaceObject.ObjectId,
+                            description = guiPlaceObject.Description,
+                            x = guiPlaceObject.X,
+                            y = guiPlaceObject.Y,
+                            foreground = guiPlaceObject.Foreground
+                        }));
+                        break;
+                    }
+                    case GuiRemoveObjectAction guiRemoveObject:
+                    {
+                        activities.Add(CreateEventActivity(dc, "ObjectRemovedFromRoom", new
+                        {
+                            objectId = guiRemoveObject.ObjectId
+                        }));
+                        break;
+                    }
+                    case GuiRoomInitializationCompletedAction guiRoomInitializationCompleted:
+                    {
+                        activities.Add(CreateEventActivity(dc, "RoomInitializationCompleted"));
+                        break;
+                    }
+                    case GuiRoomInitializationStartedAction guiRoomInitializationStarted:
+                    {
+                        activities.Add(CreateEventActivity(dc, "RoomInitializationStarted", new
+                        {
+                            roomId = guiRoomInitializationStarted.RoomId
+                        }));
+                        break;
+                    }
+                    case RemoveFromInventoryAction removeFromInventory:
+                    {
+                        _gameFlags.ClearFlag(removeFromInventory.InventoryItemId);
+                        
+                        activities.Add(CreateEventActivity(dc, "InventoryItemRemoved", new
+                        {
+                            inventoryItemId = removeFromInventory.InventoryItemId
+                        }));
+                        break;
+                    }
+                    case SetFlagAction setFlag:
+                    {
+                        _gameFlags.SetFlag(setFlag.FlagName);
+                        break;
+                    }
+                    case SpeakAction speak:
+                    {
+                        activities.Add(MessageFactory.Text($"{speak.ActorId} > {speak.Text}"));
+                        break;
+                    }
+                    case StartConversationAction startConversation:
+                    {
+                        // If the result of the action indicates that we need to start a new dialog
+                        // (e.g. conversation with an actor, or a switch to a new room), first send all
+                        // activities collected up to this point to the client.
+                        if (activities.Any())
+                        {
+                            await dc.Context.SendActivitiesAsync(activities.ToArray());
+                        }
+
                         // If the player starts a conversation, save any remaining actions to the state.
                         // These will be executed when the conversation is done and this dialog
                         // continues.
@@ -144,16 +283,32 @@ namespace GameATron4000.Dialogs
                         }
 
                         // Start the conversation.
-                        await dc.BeginDialogAsync(nextDialogAction.NextDialogId);
-                    }
-                    else
-                    {
-                        // Switch to the new room.
-                        await dc.ReplaceDialogAsync(nextDialogAction.NextDialogId);
-                    }
+                        await dc.BeginDialogAsync(startConversation.ConversationId);
 
-                    // Stop processing any further actions now that we've switched to a new dialog.
-                    return;
+                        // Stop processing any further actions now that we've switched to a new dialog.
+                        return;
+                    }
+                    case SwitchRoomAction switchRoom:
+                    {
+                        // If the result of the action indicates that we need to start a new dialog
+                        // (e.g. conversation with an actor, or a switch to a new room), first send all
+                        // activities collected up to this point to the client.
+                        if (activities.Any())
+                        {
+                            await dc.Context.SendActivitiesAsync(activities.ToArray());
+                        }
+
+                        // Switch to the new room.
+                        await dc.ReplaceDialogAsync(switchRoom.RoomId);
+
+                        // Stop processing any further actions now that we've switched to a new dialog.
+                        return;
+                    }
+                    case TextDescribeAction textDescribe:
+                    {
+                        activities.Add(MessageFactory.Text(textDescribe.Text));
+                        break;
+                    }
                 }
             }
 
@@ -163,12 +318,17 @@ namespace GameATron4000.Dialogs
             await dc.Context.SendActivitiesAsync(activities.ToArray());
         }
 
-        private static Activity CreateEventActivity(DialogContext dc, string name, JObject properties = null)
+        private static Activity CreateEventActivity(DialogContext dc, string name, object properties = null)
         {
             var eventActivity = dc.Context.Activity.CreateReply();
             eventActivity.Type = "event";
             eventActivity.Name = name;
-            eventActivity.Properties = properties;
+
+            if (properties != null)
+            {
+                eventActivity.Properties = JObject.FromObject(properties);
+            }
+
             return eventActivity;
         }
     }
