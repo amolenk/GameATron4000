@@ -23,15 +23,5 @@ namespace GameATron4000.Models.Actions
 
         [JsonProperty]
         public string RoomId { get; private set; }
-
-        public override CommandActionResult Execute(DialogContext dc, IList<IActivity> activities, GameFlags flags)
-        {
-            activities.Add(CreateEventActivity(dc, "RoomInitializationStarted", JObject.FromObject(new
-            {
-                roomId = RoomId
-            })));
-
-            return CommandActionResult.None;
-        }
     }
 }

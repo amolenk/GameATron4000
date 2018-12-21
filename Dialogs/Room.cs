@@ -19,42 +19,68 @@ namespace GameATron4000.Dialogs
         private readonly string _roomId;
         private readonly List<Command> _commands;
         private readonly GameInfo _gameInfo;
-        private readonly GameFlags _gameFlags;
+        private readonly IStatePropertyAccessor<GameFlags> _gameFlagsAccessor;
+        private readonly IStatePropertyAccessor<Dictionary<string, RoomState>> _roomStateAccessor;
         private readonly Random _random;
 
-        public Room(string roomId, List<Command> commands, GameInfo gameInfo, GameFlags gameFlags)
+        public Room(
+            string roomId,
+            List<Command> commands,
+            GameInfo gameInfo,
+            IStatePropertyAccessor<GameFlags> gameFlagsAccessor,
+            IStatePropertyAccessor<Dictionary<string, RoomState>> roomStateAccessor)
             : base(roomId)
         {
             _roomId = roomId;
             _commands = commands;
             _gameInfo = gameInfo;
-            _gameFlags = gameFlags;
+            _gameFlagsAccessor = gameFlagsAccessor;
+            _roomStateAccessor = roomStateAccessor;
             _random = new Random();
         }
 
-        public override async Task<DialogTurnResult> BeginDialogAsync(DialogContext dc, object options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public override async Task<DialogTurnResult> BeginDialogAsync(
+            DialogContext dc,
+            object options = null,
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             if (dc == null) throw new ArgumentNullException(nameof(dc));
 
-            // When the player enters a new room, send a bunch of activities to initialize the room.
+            // When the player enters a new room, send a bunch of activities to
+            // populate the room. Start with a RoomInitializationStarted event
+            // activity to let the client now we're populating the room.
             var actions = new List<CommandAction>();
-
-            // Room initialization takes care of populating the room with actors and objects.
             actions.Add(new GuiRoomInitializationStartedAction(_roomId));
-            actions.AddRange(GetActions(Command.InitializeRoom));
+
+            // We load the object and actor positions from the room state.
+            var roomState = await GetRoomStateAsync(dc.Context);
+
+            foreach (var objectPlacement in roomState.ObjectPlacements)
+            {
+                actions.Add(new GuiPlaceObjectAction(objectPlacement.Key, objectPlacement.Value));
+            }
+
+            foreach (var actorPlacement in roomState.ActorPlacements)
+            {
+                actions.Add(new GuiPlaceActorAction(actorPlacement.Key, actorPlacement.Value));
+            }
+
+            // Let the client know we're done populating the room.
             actions.Add(new GuiRoomInitializationCompletedAction());
 
             // There may be some actions that must be performed immediately after the player
             // enters the room (e.g. walk to a specific spot). Add those actions to the list as well.
-            actions.AddRange(GetActions(Command.EnterRoom));
+            actions.AddRange(await GetActionsAsync(dc, Command.EnterRoom));
 
             // Map the actions to Bot Framework activities and send them to the client.
-            await ExecuteActions(dc, actions);
+            await ExecuteActionsAsync(dc, actions);
 
             return new DialogTurnResult(DialogTurnStatus.Waiting);
         }
 
-        public override async Task<DialogTurnResult> ContinueDialogAsync(DialogContext dc, CancellationToken cancellationToken = default(CancellationToken))
+        public override async Task<DialogTurnResult> ContinueDialogAsync(
+            DialogContext dc,
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             if (dc == null) throw new ArgumentNullException(nameof(dc));
 
@@ -62,7 +88,7 @@ namespace GameATron4000.Dialogs
             var command = dc.Context.Activity.Text;
 
             // Get the actions for the command from the game script.
-            var actions = GetActions(command);
+            var actions = await GetActionsAsync(dc, command);
 
             // If there are no actions; reply with a standard response.
             if (!actions.Any())
@@ -76,12 +102,16 @@ namespace GameATron4000.Dialogs
             }
 
             // Map the actions to Bot Framework activities and send them to the client.
-            await ExecuteActions(dc, actions);
+            await ExecuteActionsAsync(dc, actions);
 
             return new DialogTurnResult(DialogTurnStatus.Waiting);
         }
 
-        public override async Task<DialogTurnResult> ResumeDialogAsync(DialogContext dc, DialogReason reason, object result = null, CancellationToken cancellationToken = default(CancellationToken))
+        public override async Task<DialogTurnResult> ResumeDialogAsync(
+            DialogContext dc,
+            DialogReason reason,
+            object result = null,
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             if (dc == null) throw new ArgumentNullException(nameof(dc));
 
@@ -91,15 +121,17 @@ namespace GameATron4000.Dialogs
             if (dc.ActiveDialog.State.TryGetValue(DialogStatePendingActions, out pendingActions))
             {
                 // Map the actions to Bot Framework activities and send them to the client.
-                await ExecuteActions(dc, (List<CommandAction>)pendingActions);
+                await ExecuteActionsAsync(dc, (List<CommandAction>)pendingActions);
                 dc.ActiveDialog.State.Remove(DialogStatePendingActions);
             }
 
             return new DialogTurnResult(DialogTurnStatus.Waiting);
         }
 
-        private IEnumerable<CommandAction> GetActions(string commandText)
+        private async Task<IEnumerable<CommandAction>> GetActionsAsync(DialogContext dc, string commandText)
         {
+            var gameFlags = await _gameFlagsAccessor.GetAsync(dc.Context, () => new GameFlags());
+
             // Try to find a matching command for the player's input.
             var command = _commands
                 .Where(cmd => string.Equals(cmd.Text, commandText, StringComparison.OrdinalIgnoreCase))
@@ -108,15 +140,18 @@ namespace GameATron4000.Dialogs
             // If we've found a matching command, return all actions for which the preconditions can be
             // satisfied.
             return (command != null)
-                ? command.Actions.Where(a => a.Preconditions.All(pc => _gameFlags.SatisfyPrecondition(pc)))
+                ? command.Actions.Where(a => a.Preconditions.All(pc => gameFlags.SatisfyPrecondition(pc)))
                 : Enumerable.Empty<CommandAction>();
         }
 
-        private async Task ExecuteActions(DialogContext dc, IEnumerable<CommandAction> actions)
+        private async Task ExecuteActionsAsync(DialogContext dc, IEnumerable<CommandAction> actions)
         {
+            var gameFlags = await _gameFlagsAccessor.GetAsync(dc.Context, () => new GameFlags());
+
             var activities = new List<IActivity>();
             var actionStack = new Stack<CommandAction>(actions.Reverse());
-
+            var roomState = await GetRoomStateAsync(dc.Context);
+            
             // Process each action in turn, populating the activities list.
             CommandAction action;
             while (actionStack.TryPop(out action))
@@ -125,7 +160,7 @@ namespace GameATron4000.Dialogs
                 {
                     case AddToInventoryAction addToInventory:
                     {
-                        _gameFlags.SetFlag(addToInventory.InventoryItemId);
+                        gameFlags.SetFlag(addToInventory.InventoryItemId);
 
                         activities.Add(CreateEventActivity(dc, "InventoryItemAdded", new
                         {
@@ -136,15 +171,7 @@ namespace GameATron4000.Dialogs
                     }
                     case ClearFlagAction clearFlag:
                     {
-                        _gameFlags.ClearFlag(clearFlag.FlagName);
-                        break;
-                    }
-                    case GuiCloseCloseUpAction guiCloseCloseUp:
-                    {
-                        activities.Add(CreateEventActivity(dc, "CloseUpClosed", new
-                        {
-                            closeUpId = guiCloseCloseUp.CloseUpId
-                        }));
+                        gameFlags.ClearFlag(clearFlag.FlagName);
                         break;
                     }
                     case GuiDelayAction guiDelay:
@@ -189,36 +216,59 @@ namespace GameATron4000.Dialogs
                         }));
                         break;
                     }
-                    case GuiOpenCloseUpAction guiOpenCloseUp:
-                    {
-                        activities.Add(CreateEventActivity(dc, "CloseUpOpened", new
-                        {
-                            closeUpId = guiOpenCloseUp.CloseUpId
-                        }));
-                        break;
-                    }
                     case GuiPlaceActorAction guiPlaceActor:
                     {
-                        activities.Add(CreateEventActivity(dc, "ActorPlacedInRoom", new
+                        // TODO If ations can validate themselves, we don't need this check here!
+                        if (_gameInfo.Actors.TryGetValue(guiPlaceActor.ActorId, out GameActor gameActor))
                         {
-                            actorId = guiPlaceActor.ActorId,
-                            description = guiPlaceActor.Description,
-                            x = guiPlaceActor.X,
-                            y = guiPlaceActor.Y,
-                            textColor = guiPlaceActor.TextColor
-                        }));
+                            // Save the actor's new position in the room state.
+                            roomState.ActorPlacements[guiPlaceActor.ActorId] = guiPlaceActor.Placement;
+
+                            activities.Add(CreateEventActivity(dc, "ActorPlacedInRoom", new
+                            {
+                                actorId = guiPlaceActor.ActorId,
+                                description = gameActor.Description,
+                                x = guiPlaceActor.Placement.X,
+                                y = guiPlaceActor.Placement.Y,
+                                textColor = gameActor.TextColor
+                            }));
+                        }
+                        else
+                        {
+                            // TODO Specialized exception
+                            throw new Exception($"Unknown actor id '{guiPlaceActor.ActorId}'.");
+                        }
                         break;
                     }
                     case GuiPlaceObjectAction guiPlaceObject:
                     {
-                        activities.Add(CreateEventActivity(dc, "ObjectPlacedInRoom", new
+                        if (_gameInfo.Objects.TryGetValue(guiPlaceObject.ObjectId, out GameObject gameObject))
                         {
-                            objectId = guiPlaceObject.ObjectId,
-                            description = guiPlaceObject.Description,
-                            x = guiPlaceObject.X,
-                            y = guiPlaceObject.Y,
-                            foreground = guiPlaceObject.Foreground
-                        }));
+                            // Save the object's new position in the room state.
+                            // TODO If ations can validate themselves, we don't need this check here!
+                            if (!roomState.ObjectPlacements.ContainsKey(guiPlaceObject.ObjectId))
+                            {
+                                roomState.ObjectPlacements.Add(guiPlaceObject.ObjectId, guiPlaceObject.Placement);
+                            }
+                            else
+                            {
+                                roomState.ObjectPlacements[guiPlaceObject.ObjectId] = guiPlaceObject.Placement;
+                            }
+
+                            activities.Add(CreateEventActivity(dc, "ObjectPlacedInRoom", new
+                            {
+                                objectId = guiPlaceObject.ObjectId,
+                                description = gameObject.Description,
+                                x = guiPlaceObject.Placement.X,
+                                y = guiPlaceObject.Placement.Y,
+                                foreground = guiPlaceObject.Placement.Foreground
+                            }));
+                        }
+                        else
+                        {
+                            // TODO Specialized exception
+                            throw new Exception($"Unknown object id '{guiPlaceObject.ObjectId}'.");
+                        }
                         break;
                     }
                     case GuiRemoveObjectAction guiRemoveObject:
@@ -244,7 +294,7 @@ namespace GameATron4000.Dialogs
                     }
                     case RemoveFromInventoryAction removeFromInventory:
                     {
-                        _gameFlags.ClearFlag(removeFromInventory.InventoryItemId);
+                        gameFlags.ClearFlag(removeFromInventory.InventoryItemId);
                         
                         activities.Add(CreateEventActivity(dc, "InventoryItemRemoved", new
                         {
@@ -254,12 +304,19 @@ namespace GameATron4000.Dialogs
                     }
                     case SetFlagAction setFlag:
                     {
-                        _gameFlags.SetFlag(setFlag.FlagName);
+                        gameFlags.SetFlag(setFlag.FlagName);
                         break;
                     }
                     case SpeakAction speak:
                     {
-                        activities.Add(MessageFactory.Text($"{speak.ActorId} > {speak.Text}"));
+                        var gameActor = _gameInfo.Actors[speak.ActorId];
+
+                        var messageActivity = MessageFactory.Text($"{gameActor.Description} > {speak.Text}");
+                        messageActivity.Properties = JObject.FromObject(new {
+                            actorId = speak.ActorId
+                        });
+
+                        activities.Add(messageActivity);
                         break;
                     }
                     case StartConversationAction startConversation:
@@ -316,6 +373,24 @@ namespace GameATron4000.Dialogs
             activities.Add(CreateEventActivity(dc, "Idle"));
 
             await dc.Context.SendActivitiesAsync(activities.ToArray());
+        }
+
+        private async Task<RoomState> GetRoomStateAsync(ITurnContext context)
+        {
+            var roomStates = await _roomStateAccessor.GetAsync(context, () => new Dictionary<string, RoomState>());
+            if (!roomStates.ContainsKey(_roomId))
+            {
+                if (_gameInfo.InitialRoomStates.ContainsKey(_roomId))
+                {
+                    roomStates.Add(_roomId, _gameInfo.InitialRoomStates[_roomId]);
+                }
+                else
+                {
+                    roomStates.Add(_roomId, new RoomState());
+                }
+            }
+
+            return roomStates[_roomId];
         }
 
         private static Activity CreateEventActivity(DialogContext dc, string name, object properties = null)

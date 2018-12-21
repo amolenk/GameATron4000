@@ -1,6 +1,6 @@
 Player: <InitializeRoom>
-[GUI:PlaceActor=Guy "Guy Scotthrie" 490 420]
-[GUI:PlaceObject=tractorbeam "" 490 225 true]
+[GUI:PlaceActor=Guy 490 420]
+[GUI:PlaceObject=tractorbeam 490 225 true]
 
 Player: <EnterRoom>
 [GUI:Delay=1500]

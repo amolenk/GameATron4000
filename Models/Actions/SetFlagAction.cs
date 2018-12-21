@@ -25,12 +25,5 @@ namespace GameATron4000.Models.Actions
 
         [JsonProperty]
         public string FlagName { get; private set; }
-
-        public override CommandActionResult Execute(DialogContext dc, IList<IActivity> activities, GameFlags flags) {
-
-            flags.SetFlag(FlagName);
-
-            return CommandActionResult.None;
-        }
     }
 }

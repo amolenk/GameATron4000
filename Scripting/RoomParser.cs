@@ -38,6 +38,12 @@ namespace GameATron4000.Scripting
             {
                 lineNumber += 1;
 
+                // Skip comment lines.
+                if (line.StartsWith("#"))
+                {
+                    continue;
+                }
+
                 var match = _preconditionExpression.Match(line);
                 if (match.Success)
                 {

@@ -1,9 +1,9 @@
 Player: <InitializeRoom>
-[GUI:PlaceActor=Al "Al" 440 370 Magenta]
-[GUI:PlaceActor=Ian "Ian" 650 420 Yellow]
-[GUI:PlaceActor=Guy "Guy Scotthrie" 150 400]
-[GUI:PlaceObject=todolist "to-do list" 650 300]
-[GUI:PlaceObject="fridge-closed" "fridge" 185 242]
+[GUI:PlaceActor=Al 440 370 Magenta]
+[GUI:PlaceActor=Ian 650 420 Yellow]
+[GUI:PlaceActor=Guy 150 400]
+[GUI:PlaceObject=todolist 650 300]
+[GUI:PlaceObject="fridge-closed" 185 242]
 [GUI:FaceActorAway=Ian]
 
 Player: <EnterRoom>
@@ -83,9 +83,9 @@ Player: open fridge
 [GUI:FaceActorAway=Guy]
 [GUI:Delay=1000]
 {!fridgeFull}
-[GUI:PlaceObject="fridge-open-empty" "empty fridge" 185 242]
+[GUI:PlaceObject="fridge-open-empty" 185 242]
 {fridgeFull}
-[GUI:PlaceObject="fridge-open-full" "full fridge" 185 242]
+[GUI:PlaceObject="fridge-open-full" 185 242]
 {}
 [GUI:Delay=500]
 [GUI:FaceActorFront=Guy]
@@ -102,7 +102,7 @@ Ian: Hey, put that back!
 Al: We need that to finish the mission!
 [GUI:FaceActorAway=Guy]
 [GUI:Delay=500]
-[GUI:PlaceObject=todolist "to-do list" 650 300]
+[GUI:PlaceObject=todolist 650 300]
 [GUI:FaceActorFront=Guy]
 Guy: I guess I have to think of something sneakier!
 [GUI:MoveActor=Guy 620 420]
@@ -134,7 +134,7 @@ Player: use bag of groceries with empty fridge
 [GUI:FaceActorAway=Guy]
 [GUI:Delay=1000]
 [RemoveFromInventory=groceries]
-[GUI:PlaceObject="fridge-open-full" "full fridge" 185 242]
+[GUI:PlaceObject="fridge-open-full" 185 242]
 [GUI:RemoveObject="fridge-open-empty"]
 [GUI:Delay=1000]
 [GUI:FaceActorFront=Guy]
@@ -145,7 +145,7 @@ Player: use grocery list with to-do list
 [GUI:FaceActorAway=Guy]
 [GUI:Delay=1000]
 [RemoveFromInventory=grocerylist]
-[GUI:PlaceObject="grocerylist" "grocery list" 655 295]
+[GUI:PlaceObject="grocerylist" 655 295]
 [GUI:RemoveObject=todolist]
 [AddToInventory=todolist "to-do list"]
 [GUI:Delay=1000]
@@ -186,9 +186,9 @@ Ian: Still looking for those earthly food products!
 [GUI:MoveActor=Ian 185 400]
 [GUI:FaceActorAway=Ian]
 {talkedAboutList listSwitched !fridgeOpen !fridgeFull}
-[GUI:PlaceObject="fridge-open-empty" "empty fridge" 185 242]
+[GUI:PlaceObject="fridge-open-empty" 185 242]
 {talkedAboutList listSwitched !fridgeOpen fridgeFull}
-[GUI:PlaceObject="fridge-open-full" "full fridge" 185 242]
+[GUI:PlaceObject="fridge-open-full" 185 242]
 {talkedAboutList listSwitched fridgeOpen}
 Ian: Damnit Al, you left the fridge open again!
 Al: It wasn't me!

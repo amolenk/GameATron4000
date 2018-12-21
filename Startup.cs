@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using GameATron4000.Configuration;
@@ -103,7 +104,8 @@ namespace GameATron4000
                 return new GameBotAccessors(conversationState)
                 {
                     DialogStateAccessor = conversationState.CreateProperty<DialogState>(GameBotAccessors.DialogStateAccessorName),
-                    GameStateAccessor = conversationState.CreateProperty<GameState>(GameBotAccessors.GameStateAccessorName),
+                    GameFlagsAccessor = conversationState.CreateProperty<GameFlags>(GameBotAccessors.GameFlagsAccessorName),
+                    RoomStateAccessor = conversationState.CreateProperty<Dictionary<string, RoomState>>(GameBotAccessors.RoomStateAccessorName)
                 };
             });
 

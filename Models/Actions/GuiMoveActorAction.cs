@@ -33,17 +33,5 @@ namespace GameATron4000.Models.Actions
 
         [JsonProperty]
         public int Y { get; private set; }
-
-        public override CommandActionResult Execute(DialogContext dc, IList<IActivity> activities, GameFlags flags) {
-
-            activities.Add(CreateEventActivity(dc, "ActorMoved", JObject.FromObject(new
-            {
-                actorId = ActorId,
-                x = X,
-                y = Y
-            })));
-
-            return CommandActionResult.None;
-        }
     }
 }

@@ -21,10 +21,5 @@ namespace GameATron4000.Models.Actions
             : base(preconditions)
         {
         }
-
-        public override CommandActionResult Execute(DialogContext dc, IList<IActivity> activities, GameFlags flags)
-        {
-            return CommandActionResult.None;
-        }
     }
 }

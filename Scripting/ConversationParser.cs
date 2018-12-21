@@ -44,6 +44,12 @@ namespace GameATron4000.Scripting
                 line = line.Trim();
                 context.LineNumber += 1;
 
+                // Skip comment lines.
+                if (line.StartsWith("#"))
+                {
+                    continue;
+                }
+
                 var match = _commandExpression.Match(line);
                 if (match.Success)
                 {

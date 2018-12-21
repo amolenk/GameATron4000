@@ -14,12 +14,5 @@ namespace GameATron4000.Models.Actions
         public GuiRoomInitializationCompletedAction()
         {
         }
-
-        public override CommandActionResult Execute(DialogContext dc, IList<IActivity> activities, GameFlags flags)
-        {
-            activities.Add(CreateEventActivity(dc, "RoomInitializationCompleted"));
-
-            return CommandActionResult.None;
-        }
     }
 }

@@ -29,18 +29,5 @@ namespace GameATron4000.Models.Actions
 
         [JsonProperty]
         public string Description { get; private set; }
-
-        public override CommandActionResult Execute(DialogContext dc, IList<IActivity> activities, GameFlags flags)
-        {
-            flags.SetFlag(InventoryItemId);
-
-            activities.Add(CreateEventActivity(dc, "InventoryItemAdded", JObject.FromObject(new
-            {
-                inventoryItemId = InventoryItemId,
-                description = Description
-            })));
-
-            return CommandActionResult.None;
-        }
     }
 }

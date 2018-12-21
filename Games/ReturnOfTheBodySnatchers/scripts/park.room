@@ -1,52 +1,54 @@
-Player: <InitializeRoom>
-[AddToInventory=groceries "bag of groceries"]
-[AddToInventory=grocerylist "grocery list"]
-[GUI:PlaceActor=Guy "Guy Scotthrie" 600 430]
-[GUI:PlaceObject=newspaper "newspaper" 362 400]
+# Player: <InitializeRoom>
+# [AddToInventory=groceries "bag of groceries"]
+# [AddToInventory=grocerylist "grocery list"]
+# [GUI:PlaceActor=Guy "Guy Scotthrie" 600 430]
+# [GUI:PlaceObject=newspaper "newspaper" 362 400]
 
 Player: <EnterRoom>
 [Text:Describe="You are in a park. You just went shopping at the supermarket and decided to take a detour home. There's a newspaper lying on the ground next to a park bench."]
 
 Player: look at bag of groceries
-Guy: It's my shopping bag with groceries.
-Guy: There's even a bottle of Info Support Awesome Sauce™ in there!
+guy: It's my shopping bag with groceries.
+guy: There's even a bottle of Info Support Awesome Sauce™ in there!
 
 Player: look at grocery list
-Guy: It's my grocery list!
-Guy: I've bought everything that's on it!
+guy: It's my grocery list!
+guy: I've bought everything that's on it!
 
 Player: look at guy scotthrie
 [GUI:Narrator="It’s Guy Scotthrie, our fearless hero!"]
 [Text:Describe="It’s Guy Scotthrie, our fearless hero!"]
 
 Player: use grocery list with bag of groceries
-Guy: Yep, I’ve got everything on the list!
+guy: Yep, I’ve got everything on the list!
 
 Player: use bag of groceries with grocery list
-Guy: Yep, I’ve got everything on the list!
+guy: Yep, I’ve got everything on the list!
 
 Player: look at newspaper
-Guy: It looks like an old newspaper!
+guy: It looks like an old newspaper!
 
 Player: pick up newspaper
 {newspaper}
-Guy: I've already picked that up!
+guy: I've already picked that up!
 {!newspaper}
-[GUI:MoveActor=Guy 360 430]
+[GUI:MoveActor=guy 360 430]
 [GUI:RemoveObject=newspaper]
 [AddToInventory=newspaper "newspaper"]
-Guy: It's yesterday's newspaper!
-[GUI:OpenCloseUp=newspaper]
+guy: It's yesterday's newspaper!
+[GUI:PlaceObject="newspaper-closeup" 400 300 true]
+# [GUI:OpenCloseUp=newspaper]
 [GUI:Delay=4000]
 [Text:Describe="The newspaper headline proclaims 'Are they here?' in big capital letters. There's a photo of what looks like a flying saucer!"]
 [GUI:Narrator="Hmm, there seems to be a LOT of UFO sightings lately!"]
 [GUI:Delay=500]
-[GUI:CloseCloseUp=newspaper]
-Guy: What a bunch of nonsense!
+[GUI:RemoveObject="newspaper-closeup"]
+# [GUI:CloseCloseUp=newspaper]
+guy: What a bunch of nonsense!
 [GUI:Delay=1000]
-[GUI:PlaceObject=tractorbeam "" 360 225 true]
+[GUI:PlaceObject=tractorbeam 360 225 true]
 [GUI:Delay=1000]
 [Text:Describe="Suddenly, a bright red beam of light appears from the sky above."]
-Guy: Uh oh...
+guy: Uh oh...
 [GUI:Delay=3000]
 [SwitchRoom=ufo]

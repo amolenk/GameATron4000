@@ -16,14 +16,17 @@ namespace GameATron4000.Dialogs
         private const string DialogStateCurrentNodeId = "CurrentNodeId";
         private readonly string _conversationId;
         private readonly ConversationNode _rootNode;
-        private GameFlags _gameFlags;
+        private readonly IStatePropertyAccessor<GameFlags> _gameFlagsStateAccessor;
 
-        public Conversation(string conversationId, ConversationNode rootNode, GameFlags gameFlags)
+        public Conversation(
+            string conversationId,
+            ConversationNode rootNode,
+            IStatePropertyAccessor<GameFlags> gameFlagsStateAccessor)
             : base(conversationId)
         {
             _conversationId = conversationId;
             _rootNode = rootNode;
-            _gameFlags = gameFlags;
+            _gameFlagsStateAccessor = gameFlagsStateAccessor;
         }
 
         public override async Task<DialogTurnResult> BeginDialogAsync(DialogContext dc, object options = null, CancellationToken cancellationToken = default(CancellationToken))
@@ -82,7 +85,8 @@ namespace GameATron4000.Dialogs
                         break;
 
                     default:
-                        action.Execute(dc, activities, _gameFlags);
+                        // TODO
+//                        action.Execute(dc, activities, _gameFlags);
                         break;
                 }
             }

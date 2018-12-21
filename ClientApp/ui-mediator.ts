@@ -80,16 +80,20 @@ export class UIMediator {
         this.botClient.connect(
             async (message: any) => {
                 
-                var match = /(.*?) \> (.*)/.exec(message.text);
-                if (match) {
+                if (message.actorId) {
 
-                    var actor = this.room.getActor(match[1]);
-                    await actor.say(match[2]);
+                    var actor = this.room.getActor(message.actorId);
 
-                    if (message.suggestedActions) {
-                        this.conversationUI.displaySuggestedActions(
-                            this.room.getActor(gameInfo.playerActor),
-                            message.suggestedActions.actions);
+                    var match = /(.*?) \> (.*)/.exec(message.text);
+                    if (match) {
+
+                        await actor.say(match[2]);
+
+                        if (message.suggestedActions) {
+                            this.conversationUI.displaySuggestedActions(
+                                this.room.getActor(gameInfo.playerActor),
+                                message.suggestedActions.actions);
+                        }
                     }
                 }
             },

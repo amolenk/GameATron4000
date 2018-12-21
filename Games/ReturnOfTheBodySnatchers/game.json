@@ -2,13 +2,39 @@
     "Title": "Return of the Body Snatchers",
     "InitialRoom": "park",
     "SupportsGui": true,
-    "PlayerActor": "Guy",
+    "PlayerActor": "guy",
     "BadCommandResponses": [ 
         "I can't do that.",
         "Why?",
         "Hmm, better not.",
         "That will probably crash the game!"
     ],
+    "actors": {
+        "guy": { "description": "Guy Scotthrie", "textColor": "White" }
+    },
+    "objects": {
+        "newspaper": { "description": "newspaper" },
+        "tractorbeam": { "description": "rays of death and transportation" },
+        "newspaper-closeup": { "description": "newspaper headline" }
+    },
+    "inventoryItems": {
+        "groceries": { "description": "bag of groceries" },
+        "grocerylist": { "description": "grocery list" }
+    },
+    "initialInventory": [
+        "groceries",
+        "grocerylist"
+    ],
+    "initialRoomStates": {
+        "park": {
+            "actorPlacements": {
+                "guy": { "x": 600, "y": 430 }
+            },
+            "objectPlacements": {
+                "newspaper": { "x": 362, "y": 400 }
+            }
+        }
+    },
     "RoomScripts": [
         { "Key": "park", "Path": "park.room" },
         { "Key": "ufo", "Path": "ufo.room" },
@@ -28,19 +54,20 @@
         { "Key": "object-newspaper", "Url": "/objects/newspaper.png" },
         { "Key": "object-todolist", "Url": "/objects/todolist.png" },
         { "Key": "object-tractorbeam", "Url": "/objects/tractorbeam.png" },
+        { "Key": "object-newspaper-closeup", "Url": "/closeups/newspaper.png" },
         { "Key": "inventory-newspaper", "Url": "/inventory/newspaper.png" },
         { "Key": "inventory-groceries", "Url": "/inventory/groceries.png" },
         { "Key": "inventory-todolist", "Url": "/inventory/todolist.png" },
         { "Key": "inventory-grocerylist", "Url": "/inventory/grocerylist.png" },
         { "Key": "closeup-newspaper", "Url": "/closeups/newspaper.png" },
-        { "Key": "actor-Guy", "Url": "/actors/guy-talk.png", "FrameWidth": 69, "FrameHeight": 141 },
-        { "Key": "actor-Guy-walk", "Url": "/actors/guy-walk.png", "FrameWidth": 96, "FrameHeight": 144 },
-        { "Key": "actor-Guy-back", "Url": "/actors/guy-back.png" },
-        { "Key": "actor-Al", "Url": "/actors/al-talk.png", "FrameWidth": 66, "FrameHeight": 147 },
-        { "Key": "actor-Al-walk", "Url": "/actors/al-walk.png", "FrameWidth": 96, "FrameHeight": 150 },
-        { "Key": "actor-Al-back", "Url": "/actors/al-back.png" },
-        { "Key": "actor-Ian", "Url": "/actors/ian-talk.png", "FrameWidth": 66, "FrameHeight": 147 },
-        { "Key": "actor-Ian-walk", "Url": "/actors/ian-walk.png", "FrameWidth": 96, "FrameHeight": 150 },
-        { "Key": "actor-Ian-back", "Url": "/actors/ian-back.png" }
+        { "Key": "actor-guy", "Url": "/actors/guy-talk.png", "FrameWidth": 69, "FrameHeight": 141 },
+        { "Key": "actor-guy-walk", "Url": "/actors/guy-walk.png", "FrameWidth": 96, "FrameHeight": 144 },
+        { "Key": "actor-guy-back", "Url": "/actors/guy-back.png" },
+        { "Key": "actor-al", "Url": "/actors/al-talk.png", "FrameWidth": 66, "FrameHeight": 147 },
+        { "Key": "actor-al-walk", "Url": "/actors/al-walk.png", "FrameWidth": 96, "FrameHeight": 150 },
+        { "Key": "actor-al-back", "Url": "/actors/al-back.png" },
+        { "Key": "actor-ian", "Url": "/actors/ian-talk.png", "FrameWidth": 66, "FrameHeight": 147 },
+        { "Key": "actor-ian-walk", "Url": "/actors/ian-walk.png", "FrameWidth": 96, "FrameHeight": 150 },
+        { "Key": "actor-ian-back", "Url": "/actors/ian-back.png" }
     ]
 }

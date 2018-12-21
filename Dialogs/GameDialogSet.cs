@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.IO;
 using GameATron4000.Dialogs;
 using GameATron4000.Games;
@@ -10,7 +11,11 @@ namespace GameATron4000.Dialogs
 {
     public class GameDialogSet : DialogSet
     {
-        public GameDialogSet(GameInfo gameInfo, GameFlags gameFlags, IStatePropertyAccessor<DialogState> dialogStateAccessor)
+        public GameDialogSet(
+            GameInfo gameInfo,
+            IStatePropertyAccessor<GameFlags> gameFlagsStateAccessor,
+            IStatePropertyAccessor<Dictionary<string, RoomState>> roomStateAccessor,
+            IStatePropertyAccessor<DialogState> dialogStateAccessor)
             : base(dialogStateAccessor)
         {
             var roomParser = new RoomParser();
@@ -20,14 +25,14 @@ namespace GameATron4000.Dialogs
             {
                 var commands = roomParser.Parse(script.Path);
 
-                Add(new Room(script.Key, commands, gameInfo, gameFlags));
+                Add(new Room(script.Key, commands, gameInfo, gameFlagsStateAccessor, roomStateAccessor));
             }
 
             foreach (var script in gameInfo.ConversationScripts)
             {
                 var conversationRootNode = conversationParser.Parse(script.Path);
 
-                Add(new Conversation(script.Key, conversationRootNode, gameFlags));
+                Add(new Conversation(script.Key, conversationRootNode, gameFlagsStateAccessor));
             }
         }
     }

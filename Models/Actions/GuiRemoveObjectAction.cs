@@ -25,15 +25,5 @@ namespace GameATron4000.Models.Actions
 
         [JsonProperty]
         public string ObjectId { get; private set; }
-
-        public override CommandActionResult Execute(DialogContext dc, IList<IActivity> activities, GameFlags flags) {
-
-            activities.Add(CreateEventActivity(dc, "ObjectRemovedFromRoom", JObject.FromObject(new
-            {
-                objectId = ObjectId
-            })));
-
-            return CommandActionResult.None;
-        }
     }
 }

@@ -64,7 +64,7 @@ namespace GameATron4000
                 var gameInfo = _gameCatalog.GetGameInfo(gameState.GameName);
 
                 // Establish dialog context from the loaded game.
-                var dialogSet = new GameDialogSet(gameInfo, gameState.GameFlags, _stateAccessors.DialogStateAccessor);
+                var dialogSet = new GameDialogSet(gameInfo, gameState.GameFlags, _stateAccessors.RoomStateAccessor, _stateAccessors.DialogStateAccessor);
                 var dc = await dialogSet.CreateContextAsync(context, cancellationToken);
 
                 if (dc.ActiveDialog == null)

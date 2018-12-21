@@ -26,12 +26,5 @@ namespace GameATron4000.Models.Actions
 
         [JsonProperty]
         public string Text { get; private set; }
-
-        public override CommandActionResult Execute(DialogContext dc, IList<IActivity> activities, GameFlags flags) {
-
-            activities.Add(MessageFactory.Text(Text));
-
-            return CommandActionResult.None;
-        }
     }
 }

@@ -25,17 +25,5 @@ namespace GameATron4000.Models.Actions
 
         [JsonProperty]
         public string InventoryItemId { get; private set; }
-
-        public override CommandActionResult Execute(DialogContext dc, IList<IActivity> activities, GameFlags flags)
-        {
-            flags.ClearFlag(InventoryItemId);
-            
-            activities.Add(CreateEventActivity(dc, "InventoryItemRemoved", JObject.FromObject(new
-            {
-                inventoryItemId = InventoryItemId
-            })));
-
-            return CommandActionResult.None;
-        }
     }
 }
