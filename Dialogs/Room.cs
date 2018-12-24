@@ -4,7 +4,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using GameATron4000.Models;
-using GameATron4000.Models.Actions;
+using GameATron4000.Scripting.Actions;
+using GameATron4000.Scripting;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Schema;
@@ -18,25 +19,26 @@ namespace GameATron4000.Dialogs
 
         private readonly string _roomId;
         private readonly List<Command> _commands;
-        private readonly GameInfo _gameInfo;
-        private readonly IStatePropertyAccessor<GameFlags> _gameFlagsAccessor;
+        private readonly IStatePropertyAccessor<List<string>> _inventoryItemsAccessor;
+        private readonly IStatePropertyAccessor<List<string>> _stateFlagsStateAccessor;
         private readonly IStatePropertyAccessor<Dictionary<string, RoomState>> _roomStateAccessor;
-        private readonly Random _random;
+        private readonly ActivityFactory _activityFactory;
 
         public Room(
             string roomId,
             List<Command> commands,
             GameInfo gameInfo,
-            IStatePropertyAccessor<GameFlags> gameFlagsAccessor,
+            IStatePropertyAccessor<List<string>> inventoryItemsAccessor,
+            IStatePropertyAccessor<List<string>> stateFlagsStateAccessor,
             IStatePropertyAccessor<Dictionary<string, RoomState>> roomStateAccessor)
             : base(roomId)
         {
             _roomId = roomId;
             _commands = commands;
-            _gameInfo = gameInfo;
-            _gameFlagsAccessor = gameFlagsAccessor;
+            _inventoryItemsAccessor = inventoryItemsAccessor;
+            _stateFlagsStateAccessor = stateFlagsStateAccessor;
             _roomStateAccessor = roomStateAccessor;
-            _random = new Random();
+            _activityFactory = new ActivityFactory(gameInfo);
         }
 
         public override async Task<DialogTurnResult> BeginDialogAsync(
@@ -46,34 +48,25 @@ namespace GameATron4000.Dialogs
         {
             if (dc == null) throw new ArgumentNullException(nameof(dc));
 
-            // When the player enters a new room, send a bunch of activities to
-            // populate the room. Start with a RoomInitializationStarted event
-            // activity to let the client now we're populating the room.
-            var actions = new List<CommandAction>();
-            actions.Add(new GuiRoomInitializationStartedAction(_roomId));
-
             // We load the object and actor positions from the room state.
-            var roomState = await GetRoomStateAsync(dc.Context);
+            var roomStates = await _roomStateAccessor.GetAsync(dc.Context, () => new Dictionary<string, RoomState>());
+            var roomState = roomStates.ContainsKey(_roomId) ? roomStates[_roomId] : null;
 
-            foreach (var objectPlacement in roomState.ObjectPlacements)
-            {
-                actions.Add(new GuiPlaceObjectAction(objectPlacement.Key, objectPlacement.Value));
-            }
-
-            foreach (var actorPlacement in roomState.ActorPlacements)
-            {
-                actions.Add(new GuiPlaceActorAction(actorPlacement.Key, actorPlacement.Value));
-            }
-
-            // Let the client know we're done populating the room.
-            actions.Add(new GuiRoomInitializationCompletedAction());
+            // When the player enters a new room, send a RoomEntered event to 
+            // populate the room.
+            await dc.Context.SendActivityAsync(_activityFactory.RoomEntered(dc, _roomId, roomState));
 
             // There may be some actions that must be performed immediately after the player
-            // enters the room (e.g. walk to a specific spot). Add those actions to the list as well.
-            actions.AddRange(await GetActionsAsync(dc, Command.EnterRoom));
+            // enters the room (e.g. walk to a specific spot).
+            var actions = await GetActionsAsync(dc, Command.EnterRoom);
+            if (actions.Any())
+            {
+                // Map the actions to Bot Framework activities and send them to the client.
+                await ExecuteActionsAsync(dc, actions);
+            }
 
-            // Map the actions to Bot Framework activities and send them to the client.
-            await ExecuteActionsAsync(dc, actions);
+            // Send an Idle activity to let the GUI know that we're waiting for user interaction.
+            await dc.Context.SendActivityAsync(_activityFactory.Idle(dc));
 
             return new DialogTurnResult(DialogTurnStatus.Waiting);
         }
@@ -89,20 +82,19 @@ namespace GameATron4000.Dialogs
 
             // Get the actions for the command from the game script.
             var actions = await GetActionsAsync(dc, command);
-
-            // If there are no actions; reply with a standard response.
-            if (!actions.Any())
+            if (actions.Any())
             {
-                actions = new CommandAction[]
-                {
-                    new SpeakAction(
-                        _gameInfo.BadCommandResponses[_random.Next(0, _gameInfo.BadCommandResponses.Length)],
-                        _gameInfo.PlayerActor)
-                };
+                // Map the actions to Bot Framework activities and send them to the client.
+                await ExecuteActionsAsync(dc, actions);
+            }
+            else
+            {
+                // If there are no actions; reply with a standard response.
+                await dc.Context.SendActivityAsync(_activityFactory.CannedResponse(dc));
             }
 
-            // Map the actions to Bot Framework activities and send them to the client.
-            await ExecuteActionsAsync(dc, actions);
+            // Send an Idle activity to let the GUI know that we're waiting for user interaction.
+            await dc.Context.SendActivityAsync(_activityFactory.Idle(dc));
 
             return new DialogTurnResult(DialogTurnStatus.Waiting);
         }
@@ -125,12 +117,16 @@ namespace GameATron4000.Dialogs
                 dc.ActiveDialog.State.Remove(DialogStatePendingActions);
             }
 
+            // Send an Idle activity to let the GUI know that we're waiting for user interaction.
+            await dc.Context.SendActivityAsync(_activityFactory.Idle(dc));
+
             return new DialogTurnResult(DialogTurnStatus.Waiting);
         }
 
         private async Task<IEnumerable<CommandAction>> GetActionsAsync(DialogContext dc, string commandText)
         {
-            var gameFlags = await _gameFlagsAccessor.GetAsync(dc.Context, () => new GameFlags());
+            var stateFlags = await _stateFlagsStateAccessor.GetAsync(dc.Context, () => new List<string>());
+            var inventoryItems = await _inventoryItemsAccessor.GetAsync(dc.Context);
 
             // Try to find a matching command for the player's input.
             var command = _commands
@@ -140,186 +136,131 @@ namespace GameATron4000.Dialogs
             // If we've found a matching command, return all actions for which the preconditions can be
             // satisfied.
             return (command != null)
-                ? command.Actions.Where(a => a.Preconditions.All(pc => gameFlags.SatisfyPrecondition(pc)))
+                ? command.Actions.Where(a => a.Preconditions.All(precondition =>
+                {
+                    if (precondition.Inverted)
+                    {
+                        return !stateFlags.Contains(precondition.FlagOrInventoryItemId)
+                            && !inventoryItems.Contains(precondition.FlagOrInventoryItemId);
+                    }
+                    else
+                    {
+                        return stateFlags.Contains(precondition.FlagOrInventoryItemId)
+                            || inventoryItems.Contains(precondition.FlagOrInventoryItemId);
+                    }
+                }))
                 : Enumerable.Empty<CommandAction>();
         }
 
         private async Task ExecuteActionsAsync(DialogContext dc, IEnumerable<CommandAction> actions)
         {
-            var gameFlags = await _gameFlagsAccessor.GetAsync(dc.Context, () => new GameFlags());
+            var stateFlags = await _stateFlagsStateAccessor.GetAsync(dc.Context);
+            var inventoryItems = await _inventoryItemsAccessor.GetAsync(dc.Context);
+            var roomStates = await _roomStateAccessor.GetAsync(dc.Context, () => new Dictionary<string, RoomState>());
+
+            RoomState roomState;
+            if (!roomStates.TryGetValue(_roomId, out roomState))
+            {
+                roomState = new RoomState();
+                roomStates.Add(_roomId, roomState);
+            }
 
             var activities = new List<IActivity>();
             var actionStack = new Stack<CommandAction>(actions.Reverse());
-            var roomState = await GetRoomStateAsync(dc.Context);
             
             // Process each action in turn, populating the activities list.
-            CommandAction action;
-            while (actionStack.TryPop(out action))
+            while (actionStack.TryPop(out CommandAction nextAction))
             {
-                switch (action)
+                switch (nextAction)
                 {
-                    case AddToInventoryAction addToInventory:
+                    case AddToInventoryAction action:
                     {
-                        gameFlags.SetFlag(addToInventory.InventoryItemId);
+                        if (!inventoryItems.Contains(action.InventoryItemId))
+                        {
+                            inventoryItems.Add(action.InventoryItemId);
 
-                        activities.Add(CreateEventActivity(dc, "InventoryItemAdded", new
-                        {
-                            inventoryItemId = addToInventory.InventoryItemId,
-                            description = addToInventory.Description
-                        }));
-                        break;
-                    }
-                    case ClearFlagAction clearFlag:
-                    {
-                        gameFlags.ClearFlag(clearFlag.FlagName);
-                        break;
-                    }
-                    case GuiDelayAction guiDelay:
-                    {
-                        activities.Add(CreateEventActivity(dc, "Delayed", new
-                        {
-                            time = guiDelay.Milliseconds
-                        }));
-                        break;
-                    }
-                    case GuiFaceActorAwayAction guiFaceActorAway:
-                    {
-                        activities.Add(CreateEventActivity(dc, "ActorFacedAway", new
-                        {
-                            actorId = guiFaceActorAway.ActorId
-                        }));
-                        break;
-                    }
-                    case GuiFaceActorFrontAction guiFaceActorFront:
-                    {
-                        activities.Add(CreateEventActivity(dc, "ActorFacedFront", new
-                        {
-                            actorId = guiFaceActorFront.ActorId
-                        }));
-                        break;
-                    }
-                    case GuiMoveActorAction guiMoveActor:
-                    {
-                        activities.Add(CreateEventActivity(dc, "ActorMoved", new
-                        {
-                            actorId = guiMoveActor.ActorId,
-                            x = guiMoveActor.X,
-                            y = guiMoveActor.Y
-                        }));
-                        break;
-                    }
-                    case GuiNarratorAction guiNarrator:
-                    {
-                        activities.Add(CreateEventActivity(dc, "Narrated", new
-                        {
-                            text = guiNarrator.Text
-                        }));
-                        break;
-                    }
-                    case GuiPlaceActorAction guiPlaceActor:
-                    {
-                        // TODO If ations can validate themselves, we don't need this check here!
-                        if (_gameInfo.Actors.TryGetValue(guiPlaceActor.ActorId, out GameActor gameActor))
-                        {
-                            // Save the actor's new position in the room state.
-                            roomState.ActorPlacements[guiPlaceActor.ActorId] = guiPlaceActor.Placement;
-
-                            activities.Add(CreateEventActivity(dc, "ActorPlacedInRoom", new
-                            {
-                                actorId = guiPlaceActor.ActorId,
-                                description = gameActor.Description,
-                                x = guiPlaceActor.Placement.X,
-                                y = guiPlaceActor.Placement.Y,
-                                textColor = gameActor.TextColor
-                            }));
-                        }
-                        else
-                        {
-                            // TODO Specialized exception
-                            throw new Exception($"Unknown actor id '{guiPlaceActor.ActorId}'.");
+                            activities.Add(_activityFactory.InventoryItemAdded(
+                                dc, action.InventoryItemId, action.Description));
                         }
                         break;
                     }
-                    case GuiPlaceObjectAction guiPlaceObject:
+                    case ClearFlagAction action:
                     {
-                        if (_gameInfo.Objects.TryGetValue(guiPlaceObject.ObjectId, out GameObject gameObject))
+                        if (stateFlags.Contains(action.Flag))
                         {
-                            // Save the object's new position in the room state.
-                            // TODO If ations can validate themselves, we don't need this check here!
-                            if (!roomState.ObjectPlacements.ContainsKey(guiPlaceObject.ObjectId))
-                            {
-                                roomState.ObjectPlacements.Add(guiPlaceObject.ObjectId, guiPlaceObject.Placement);
-                            }
-                            else
-                            {
-                                roomState.ObjectPlacements[guiPlaceObject.ObjectId] = guiPlaceObject.Placement;
-                            }
-
-                            activities.Add(CreateEventActivity(dc, "ObjectPlacedInRoom", new
-                            {
-                                objectId = guiPlaceObject.ObjectId,
-                                description = gameObject.Description,
-                                x = guiPlaceObject.Placement.X,
-                                y = guiPlaceObject.Placement.Y,
-                                foreground = guiPlaceObject.Placement.Foreground
-                            }));
-                        }
-                        else
-                        {
-                            // TODO Specialized exception
-                            throw new Exception($"Unknown object id '{guiPlaceObject.ObjectId}'.");
+                            stateFlags.Remove(action.Flag);
                         }
                         break;
                     }
-                    case GuiRemoveObjectAction guiRemoveObject:
+                    case GuiDelayAction action:
                     {
-                        activities.Add(CreateEventActivity(dc, "ObjectRemovedFromRoom", new
-                        {
-                            objectId = guiRemoveObject.ObjectId
-                        }));
+                        activities.Add(_activityFactory.Delayed(dc, action.Milliseconds));
                         break;
                     }
-                    case GuiRoomInitializationCompletedAction guiRoomInitializationCompleted:
+                    case GuiFaceActorAwayAction action:
                     {
-                        activities.Add(CreateEventActivity(dc, "RoomInitializationCompleted"));
+                        activities.Add(_activityFactory.ActorFacedAway(dc, action.ActorId));
                         break;
                     }
-                    case GuiRoomInitializationStartedAction guiRoomInitializationStarted:
+                    case GuiFaceActorFrontAction action:
                     {
-                        activities.Add(CreateEventActivity(dc, "RoomInitializationStarted", new
-                        {
-                            roomId = guiRoomInitializationStarted.RoomId
-                        }));
+                        activities.Add(_activityFactory.ActorFacedFront(dc, action.ActorId));
                         break;
                     }
-                    case RemoveFromInventoryAction removeFromInventory:
+                    case GuiMoveActorAction action:
                     {
-                        gameFlags.ClearFlag(removeFromInventory.InventoryItemId);
-                        
-                        activities.Add(CreateEventActivity(dc, "InventoryItemRemoved", new
-                        {
-                            inventoryItemId = removeFromInventory.InventoryItemId
-                        }));
+                        activities.Add(_activityFactory.ActorMoved(dc, action.ActorId, action.Position));
                         break;
                     }
-                    case SetFlagAction setFlag:
+                    case GuiNarratorAction action:
                     {
-                        gameFlags.SetFlag(setFlag.FlagName);
+                        activities.Add(_activityFactory.Narrated(dc, action.Text));
                         break;
                     }
-                    case SpeakAction speak:
+                    case GuiPlaceActorAction action:
                     {
-                        var gameActor = _gameInfo.Actors[speak.ActorId];
+                        // Save the actor's new position in the room state.
+                        roomState.ActorPositions[action.ActorId] = action.Position;
 
-                        var messageActivity = MessageFactory.Text($"{gameActor.Description} > {speak.Text}");
-                        messageActivity.Properties = JObject.FromObject(new {
-                            actorId = speak.ActorId
-                        });
-
-                        activities.Add(messageActivity);
+                        activities.Add(_activityFactory.ActorPlacedInRoom(dc, action.ActorId, action.Position));
                         break;
                     }
-                    case StartConversationAction startConversation:
+                    case GuiPlaceObjectAction action:
+                    {
+                        // Save the object's new position in the room state.
+                        roomState.ObjectPositions[action.ObjectId] = action.Position;
+
+                        activities.Add(_activityFactory.ObjectPlacedInRoom(dc, action.ObjectId, action.Position));
+                        break;
+                    }
+                    case GuiRemoveObjectAction action:
+                    {
+                        activities.Add(_activityFactory.ObjectRemovedFromRoom(dc, action.ObjectId));
+                        break;
+                    }
+                    case RemoveFromInventoryAction action:
+                    {
+                        if (inventoryItems.Contains(action.InventoryItemId))
+                        {
+                            inventoryItems.Remove(action.InventoryItemId);
+                        }                        
+                        activities.Add(_activityFactory.InventoryItemRemoved(dc, action.InventoryItemId));
+                        break;
+                    }
+                    case SetFlagAction action:
+                    {
+                        if (!stateFlags.Contains(action.Flag))
+                        {
+                            stateFlags.Add(action.Flag);
+                        }
+                        break;
+                    }
+                    case SpeakAction action:
+                    {
+                        activities.Add(_activityFactory.Speak(dc, action.ActorId, action.Text));
+                        break;
+                    }
+                    case StartConversationAction action:
                     {
                         // If the result of the action indicates that we need to start a new dialog
                         // (e.g. conversation with an actor, or a switch to a new room), first send all
@@ -340,12 +281,12 @@ namespace GameATron4000.Dialogs
                         }
 
                         // Start the conversation.
-                        await dc.BeginDialogAsync(startConversation.ConversationId);
+                        await dc.BeginDialogAsync(action.ConversationId);
 
                         // Stop processing any further actions now that we've switched to a new dialog.
                         return;
                     }
-                    case SwitchRoomAction switchRoom:
+                    case SwitchRoomAction action:
                     {
                         // If the result of the action indicates that we need to start a new dialog
                         // (e.g. conversation with an actor, or a switch to a new room), first send all
@@ -356,55 +297,20 @@ namespace GameATron4000.Dialogs
                         }
 
                         // Switch to the new room.
-                        await dc.ReplaceDialogAsync(switchRoom.RoomId);
+                        await dc.ReplaceDialogAsync(action.RoomId);
 
                         // Stop processing any further actions now that we've switched to a new dialog.
                         return;
                     }
-                    case TextDescribeAction textDescribe:
+                    case TextDescribeAction action:
                     {
-                        activities.Add(MessageFactory.Text(textDescribe.Text));
+                        activities.Add(MessageFactory.Text(action.Text));
                         break;
                     }
                 }
             }
 
-            // Add an Idle activity to let the GUI know that we're waiting for user interaction.
-            activities.Add(CreateEventActivity(dc, "Idle"));
-
             await dc.Context.SendActivitiesAsync(activities.ToArray());
-        }
-
-        private async Task<RoomState> GetRoomStateAsync(ITurnContext context)
-        {
-            var roomStates = await _roomStateAccessor.GetAsync(context, () => new Dictionary<string, RoomState>());
-            if (!roomStates.ContainsKey(_roomId))
-            {
-                if (_gameInfo.InitialRoomStates.ContainsKey(_roomId))
-                {
-                    roomStates.Add(_roomId, _gameInfo.InitialRoomStates[_roomId]);
-                }
-                else
-                {
-                    roomStates.Add(_roomId, new RoomState());
-                }
-            }
-
-            return roomStates[_roomId];
-        }
-
-        private static Activity CreateEventActivity(DialogContext dc, string name, object properties = null)
-        {
-            var eventActivity = dc.Context.Activity.CreateReply();
-            eventActivity.Type = "event";
-            eventActivity.Name = name;
-
-            if (properties != null)
-            {
-                eventActivity.Properties = JObject.FromObject(properties);
-            }
-
-            return eventActivity;
         }
     }
 }

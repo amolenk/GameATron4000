@@ -39,11 +39,7 @@ export class BotClient {
                 
                 if (activity.type == "message")
                 {
-                    if (activity.text == "Which game do you want to play?") {
-                        this.sendMessageToBot(gameInfo.gameName);
-                    } else {
-                        await onMessage(activity);
-                    }
+                    await onMessage(activity);
                 }
                 else if (activity.type == "event")
                 {

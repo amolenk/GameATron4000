@@ -31,6 +31,7 @@ export class ActionUI {
     }
 
     public setVisible(visible: boolean) {
+        this.text.setText("");
         this.text.visible = visible;
     }
 }

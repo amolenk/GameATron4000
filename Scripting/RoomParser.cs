@@ -4,19 +4,22 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using GameATron4000.Models;
-using GameATron4000.Models.Actions;
+using GameATron4000.Scripting;
+using GameATron4000.Scripting.Actions;
 
 namespace GameATron4000.Scripting
 {
     public class RoomParser
     {
+        private readonly ActionFactory _actionFactory;
         private readonly Regex _preconditionExpression;
         private readonly Regex _commandExpression; 
         private readonly Regex _speakExpression; 
         private readonly Regex _actionExpression;
 
-        public RoomParser()
+        public RoomParser(GameInfo gameInfo)
         {
+            _actionFactory = new ActionFactory(gameInfo);
             _preconditionExpression = new Regex(@"{(?<preconditions>!?\w+\s?)*}");
             _commandExpression = new Regex("player:(?<text>.*)", RegexOptions.IgnoreCase);
             _actionExpression = new Regex(@"\[(?<name>.*)=(?<args>(\w+\s?)|(\"".*?\""\s?))+\]");
@@ -30,8 +33,7 @@ namespace GameATron4000.Scripting
 
             string commandText = string.Empty;
             List<CommandAction> actions = new List<CommandAction>();
-            //List<Precondition> commandPreconditions = null;
-            List<Precondition> actionPreconditions = null;
+            List<ActionPrecondition> actionPreconditions = null;
 
             var lineNumber = 0;
             foreach (var line in lines)
@@ -48,9 +50,9 @@ namespace GameATron4000.Scripting
                 if (match.Success)
                 {
                     var preconditions = match.Groups["preconditions"].Captures
-                        .Select(c => new Precondition(
+                        .Select(c => new ActionPrecondition(
                             c.Value.Trim().TrimStart('!'),
-                            !c.Value.StartsWith('!')))
+                            c.Value.StartsWith('!')))
                         .ToList();
 
                     if (preconditions.Count == 0)
@@ -59,11 +61,7 @@ namespace GameATron4000.Scripting
                     }
                     else
                     {
-                        if (commandText.Length == 0)
-                        {
-                            //commandPreconditions = preconditions;
-                        }
-                        else
+                        if (commandText.Length != 0)
                         {
                             actionPreconditions = preconditions;
                         }
@@ -94,21 +92,19 @@ namespace GameATron4000.Scripting
                 {
                     // TODO Check that command text isn't empty!
 
-                    // TODO Shouldn't preconditions be added here?
-                    actions.Add(new ActionBuilder()
-                        .WithName(match.Groups["name"].Value)
-                        .WithArguments(match.Groups["args"].Captures.Select(c => c.Value.Trim('"', ' ')))
-                        .WithPreconditions(actionPreconditions)
-                        .Build());
+                    actions.Add(_actionFactory.CreateAction(
+                        match.Groups["name"].Value,
+                        match.Groups["args"].Captures.Select(c => c.Value.Trim('"', ' ')).ToList(),
+                        actionPreconditions));
                     continue;
                 }
 
                 match = _speakExpression.Match(line);
                 if (match.Success)
                 {
-                    actions.Add(new SpeakAction(
-                        match.Groups["text"].Value.Trim(),
+                    actions.Add(_actionFactory.Speak(
                         match.Groups["actor"].Value,
+                        match.Groups["text"].Value.Trim(),
                         actionPreconditions));
                     continue;
                 }
@@ -117,12 +113,8 @@ namespace GameATron4000.Scripting
                 {
                     if (commandText.Length > 0)
                     {
-                        result.Add(new Command(commandText, actions));//, commandPreconditions));
-
+                        result.Add(new Command(commandText, actions));
                         commandText = string.Empty;
-//                        actions = new List<RoomAction>();
-//                        actionPreconditions = new List<Precondition>();
-//                        commandPreconditions = null;
                     }
                     continue;
                 }
@@ -132,7 +124,7 @@ namespace GameATron4000.Scripting
 
             if (commandText.Length > 0)
             {
-                result.Add(new Command(commandText, actions));//, commandPreconditions));
+                result.Add(new Command(commandText, actions));
             }
 
             return result;

@@ -1,5 +1,0 @@
-{
-    "InitialRoom": "house",
-    "SupportsGui": false,
-    "BadCommandResponses": [ "Sorry, you can't do that." ]
-}

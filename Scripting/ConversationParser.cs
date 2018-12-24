@@ -4,19 +4,22 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using GameATron4000.Models.Actions;
+using GameATron4000.Scripting.Actions;
+using GameATron4000.Scripting;
 using GameATron4000.Models;
 
 namespace GameATron4000.Scripting
 {
     public class ConversationParser
     {
+        private readonly ActionFactory _actionFactory;
         private readonly Regex _actionExpression;
         private readonly Regex _commandExpression;
         private readonly Regex _speakExpression; 
 
-        public ConversationParser()
+        public ConversationParser(GameInfo gameInfo)
         {
+            _actionFactory = new ActionFactory(gameInfo);
             _actionExpression = new Regex(@"\[(?<name>.*?)(=(?<args>(\w+\s?)|(\"".*?\""\s?))+)?\]");
             _commandExpression = new Regex("- (?<command>.*)");
             _speakExpression = new Regex("(?<actor>.*?):(?<text>.*)");
@@ -65,7 +68,9 @@ namespace GameATron4000.Scripting
                     match = _speakExpression.Match(line);
                     if (match.Success)
                     {
-                        actions.Add(new SpeakAction(match.Groups["text"].Value.Trim(), match.Groups["actor"].Value));
+                        actions.Add(_actionFactory.Speak(
+                            match.Groups["actor"].Value,
+                            match.Groups["text"].Value.Trim()));
 
                         context.LineIndentSize = ReadIndentation(reader);
                         continue;
@@ -74,23 +79,12 @@ namespace GameATron4000.Scripting
                     match = _actionExpression.Match(line);
                     if (match.Success)
                     {
-                        var actionBuilder = new ActionBuilder()
-                            .WithName(match.Groups["name"].Value)
-                            .WithArguments(match.Groups["args"].Captures.Select(c => c.Value.Trim('"')));
+                        actions.Add(_actionFactory.CreateAction(
+                            match.Groups["name"].Value,
+                            match.Groups["args"].Captures.Select(c => c.Value.Trim('"')).ToList()));
 
-                        // TODO
-                        // if (actionBuilder.IsValid())
-                        // {
-                            actions.Add(actionBuilder.Build());
-
-                            context.LineIndentSize = ReadIndentation(reader);
-                            continue;
-                        // }
-                        // else
-                        // {
-                            // TODO THIS:::
-                        //     throw new IOException($"Parse error at line {context.LineNumber}: Unsupported action.");
-                        // }
+                        context.LineIndentSize = ReadIndentation(reader);
+                        continue;
                     }
                 }
 

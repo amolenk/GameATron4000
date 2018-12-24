@@ -77,6 +77,8 @@ export class UIMediator {
 
     private connectToBot() {
         
+        // TODO All handles should be async?
+
         this.botClient.connect(
             async (message: any) => {
                 
@@ -120,9 +122,10 @@ export class UIMediator {
                     }
 
                     case "ActorPlacedInRoom": {
-
-                        var actor = new Actor("actor-" + event.actorId, event.description, event.textColor);
-                        this.room.addActor(actor, event.x, event.y);
+                        this.room.addActor(
+                            new Actor("actor-" + event.actorId, event.description, event.textColor),
+                            event.x,
+                            event.y);
                         break;
                     }
 
@@ -145,6 +148,13 @@ export class UIMediator {
                         break;
                     }
 
+                    case "GameStarted": {
+                        for (var inventoryItem of event.inventoryItems) {
+                            await this.inventoryUI.addToInventory(inventoryItem.inventoryItemId, inventoryItem.description);
+                        }
+                        break;
+                    }
+
                     case "InventoryItemAdded": {
                         await this.inventoryUI.addToInventory(event.inventoryItemId, event.description);
                         break;
@@ -161,14 +171,11 @@ export class UIMediator {
                     }
 
                     case "ObjectPlacedInRoom": {
-                        var roomObject = new RoomObject("object-" + event.objectId, event.description);
-                        // Dirty hack: when an object needs to be shown in the foreground, place it in
-                        // the actor layer.
-                        if (event.foreground) {
-                            this.room.addActor(roomObject, event.x, event.y);                            
-                        } else {
-                            this.room.addObject(roomObject, event.x, event.y);
-                        }
+                        this.room.addObject(
+                            new RoomObject("object-" + event.objectId, event.description),
+                            event.x,
+                            event.y,
+                            event.foreground);
                         break;
                     }
 
@@ -180,19 +187,30 @@ export class UIMediator {
                         break;
                     }
 
-                    case "RoomInitializationStarted": {
+                    case "RoomEntered": {
                         if (this.room != null) {
                             this.room.kill();
                         }
                         this.game.lockRender = true;
                         this.room = new Room(event.roomId);
                         this.room.create(this.game, this, this.layers);
-                        break;
-                    }
 
-                    case "RoomInitializationCompleted": {
+                        for (var gameActor of event.actors) {
+                            this.room.addActor(
+                                new Actor("actor-" + gameActor.actorId, gameActor.description, gameActor.textColor),
+                                gameActor.x,
+                                gameActor.y);
+                        }
+
+                        for (var gameObject of event.objects) {
+                            this.room.addObject(
+                                new RoomObject("object-" + gameObject.objectId, gameObject.description),
+                                gameObject.x,
+                                gameObject.y,
+                                gameObject.foreground);
+                        }
+
                         this.game.lockRender = false;
-                        break;
                     }
 
                     case "Idle": {

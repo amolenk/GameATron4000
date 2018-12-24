@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -6,16 +5,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using GameATron4000.Configuration;
 using GameATron4000.Dialogs;
-using GameATron4000.Games;
 using GameATron4000.Models;
-using GameATron4000.Models.Actions;
+using GameATron4000.Scripting;
 using Luis;
-using Microsoft.Bot;
 using Microsoft.Bot.Builder;
-using Microsoft.Bot.Builder.AI.Luis;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Schema;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 
@@ -26,72 +21,90 @@ namespace GameATron4000
         private readonly BotServices _services;
         private readonly GameBotAccessors _stateAccessors;
         private readonly LUISOptions _luisOptions;
-        private readonly GameCatalog _gameCatalog;
 
-        public GameBot(BotServices services, GameBotAccessors stateAccessors, IOptions<LUISOptions> luisOptionsAccessor, GameCatalog gameCatalog)
+        public GameBot(BotServices services, GameBotAccessors stateAccessors, IOptions<LUISOptions> luisOptionsAccessor)
         {
             _services = services;
             _stateAccessors = stateAccessors;
             _luisOptions = luisOptionsAccessor.Value;
-            _gameCatalog = gameCatalog;
         }
 
         public async Task OnTurnAsync(ITurnContext context, CancellationToken cancellationToken)
         {
-            if (context.Activity.Type is ActivityTypes.ConversationUpdate)
+            // Load the metadata for the game.
+            var gameInfoJson = File.ReadAllText("Gameplay/game.json");
+            var gameInfo = JsonConvert.DeserializeObject<GameInfo>(gameInfoJson);
+
+            // Establish dialog context from the game info.
+            var dialogSet = CreateDialogSet(gameInfo);
+            var dc = await dialogSet.CreateContextAsync(context, cancellationToken);
+
+            if (dc.ActiveDialog == null)
             {
-                foreach (var newMember in context.Activity?.MembersAdded)
+                // TODO Add comments here
+                if (context.Activity.Type is ActivityTypes.ConversationUpdate)
                 {
-                    if (newMember.Id == context.Activity.Recipient.Id)
+                    foreach (var newMember in context.Activity?.MembersAdded)
                     {
-                        var gameList = _gameCatalog.GetGameNames().ToList();
-                        await context.SendActivityAsync(MessageFactory.SuggestedActions(gameList, "Which game do you want to play?"));
-                        return;
+                        if (newMember.Id == context.Activity.Recipient.Id)
+                        {
+                            // Add some items to the inventory for the player to start with.
+                            await _stateAccessors.InventoryItemsAccessor.SetAsync(
+                                context, gameInfo.InitialInventory);
+
+                            // And send a GameStarted to the client that contains the inventory items.
+                            await context.SendActivityAsync(new ActivityFactory(gameInfo).GameStarted(dc));
+
+                            // Start the game's first room.
+                            await dc.BeginDialogAsync(gameInfo.InitialRoom);
+                        }
                     }
                 }
             }
             else if (context.Activity.Type is ActivityTypes.Message)
             {
-                // Load the current game state from conversation state.
-                // If no game state is found, start a new game from the user's input.
-                var gameState = await _stateAccessors.GameStateAccessor.GetAsync(context, () => new GameState
+                // get intent and entity from LUIS (if enabled).
+                if (_luisOptions.Enabled)
                 {
-                    GameName = context.Activity.Text,
-                    GameFlags = new GameFlags()
-                });
-
-                // Load the metadata for the selected game.
-                var gameInfo = _gameCatalog.GetGameInfo(gameState.GameName);
-
-                // Establish dialog context from the loaded game.
-                var dialogSet = new GameDialogSet(gameInfo, gameState.GameFlags, _stateAccessors.RoomStateAccessor, _stateAccessors.DialogStateAccessor);
-                var dc = await dialogSet.CreateContextAsync(context, cancellationToken);
-
-                if (dc.ActiveDialog == null)
-                {
-                    // Start the game's first room.
-                    var rootDialog = gameInfo.InitialRoom;
-                    await dc.BeginDialogAsync(rootDialog);
-                }
-                else
-                {
-                    // get intent and entity from LUIS (if enabled).
-                    if (_luisOptions.Enabled)
+                    string command = await DetermineCommandAsync(context, cancellationToken);
+                    if (!string.IsNullOrEmpty(command))
                     {
-                        string command = await DetermineCommandAsync(context, cancellationToken);
-                        if (!string.IsNullOrEmpty(command))
-                        {
-                            context.Activity.Text = command;
-                        }
+                        context.Activity.Text = command;
                     }
-
-                    await dc.ContinueDialogAsync();
                 }
 
-                // Save any changes back to conversation state.
-                await _stateAccessors.ConversationState.SaveChangesAsync(context, false, cancellationToken);
+                await dc.ContinueDialogAsync();
             }
+
+            // Save any changes back to conversation state.
+            await _stateAccessors.ConversationState.SaveChangesAsync(context, false, cancellationToken);
         }
+
+        private DialogSet CreateDialogSet(GameInfo gameInfo)
+        {
+            var dialogSet = new DialogSet(_stateAccessors.DialogStateAccessor);
+            var roomParser = new RoomParser(gameInfo);
+            var conversationParser = new ConversationParser(gameInfo);
+
+            foreach (var script in gameInfo.RoomScripts)
+            {
+                var commands = roomParser.Parse(script.Value);
+
+                dialogSet.Add(new Room(script.Key, commands, gameInfo, _stateAccessors.InventoryItemsAccessor,
+                    _stateAccessors.StateFlagsAccessor, _stateAccessors.RoomStateAccessor));
+            }
+
+            foreach (var script in gameInfo.ConversationScripts)
+            {
+                var conversationRootNode = conversationParser.Parse(script.Value);
+
+                dialogSet.Add(new Conversation(script.Key, conversationRootNode, _stateAccessors.StateFlagsAccessor));
+            }
+
+            return dialogSet;
+        }
+
+        #region LUIS
 
         private async Task<string> DetermineCommandAsync(ITurnContext context, CancellationToken cancellationToken)
         {
@@ -121,8 +134,6 @@ namespace GameATron4000
 
             return null;
         }
-
-        #region LUIS result parsing
 
         private string GetLUISIntent(LUISModel luisResult)
         {

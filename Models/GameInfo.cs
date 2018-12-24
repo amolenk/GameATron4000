@@ -6,14 +6,12 @@ namespace GameATron4000.Models
 {
     public class GameInfo
     {
-        public string Title { get; set; }
-        
         public string InitialRoom { get; set; }
 
-        public bool SupportsGui { get; set; }
-
+        // TODO Add Id suffix...
         public string PlayerActor { get; set; }
 
+        // TODO Rename to Canned...
         public string[] BadCommandResponses { get; set; }
 
         public Dictionary<string, GameActor> Actors { get; set; }
@@ -24,28 +22,10 @@ namespace GameATron4000.Models
 
         public Dictionary<string, RoomState> InitialRoomStates { get; set; }
 
-        public List<GameAsset> Assets { get; set; }
+        public Dictionary<string, string> RoomScripts { get; set; }
 
-        public List<GameScript> RoomScripts { get; set; }
+        public Dictionary<string, string> ConversationScripts { get; set; }
 
-        public List<GameScript> ConversationScripts { get; set; }
+        public Dictionary<string, GameAsset> Assets { get; set; }
     }
-
-    public class GameObject
-    {
-        public string Description { get; set; }
-    }
-
-    public class GameActor : GameObject
-    {
-        public string TextColor { get; set; }
-    }
-
-    public class RoomState
-    {
-        public Dictionary<string, Placement> ActorPlacements { get; set; } = new Dictionary<string, Placement>();
-
-        public Dictionary<string, Placement> ObjectPlacements { get; set; } = new Dictionary<string, Placement>();
-    }
-
 }

@@ -56,9 +56,13 @@ export class Room {
         return null;
     }
 
-    public addObject(object: RoomObject, x: number, y: number) {
+    public addObject(object: RoomObject, x: number, y: number, foreground: boolean) {
 
-        object.create(this.game, this.uiMediator, x, y, this.layers.objects);
+        // Dirty hack: when an object needs to be shown in the foreground, place it in
+        // the actor layer.
+        var layer = foreground ? this.layers.actors : this.layers.objects;
+
+        object.create(this.game, this.uiMediator, x, y, layer);
 
         this.roomObjects.push(object);
     }

@@ -44,9 +44,9 @@ module.exports = {
     new CleanWebpackPlugin('./wwwroot/dist'),
     new CopyWebpackPlugin([
       {
-        from: './Games/*/assets/*/*.png',
-        to: 'games/[1]/[2]/[3].png',
-        test: /Games[\\\/](.*?)[\\\/]assets[\\\/](.*?)[\\\/](.*?)\.png/
+        from: './Gameplay/assets/*/*.png',
+        to: 'gameplay/[1]/[2].png',
+        test: /Gameplay[\\\/]assets[\\\/](.*?)[\\\/](.*?)\.png/
       }
     ])
   ],

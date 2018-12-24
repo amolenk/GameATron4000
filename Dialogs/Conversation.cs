@@ -4,7 +4,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using GameATron4000.Models;
-using GameATron4000.Models.Actions;
+using GameATron4000.Scripting;
+using GameATron4000.Scripting.Actions;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Schema;
@@ -16,17 +17,17 @@ namespace GameATron4000.Dialogs
         private const string DialogStateCurrentNodeId = "CurrentNodeId";
         private readonly string _conversationId;
         private readonly ConversationNode _rootNode;
-        private readonly IStatePropertyAccessor<GameFlags> _gameFlagsStateAccessor;
+        private readonly IStatePropertyAccessor<List<string>> _stateFlagsStateAccessor;
 
         public Conversation(
             string conversationId,
             ConversationNode rootNode,
-            IStatePropertyAccessor<GameFlags> gameFlagsStateAccessor)
+            IStatePropertyAccessor<List<string>> stateFlagsStateAccessor)
             : base(conversationId)
         {
             _conversationId = conversationId;
             _rootNode = rootNode;
-            _gameFlagsStateAccessor = gameFlagsStateAccessor;
+            _stateFlagsStateAccessor = stateFlagsStateAccessor;
         }
 
         public override async Task<DialogTurnResult> BeginDialogAsync(DialogContext dc, object options = null, CancellationToken cancellationToken = default(CancellationToken))
