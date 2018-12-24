@@ -1,58 +1,10 @@
-# Deploy to Azure
+# Game-a-Tron 4000™
 
-## Prerequisites
+The [Azure Bot Service](https://docs.microsoft.com/en-us/azure/bot-service/?view=azure-bot-service-4.0) and [Bot Builder SDK](https://github.com/Microsoft/BotBuilder) help you create intelligent bots to naturally interact with your users over various channels, such as websites, Cortana and Skype. But you can create even more interesting scenarios!
 
-To use these tools from the command line, you will need Node.js installed to your machine:
+Being big fans of both bots and classic 8-bit point-and-click adventure games, we wanted to see if we could build such a game using the [Azure Bot Service](https://docs.microsoft.com/en-us/azure/bot-service/?view=azure-bot-service-4.0) and [Bot Builder SDK](https://github.com/Microsoft/BotBuilder). After all, the mechanics of classic adventure games are very much like interacting with a bot. This is especially true for the earlier text-based adventure games. The result is our Game-a-Tron 4000™ game engine which uses various Bot Builder 
+features in combination with an HTML5 client to recreate the look and feel of the golden-era adventure games such as Monkey Island, Day of the Tentacle, etc.
 
-- [Node.js (v8.5 or greater)](https://nodejs.org/)
-- [.NET Core SDK version 2.1.403 or higher](https://www.microsoft.com/net/download)
+The sample game can be played at: https://playgameatron4000.azurewebsites.net/Play?game=ReturnOfTheBodySnatchers
 
-## 1. Install tools
-
-- [Install latest version of the Azure CLI.](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest)
-- [Install Bot Builder tools.](https://aka.ms/botbuilder-tools-readme)
-
-You can now manage bots using Azure CLI like any other Azure resource.
-
-Login to Azure CLI by running the following command:
-
-```
-az login
-```
-
-## 2. Create a new bot from Azure CLI
-
-You can use Azure CLI to create new bots entirely from the command line.
-
-First create a resource group using the following command:
-
-```
-az group create \
-    --name TestGameATron4000 \
-    --location westus
-```
-
-Use this newly created Resource Group as the default group in any subsequent
-commands so we don't have to type it in each time. Tell the CLI that we want
-everything stored in the West US data center too.
-
-```
-az configure --defaults \
-    group=TestGameATron4000 \
-    location=westus
-```
-
-The bot itself will be hosted on a Linux App Service Plan as that makes it possible to host the bot code in a container. To connect the bot to various channels, register the bot with the Bot Service by creating a Bot Channels Registration.
-
-To secure the connection between the Bot Service and the bot, register an application with Azure AD to get a Microsoft App Id and password:
-
-```
-az ad app create --display-name GameATron4000 \
-    --identifier-uris uri:gameatron4000
-    --password <ChooseAnAppPassword>
-```
-
-After the command has completed, the output JSON will contain an ```appId``` element with the Microsoft App Id.
-
-TODO
-
+If you want to deploy the game yourself, or learn more about [Azure Bot Service](https://docs.microsoft.com/en-us/azure/bot-service/?view=azure-bot-service-4.0) and [Bot Builder SDK](https://github.com/Microsoft/BotBuilder), you can follow the [hands-on labs](https://github.com/amolenk/gameatron4000/tree/workshop).
