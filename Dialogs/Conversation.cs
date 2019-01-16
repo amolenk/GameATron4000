@@ -16,16 +16,19 @@ namespace GameATron4000.Dialogs
     {
         private const string DialogStateCurrentNodeId = "CurrentNodeId";
         private readonly string _conversationId;
+        private readonly GameInfo _gameInfo;
         private readonly ConversationNode _rootNode;
         private readonly IStatePropertyAccessor<List<string>> _stateFlagsStateAccessor;
 
         public Conversation(
             string conversationId,
+            GameInfo gameInfo,
             ConversationNode rootNode,
             IStatePropertyAccessor<List<string>> stateFlagsStateAccessor)
             : base(conversationId)
         {
             _conversationId = conversationId;
+            _gameInfo = gameInfo;
             _rootNode = rootNode;
             _stateFlagsStateAccessor = stateFlagsStateAccessor;
         }
@@ -65,6 +68,8 @@ namespace GameATron4000.Dialogs
 
             // Process the actions, creating a list of activities to send back to the player.
             var activities = new List<IActivity>();
+            var activityFactory = new ActivityFactory(_gameInfo);
+            var stateFlags = await _stateFlagsStateAccessor.GetAsync(dc.Context);
             //
             foreach (var action in nextNode.Actions)
             {
@@ -85,10 +90,18 @@ namespace GameATron4000.Dialogs
                         nextNode = null;
                         break;
 
-                    default:
-                        // TODO
-//                        action.Execute(dc, activities, _gameFlags);
+                    case SpeakAction speakAction:
+                        activities.Add(activityFactory.Speak(dc, speakAction.ActorId, speakAction.Text));
                         break;
+
+                    case SetFlagAction setFlagAction:
+                        if (!stateFlags.Contains(setFlagAction.Flag))
+                        {
+                            stateFlags.Add(setFlagAction.Flag);
+                        }
+                        break;
+
+                    default: throw new InvalidOperationException("Unsupported action type for conversation.");
                 }
             }
 

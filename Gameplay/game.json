@@ -44,6 +44,14 @@
                 "todolist": { "x": 650, "y": 300 },
                 "fridge-closed": { "x": 185, "y": 242 }
             }
+        },
+        "beach": {
+            "actorPlacements": {
+                "guy": { "x": 490, "y": 420 }
+            },
+            "objectPlacements": {
+                "tractorbeam": { "x": 490, "y": 225 }
+            }
         }
     },
     "roomScripts": {

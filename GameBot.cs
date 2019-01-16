@@ -98,7 +98,8 @@ namespace GameATron4000
             {
                 var conversationRootNode = conversationParser.Parse(script.Value);
 
-                dialogSet.Add(new Conversation(script.Key, conversationRootNode, _stateAccessors.StateFlagsAccessor));
+                dialogSet.Add(new Conversation(script.Key, gameInfo, conversationRootNode,
+                    _stateAccessors.StateFlagsAccessor));
             }
 
             return dialogSet;
