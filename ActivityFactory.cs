@@ -125,6 +125,7 @@ namespace GameATron4000
 
         public Activity ObjectPlacedInRoom(DialogContext dc, string objectId, GamePosition position)
         {
+
             var gameObject = _gameInfo.Objects[objectId];
 
             return CreateEventActivity(dc, "ObjectPlacedInRoom", new
@@ -147,18 +148,6 @@ namespace GameATron4000
 
         public Activity RoomEntered(DialogContext dc, string roomId, RoomState roomState)
         {
-            if (roomState == null)
-            {
-                if (_gameInfo.InitialRoomStates.ContainsKey(roomId))
-                {
-                    roomState = _gameInfo.InitialRoomStates[roomId];
-                }
-                else
-                {
-                    roomState = new RoomState();
-                }
-            }
-        
             return CreateEventActivity(dc, "RoomEntered", new
             {
                 roomId = roomId,

@@ -81,6 +81,13 @@ namespace GameATron4000.Scripting
         public GuiPlaceObjectAction GuiPlaceObject(string objectId, int x, int y, bool foreground,
             List<ActionPrecondition> preconditions = null)
         {
+            if (!_gameInfo.Objects.ContainsKey(objectId))
+            {
+                throw new ArgumentException(
+                    $"Invalid object id '{objectId}'. Did you forget to add it to game.json?",
+                    nameof(objectId));
+            }
+
             return new GuiPlaceObjectAction(objectId, new GamePosition(x, y, foreground), preconditions);
         }
 
@@ -102,7 +109,7 @@ namespace GameATron4000.Scripting
 
         public SpeakAction Speak(string actorId, string text, List<ActionPrecondition> preconditions = null)
         {
-            return new SpeakAction(actorId, text, preconditions);
+            return new SpeakAction(text, actorId, preconditions);
         }
 
         public StartConversationAction StartConversation(string conversationId,

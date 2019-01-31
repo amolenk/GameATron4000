@@ -2,7 +2,10 @@ player: <EnterRoom>
 [Text:Describe="You have been transported to an actual UFO! There are two aliens in the room with you with 'Al' and 'Ian' name tags. There's a device that somewhat resembles a fridge, and Ian seems to be very interested in a to-do list hanging on the wall."]
 guy: I guess you CAN believe everything you read in the newspapers!
 [GUI:FaceActorFront=ian]
-[GUI:MoveActor=ian 530 390]
+# [GUI:MoveActor=ian 530 390]
+
+player: push al
+[SwitchRoom=park]
 
 player: look at fridge
 [GUI:MoveActor=guy 185 400]

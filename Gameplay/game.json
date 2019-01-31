@@ -14,6 +14,8 @@
     },
     "objects": {
         "fridge-closed": { "description": "fridge" },
+        "fridge-open-empty": { "description": "empty fridge" },
+        "fridge-open-full": { "description": "full fridge" },
         "groceries": { "description": "bag of groceries" },
         "grocerylist": { "description": "grocery list" },
         "newspaper": { "description": "newspaper" },
@@ -27,29 +29,29 @@
     ],
     "initialRoomStates": {
         "park": {
-            "actorPlacements": {
+            "actorPositions": {
                 "guy": { "x": 850, "y": 450 }
             },
-            "objectPlacements": {
+            "objectPositions": {
                 "newspaper": { "x": 362, "y": 400 }
             }
         },
         "ufo": {
-            "actorPlacements": {
+            "actorPositions": {
                 "al": { "x": 440, "y": 370 },
                 "ian": { "x": 650, "y": 420 },
                 "guy": { "x": 150, "y": 400 }
             },
-            "objectPlacements": {
+            "objectPositions": {
                 "todolist": { "x": 650, "y": 300 },
                 "fridge-closed": { "x": 185, "y": 242 }
             }
         },
         "beach": {
-            "actorPlacements": {
+            "actorPositions": {
                 "guy": { "x": 490, "y": 420 }
             },
-            "objectPlacements": {
+            "objectPositions": {
                 "tractorbeam": { "x": 490, "y": 225 }
             }
         }

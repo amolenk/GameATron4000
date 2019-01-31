@@ -2,6 +2,9 @@ player: <EnterRoom>
 [Text:Describe="You are in a park. You just went shopping at the supermarket and decided to take a detour home. There's a newspaper lying on the ground next to a park bench."]
 [GUI:MoveActor=guy 600 430]
 
+player: push newspaper
+[SwitchRoom=ufo]
+
 player: look at bag of groceries
 guy: It's my shopping bag with groceries.
 guy: There's even a bottle of Info Support Awesome Sauce™ in there!
@@ -44,4 +47,4 @@ guy: I've already picked that up!
 # [Text:Describe="Suddenly, a bright red beam of light appears from the sky above."]
 # guy: Uh oh...
 # [GUI:Delay=3000]
-# [SwitchRoom=ufo]
+[SwitchRoom=ufo]

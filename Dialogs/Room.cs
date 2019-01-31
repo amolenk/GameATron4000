@@ -19,6 +19,7 @@ namespace GameATron4000.Dialogs
 
         private readonly string _roomId;
         private readonly List<Command> _commands;
+        private readonly GameInfo _gameInfo;
         private readonly IStatePropertyAccessor<List<string>> _inventoryItemsAccessor;
         private readonly IStatePropertyAccessor<List<string>> _stateFlagsStateAccessor;
         private readonly IStatePropertyAccessor<Dictionary<string, RoomState>> _roomStateAccessor;
@@ -35,6 +36,7 @@ namespace GameATron4000.Dialogs
         {
             _roomId = roomId;
             _commands = commands;
+            _gameInfo = gameInfo;
             _inventoryItemsAccessor = inventoryItemsAccessor;
             _stateFlagsStateAccessor = stateFlagsStateAccessor;
             _roomStateAccessor = roomStateAccessor;
@@ -50,7 +52,14 @@ namespace GameATron4000.Dialogs
 
             // We load the object and actor positions from the room state.
             var roomStates = await _roomStateAccessor.GetAsync(dc.Context, () => new Dictionary<string, RoomState>());
-            var roomState = roomStates.ContainsKey(_roomId) ? roomStates[_roomId] : null;
+
+            // If there's no room state found, use the initial room state.
+            RoomState roomState;
+            if (!roomStates.TryGetValue(_roomId, out roomState))
+            {
+                roomState = _gameInfo.InitialRoomStates[_roomId];
+                roomStates.Add(_roomId, roomState);
+            }
 
             // When the player enters a new room, send a RoomEntered event to 
             // populate the room.
@@ -156,14 +165,11 @@ namespace GameATron4000.Dialogs
         {
             var stateFlags = await _stateFlagsStateAccessor.GetAsync(dc.Context);
             var inventoryItems = await _inventoryItemsAccessor.GetAsync(dc.Context);
-            var roomStates = await _roomStateAccessor.GetAsync(dc.Context, () => new Dictionary<string, RoomState>());
 
-            RoomState roomState;
-            if (!roomStates.TryGetValue(_roomId, out roomState))
-            {
-                roomState = new RoomState();
-                roomStates.Add(_roomId, roomState);
-            }
+            // Get the room state. It always exists at this point because it's
+            // set up in the BeginDialogAsync method.
+            var roomStates = await _roomStateAccessor.GetAsync(dc.Context, () => new Dictionary<string, RoomState>());
+            var roomState = roomStates[_roomId];
 
             var activities = new List<IActivity>();
             var actionStack = new Stack<CommandAction>(actions.Reverse());
@@ -209,6 +215,9 @@ namespace GameATron4000.Dialogs
                     }
                     case GuiMoveActorAction action:
                     {
+                        // Save the actor's new position in the room state.
+                        roomState.ActorPositions[action.ActorId] = action.Position;
+
                         activities.Add(_activityFactory.ActorMoved(dc, action.ActorId, action.Position));
                         break;
                     }
@@ -235,6 +244,9 @@ namespace GameATron4000.Dialogs
                     }
                     case GuiRemoveObjectAction action:
                     {
+                        // Remove the object from the room state.
+                        roomState.ObjectPositions.Remove(action.ObjectId);
+
                         activities.Add(_activityFactory.ObjectRemovedFromRoom(dc, action.ObjectId));
                         break;
                     }
