@@ -50,21 +50,18 @@ namespace GameATron4000.Scripting
             return new GuiDelayAction(milliseconds, preconditions);
         }
 
-        public GuiFaceActorAwayAction GuiFaceActorAway(string actorId, List<ActionPrecondition> preconditions = null)
+        public GuiChangeActorDirectionAction GuiChangeActorDirection(string actorId,
+            ActorDirection direction, List<ActionPrecondition> preconditions = null)
         {
-            return new GuiFaceActorAwayAction(actorId, preconditions);
+            return new GuiChangeActorDirectionAction(actorId, direction, preconditions);
         }
 
-        public GuiFaceActorFrontAction GuiFaceActorFront(string actorId,
+        public GuiMoveActorAction GuiMoveActor(string actorId, int x, int y, ActorDirection direction,
             List<ActionPrecondition> preconditions = null)
         {
-            return new GuiFaceActorFrontAction(actorId, preconditions);
-        }
+            var position = new ActorPosition(x, y, direction);
 
-        public GuiMoveActorAction GuiMoveActor(string actorId, int x, int y,
-            List<ActionPrecondition> preconditions = null)
-        {
-            return new GuiMoveActorAction(actorId, new GamePosition(x, y), preconditions);
+            return new GuiMoveActorAction(actorId, position, preconditions);
         }
 
         public GuiNarratorAction GuiNarrator(string text, List<ActionPrecondition> preconditions = null)
@@ -72,10 +69,12 @@ namespace GameATron4000.Scripting
             return new GuiNarratorAction(text, preconditions);
         }
 
-        public GuiPlaceActorAction GuiPlaceActor(string actorId, int x, int y,
+        public GuiPlaceActorAction GuiPlaceActor(string actorId, int x, int y, ActorDirection direction,
             List<ActionPrecondition> preconditions = null)
         {
-            return new GuiPlaceActorAction(actorId, new GamePosition(x, y), preconditions);
+            var position = new ActorPosition(x, y, direction);
+
+            return new GuiPlaceActorAction(actorId, position, preconditions);
         }
 
         public GuiPlaceObjectAction GuiPlaceObject(string objectId, int x, int y, bool foreground,
@@ -88,7 +87,7 @@ namespace GameATron4000.Scripting
                     nameof(objectId));
             }
 
-            return new GuiPlaceObjectAction(objectId, new GamePosition(x, y, foreground), preconditions);
+            return new GuiPlaceObjectAction(objectId, new ObjectPosition(x, y, foreground), preconditions);
         }
 
         public GuiRemoveObjectAction GuiRemoveObject(string objectId, List<ActionPrecondition> preconditions = null)
@@ -142,16 +141,18 @@ namespace GameATron4000.Scripting
                     return GoToConversationTopic(args[0], preconditions);
                 case GuiDelayAction.Name:
                     return GuiDelay(int.Parse(args[0]), preconditions);
-                case GuiFaceActorAwayAction.Name:
-                    return GuiFaceActorAway(args[0], preconditions);
-                case GuiFaceActorFrontAction.Name:
-                    return GuiFaceActorFront(args[0], preconditions);
+                case GuiChangeActorDirectionAction.Name:
+                    return GuiChangeActorDirection(args[0],
+                    (ActorDirection)Enum.Parse(typeof(ActorDirection), args[1], true), preconditions);
                 case GuiMoveActorAction.Name:
-                    return GuiMoveActor(args[0], int.Parse(args[1]), int.Parse(args[2]), preconditions);
+                    return GuiMoveActor(args[0], int.Parse(args[1]), int.Parse(args[2]),
+                        args.Count > 3 ? (ActorDirection)Enum.Parse(typeof(ActorDirection), args[3], true) : ActorDirection.Front,
+                        preconditions);
                 case GuiNarratorAction.Name:
                     return GuiNarrator(args[0], preconditions);
                 case GuiPlaceActorAction.Name:
-                    return GuiPlaceActor(args[0], int.Parse(args[1]), int.Parse(args[2]), preconditions);
+                    return GuiPlaceActor(args[0], int.Parse(args[1]), int.Parse(args[2]),
+                        (ActorDirection)Enum.Parse(typeof(ActorDirection), args[3], true), preconditions);
                 case GuiPlaceObjectAction.Name:
                     return GuiPlaceObject(args[0], int.Parse(args[1]), int.Parse(args[2]), args.Count > 3 && bool.Parse(args[3]), preconditions);
                 case GuiRemoveObjectAction.Name:

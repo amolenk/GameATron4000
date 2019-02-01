@@ -1,41 +1,35 @@
 player: <EnterRoom>
 [Text:Describe="You have been transported to an actual UFO! There are two aliens in the room with you with 'Al' and 'Ian' name tags. There's a device that somewhat resembles a fridge, and Ian seems to be very interested in a to-do list hanging on the wall."]
 guy: I guess you CAN believe everything you read in the newspapers!
-[GUI:FaceActorFront=ian]
-# [GUI:MoveActor=ian 530 390]
+[GUI:MoveActor=ian 530 390]
 
 player: push al
 [SwitchRoom=park]
 
 player: look at fridge
-[GUI:MoveActor=guy 185 400]
-[GUI:FaceActorAway=guy]
+[GUI:MoveActor=guy 185 400 away]
 guy: It's a big fridge!
 guy: The badge on the side reads 'Brrrr-a-tron 9000™'
-[GUI:FaceActorFront=guy]
+[GUI:ChangeActorDirection=guy front]
 guy: Never heard of it!
 al: It's top of the line!
 
 player: look at empty fridge
-[GUI:MoveActor=guy 185 400]
-[GUI:FaceActorAway=guy]
+[GUI:MoveActor=guy 185 400 away]
 guy: It's empty!
-[GUI:FaceActorFront=guy]
+[GUI:ChangeActorDirection=guy front]
 guy: I wonder where these guys do their shopping!
 
 player: look at full fridge
-[GUI:MoveActor=guy 185 400]
-[GUI:FaceActorAway=guy]
+[GUI:MoveActor=guy 185 400 away]
 guy: All my groceries are now in the fridge!
-[GUI:FaceActorFront=guy]
 
 player: look at to-do list
 {!listSwitched}
-[GUI:MoveActor=guy 650 420]
-[GUI:FaceActorAway=guy]
+[GUI:MoveActor=guy 650 420 away]
 guy: It's a list with names.
 guy: The title says: 'Body-snatch list'.
-[GUI:FaceActorFront=guy]
+[GUI:ChangeActorDirection=guy front]
 guy: YIKES, this can't be good!!
 [GUI:MoveActor=guy 620 420]
 {listSwitched}
@@ -67,15 +61,12 @@ player: look at guy scotthrie
 [Text:Describe="It’s Guy Scotthrie, our fearless hero!"]
 
 player: talk to al
-[GUI:MoveActor=guy 430 420]
-[GUI:FaceActorAway=guy]
+[GUI:MoveActor=guy 430 420 away]
 [StartConversation=al true]
-[GUI:FaceActorFront=guy]
 
 player: open fridge
 [SetFlag=fridgeOpen]
-[GUI:MoveActor=guy 185 400]
-[GUI:FaceActorAway=guy]
+[GUI:MoveActor=guy 185 400 away]
 [GUI:Delay=1000]
 {!fridgeFull}
 [GUI:PlaceObject="fridge-open-empty" 185 242]
@@ -83,92 +74,84 @@ player: open fridge
 [GUI:PlaceObject="fridge-open-full" 185 242]
 {}
 [GUI:Delay=500]
-[GUI:FaceActorFront=guy]
+[GUI:ChangeActorDirection=guy front]
 
 player: pick up to-do list
 {!listSwitched}
-[GUI:MoveActor=guy 650 420]
-[GUI:FaceActorAway=guy]
+[GUI:MoveActor=guy 650 420 away]
 [GUI:Delay=1000]
 [GUI:RemoveObject=todolist]
-[GUI:FaceActorFront=guy]
+[GUI:ChangeActorDirection=guy front]
 guy: Got it!
 ian: Hey, put that back!
 al: We need that to finish the mission!
-[GUI:FaceActorAway=guy]
+[GUI:ChangeActorDirection=guy away]
 [GUI:Delay=500]
 [GUI:PlaceObject=todolist 650 300]
-[GUI:FaceActorFront=guy]
+[GUI:ChangeActorDirection=guy front]
 guy: I guess I have to think of something sneakier!
 [GUI:MoveActor=guy 620 420]
 
 player: close empty fridge
 [ClearFlag=fridgeOpen]
-[GUI:MoveActor=guy 185 400]
-[GUI:FaceActorAway=guy]
+[GUI:MoveActor=guy 185 400 away]
 [GUI:Delay=1000]
 [GUI:RemoveObject="fridge-open-empty"]
 [GUI:Delay=500]
-[GUI:FaceActorFront=guy]
+[GUI:ChangeActorDirection=guy front]
 
 player: close full fridge
 [ClearFlag=fridgeOpen]
-[GUI:MoveActor=guy 185 400]
-[GUI:FaceActorAway=guy]
+[GUI:MoveActor=guy 185 400 away]
 [GUI:Delay=1000]
 [GUI:RemoveObject="fridge-open-full"]
 [GUI:Delay=500]
-[GUI:FaceActorFront=guy]
+[GUI:ChangeActorDirection=guy front]
 
 player: use bag of groceries with fridge
 guy: What do you expect me to do? Throw them at the fridge door?
 
 player: use bag of groceries with empty fridge
 [SetFlag=fridgeFull]
-[GUI:MoveActor=guy 185 400]
-[GUI:FaceActorAway=guy]
+[GUI:MoveActor=guy 185 400 away]
 [GUI:Delay=1000]
 [RemoveFromInventory=groceries]
 [GUI:PlaceObject="fridge-open-full" 185 242]
 [GUI:RemoveObject="fridge-open-empty"]
 [GUI:Delay=1000]
-[GUI:FaceActorFront=guy]
+[GUI:ChangeActorDirection=guy front]
 
 player: use grocery list with to-do list
 [SetFlag=listSwitched]
-[GUI:MoveActor=guy 635 400]
-[GUI:FaceActorAway=guy]
+[GUI:MoveActor=guy 635 400 away]
 [GUI:Delay=1000]
 [RemoveFromInventory=grocerylist]
 [GUI:PlaceObject="grocerylist" 655 295]
 [GUI:RemoveObject=todolist]
 [AddToInventory=todolist "to-do list"]
 [GUI:Delay=1000]
-[GUI:FaceActorFront=guy]
+[GUI:ChangeActorDirection=guy front]
 guy: That should do the trick!
 
 player: use to-do list with grocery list
 {listSwitched}
-[GUI:MoveActor=guy 635 400]
-[GUI:FaceActorAway=guy]
+[GUI:MoveActor=guy 635 400 away]
 [GUI:Delay=1000]
 guy: Hmmm, there was a reason I switched these lists.
-[GUI:FaceActorFront=guy]
+[GUI:ChangeActorDirection=guy front]
 guy: I'll just keep it this way.
 
 player: talk to ian
 {!talkedAboutList}
 ian: Go away, can't you see I'm extremely busy!
 {talkedAboutList}
-[GUI:MoveActor=guy 490 420]
-[GUI:FaceActorAway=guy]
+[GUI:MoveActor=guy 490 420 away]
 guy: Shouldn't you check the list?
-[GUI:FaceActorFront=guy]
-[GUI:MoveActor=ian 650 420]
-[GUI:FaceActorAway=ian]
+[GUI:ChangeActorDirection=guy front]
+[GUI:MoveActor=ian 650 420 away]
 {talkedAboutList !listSwitched}
 ian: Hmm, we still need to find this Hans Scottleman guy...
-[GUI:FaceActorFront=ian]
+[GUI:ChangeActorDirection=ian front]
 [GUI:MoveActor=ian 530 390]
 {talkedAboutList listSwitched !missionChanged}
 ian: Hmm, looks like the mission parameters have changed!
@@ -177,9 +160,8 @@ ian: We need to collect earthly food products now!
 {talkedAboutList listSwitched missionChanged}
 ian: Still looking for those earthly food products!
 {talkedAboutList listSwitched}
-[GUI:FaceActorFront=ian]
-[GUI:MoveActor=ian 185 400]
-[GUI:FaceActorAway=ian]
+[GUI:ChangeActorDirection=ian front]
+[GUI:MoveActor=ian 185 400 away]
 {talkedAboutList listSwitched !fridgeOpen !fridgeFull}
 [GUI:PlaceObject="fridge-open-empty" 185 242]
 {talkedAboutList listSwitched !fridgeOpen fridgeFull}
@@ -191,11 +173,11 @@ al: It wasn't me!
 ian: Hmmmm, we're not quite there yet!
 [ClearFlag=fridgeOpen]
 [GUI:RemoveObject="fridge-open-empty"]
-[GUI:FaceActorFront=ian]
+[GUI:ChangeActorDirection=ian front]
 [GUI:MoveActor=ian 530 390]
 {talkedAboutList listSwitched fridgeFull}
 ian: Excellent, looks like we're all set!
-[GUI:FaceActorFront=ian]
+[GUI:ChangeActorDirection=ian front]
 ian: Ehm...
 ian: Why is that red shirt guy still in my spaceship?
 [GUI:Delay=2000]

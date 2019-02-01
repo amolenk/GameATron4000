@@ -8,26 +8,26 @@ using System.Linq;
 
 namespace GameATron4000.Scripting.Actions
 {
-    public class GuiMoveActorAction : CommandAction
+    public class GuiChangeActorDirectionAction : CommandAction
     {
-        public const string Name = "GUI:MoveActor";
+        public const string Name = "GUI:ChangeActorDirection";
 
         [JsonConstructor]
-        private GuiMoveActorAction()
+        private GuiChangeActorDirectionAction()
         {
         }
 
-        public GuiMoveActorAction(string actorId, ActorPosition position, List<ActionPrecondition> preconditions)
-            : base(preconditions)
+        public GuiChangeActorDirectionAction(string actorId, ActorDirection direction,
+            List<ActionPrecondition> preconditions) : base(preconditions)
         {
             ActorId = actorId;
-            Position = position;
+            Direction = direction;
         }
 
         [JsonProperty]
         public string ActorId { get; private set; }
 
         [JsonProperty]
-        public ActorPosition Position { get; private set; }
+        public ActorDirection Direction { get; private set; }
     }
 }

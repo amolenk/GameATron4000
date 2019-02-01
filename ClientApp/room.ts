@@ -71,6 +71,7 @@ export class Room {
         
         object.create(this.game, this.uiMediator, x, y, this.layers.actors);
 
+
         this.roomObjects.push(object);
     }
 

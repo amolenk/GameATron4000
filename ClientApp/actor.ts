@@ -11,7 +11,6 @@ export class Actor extends RoomObject {
 
     private originX: number;
     private originY: number;
-    private facingFront: boolean;
 
     private text: Phaser.Text;
     private walkSprite: Phaser.Sprite;
@@ -21,7 +20,7 @@ export class Actor extends RoomObject {
     private walkAnimation: Phaser.Animation;
     private backSprite: Phaser.Sprite;
     
-    public constructor(name: string, displayName: string, private textColor: string) {
+    public constructor(name: string, displayName: string, private textColor: string, private direction: string) {
         super(name, displayName);
     }
 
@@ -32,7 +31,6 @@ export class Actor extends RoomObject {
         this.game = game;
         this.originX = x;
         this.originY = y;
-        this.facingFront = true;
 
         // Actors are anchored at the bottom instead of middle for easier placement.
         this.sprite.anchor.set(0.5, 1);
@@ -60,6 +58,14 @@ export class Actor extends RoomObject {
         this.spriteGroup = game.add.group();
         this.spriteGroup.addMultiple([ this.sprite, this.walkSprite, this.backSprite, this.text ]);
 
+        if (this.direction == "Front") {
+            this.backSprite.visible = false;
+            this.sprite.visible = true;
+        } else if (this.direction == "Away") {
+            this.sprite.visible = false;
+            this.backSprite.visible = true;
+        }
+
         group.add(this.spriteGroup);
     }
 
@@ -71,27 +77,24 @@ export class Actor extends RoomObject {
         }
     }
 
-    public async faceFront() {
-        this.backSprite.visible = false;
-        this.sprite.visible = true;
-        this.facingFront = true;
-
-        return Promise.resolve();
-    }
-
-    public async faceBack() {
-        this.sprite.visible = false;
-        this.backSprite.visible = true;
-        this.facingFront = false;
-
+    public async changeDirection(direction: string) {
+        if (direction == "Front") {
+            this.backSprite.visible = false;
+            this.sprite.visible = true;
+        } else if (direction == "Away") {
+            this.sprite.visible = false;
+            this.backSprite.visible = true;
+        }
+        this.direction = direction;
         return Promise.resolve();
     }
 
     public async walkTo(x: number, y: number): Promise<void> {
 
         // Ensure that we're facing front.
-        if (!this.facingFront) {
-            await this.faceFront();
+        if (this.direction != 'Front') {
+            this.backSprite.visible = false;
+            this.sprite.visible = true;
         }
 
         // Calculate the delta's compared to the original position.
@@ -129,11 +132,16 @@ export class Actor extends RoomObject {
         await new Promise((resolve) => {
             tween.onComplete.add(() => {
 
-                // Switch back to the default sprite.
-                this.walkSprite.visible = false;
-                this.sprite.visible = true;
                 this.walkAnimation.stop();
-                
+
+                // Switch back to the correct sprite.
+                this.walkSprite.visible = false;
+                if (this.direction == "Front") {
+                    this.sprite.visible = true;
+                } else if (this.direction == "Away") {
+                    this.backSprite.visible = true;
+                }
+
                 resolve();
             });
         });

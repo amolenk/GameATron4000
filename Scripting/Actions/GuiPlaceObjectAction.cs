@@ -17,7 +17,7 @@ namespace GameATron4000.Scripting.Actions
         {
         }
 
-        public GuiPlaceObjectAction(string objectId, GamePosition position, List<ActionPrecondition> preconditions)
+        public GuiPlaceObjectAction(string objectId, ObjectPosition position, List<ActionPrecondition> preconditions)
             : base(preconditions)
         {
             ObjectId = objectId;
@@ -28,6 +28,6 @@ namespace GameATron4000.Scripting.Actions
         public string ObjectId { get; private set; }
 
         [JsonProperty]
-        public GamePosition Position { get; private set; }
+        public ObjectPosition Position { get; private set; }
     }
 }

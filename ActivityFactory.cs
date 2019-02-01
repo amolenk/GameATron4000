@@ -25,33 +25,28 @@ namespace GameATron4000
             _random = new Random();
         }
 
-        public Activity ActorFacedAway(DialogContext dc, string actorId)
+        public Activity ActorDirectionChanged(DialogContext dc, string actorId,
+            ActorDirection direction)
         {
-            return CreateEventActivity(dc, "ActorFacedAway", new
+            return CreateEventActivity(dc, "ActorDirectionChanged", new
             {
-                actorId = actorId
+                actorId = actorId,
+                direction = direction.ToString()
             });
         }
 
-        public Activity ActorFacedFront(DialogContext dc, string actorId)
-        {
-            return CreateEventActivity(dc, "ActorFacedFront", new
-            {
-                actorId = actorId
-            });
-        }
-
-        public Activity ActorMoved(DialogContext dc, string actorId, GamePosition position)
+        public Activity ActorMoved(DialogContext dc, string actorId, ActorPosition position)
         {
             return CreateEventActivity(dc, "ActorMoved", new
             {
                 actorId = actorId,
                 x = position.X,
-                y = position.Y
+                y = position.Y,
+                direction = position.Direction.ToString()
             });
         }
 
-        public Activity ActorPlacedInRoom(DialogContext dc, string actorId, GamePosition position)
+        public Activity ActorPlacedInRoom(DialogContext dc, string actorId, ObjectPosition position)
         {
             var gameActor = _gameInfo.Actors[actorId];
 
@@ -123,7 +118,7 @@ namespace GameATron4000
             });
         }
 
-        public Activity ObjectPlacedInRoom(DialogContext dc, string objectId, GamePosition position)
+        public Activity ObjectPlacedInRoom(DialogContext dc, string objectId, ObjectPosition position)
         {
 
             var gameObject = _gameInfo.Objects[objectId];
@@ -157,6 +152,7 @@ namespace GameATron4000
                     description = _gameInfo.Actors[position.Key].Description,
                     x = position.Value.X,
                     y = position.Value.Y,
+                    direction = position.Value.Direction.ToString(),
                     textColor = _gameInfo.Actors[position.Key].TextColor
                 }),
                 objects = roomState.ObjectPositions.Select(position => new

@@ -203,14 +203,10 @@ namespace GameATron4000.Dialogs
                         activities.Add(_activityFactory.Delayed(dc, action.Milliseconds));
                         break;
                     }
-                    case GuiFaceActorAwayAction action:
+                    case GuiChangeActorDirectionAction action:
                     {
-                        activities.Add(_activityFactory.ActorFacedAway(dc, action.ActorId));
-                        break;
-                    }
-                    case GuiFaceActorFrontAction action:
-                    {
-                        activities.Add(_activityFactory.ActorFacedFront(dc, action.ActorId));
+                        activities.Add(_activityFactory.ActorDirectionChanged(dc,
+                            action.ActorId, action.Direction));
                         break;
                     }
                     case GuiMoveActorAction action:

@@ -30,7 +30,7 @@
     "initialRoomStates": {
         "park": {
             "actorPositions": {
-                "guy": { "x": 850, "y": 450 }
+                "guy": { "x": 600, "y": 450, "direction": "Away" }
             },
             "objectPositions": {
                 "newspaper": { "x": 362, "y": 400 }
@@ -39,7 +39,7 @@
         "ufo": {
             "actorPositions": {
                 "al": { "x": 440, "y": 370 },
-                "ian": { "x": 650, "y": 420 },
+                "ian": { "x": 650, "y": 420, "direction": "Away" },
                 "guy": { "x": 150, "y": 400 }
             },
             "objectPositions": {

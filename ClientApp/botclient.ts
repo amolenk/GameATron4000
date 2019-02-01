@@ -85,6 +85,10 @@ export class BotClient {
             properties.push({ name: 'closeUpId', value: activity.closeUpId })
         }
 
+        if (activity.direction) {
+            properties.push({ name: 'direction', value: activity.direction })
+        }
+
         if (activity.inventoryItemId) {
             properties.push({ name: 'inventoryItemId', value: activity.inventoryItemId })
         }

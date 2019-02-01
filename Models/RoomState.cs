@@ -6,8 +6,8 @@ namespace GameATron4000.Models
 {
     public class RoomState
     {
-        public Dictionary<string, GamePosition> ActorPositions { get; set; } = new Dictionary<string, GamePosition>();
+        public Dictionary<string, ActorPosition> ActorPositions { get; set; } = new Dictionary<string, ActorPosition>();
 
-        public Dictionary<string, GamePosition> ObjectPositions { get; set; } = new Dictionary<string, GamePosition>();
+        public Dictionary<string, ObjectPosition> ObjectPositions { get; set; } = new Dictionary<string, ObjectPosition>();
     }
 }

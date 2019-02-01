@@ -4,9 +4,9 @@ using Newtonsoft.Json;
 
 namespace GameATron4000.Models
 {
-    public class GamePosition
+    public class ObjectPosition
     {
-        public GamePosition(int x, int y, bool foreground = false)
+        public ObjectPosition(int x, int y, bool foreground = false)
         {
             X = x;
             Y = y;

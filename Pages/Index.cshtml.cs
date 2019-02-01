@@ -31,7 +31,7 @@ namespace GameATron4000.Pages
             });
         }
 
-        public void OnGet(string game)
+        public void OnGet()
         {
             // Load the metadata for the game.
             var gameInfoJson = System.IO.File.ReadAllText("Gameplay/game.json");
@@ -39,7 +39,6 @@ namespace GameATron4000.Pages
 
             GameInfoJson = JsonConvert.SerializeObject(new
             {
-                gameName = game,
                 playerActor = gameInfo.PlayerActor,
                 assets = gameInfo.Assets
                     .Select(asset => new

@@ -106,24 +106,21 @@ export class UIMediator {
                     case "ActorMoved": {
                         var actor = this.room.getActor(event.actorId);
                         await actor.walkTo(event.x, event.y);
+
+                        // After actor has moved, change the direction the actor faces.
+                        actor.changeDirection(event.direction);
                         break;
                     }
 
-                    case "ActorFacedAway": {
+                    case "ActorDirectionChanged": {
                         var actor = this.room.getActor(event.actorId);
-                        await actor.faceBack();
-                        break;
-                    }
-
-                    case "ActorFacedFront": {
-                        var actor = this.room.getActor(event.actorId);
-                        await actor.faceFront();
+                        actor.changeDirection(event.direction);
                         break;
                     }
 
                     case "ActorPlacedInRoom": {
                         this.room.addActor(
-                            new Actor("actor-" + event.actorId, event.description, event.textColor),
+                            new Actor("actor-" + event.actorId, event.description, event.textColor, event.direction),
                             event.x,
                             event.y);
                         break;
@@ -197,7 +194,7 @@ export class UIMediator {
 
                         for (var gameActor of event.actors) {
                             this.room.addActor(
-                                new Actor("actor-" + gameActor.actorId, gameActor.description, gameActor.textColor),
+                                new Actor("actor-" + gameActor.actorId, gameActor.description, gameActor.textColor, gameActor.direction),
                                 gameActor.x,
                                 gameActor.y);
                         }
@@ -214,6 +211,11 @@ export class UIMediator {
                     }
 
                     case "Idle": {
+
+                        // Always let the player actor face front after the actions have executed.
+                        var player = this.room.getActor(gameInfo.playerActor);
+                        player.changeDirection('Front');
+
                         this.setUIVisible(true);
                         break;
                     }
