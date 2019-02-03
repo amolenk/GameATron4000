@@ -3,14 +3,6 @@
     "description": "",
     "services": [
         {
-            "type": "endpoint",
-            "name": "GameATron4000",
-            "endpoint": "http://localhost/api/messages",
-            "appId": "",
-            "appPassword": "",
-            "id": "184"
-        },
-        {
             "type": "generic",
             "name": "DirectLine",
             "url": "nourl",

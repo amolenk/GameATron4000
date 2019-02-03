@@ -100,8 +100,6 @@ namespace GameATron4000.Dialogs
                             stateFlags.Add(setFlagAction.Flag);
                         }
                         break;
-
-                    default: throw new InvalidOperationException("Unsupported action type for conversation.");
                 }
             }
 
@@ -120,8 +118,10 @@ namespace GameATron4000.Dialogs
 
                 // Add the conversation tree options to the last outbound messages activity.
                 var lastMessageIndex = activities.FindLastIndex(a => a.Type == ActivityTypes.Message);
-                var text = activities[lastMessageIndex].AsMessageActivity().Text;
-                activities[lastMessageIndex] = MessageFactory.SuggestedActions(options, text);
+                var lastMessageActivity = (Activity)activities[lastMessageIndex].AsMessageActivity();
+                var updatedActivity = (Activity)MessageFactory.SuggestedActions(options, lastMessageActivity.Text);
+                updatedActivity.Properties = lastMessageActivity.Properties;
+                activities[lastMessageIndex] = updatedActivity;
             }
 
             // Send all activities to the client.

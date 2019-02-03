@@ -77,8 +77,6 @@ export class UIMediator {
 
     private connectToBot() {
         
-        // TODO All handles should be async?
-
         this.botClient.connect(
             async (message: any) => {
                 
@@ -208,6 +206,7 @@ export class UIMediator {
                         }
 
                         this.game.lockRender = false;
+                        break;
                     }
 
                     case "Idle": {
@@ -216,6 +215,7 @@ export class UIMediator {
                         var player = this.room.getActor(gameInfo.playerActor);
                         player.changeDirection('Front');
 
+                        console.log('Setting visible!');
                         this.setUIVisible(true);
                         break;
                     }

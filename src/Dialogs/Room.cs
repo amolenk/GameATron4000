@@ -71,7 +71,12 @@ namespace GameATron4000.Dialogs
             if (actions.Any())
             {
                 // Map the actions to Bot Framework activities and send them to the client.
-                await ExecuteActionsAsync(dc, actions);
+                if (!await ExecuteActionsAsync(dc, actions))
+                {
+                    // If ExecuteActionsAsync returns false, don't send anymore activities
+                    // to the client. Control is handed over to a different dialog.
+                    return new DialogTurnResult(DialogTurnStatus.Waiting);
+                }
             }
 
             // Send an Idle activity to let the GUI know that we're waiting for user interaction.
@@ -94,7 +99,12 @@ namespace GameATron4000.Dialogs
             if (actions.Any())
             {
                 // Map the actions to Bot Framework activities and send them to the client.
-                await ExecuteActionsAsync(dc, actions);
+                if (!await ExecuteActionsAsync(dc, actions))
+                {
+                    // If ExecuteActionsAsync returns false, don't send anymore activities
+                    // to the client. Control is handed over to a different dialog.
+                    return new DialogTurnResult(DialogTurnStatus.Waiting);
+                }
             }
             else
             {
@@ -122,7 +132,13 @@ namespace GameATron4000.Dialogs
             if (dc.ActiveDialog.State.TryGetValue(DialogStatePendingActions, out pendingActions))
             {
                 // Map the actions to Bot Framework activities and send them to the client.
-                await ExecuteActionsAsync(dc, (List<CommandAction>)pendingActions);
+                if (!await ExecuteActionsAsync(dc, (List<CommandAction>)pendingActions))
+                {
+                    // If ExecuteActionsAsync returns false, don't send anymore activities
+                    // to the client. Control is handed over to a different dialog.
+                    return new DialogTurnResult(DialogTurnStatus.Waiting);
+                }
+
                 dc.ActiveDialog.State.Remove(DialogStatePendingActions);
             }
 
@@ -161,7 +177,7 @@ namespace GameATron4000.Dialogs
                 : Enumerable.Empty<CommandAction>();
         }
 
-        private async Task ExecuteActionsAsync(DialogContext dc, IEnumerable<CommandAction> actions)
+        private async Task<bool> ExecuteActionsAsync(DialogContext dc, IEnumerable<CommandAction> actions)
         {
             var stateFlags = await _stateFlagsStateAccessor.GetAsync(dc.Context);
             var inventoryItems = await _inventoryItemsAccessor.GetAsync(dc.Context);
@@ -292,7 +308,7 @@ namespace GameATron4000.Dialogs
                         await dc.BeginDialogAsync(action.ConversationId);
 
                         // Stop processing any further actions now that we've switched to a new dialog.
-                        return;
+                        return false;
                     }
                     case SwitchRoomAction action:
                     {
@@ -308,7 +324,7 @@ namespace GameATron4000.Dialogs
                         await dc.ReplaceDialogAsync(action.RoomId);
 
                         // Stop processing any further actions now that we've switched to a new dialog.
-                        return;
+                        return false;
                     }
                     case TextDescribeAction action:
                     {
@@ -319,6 +335,9 @@ namespace GameATron4000.Dialogs
             }
 
             await dc.Context.SendActivitiesAsync(activities.ToArray());
+
+            // Returning true here indicates that we can continue processing the actions for this turn.
+            return true;
         }
     }
 }
