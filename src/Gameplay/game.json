@@ -52,7 +52,7 @@
                 "guy": { "x": 490, "y": 420 }
             },
             "objectPositions": {
-                "tractorbeam": { "x": 490, "y": 225 }
+                "tractorbeam": { "x": 490, "y": 225, "foreground": true }
             }
         }
     },
