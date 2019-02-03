@@ -1,7 +1,3 @@
-# player: <InitializeRoom>
-# [GUI:PlaceActor=Guy 490 420]
-# [GUI:PlaceObject=tractorbeam 490 225 true]
-#
 player: <EnterRoom>
 [GUI:Delay=1500]
 [GUI:RemoveObject=tractorbeam]

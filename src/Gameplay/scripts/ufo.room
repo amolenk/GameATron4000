@@ -3,9 +3,6 @@ player: <EnterRoom>
 guy: I guess you CAN believe everything you read in the newspapers!
 [GUI:MoveActor=ian 530 390]
 
-player: push al
-[SwitchRoom=park]
-
 player: look at fridge
 [GUI:MoveActor=guy 185 400 away]
 guy: It's a big fridge!

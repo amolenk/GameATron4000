@@ -42,7 +42,6 @@ namespace GameATron4000
 
             if (dc.ActiveDialog == null)
             {
-                // TODO Add comments here
                 if (context.Activity.Type is ActivityTypes.ConversationUpdate)
                 {
                     foreach (var newMember in context.Activity?.MembersAdded)
@@ -67,6 +66,7 @@ namespace GameATron4000
                 // get intent and entity from LUIS (if enabled).
                 if (_luisOptions.Enabled)
                 {
+                    // TODO Trial 3: Add call to LUIS service
                     string command = await DetermineCommandAsync(context, cancellationToken);
                     if (!string.IsNullOrEmpty(command))
                     {

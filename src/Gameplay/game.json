@@ -30,7 +30,7 @@
     "initialRoomStates": {
         "park": {
             "actorPositions": {
-                "guy": { "x": 600, "y": 450, "direction": "Away" }
+                "guy": { "x": 850, "y": 450, "direction": "Away" }
             },
             "objectPositions": {
                 "newspaper": { "x": 362, "y": 400 }

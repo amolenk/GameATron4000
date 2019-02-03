@@ -215,7 +215,6 @@ export class UIMediator {
                         var player = this.room.getActor(gameInfo.playerActor);
                         player.changeDirection('Front');
 
-                        console.log('Setting visible!');
                         this.setUIVisible(true);
                         break;
                     }

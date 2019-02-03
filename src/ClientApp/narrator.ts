@@ -15,7 +15,7 @@ export class Narrator {
 
         var textStyle = {
             font: "54px Onesize", // Using a large font-size and scaling it back looks better.
-            fill: "#0094FF",
+            fill: "Yellow",
             stroke: "black",
             strokeThickness: 12,
             align: "center",
