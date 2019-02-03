@@ -6,9 +6,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using GameATron4000.Configuration;
 using GameATron4000.Dialogs;
+using GameATron4000.LUIS;
 using GameATron4000.Models;
 using GameATron4000.Scripting;
-using Luis;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Schema;
@@ -63,17 +63,9 @@ namespace GameATron4000
             }
             else if (context.Activity.Type is ActivityTypes.Message)
             {
-                // get intent and entity from LUIS (if enabled).
-                if (_luisOptions.Enabled)
-                {
-                    // TODO Trial 3: Add call to LUIS service
-                    string command = await DetermineCommandAsync(context, cancellationToken);
-                    if (!string.IsNullOrEmpty(command))
-                    {
-                        context.Activity.Text = command;
-                    }
-                }
+                // TODO Trial 3: Add call to LUIS service
 
+                // Continue the dialog to handle the incoming command.
                 await dc.ContinueDialogAsync();
             }
 
@@ -105,65 +97,5 @@ namespace GameATron4000
 
             return dialogSet;
         }
-
-        #region LUIS
-
-        private async Task<string> DetermineCommandAsync(ITurnContext context, CancellationToken cancellationToken)
-        {
-            var recognizerResult = await _services.LuisServices["gameatron4000"]
-                .RecognizeAsync<LUISModel>(context, cancellationToken);
-
-            // parse LUIS results to get intent and entity
-            string intent = GetLUISIntent(recognizerResult);
-            if (intent != null)
-            {
-                IEnumerable<string> entities = GetLUISEntities(recognizerResult);
-                if (entities.Count() > 0)
-                {
-                    switch(intent)
-                    {
-                        case "use":
-                            return $"use {entities.First()} with {entities.Last()}";
-
-                        case "give":
-                            return $"give {entities.First()} to {entities.Last()}";
-                        
-                        default:
-                            return $"{intent} {entities.First()}";        
-                    }
-                }
-            }
-
-            return null;
-        }
-
-        private string GetLUISIntent(LUISModel luisResult)
-        {
-            string intent = null;
-            var topIntent = luisResult.TopIntent();
-            if (topIntent.intent  != LUISModel.Intent.None)
-            {
-                intent = topIntent.intent.ToString().Replace("_", " ");
-            }
-            return intent;
-        }
-
-        private IEnumerable<string> GetLUISEntities(LUISModel luisResult)
-        {
-            List<string> entities = new List<string>();
-
-            if (luisResult.Entities.GameObject?.Count() > 0)
-            {
-                entities.AddRange(luisResult.Entities.GameObject.Select(o => o[0]).ToList());
-            }
-            if (luisResult.Entities.GameActor?.Count() > 0)
-            {
-                entities.AddRange(luisResult.Entities.GameActor.Select(o => o[0]).ToList());
-            }
-
-            return entities;
-        }
-
-        #endregion
     }
 }

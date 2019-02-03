@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using GameATron4000.BotFileAssistant;
 using GameATron4000.Configuration;
 using GameATron4000.Models;
 using Microsoft.AspNetCore.Builder;

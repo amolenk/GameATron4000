@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Luis
+namespace GameATron4000.LUIS
 {
     public static class LUISModelExtensions
     {

@@ -8,7 +8,8 @@ using Newtonsoft.Json;
 using System.Collections.Generic;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.AI.Luis;
-namespace Luis
+
+namespace GameATron4000.LUIS
 {
     public class LUISModel: IRecognizerConvert
     {
