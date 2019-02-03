@@ -1,0 +1,93 @@
+{
+    "initialRoom": "park",
+    "playerActor": "guy",
+    "badCommandResponses": [ 
+        "I can't do that.",
+        "Why?",
+        "Hmm, better not.",
+        "That will probably crash the game!"
+    ],
+    "actors": {
+        "guy": { "description": "Guy Scotthrie", "textColor": "White" },
+        "al": { "description": "Al", "textColor": "Magenta" },
+        "ian": { "description": "Ian", "textColor": "Yellow" }
+    },
+    "objects": {
+        "fridge-closed": { "description": "fridge" },
+        "fridge-open-empty": { "description": "empty fridge" },
+        "fridge-open-full": { "description": "full fridge" },
+        "groceries": { "description": "bag of groceries" },
+        "grocerylist": { "description": "grocery list" },
+        "newspaper": { "description": "newspaper" },
+        "newspaper-headline": { "description": "newspaper headline" },
+        "todolist": { "description": "to-do list" },
+        "tractorbeam": { "description": "rays of death and transportation" }
+    },
+    "initialInventory": [
+        "groceries",
+        "grocerylist"
+    ],
+    "initialRoomStates": {
+        "park": {
+            "actorPositions": {
+                "guy": { "x": 850, "y": 450, "direction": "Away" }
+            },
+            "objectPositions": {
+                "newspaper": { "x": 362, "y": 400 }
+            }
+        },
+        "ufo": {
+            "actorPositions": {
+                "al": { "x": 440, "y": 370 },
+                "ian": { "x": 650, "y": 420, "direction": "Away" },
+                "guy": { "x": 150, "y": 400 }
+            },
+            "objectPositions": {
+                "todolist": { "x": 650, "y": 300 },
+                "fridge-closed": { "x": 185, "y": 242 }
+            }
+        },
+        "beach": {
+            "actorPositions": {
+                "guy": { "x": 490, "y": 420 }
+            },
+            "objectPositions": {
+                "tractorbeam": { "x": 490, "y": 225 }
+            }
+        }
+    },
+    "roomScripts": {
+        "park": "Gameplay/scripts/park.room",
+        "ufo": "Gameplay/scripts/ufo.room",
+        "beach": "Gameplay/scripts/beach.room"
+    },
+    "conversationScripts": {
+        "al": "Gameplay/scripts/al.conversation"
+    },
+    "assets": {
+        "room-park": { "url": "/backgrounds/park.png" },
+        "room-ufo": { "url": "/backgrounds/ufo.png" },
+        "room-beach": { "url": "/backgrounds/beach.png" },
+        "object-fridge-closed": { "url": "/objects/fridge-closed.png" },
+        "object-fridge-open-empty": { "url": "/objects/fridge-open-empty.png" },
+        "object-fridge-open-full": { "url": "/objects/fridge-open-full.png" },
+        "object-grocerylist": { "url": "/objects/grocerylist.png" },
+        "object-newspaper": { "url": "/objects/newspaper.png" },
+        "object-todolist": { "url": "/objects/todolist.png" },
+        "object-tractorbeam": { "url": "/objects/tractorbeam.png" },
+        "object-newspaper-headline": { "url": "/objects/newspaper-headline.png" },
+        "inventory-newspaper": { "url": "/inventory/newspaper.png" },
+        "inventory-groceries": { "url": "/inventory/groceries.png" },
+        "inventory-todolist": { "url": "/inventory/todolist.png" },
+        "inventory-grocerylist": { "url": "/inventory/grocerylist.png" },
+        "actor-guy": { "url": "/actors/guy-talk.png", "frameWidth": 69, "frameHeight": 141 },
+        "actor-guy-walk": { "url": "/actors/guy-walk.png", "frameWidth": 96, "frameHeight": 144 },
+        "actor-guy-back": { "url": "/actors/guy-back.png" },
+        "actor-al": { "url": "/actors/al-talk.png", "frameWidth": 66, "frameHeight": 147 },
+        "actor-al-walk": { "url": "/actors/al-walk.png", "frameWidth": 96, "frameHeight": 150 },
+        "actor-al-back": { "url": "/actors/al-back.png" },
+        "actor-ian": { "url": "/actors/ian-talk.png", "frameWidth": 66, "frameHeight": 147 },
+        "actor-ian-walk": { "url": "/actors/ian-walk.png", "frameWidth": 96, "frameHeight": 150 },
+        "actor-ian-back": { "url": "/actors/ian-back.png" }
+    }
+}

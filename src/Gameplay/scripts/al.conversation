@@ -1,0 +1,40 @@
+al: Hi there!
+- What's going on here?
+    al: Oh, we're just removing all the tech nerds from this planet.
+    ian: Yeah, we don't need any super intelligence popping up here!
+    - But we're decades away from realizing full Artificial General Intelligence!
+        al: I know, but Ian isn't convinced.
+        ian: Those Azure data centers are doing something!
+        - But they're just mining BitCoin!
+            al: You can probably make more money by just trading!
+            ian: I'm not buying it!
+        - But they're just running Bot code for 8-bit adventure games!
+            al: Nice try!
+            ian: Nobody plays adventure games anymore!
+        - But, but...
+            guy: I guess I can't convince you.
+            [GoToConversationTopic=root]
+- Can you beam me down back to the park?
+    al: Sure!
+    ian: NO WAY!
+    ian: We need to get everything on the list first!
+    [SetFlag=talkedAboutList]
+    - Please?
+        al: Ok, because you asked nicely!
+        ian: NO! The mission isn't completed yet!
+    - Pretty please?
+        al: Ok, because you asked nicely!
+        ian: NO! The mission isn't completed yet!
+    - Pretty please with a cherry on top?
+        al: Ok, because you asked nicely!
+        ian: NO! The mission isn't completed yet!
+    - I give up…
+        ian: Great, now I can get back to work!
+        [GoToConversationTopic=root]
+- Is this an actual spaceship?
+    al: Sure is!
+    al: It's an 8-bit stellar class beam-er-upper™ convertible!
+    ian: Stop divulging top secret information!
+- Bye!
+    ian: Don't touch anything!
+    [EndConversation]

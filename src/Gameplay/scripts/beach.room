@@ -1,0 +1,10 @@
+player: <EnterRoom>
+[GUI:Delay=1500]
+[GUI:RemoveObject=tractorbeam]
+[GUI:Delay=1000]
+guy: That's just great!
+guy: I hope there's a supermarket around here...
+[GUI:Delay=1000]
+[GUI:MoveActor=Guy 850 430]
+[GUI:Narrator="Thanks for playing!"]
+[GUI:Narrator="GAME OVER"]

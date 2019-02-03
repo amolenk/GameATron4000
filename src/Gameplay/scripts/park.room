@@ -1,0 +1,47 @@
+player: <EnterRoom>
+[Text:Describe="You are in a park. You just went shopping at the supermarket and decided to take a detour home. There's a newspaper lying on the ground next to a park bench."]
+[GUI:MoveActor=guy 600 430]
+
+player: look at bag of groceries
+guy: It's my shopping bag with groceries.
+guy: There's even a bottle of Info Support Awesome Sauce™ in there!
+
+player: look at grocery list
+guy: It's my grocery list!
+guy: I've bought everything that's on it!
+
+player: look at guy scotthrie
+[GUI:Narrator="It’s Guy Scotthrie, our fearless hero!"]
+[Text:Describe="It’s Guy Scotthrie, our fearless hero!"]
+
+player: use grocery list with bag of groceries
+guy: Yep, I’ve got everything on the list!
+
+player: use bag of groceries with grocery list
+guy: Yep, I’ve got everything on the list!
+
+player: look at newspaper
+guy: It looks like an old newspaper!
+
+player: pick up newspaper
+{newspaper}
+guy: I've already picked that up!
+{!newspaper}
+[GUI:MoveActor=guy 360 430]
+[GUI:RemoveObject=newspaper]
+[AddToInventory=newspaper "newspaper"]
+guy: It's yesterday's newspaper!
+[GUI:PlaceObject="newspaper-headline" 400 300 true]
+[GUI:Delay=4000]
+[Text:Describe="The newspaper headline proclaims 'Are they here?' in big capital letters. There's a photo of what looks like a flying saucer!"]
+[GUI:Narrator="Hmm, there seems to be a LOT of UFO sightings lately!"]
+[GUI:Delay=500]
+[GUI:RemoveObject="newspaper-headline"]
+guy: What a bunch of nonsense!
+[GUI:Delay=1000]
+[GUI:PlaceObject=tractorbeam 360 225 true]
+[GUI:Delay=1000]
+[Text:Describe="Suddenly, a bright red beam of light appears from the sky above."]
+guy: Uh oh...
+[GUI:Delay=3000]
+[SwitchRoom=ufo]
