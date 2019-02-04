@@ -31,7 +31,7 @@ The game can be played in text adventure by using the Bot Framework emulator.
 
 > If you've got access to an Azure subscription, you can follow the instructions [here](./pointclickmode.md) to set up the required resources in Azure yourself (which is interesting if you've never worked with Azure Bot Service before). Alternatively, you can just follow the instructions below to use pre-created Azure resources.
 
-For this workshop we've pre-created some **Bot Channels Registration** resources in Azure to get you started quickly and without requiring having access to an Azure subscription of your own. Even if you're using the pre-created resources, it's still beneficial to look through the [custom instructions](./pointclickmode.md) to get a better understanding of how things work.
+For this workshop we've prepared some **Bot Channels Registration** resources in Azure to get you started quickly and without requiring having access to an Azure subscription of your own. Even if you're using the pre-created resources, it's still beneficial to look through the [custom instructions](./pointclickmode.md) to get a better understanding of how things work.
 
 You need a **Bot Channels Registration** bot service to be able to use Bot Service functionality. The Bot Service allows the graphical game interface running in the browser to communicate with the Game-a-Tron 4000™ bot using a Direct Line channel.
 
@@ -54,6 +54,8 @@ In this step you'll use **ngrok** to expose your local machine (which may be beh
     <img src="./images/ngrok.png" alt="ngrok"/>
 
 ### Let the Game-a-Tron 4000™ bot configure the Bot Channels Registration for you
+
+The bot supports a special `setup` command that you can use to automatically configure a **Bot Channels Registration** for the workshop.
 
 1. Return to Visual Studio Code and select **Debug | Start Debugging** to start the bot if it's not running anymore.
 
