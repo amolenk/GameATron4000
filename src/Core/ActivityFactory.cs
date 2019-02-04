@@ -11,7 +11,7 @@ using Microsoft.Bot.Schema;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Linq;
 
-namespace GameATron4000
+namespace GameATron4000.Core
 {
     // TODO Interface
     public class ActivityFactory

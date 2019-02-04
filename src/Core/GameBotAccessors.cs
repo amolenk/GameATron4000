@@ -4,7 +4,7 @@ using GameATron4000.Models;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;
 
-namespace GameATron4000
+namespace GameATron4000.Core
 {
      /// <summary>
     /// This class is created as a Singleton and passed into the IBot-derived constructor.

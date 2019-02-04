@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using GameATron4000.BotFileAssistant;
 using GameATron4000.Configuration;
+using GameATron4000.Core;
 using GameATron4000.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -51,15 +52,19 @@ namespace GameATron4000
             services.Configure<GuiOptions>(Configuration.GetSection("GUI"));
             services.Configure<LUISOptions>(Configuration.GetSection("LUIS"));
 
-            var botConfigKey = Configuration.GetValue<string>("Bot:FileSecret");
             var botConfigPath = Configuration.GetValue<string>("Bot:FilePath");
-            if (!File.Exists(botConfigPath))
-            {
-                throw new FileNotFoundException($"The .bot configuration file was not found. botConfigPath: '{botConfigPath}'");
-            }
+            var botConfigKey = Configuration.GetValue<string>("Bot:FileSecret");
+            // if (!File.Exists(botConfigPath))
+            // {
+            //     throw new FileNotFoundException($"The .bot configuration file was not found. botConfigPath: '{botConfigPath}'");
+            // }
 
-            // Loads .bot configuration file and adds a singleton that the Bot can access through dependency injection.
-            var botConfig = BotConfiguration.Load(botConfigPath, botConfigKey);
+            // Loads .bot configuration file.
+            var botConfig = File.Exists(botConfigPath)
+                ? BotConfiguration.Load(botConfigPath, botConfigKey)
+                : new BotConfiguration();
+
+            // Add a singleton that the Bot can access through dependency injection.
             services.AddSingleton(sp => botConfig ?? throw new InvalidOperationException($"The .bot configuration file could not be loaded. botFilePath: {botConfigPath}"));
 
             // Initialize Bot Connected Services clients.
@@ -70,14 +75,14 @@ namespace GameATron4000
             {
                 // Retrieve current endpoint.
                 var service = botConfig.Services.FirstOrDefault(s => s.Type == "endpoint");
-                if (!(service is EndpointService endpointService))
+                if (service is EndpointService endpointService)
                 {
-                    throw new InvalidOperationException($"The .bot file does not contain an endpoint.");
+                    options.CredentialProvider = new SimpleCredentialProvider(endpointService.AppId, endpointService.AppPassword);
                 }
 
-                options.CredentialProvider = new SimpleCredentialProvider(endpointService.AppId, endpointService.AppPassword);
-
                 options.Middleware.Add(new BotFileAssistantMiddleware());
+
+                // TODO Trial 2: Register middleware here.
 
                 IStorage dataStore = new MemoryStorage();
                 options.State.Add(new ConversationState(dataStore));

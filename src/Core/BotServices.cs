@@ -5,7 +5,7 @@ using Microsoft.Bot.Builder.AI.Luis;
 using Microsoft.Bot.Configuration;
 using Microsoft.Extensions.Configuration;
 
-namespace GameATron4000
+namespace GameATron4000.Core
 {
     public class BotServices
     {

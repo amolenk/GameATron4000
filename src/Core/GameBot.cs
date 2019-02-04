@@ -6,7 +6,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using GameATron4000.Configuration;
 using GameATron4000.Dialogs;
-using GameATron4000.LUIS;
 using GameATron4000.Models;
 using GameATron4000.Scripting;
 using Microsoft.Bot.Builder;
@@ -15,7 +14,7 @@ using Microsoft.Bot.Schema;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 
-namespace GameATron4000
+namespace GameATron4000.Core
 {
     public class GameBot : IBot
     {
