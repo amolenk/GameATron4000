@@ -151,12 +151,10 @@ Execute the following steps to generate the LUISModel class:
 3. Issue the following command:
 
     ```
-    luisgen luismodel-0.1.json -cs LUISModel
+    luisgen luismodel-0.1.json -cs GameATron4000.LUIS.LUISModel
     ```
     
     A file called `LUISModel.cs` will be created. 
-
-4. Open the generated code file in Visual Studio Code and change the namespace to `GameATron4000.LUIS`.
 
 ### *ToCommand* extension method
 

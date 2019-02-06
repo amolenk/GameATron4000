@@ -10,14 +10,14 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/src/bin/Debug/netcoreapp2.1/GameATron4000.dll",
+            "program": "${workspaceFolder}/bin/Debug/netcoreapp2.1/GameATron4000.dll",
             "args": [],
-            "cwd": "${workspaceFolder}/src",
+            "cwd": "${workspaceFolder}",
             "stopAtEntry": false,
             "internalConsoleOptions": "openOnSessionStart",
             "launchBrowser": {
                 "enabled": false,
-                "args": "http://localhost:5000/Play?game=ReturnOfTheBodySnatchers",
+                "args": "http://localhost:5000",
                 "windows": {
                     "command": "cmd.exe",
                     "args": "/C start ${auto-detect-url}"

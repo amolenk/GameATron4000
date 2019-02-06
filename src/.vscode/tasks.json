@@ -7,7 +7,7 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/src/GameATron4000.csproj"
+                "${workspaceFolder}/GameATron4000.csproj"
             ],
             "problemMatcher": "$msCompile",
             "group": {
