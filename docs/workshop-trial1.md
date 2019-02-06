@@ -6,7 +6,7 @@ In this module you'll learn how to use the emulator to test a bot. You will also
 
 The game can be played in text adventure by using the Bot Framework emulator.
 
-1. Open the project folder in Visual Studio Code.
+1. Open the `GameATron4000.code-workspace` workspace in Visual Studio Code.
 
 2. In Visual Studio Code, select **Debug | Start Debugging**.
 
@@ -29,9 +29,11 @@ The game can be played in text adventure by using the Bot Framework emulator.
 
 ## Run the game in point & click adventure mode
 
-> If you've got access to an Azure subscription, you can follow the instructions [here](./pointclickmode.md) to set up the required resources in Azure yourself (which is interesting if you've never worked with Azure Bot Service before). Alternatively, you can just follow the instructions below to use pre-created Azure resources.
+There are two ways to run the game in point & click adventure:
 
-For this workshop we've prepared some **Bot Channels Registration** resources in Azure to get you started quickly and without requiring having access to an Azure subscription of your own. Even if you're using the pre-created resources, it's still beneficial to look through the [custom instructions](./pointclickmode.md) to get a better understanding of how things work.
+1. If you've got access to an Azure subscription, you can follow the instructions [here](./pointclickmode.md) to set up the required resources in Azure yourself (which is interesting if you've never worked with Azure Bot Service before).
+
+2. If you don't have access to an Azure subscription, no worries! We've prepared some **Bot Channels Registration** resources in Azure to get you started quickly. Even if you're using the pre-created resources, it's still beneficial to look through the [custom instructions](./pointclickmode.md) to get a better understanding of how things work. Follow the instructions below to get started with the pre-created Azure resources.
 
 You need a **Bot Channels Registration** bot service to be able to use Bot Service functionality. The Bot Service allows the graphical game interface running in the browser to communicate with the Game-a-Tron 4000™ bot using a Direct Line channel.
 

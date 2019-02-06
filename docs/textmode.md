@@ -2,7 +2,7 @@
 
 The game can be played in text adventure by using the Bot Framework emulator.
 
-1. Open the project folder in Visual Studio Code.
+1. Open the `GameATron4000.code-workspace` workspace in Visual Studio Code.
 
 2. In Visual Studio Code, select **Debug | Start Debugging**.
 
