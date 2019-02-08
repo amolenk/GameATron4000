@@ -23,6 +23,14 @@
         "todolist": { "description": "to-do list" },
         "tractorbeam": { "description": "rays of death and transportation" }
     },
+    "inventoryItems": {
+        "groceries": { "description": "bag of groceries" },
+        "grocerylist": { "description": "grocery list" },
+        "lager": { "description": "lager beer" },
+        "newspaper": { "description": "newspaper" },
+        "pretzel": { "description": "tasty pretzel" },
+        "todolist": { "description": "to-do list" }
+    },
     "initialInventory": [
         "groceries",
         "grocerylist"
@@ -30,7 +38,7 @@
     "initialRoomStates": {
         "park": {
             "actorPositions": {
-                "guy": { "x": 850, "y": 450, "direction": "Away" }
+                "guy": { "x": 850, "y": 450 }
             },
             "objectPositions": {
                 "newspaper": { "x": 362, "y": 400 }
@@ -65,6 +73,10 @@
         "al": "Gameplay/scripts/al.conversation"
     },
     "assets": {
+        "room-alexanderplatz": { "url": "/backgrounds/alexanderplatz.png" },
+        "room-brandenburggate": { "url": "/backgrounds/brandenburggate.png" },
+        "inventory-lager": { "url": "/inventory/lager.png" },
+        "inventory-pretzel": { "url": "/inventory/pretzel.png" },
         "room-park": { "url": "/backgrounds/park.png" },
         "room-ufo": { "url": "/backgrounds/ufo.png" },
         "room-beach": { "url": "/backgrounds/beach.png" },

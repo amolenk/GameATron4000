@@ -83,6 +83,6 @@ The bot supports a special `setup` command that you can use to automatically con
 
 1. In Visual Studio Code, stop and restart the debugger to let the bot use the new settings.
 
-2. In a browser window, navigate to *https://localhost:5000/*.
+2. In a browser window, navigate to *http://localhost:5000/*.
 
     The game GUI will now load. If you open your browser's developer tools you can view the interaction between the bot and the browser in the console log.

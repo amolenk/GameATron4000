@@ -23,10 +23,9 @@ namespace GameATron4000.Scripting
             _gameInfo = gameInfo;
         }
 
-        public AddToInventoryAction AddToInventory(string inventoryItemId, string description,
-            List<ActionPrecondition> preconditions = null)
+        public AddToInventoryAction AddToInventory(string inventoryItemId, List<ActionPrecondition> preconditions = null)
         {
-            return new AddToInventoryAction(inventoryItemId, description, preconditions);
+            return new AddToInventoryAction(inventoryItemId, preconditions);
         }
 
         public ClearFlagAction ClearFlag(string flag, List<ActionPrecondition> preconditions = null)
@@ -132,7 +131,7 @@ namespace GameATron4000.Scripting
             switch (name)
             {
                 case AddToInventoryAction.Name:
-                    return AddToInventory(args[0], args[1], preconditions);
+                    return AddToInventory(args[0], preconditions);
                 case ClearFlagAction.Name:
                     return ClearFlag(args[0], preconditions);
                 case EndConversationAction.Name:

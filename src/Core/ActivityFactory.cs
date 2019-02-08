@@ -83,7 +83,7 @@ namespace GameATron4000.Core
                 inventoryItems = _gameInfo.InitialInventory.Select(inventoryItemId => new
                 {
                     inventoryItemId = inventoryItemId,
-                    description = _gameInfo.Objects[inventoryItemId].Description
+                    description = _gameInfo.InventoryItems[inventoryItemId].Description
                 })
             });
         }
@@ -93,12 +93,14 @@ namespace GameATron4000.Core
             return CreateEventActivity(dc, "Idle");
         }
 
-        public Activity InventoryItemAdded(DialogContext dc, string inventoryItemId, string description)
+        public Activity InventoryItemAdded(DialogContext dc, string inventoryItemId)
         {
+            var inventoryItem = _gameInfo.InventoryItems[inventoryItemId];
+
             return CreateEventActivity(dc, "InventoryItemAdded", new
             {
                 inventoryItemId = inventoryItemId,
-                description = description
+                description = inventoryItem.Description
             });
         }
 
@@ -120,7 +122,6 @@ namespace GameATron4000.Core
 
         public Activity ObjectPlacedInRoom(DialogContext dc, string objectId, ObjectPosition position)
         {
-
             var gameObject = _gameInfo.Objects[objectId];
 
             return CreateEventActivity(dc, "ObjectPlacedInRoom", new

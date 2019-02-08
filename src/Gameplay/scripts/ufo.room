@@ -125,7 +125,7 @@ player: use grocery list with to-do list
 [RemoveFromInventory=grocerylist]
 [GUI:PlaceObject="grocerylist" 655 295]
 [GUI:RemoveObject=todolist]
-[AddToInventory=todolist "to-do list"]
+[AddToInventory=todolist]
 [GUI:Delay=1000]
 [GUI:ChangeActorDirection=guy front]
 guy: That should do the trick!

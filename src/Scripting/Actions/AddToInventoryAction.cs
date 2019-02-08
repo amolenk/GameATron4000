@@ -17,17 +17,13 @@ namespace GameATron4000.Scripting.Actions
         {
         }
 
-        public AddToInventoryAction(string inventoryItemId, string description, List<ActionPrecondition> preconditions)
+        public AddToInventoryAction(string inventoryItemId, List<ActionPrecondition> preconditions)
             : base(preconditions)
         {
             InventoryItemId = inventoryItemId;
-            Description = description;
         }
 
         [JsonProperty]
         public string InventoryItemId { get; private set; }
-
-        [JsonProperty]
-        public string Description { get; private set; }
     }
 }

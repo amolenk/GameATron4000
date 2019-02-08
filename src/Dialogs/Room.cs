@@ -202,8 +202,7 @@ namespace GameATron4000.Dialogs
                         {
                             inventoryItems.Add(action.InventoryItemId);
 
-                            activities.Add(_activityFactory.InventoryItemAdded(
-                                dc, action.InventoryItemId, action.Description));
+                            activities.Add(_activityFactory.InventoryItemAdded(dc, action.InventoryItemId));
                         }
                         break;
                     }

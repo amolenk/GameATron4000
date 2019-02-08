@@ -120,6 +120,6 @@ A .bot file acts as the place to bring all service references together to enable
 
 1. In Visual Studio Code, select **Debug | Start Debugging**.
 
-2. In a browser window, navigate to *https://localhost:5000/*.
+2. In a browser window, navigate to *http://localhost:5000/*.
 
     The game GUI will now load. If you open your browser's developer tools you can view the interaction between the bot and the browser in the console log.

@@ -8,15 +8,15 @@ namespace GameATron4000.Models
     {
         public string InitialRoom { get; set; }
 
-        // TODO Add Id suffix...
         public string PlayerActor { get; set; }
 
-        // TODO Rename to Canned...
         public string[] BadCommandResponses { get; set; }
 
         public Dictionary<string, GameActor> Actors { get; set; }
 
         public Dictionary<string, GameObject> Objects { get; set; }
+
+        public Dictionary<string, GameObject> InventoryItems { get; set; }
 
         public List<string> InitialInventory { get; set; }
 

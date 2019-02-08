@@ -1,3 +1,4 @@
+# Pro-tip: you can use '#' for comments
 player: <EnterRoom>
 [Text:Describe="You are in a park. You just went shopping at the supermarket and decided to take a detour home. There's a newspaper lying on the ground next to a park bench."]
 [GUI:MoveActor=guy 600 430]
@@ -29,7 +30,7 @@ guy: I've already picked that up!
 {!newspaper}
 [GUI:MoveActor=guy 360 430]
 [GUI:RemoveObject=newspaper]
-[AddToInventory=newspaper "newspaper"]
+[AddToInventory=newspaper]
 guy: It's yesterday's newspaper!
 [GUI:PlaceObject="newspaper-headline" 400 300 true]
 [GUI:Delay=4000]
