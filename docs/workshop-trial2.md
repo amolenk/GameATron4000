@@ -6,7 +6,7 @@ In this module you'll learn how to use middleware to intercept messages sent fro
 
 1. First obtain a key following the instructions in the [Microsoft Translator Text API documentation](https://docs.microsoft.com/en-us/azure/cognitive-services/translator/translator-text-how-to-signup).
 
-2. Use the **msbot** command line utility to add the key to the GameATron4000.Development.bot file (make sure you're running the command from the `/src` folder):
+2. Use the **msbot** command line utility to add the key to the GameATron4000.Development.bot file. Make sure you're running the command from the `/src` folder and **NOT** in a PowerShell session:
 
 	```
 	msbot connect generic --name Translator --url "no-url" --keys "{\"key\":\"<API key>\"}" --bot GameATron4000.Development.bot
