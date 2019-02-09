@@ -24,3 +24,6 @@ In good adventure game tradition, we've prepared three trials for you to explore
 2. [Add text translation middleware](./workshop-trial2.md)
 
 3. [Add natural language support](./workshop-trial3.md)
+
+
+> TIP: If you need to execute a command-line command during the workshop, make sure you don't execute them in PowerShell. For some commands, PowerShell trips over the escaping in the snippet.
