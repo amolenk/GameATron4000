@@ -82,6 +82,9 @@ namespace GameATron4000
 
                 options.Middleware.Add(new BotFileAssistantMiddleware());
 
+                var translatorOptions = new TranslatorOptions();
+                Configuration.GetSection("Translator").Bind(translatorOptions);    
+
                 // TODO Trial 2: Register middleware here.
 
                 IStorage dataStore = new MemoryStorage();

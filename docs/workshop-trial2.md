@@ -33,6 +33,7 @@ In this module you'll learn how to use middleware to intercept messages sent fro
 	using System.Threading;
 	using System.Threading.Tasks;
 	using GameATron4000;
+	using GameATron4000.Core;
 	using GameATron4000.Configuration;
 	using GameATron4000.Translator;
 	using Microsoft.Bot.Builder;
