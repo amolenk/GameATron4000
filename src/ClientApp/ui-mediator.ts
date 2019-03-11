@@ -39,9 +39,22 @@ export class UIMediator {
         this.actionUI.create();
         this.verbsUI.create();
 
-        this.setUIVisible(false);
+//        this.setUIVisible(false);
 
-        this.connectToBot();
+        // TODO Re-enable
+//        this.connectToBot();
+
+        // TODO Everything below this line is work in process
+        this.room = new Room('park');
+        this.room.create(this.game, this, this.layers);
+
+//        var map = this.game.add.sprite(0, 0, "map");
+//        this.layers.background.add(map);
+
+//        var ufo = this.game.add.sprite(0, 0, "room-ufo");
+//        this.layers.background.add(ufo);
+
+
     }
 
     public selectAction(action: Action) {
@@ -73,6 +86,18 @@ export class UIMediator {
         }
 
         this.updateText();
+    }
+
+    public update() {
+        if (this.room) {
+            this.room.update();
+        }
+    }
+
+    public debug() {
+        if (this.room) {
+            this.room.debug();
+        }
     }
 
     private connectToBot() {

@@ -3,7 +3,21 @@
    // Use hover for the description of the existing attributes
    // For further information visit https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md
    "version": "0.2.0",
+   "compounds": [
+       {
+           "name": ".NET Core + Chrome",
+           "configurations": [ ".NET Core Launch (web)", "Launch Chrome" ]
+       }
+   ],
    "configurations": [
+       {
+           "type": "chrome",
+           "request": "launch",
+           "name": "Launch Chrome",
+           "url": "http://localhost:5000",
+           "webRoot": "${workspaceFolder}/wwwroot/dist",
+           "sourceMaps": true
+       },
         {
             "name": ".NET Core Launch (web)",
             "type": "coreclr",

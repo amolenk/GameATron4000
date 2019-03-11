@@ -2,14 +2,19 @@ const path = require('path');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+
+const isDevelopment = process.env.NODE_ENV !== 'production'
 
 module.exports = {
+  mode: isDevelopment ? 'development' : 'production',
   entry: { 'main': './ClientApp/app.ts' },
   output: {
     path: path.resolve(__dirname, 'wwwroot/dist'),
     filename: 'bundle.js',
     publicPath: '/dist/'
   },
+  devtool: 'source-map',
   module: {
     rules: [ 
       {
@@ -38,9 +43,18 @@ module.exports = {
     ]
   },
   optimization: {
-    minimizer: [new UglifyJsPlugin()]
+    minimizer: [new UglifyJsPlugin(
+        {
+            sourceMap: true
+        }
+    )]
   },
   plugins: [
+    new BundleAnalyzerPlugin(
+        {
+            analyzerMode: 'disabled'
+        }
+    ),
     new CleanWebpackPlugin('./wwwroot/dist'),
     new CopyWebpackPlugin([
       {

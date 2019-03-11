@@ -6,6 +6,8 @@ export class Assets {
 
     public static preload(game: Phaser.Game) {
 
+        game.load.image("map", "/dist/gameplay/backgrounds/park-map.png");
+        
         for (let asset of gameInfo.assets) {
 
             if (asset.frameWidth && asset.frameHeight) {

@@ -19,6 +19,9 @@ export class Actor extends RoomObject {
     private talkAnimation: Phaser.Animation;
     private walkAnimation: Phaser.Animation;
     private backSprite: Phaser.Sprite;
+
+    private isMoving: boolean;
+    private moveTween: Phaser.Tween;
     
     public constructor(name: string, displayName: string, private textColor: string, private direction: string) {
         super(name, displayName);
@@ -68,6 +71,66 @@ export class Actor extends RoomObject {
 
         group.add(this.spriteGroup);
     }
+
+    // public moveAlongPath(x: number, y: number) {
+
+    //     if (this.isMoving) {
+    //         this.moveTween.stop();
+    //     }
+        
+    //     var path = _this.path.find( this, target ),
+    //         i = 0,
+    //         ilen = path.length;
+            
+    //     function moveObject (object) {
+    //         if (path.length > 1) {
+    //             object.ismoving = true;
+    //             var StepX = path[i][0] || false,
+    //                 StepY = path[i][1] || false;
+                
+    //             object.tween = game.add.tween(object).to({ x: StepX, y: StepY}, 150).start();
+    //             object.tween.onComplete.add(function() {
+    //                 i++;
+    //                 if (i < ilen) {
+    //                     moveObject(object);
+    //                 } else {
+    //                     return false;
+    //                 }
+    //             });
+    //         } else {
+    //             //@TODO add emoticon - no path (!)
+    //             this.ismoving = false;
+    //         }
+    //     }
+        
+    //     moveObject( this );
+    // };
+
+    public moveTo(path: any) {
+
+        var i = 0;
+
+        var move = () => {
+
+            var deltaX = path[i].x - this.originX;
+            var deltaY = path[i].y - this.originY;
+
+            console.log('moving to: ' + path[i].x + ', ' + path[i].y + '(' + deltaX + ', ' + deltaY + ')');
+
+            this.isMoving = true;
+            this.moveTween = this.game.add.tween(this.spriteGroup).to({ x: deltaX, y: deltaY }, 15).start();
+    
+            this.moveTween.onComplete.add(() => {
+                i += 5;
+                if (i < path.length) {
+                    move();
+                }
+            });
+     
+        };
+
+        move();
+    };
 
     public async say(text: string) {
         

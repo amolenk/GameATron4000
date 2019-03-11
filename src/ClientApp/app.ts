@@ -39,20 +39,25 @@ class GameATron {
 
     private preload() {
 
-        this.game.load.spritesheet("cursor", CursorImage, 58, 58);
-        this.game.load.atlas("verbs", VerbsImage, null, VerbsImageData);
+       this.game.load.spritesheet("cursor", CursorImage, 58, 58);
+       this.game.load.atlas("verbs", VerbsImage, null, VerbsImageData);
 
-        Assets.preload(this.game);
+       Assets.preload(this.game);
     }
 
     private create() {
 
-        this.game.scale.fullScreenScaleMode = Phaser.ScaleManager.SHOW_ALL;
-        this.game.stage.smoothed = true;
+       this.game.scale.fullScreenScaleMode = Phaser.ScaleManager.SHOW_ALL;
+       this.game.stage.smoothed = true;
 
-        this.layers.create();
-        this.cursor.create();
-        this.uiMediator.create();
+       this.layers.create();
+       this.cursor.create();
+       this.uiMediator.create();
+    }
+
+    private render() {
+        this.uiMediator.debug();
+        this.game.debug.inputInfo(32, 32);
     }
 }
 
