@@ -88,12 +88,6 @@ export class UIMediator {
         this.updateText();
     }
 
-    public update() {
-        if (this.room) {
-            this.room.update();
-        }
-    }
-
     public debug() {
         if (this.room) {
             this.room.debug();

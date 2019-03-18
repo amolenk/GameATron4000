@@ -9,31 +9,46 @@ export class Graph {
         this._adjacentList = new Map<Phaser.Point, Array<Phaser.Point>>(); 
     }
 
+    get vertices() {
+        return Array.from(this._adjacentList.keys());
+    }
+
     public addVertex(vertex: Phaser.Point) { 
-        this._adjacentList.set(vertex, []); 
+        this._adjacentList.set(vertex, []);
     }
 
     public addEdge(vertex1: Phaser.Point, vertex2: Phaser.Point) {
-        // Undirected graph, so create edges both ways.
         this._adjacentList.get(vertex1).push(vertex2);
         this._adjacentList.get(vertex2).push(vertex1);
-    } 
+    }
 
-    public reconstructPath(cameFrom: Map<Phaser.Point, Phaser.Point>, current: Phaser.Point): Phaser.Point[] {
-        const result = [];
-        result.push(current);
+    public clone() {
+        const result = new Graph();
+        const vertexMap = new Map<Phaser.Point, Phaser.Point>();
 
-        while (cameFrom.has(current)) {
-            current = cameFrom.get(current);
-            result.push(current);
+        for (let vertex of this._adjacentList.keys()) {
+
+            if (!vertexMap.has(vertex)) {
+                const vertexClone = new Phaser.Point(vertex.x, vertex.y);
+                vertexMap.set(vertex, vertexClone);
+                result.addVertex(vertexClone);
+            }
+
+            for (let adjacent of this._adjacentList.get(vertex)) {
+
+                if (!vertexMap.has(adjacent)) {
+                    const adjacentClone = new Phaser.Point(adjacent.x, adjacent.y);
+                    vertexMap.set(adjacent, adjacentClone);
+                    result.addVertex(adjacentClone);
+                }
+
+                result.addEdge(vertexMap.get(vertex), vertexMap.get(adjacent));
+            }
         }
-
         return result;
     }
 
-    public aStar(start: Phaser.Point, goal: Phaser.Point) {
-
-        // TODO Based on Wikipedia pseudocode
+    public aStar(from: Phaser.Point, to: Phaser.Point): Phaser.Point[] {
 
         // The set of nodes already evaluated
         const closedSet: Phaser.Point[] = [];
@@ -41,7 +56,7 @@ export class Graph {
         // The set of currently discovered nodes that are not evaluated yet.
         // Initially, only the start node is known.
         const openSet = [];
-        openSet.push(start);
+        openSet.push(from);
     
         // For each node, which node it can most efficiently be reached from.
         // If a node can be reached from many nodes, cameFrom will eventually contain the
@@ -52,18 +67,18 @@ export class Graph {
         const gScore = new Map<Phaser.Point, number>();// map with default value of Infinity
     
         // The cost of going from start to start is zero.
-        gScore.set(start, 0);
+        gScore.set(from, 0);
     
         // For each node, the total cost of getting from the start node to the goal
         // by passing by that node. That value is partly known, partly heuristic.
         const fScore = new Map<Phaser.Point, number>(); // default of infinity/
     
         // For the first node, that value is completely heuristic.
-        fScore.set(start, this.heuristicCostEstimate(start, goal));
+        fScore.set(from, this.heuristicCostEstimate(from, to));
     
         while (openSet.length > 0) {
             let current = this.findNodeWithLowestFScore(openSet, fScore);
-            if (current == goal) {
+            if (current == to) {
                 return this.reconstructPath(cameFrom, current)
             }
 
@@ -71,11 +86,7 @@ export class Graph {
             openSet.splice(openSet.indexOf(current), 1);
             closedSet.push(current);
 
-            // console.log(current);
-
             for (let neighbour of this._adjacentList.get(current)) {
-
-                // console.log(neighbour);
 
                 if (closedSet.indexOf(neighbour) != -1) {
                     continue; // Ignore the neighbour which is already evaluated.
@@ -94,37 +105,21 @@ export class Graph {
                 // This path is the best until now. Record it!
                 cameFrom.set(neighbour, current);
                 gScore.set(neighbour, tentativeGScore);
-                fScore.set(neighbour, gScore.get(neighbour) + this.heuristicCostEstimate(neighbour, goal));
-
-                // console.log('gScore: ' + tentativeGScore);
-                // console.log('fScore: ' + fScore.get(neighbour));
+                fScore.set(neighbour, gScore.get(neighbour) + this.heuristicCostEstimate(neighbour, to));
             }
         }
+    }
 
-        // while openSet is not empty
-        //     current := the node in openSet having the lowest fScore[] value
-        //     if current = goal
-        //         return reconstruct_path(cameFrom, current)
-    
-        //     openSet.Remove(current)
-        //     closedSet.Add(current)
-    
-        //     for each neighbor of current
-        //         if neighbor in closedSet
-        //             continue		// Ignore the neighbor which is already evaluated.
-    
-        //         // The distance from start to a neighbor
-        //         tentative_gScore := gScore[current] + dist_between(current, neighbor)
-    
-        //         if neighbor not in openSet	// Discover a new node
-        //             openSet.Add(neighbor)
-        //         else if tentative_gScore >= gScore[neighbor]
-        //             continue
-    
-        //         // This path is the best until now. Record it!
-        //         cameFrom[neighbor] := current
-        //         gScore[neighbor] := tentative_gScore
-        //         fScore[neighbor] := gScore[neighbor] + heuristic_cost_estimate(neighbor, goal)
+    public debug(debug: Phaser.Utils.Debug) {
+
+        for (let vertex of this._adjacentList) {
+            const start = vertex[0];
+            debug.geom(new Phaser.Circle(start.x, start.y, 5), 'rgb(0,0,255)', true, 0);
+
+            for (let end of vertex[1]) {
+                debug.geom(new Phaser.Line(start.x, start.y, end.x, end.y), 'rgb(255,255,255)');
+            }
+        }
     }
 
     private findNodeWithLowestFScore(openSet: Phaser.Point[], fScore: Map<Phaser.Point, number>): Phaser.Point {
@@ -144,20 +139,20 @@ export class Graph {
         return result;
     }
 
-    public debug(debug: Phaser.Utils.Debug) {
-
-        for (let vertex of this._adjacentList) {
-            const start = vertex[0];
-            debug.geom(new Phaser.Circle(start.x, start.y, 5), 'rgb(0,0,255)', true, 0);
-
-            for (let end of vertex[1]) {
-                debug.geom(new Phaser.Line(start.x, start.y, end.x, end.y), 'rgb(255,255,255)');
-            }
-        }
-    }
-
     private heuristicCostEstimate(start: Phaser.Point, goal: Phaser.Point) {
         // Simply use the exact distance between start and goal as the heuristic for the A* algorithm.
         return Phaser.Math.distance(start.x, start.y, goal.x, goal.y);
+    }
+
+    private reconstructPath(cameFrom: Map<Phaser.Point, Phaser.Point>, current: Phaser.Point): Phaser.Point[] {
+        const result = [];
+        result.push(current);
+
+        while (cameFrom.has(current)) {
+            current = cameFrom.get(current);
+            result.push(current);
+        }
+
+        return result;
     }
 }
