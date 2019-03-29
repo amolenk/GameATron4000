@@ -1,6 +1,6 @@
 {
     "initialRoom": "park",
-    "playerActor": "guy",
+    "playerActor": "player",
     "badCommandResponses": [ 
         "I can't do that.",
         "Why?",
@@ -8,7 +8,7 @@
         "That will probably crash the game!"
     ],
     "actors": {
-        "guy": { "description": "Guy Scotthrie", "textColor": "White" },
+        "player": { "description": "Guy Scotthrie", "textColor": "White" },
         "al": { "description": "Al", "textColor": "Magenta" },
         "ian": { "description": "Ian", "textColor": "Yellow" }
     },
@@ -38,7 +38,7 @@
     "initialRoomStates": {
         "park": {
             "actorPositions": {
-                "guy": { "x": 850, "y": 450 }
+                "player": { "x": 600, "y": 430 }
             },
             "objectPositions": {
                 "newspaper": { "x": 362, "y": 400 }

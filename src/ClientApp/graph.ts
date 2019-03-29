@@ -114,10 +114,10 @@ export class Graph {
 
         for (let vertex of this._adjacentList) {
             const start = vertex[0];
-            debug.geom(new Phaser.Circle(start.x, start.y, 5), 'rgb(0,0,255)', true, 0);
+            debug.geom(new Phaser.Circle(start.x, start.y, 10), 'rgb(0,0,255)', true, 0);
 
             for (let end of vertex[1]) {
-                debug.geom(new Phaser.Line(start.x, start.y, end.x, end.y), 'rgb(255,255,255)');
+                debug.geom(new Phaser.Line(start.x, start.y, end.x, end.y), 'rgba(255,255,255,0.2)');
             }
         }
     }
@@ -153,6 +153,6 @@ export class Graph {
             result.push(current);
         }
 
-        return result;
+        return result.reverse();
     }
 }

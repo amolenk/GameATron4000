@@ -1,17 +1,41 @@
-import { RoomObject } from "./room-object"
 import { UIMediator } from "./ui-mediator"
 
-export class InventoryItem extends RoomObject {
+export class InventoryItem {
+
+    protected sprite: Phaser.Sprite;
+
+    constructor(public name: string, public displayName: string) {
+    }
 
     public create(game: Phaser.Game, uiMediator: UIMediator, x: number, y: number, group: Phaser.Group) {
 
-        super.create(game, uiMediator, x, y, group);
-
+        this.sprite = game.add.sprite(x, y, "sprites", "inventory/" + this.name);
         this.sprite.anchor.set(0);
+        this.sprite.inputEnabled = true;
+        this.sprite.input.pixelPerfectClick = true;
+        this.sprite.input.pixelPerfectOver = true;
+        this.sprite.fixedToCamera = true;
+
+        group.add(this.sprite);
+
+        // TODO
+        // this.sprite.events.onInputOver.add(() => uiMediator.focusObject(this));
+        // this.sprite.events.onInputOut.add(() => uiMediator.focusObject(null));
+        // this.sprite.events.onInputDown.add(() => uiMediator.selectObject(this));
     }
 
     public setPosition(x: number, y: number) {
         this.sprite.x = x;
         this.sprite.y = y;
     }       
+
+    public setVisible(visible: boolean) : void {
+        this.sprite.visible = visible;
+    }
+
+    public kill() {
+        this.sprite.destroy();
+        this.sprite = null;
+    }
 }
+

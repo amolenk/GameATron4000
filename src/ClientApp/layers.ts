@@ -4,7 +4,6 @@ export class Layers {
 
     private backgroundGroup: Phaser.Group;
     private objectGroup: Phaser.Group;
-    private actorGroup: Phaser.Group;
     private textGroup: Phaser.Group;
     private uiGroup: Phaser.Group;
     private cursorGroup: Phaser.Group;
@@ -18,10 +17,6 @@ export class Layers {
 
     get objects(): Phaser.Group {
         return this.objectGroup;
-    }
-
-    get actors(): Phaser.Group {
-        return this.actorGroup;
     }
 
     get text(): Phaser.Group {
@@ -40,7 +35,6 @@ export class Layers {
 
         this.backgroundGroup = this.game.add.group();
         this.objectGroup = this.game.add.group();
-        this.actorGroup = this.game.add.group();
         this.textGroup = this.game.add.group();
         this.uiGroup = this.game.add.group();
         this.cursorGroup = this.game.add.group();

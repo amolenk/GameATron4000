@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using GameATron4000.Configuration;
 using GameATron4000.Models;
+using GameATron4000.Scripting;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.AI.Luis;
 using Microsoft.Bot.Builder.Dialogs;
@@ -64,8 +65,8 @@ namespace GameATron4000.Core
         {
             return Speak(
                 dc,
-                _gameInfo.PlayerActor,
-                _gameInfo.BadCommandResponses[_random.Next(0, _gameInfo.BadCommandResponses.Length)]);
+                "player",
+                _gameInfo.CannedResponses[_random.Next(0, _gameInfo.CannedResponses.Count)]);
         }
 
         public Activity Delayed(DialogContext dc, int milliseconds)
@@ -142,30 +143,31 @@ namespace GameATron4000.Core
             });
         }
 
-        public Activity RoomEntered(DialogContext dc, string roomId, RoomState roomState)
-        {
-            return CreateEventActivity(dc, "RoomEntered", new
-            {
-                roomId = roomId,
-                actors = roomState.ActorPositions.Select(position => new
-                {
-                    actorId = position.Key,
-                    description = _gameInfo.Actors[position.Key].Description,
-                    x = position.Value.X,
-                    y = position.Value.Y,
-                    direction = position.Value.Direction.ToString(),
-                    textColor = _gameInfo.Actors[position.Key].TextColor
-                }),
-                objects = roomState.ObjectPositions.Select(position => new
-                {
-                    objectId = position.Key,
-                    description = _gameInfo.Objects[position.Key].Description,
-                    x = position.Value.X,
-                    y = position.Value.Y,
-                    foreground = position.Value.Foreground
-                })
-            });
-        }
+        // public Activity RoomEntered(DialogContext dc, string roomId, RoomState roomState, Game game)
+        // {
+        //     return CreateEventActivity(dc, "RoomEntered", new
+        //     {
+        //         roomId = roomId,
+        //         actors = roomState.ActorPositions.Select(position => new
+        //         {
+        //             actorId = position.Key,
+        //             description = game.Actors[position.Key].Description,
+        //             x = position.Value.X,
+        //             y = position.Value.Y,
+        //             direction = "Front",// position.Value.Direction.ToString(),
+        //             textColor = game.Actors[position.Key].TextColor
+        //         }),
+        //         objects = new object[0]
+        //         //  roomState.ObjectPositions.Select(position => new
+        //         // {
+        //         //     objectId = position.Key,
+        //         //     description = _gameInfo.Objects[position.Key].Description,
+        //         //     x = position.Value.X,
+        //         //     y = position.Value.Y,
+        //         //     foreground = position.Value.Foreground
+        //         // })
+        //     });
+        // }
 
         public Activity Speak(DialogContext dc, string actorId, string text)
         {

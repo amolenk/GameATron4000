@@ -44,6 +44,7 @@ export class VerbsUI {
         var sprite = this.game.add.sprite(x, y, "verbs");
         sprite.frameName = id + ".png";
         sprite.inputEnabled = true;
+        sprite.fixedToCamera = true;
 
         sprite.events.onInputOver.add(() => {
             sprite.frameName = id + "_sel.png";

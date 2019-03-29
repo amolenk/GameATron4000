@@ -3,9 +3,11 @@
 import { RoomObject } from "./room-object"
 import { UIMediator } from "./ui-mediator"
 
-declare var options: any;
+declare var gameInfo: any;
 
-export class Actor extends RoomObject {
+export class Actor {
+
+    private WALK_SPEED_FACTOR = 4;
 
     private game: Phaser.Game;
 
@@ -22,115 +24,132 @@ export class Actor extends RoomObject {
 
     private isMoving: boolean;
     private moveTween: Phaser.Tween;
+
+    private sprite2: Phaser.Sprite;
     
-    public constructor(name: string, displayName: string, private textColor: string, private direction: string) {
-        super(name, displayName);
+    public constructor(public name: string, public displayName: string, private textColor: string, private direction: string) {
+
+    }
+
+    get spriteDebug() {
+        return this.sprite2;
+    }
+
+    public get x() {
+        return this.sprite2.x;
+    }
+
+    public get y() {
+        return this.sprite2.y;
     }
 
     public create(game: Phaser.Game, uiMediator: UIMediator, x: number, y: number, group: Phaser.Group) {
         
-        super.create(game, uiMediator, x, y, group);
+        //super.create(game, uiMediator, x, y, group);
 
         this.game = game;
         this.originX = x;
         this.originY = y;
 
         // Actors are anchored at the bottom instead of middle for easier placement.
-        this.sprite.anchor.set(0.5, 1);
+        // TODO not a field??
+// game.add.sprite
+        this.sprite2 = this.game.add.sprite(x, y, "sprites", "actors/" + this.name + "/front");
+        this.sprite2.anchor.set(0.5, 1);
 
-        this.walkSprite = game.add.sprite(x, y, this.name + "-walk");
-        this.walkSprite.anchor.set(0.5, 1);
-        this.walkSprite.inputEnabled = true;
-        this.walkSprite.input.pixelPerfectClick = true;
-        this.walkSprite.input.pixelPerfectOver = true;
-        this.walkSprite.visible = false;
+        // Animations
+        this.sprite2.animations.add('walk-left',
+            Phaser.Animation.generateFrameNames("actors/" + this.name + "/walk/left/", 1, 6, '', 4), 6, true, false);
 
-        this.backSprite = game.add.sprite(x, y, this.name + "-back");
-        this.backSprite.anchor.set(0.5, 1);
-        this.backSprite.visible = false;
+        this.sprite2.animations.add('walk-right',
+            Phaser.Animation.generateFrameNames("actors/" + this.name + "/walk/right/", 1, 6, '', 4), 6, true, false);
 
-        this.text = this.game.add.text(x, y - this.sprite.height - 40, "", this.createTextStyle());
+//        this.sprite2.animations.play("actor-guy-walk");
+
+
+        // this.walkSprite = game.add.sprite(x, y, this.name + "-walk");
+        // this.walkSprite.anchor.set(0.5, 1);
+        // this.walkSprite.inputEnabled = true;
+        // this.walkSprite.input.pixelPerfectClick = true;
+        // this.walkSprite.input.pixelPerfectOver = true;
+        // this.walkSprite.visible = false;
+
+        // this.backSprite = game.add.sprite(x, y, this.name + "-back");
+        // this.backSprite.anchor.set(0.5, 1);
+        // this.backSprite.visible = false;
+
+        this.text = this.game.add.text(x, y - this.sprite2.height - 40, "", this.createTextStyle());
         this.text.anchor.setTo(0.5);
         this.text.lineSpacing = -30;
         this.text.scale.x = 0.5;
         this.text.scale.y = 0.5;
 
-        this.talkAnimation = this.sprite.animations.add("talk");
-        this.walkAnimation = this.walkSprite.animations.add("walk");
+//        this.sprite2.addChild(this.text);
+
+        // this.talkAnimation = this.sprite.animations.add("talk");
+        // this.walkAnimation = this.walkSprite.animations.add("walk");
+
+        this.sprite2.addChild(this.text);
+
 
         this.spriteGroup = game.add.group();
-        this.spriteGroup.addMultiple([ this.sprite, this.walkSprite, this.backSprite, this.text ]);
+        this.spriteGroup.addMultiple([ this.sprite2, this.text ]);
 
-        if (this.direction == "Front") {
-            this.backSprite.visible = false;
-            this.sprite.visible = true;
-        } else if (this.direction == "Away") {
-            this.sprite.visible = false;
-            this.backSprite.visible = true;
-        }
+        group.add(this.sprite2);
+        group.add(this.text);
 
-        group.add(this.spriteGroup);
+        // if (this.direction == "Front") {
+        //     this.backSprite.visible = false;
+        //     this.sprite.visible = true;
+        // } else if (this.direction == "Away") {
+        //     this.sprite.visible = false;
+        //     this.backSprite.visible = true;
+        // }
+
+        // group.add(this.spriteGroup);
     }
 
-    // public moveAlongPath(x: number, y: number) {
 
-    //     if (this.isMoving) {
-    //         this.moveTween.stop();
-    //     }
-        
-    //     var path = _this.path.find( this, target ),
-    //         i = 0,
-    //         ilen = path.length;
-            
-    //     function moveObject (object) {
-    //         if (path.length > 1) {
-    //             object.ismoving = true;
-    //             var StepX = path[i][0] || false,
-    //                 StepY = path[i][1] || false;
-                
-    //             object.tween = game.add.tween(object).to({ x: StepX, y: StepY}, 150).start();
-    //             object.tween.onComplete.add(function() {
-    //                 i++;
-    //                 if (i < ilen) {
-    //                     moveObject(object);
-    //                 } else {
-    //                     return false;
-    //                 }
-    //             });
-    //         } else {
-    //             //@TODO add emoticon - no path (!)
-    //             this.ismoving = false;
-    //         }
-    //     }
-        
-    //     moveObject( this );
-    // };
+    public moveTo(path: Phaser.Point[]): Promise<void> {
 
-    public moveTo(path: any) {
+        if (this.isMoving) {
+            this.moveTween.stop();
+        }
 
         var i = 0;
 
-        var move = () => {
+        return new Promise((resolve) => {
 
-            var deltaX = path[i].x - this.originX;
-            var deltaY = path[i].y - this.originY;
+            var move = () => {
 
-            console.log('moving to: ' + path[i].x + ', ' + path[i].y + '(' + deltaX + ', ' + deltaY + ')');
+                this.sprite2.animations.stop();
 
-            this.isMoving = true;
-            this.moveTween = this.game.add.tween(this.spriteGroup).to({ x: deltaX, y: deltaY }, 15).start();
-    
-            this.moveTween.onComplete.add(() => {
-                i += 5;
-                if (i < path.length) {
-                    move();
-                }
-            });
-     
-        };
+                const animation = (this.sprite2.x < path[i].x) ? "walk-right" : "walk-left";
+                this.sprite2.animations.play(animation);
 
-        move();
-    };
+                const tweenDuration = Phaser.Math.distance(this.sprite2.x, this.sprite2.y, path[i].x, path[i].y)
+                    * this.WALK_SPEED_FACTOR;
+
+                this.isMoving = true;
+                this.moveTween = this.game.add.tween(this.sprite2).to({ x: path[i].x, y: path[i].y }, tweenDuration).start();
+        
+                this.moveTween.onUpdateCallback(() => this.sprite2.scale.set(this.sprite2.y / 400));
+                this.moveTween.onComplete.add(() => {
+                    i += 1;
+                    if (i < path.length) {
+                        move();
+                    } else {
+                        this.isMoving = false;
+                        this.sprite2.animations.stop();
+                        this.sprite2.frameName = "actors/" + this.name + "/front";
+                        resolve();
+                    }
+                });
+            };
+
+            move();
+        });
+    }
 
     public async say(text: string) {
         
@@ -141,14 +160,15 @@ export class Actor extends RoomObject {
     }
 
     public async changeDirection(direction: string) {
-        if (direction == "Front") {
-            this.backSprite.visible = false;
-            this.sprite.visible = true;
-        } else if (direction == "Away") {
-            this.sprite.visible = false;
-            this.backSprite.visible = true;
-        }
-        this.direction = direction;
+        // TODO
+        // if (direction == "Front") {
+        //     this.backSprite.visible = false;
+        //     this.sprite.visible = true;
+        // } else if (direction == "Away") {
+        //     this.sprite.visible = false;
+        //     this.backSprite.visible = true;
+        // }
+        // this.direction = direction;
         return Promise.resolve();
     }
 
@@ -157,7 +177,7 @@ export class Actor extends RoomObject {
         // Ensure that we're facing front.
         if (this.direction != 'Front') {
             this.backSprite.visible = false;
-            this.sprite.visible = true;
+            this.sprite2.visible = true;
         }
 
         // Calculate the delta's compared to the original position.
@@ -185,7 +205,7 @@ export class Actor extends RoomObject {
 
         // Switch to the walk sprite.
         this.walkAnimation.play(6, true);
-        this.sprite.visible = false;
+        this.sprite2.visible = false;
         this.walkSprite.visible = true;
                 
         // Animate!
@@ -200,7 +220,7 @@ export class Actor extends RoomObject {
                 // Switch back to the correct sprite.
                 this.walkSprite.visible = false;
                 if (this.direction == "Front") {
-                    this.sprite.visible = true;
+                    this.sprite2.visible = true;
                 } else if (this.direction == "Away") {
                     this.backSprite.visible = true;
                 }
@@ -208,6 +228,11 @@ export class Actor extends RoomObject {
                 resolve();
             });
         });
+    }
+
+    public update() {
+        this.text.x = Math.floor(this.sprite2.x);
+        this.text.y = Math.floor(this.sprite2.y - this.sprite2.height - 40);
     }
 
     public kill() {
@@ -218,25 +243,27 @@ export class Actor extends RoomObject {
         this.talkAnimation.destroy();
         this.walkAnimation.destroy();
 
-        super.kill();
+//        super.kill();
     }
 
     private sayLine(text: string) {
 
-        if (!this.backSprite.visible) {
-            this.talkAnimation.play(6, true);
-        }
+        console.log(text);
+
+        // if (!this.backSprite.visible) {
+        //     this.talkAnimation.play(6, true);
+        // }
         this.text.setText(text);
 
         return new Promise((resolve) => {
             
             this.game.time.events.add(
-                Math.max(text.length * options.textSpeed, options.minTextDuration),
+                Math.max(text.length * gameInfo.textSpeed, gameInfo.minTextDuration),
                 () => {
                     this.text.setText('');
-                    if (!this.backSprite.visible) {
-                        this.talkAnimation.stop(true);
-                    }
+                    // if (!this.backSprite.visible) {
+                    //     this.talkAnimation.stop(true);
+                    // }
                     resolve();
                 });
         });

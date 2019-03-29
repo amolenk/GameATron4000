@@ -19,6 +19,8 @@ class GameATron {
     private layers: Layers;
     private uiMediator: UIMediator;
 
+    private debugMode: boolean;
+
     constructor() {
 
         console.log("Welcome to Game-a-Tron 4000 🤖")
@@ -47,17 +49,46 @@ class GameATron {
 
     private create() {
 
-       this.game.scale.fullScreenScaleMode = Phaser.ScaleManager.SHOW_ALL;
-       this.game.stage.smoothed = true;
+        this.game.scale.fullScreenScaleMode = Phaser.ScaleManager.SHOW_ALL;
+        this.game.stage.smoothed = true;
 
-       this.layers.create();
-       this.cursor.create();
-       this.uiMediator.create();
+        this.layers.create();
+        this.cursor.create();
+        this.uiMediator.create();
+
+        var debugKey = this.game.input.keyboard.addKey(Phaser.Keyboard.D);
+        debugKey.onDown.add(() => {
+            this.debugMode = !this.debugMode;
+            this.game.debug.reset();
+        });
+
+        var fullscreenKey = this.game.input.keyboard.addKey(Phaser.Keyboard.F);
+        fullscreenKey.onDown.add(() => {
+            if (this.game.scale.isFullScreen) {
+                this.game.scale.stopFullScreen();
+            } else {
+                this.game.scale.startFullScreen(false);
+            }
+        });
+    }
+
+    private update() {
+
+        // Depth sorting based on y-axis position.
+        this.layers.objects.sort('y', Phaser.Group.SORT_ASCENDING);
+
+        this.uiMediator.update();
+
+        // Draw the cursor in the update loop so the sprite is also updated
+        // when the camera moves.
+        this.cursor.update();
     }
 
     private render() {
-        this.uiMediator.debug();
-        this.game.debug.inputInfo(32, 32);
+        if (this.debugMode) {
+            this.uiMediator.debug();
+            this.game.debug.inputInfo(32, 32);
+        }
     }
 }
 

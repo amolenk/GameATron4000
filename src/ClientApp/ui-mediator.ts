@@ -39,22 +39,9 @@ export class UIMediator {
         this.actionUI.create();
         this.verbsUI.create();
 
-//        this.setUIVisible(false);
+        this.setUIVisible(false);
 
-        // TODO Re-enable
-//        this.connectToBot();
-
-        // TODO Everything below this line is work in process
-        this.room = new Room('park');
-        this.room.create(this.game, this, this.layers);
-
-//        var map = this.game.add.sprite(0, 0, "map");
-//        this.layers.background.add(map);
-
-//        var ufo = this.game.add.sprite(0, 0, "room-ufo");
-//        this.layers.background.add(ufo);
-
-
+        this.connectToBot();
     }
 
     public selectAction(action: Action) {
@@ -73,7 +60,13 @@ export class UIMediator {
 
                 // If the action is complete it can be executed.
                 this.setUIVisible(false);
-                this.botClient.sendActionToBot(this.selectedAction);
+
+                const action = this.selectedAction;
+
+
+
+                this.room.moveActor("player", roomObject.x, roomObject.y, "Front")
+                    .then(() => this.botClient.sendActionToBot(action));
                 
                 // Set the selected action to null now that we've executed it.
                 // Also set the object that the mouse is hovering over to null.
@@ -88,6 +81,12 @@ export class UIMediator {
         this.updateText();
     }
 
+    public update() {
+        if (this.room) {
+            this.room.update();
+        }
+    }
+
     public debug() {
         if (this.room) {
             this.room.debug();
@@ -99,9 +98,9 @@ export class UIMediator {
         this.botClient.connect(
             async (message: any) => {
                 
-                if (message.actorId) {
+                if (message.actor) {
 
-                    var actor = this.room.getActor(message.actorId);
+                    var actor = this.room.getActor(message.actor.id);
 
                     var match = /(.*?) \> (.*)/.exec(message.text);
                     if (match) {
@@ -110,7 +109,7 @@ export class UIMediator {
 
                         if (message.suggestedActions) {
                             this.conversationUI.displaySuggestedActions(
-                                this.room.getActor(gameInfo.playerActor),
+                                this.room.getActor("player"),
                                 message.suggestedActions.actions);
                         }
                     }
@@ -121,11 +120,14 @@ export class UIMediator {
                 switch (event.name) {
                     
                     case "ActorMoved": {
-                        var actor = this.room.getActor(event.actorId);
-                        await actor.walkTo(event.x, event.y);
 
-                        // After actor has moved, change the direction the actor faces.
-                        actor.changeDirection(event.direction);
+                        await this.room.moveActor(event.actorId, event.x, event.y, event.direction);
+
+                        // var actor = this.room.getActor(event.actorId);
+                        // await actor.walkTo(event.x, event.y);
+
+                        // // After actor has moved, change the direction the actor faces.
+                        // actor.changeDirection(event.direction);
                         break;
                     }
 
@@ -137,15 +139,16 @@ export class UIMediator {
 
                     case "ActorPlacedInRoom": {
                         this.room.addActor(
-                            new Actor("actor-" + event.actorId, event.description, event.textColor, event.direction),
-                            event.x,
-                            event.y);
+                            new Actor(event.actor.id, event.actor.name, event.actor.textColor, "Front"),
+                            event.actor.x,
+                            event.actor.y);
                         break;
                     }
 
                     case "CloseUpOpened": {
-                        var roomObject = new RoomObject("closeup-" + event.closeUpId, "");
-                        this.room.addActor(roomObject, 400, 300);
+                        // TODO FIX DIRTY HACK!!
+                        // var roomObject = new RoomObject("closeup-" + event.closeUpId, "");
+                        // this.room.addActor(roomObject, 400, 300);
                         break;
                     }
 
@@ -186,43 +189,49 @@ export class UIMediator {
 
                     case "ObjectPlacedInRoom": {
                         this.room.addObject(
-                            new RoomObject("object-" + event.objectId, event.description),
-                            event.x,
-                            event.y,
-                            event.foreground);
+                            new RoomObject(event.object.id, event.object.name, event.object.classes),
+                            event.object.x,
+                            event.object.y);
                         break;
                     }
 
                     case "ObjectRemovedFromRoom": {
-                        var roomObject = this.room.getObject("object-" + event.objectId);
+                        var roomObject = this.room.getObject(event.objectId);
                         if (roomObject) {
                             this.room.removeObject(roomObject);
                         }
                         break;
                     }
 
-                    case "RoomEntered": {
+                    case "RoomSwitching": {
+                        this.game.lockRender = true;
                         if (this.room != null) {
                             this.room.kill();
                         }
-                        this.game.lockRender = true;
                         this.room = new Room(event.roomId);
                         this.room.create(this.game, this, this.layers);
+                        break;
+                    }
 
-                        for (var gameActor of event.actors) {
-                            this.room.addActor(
-                                new Actor("actor-" + gameActor.actorId, gameActor.description, gameActor.textColor, gameActor.direction),
-                                gameActor.x,
-                                gameActor.y);
-                        }
+                    case "RoomEntered": {
+                        // if (this.room != null) {
+                        //     this.room.kill();
+                        // }
+                        // this.game.lockRender = true;
 
-                        for (var gameObject of event.objects) {
-                            this.room.addObject(
-                                new RoomObject("object-" + gameObject.objectId, gameObject.description),
-                                gameObject.x,
-                                gameObject.y,
-                                gameObject.foreground);
-                        }
+                        // for (var gameActor of event.actors) {
+                        //     this.room.addActor(
+                        //         new Actor(gameActor.actorId, gameActor.description, gameActor.textColor, gameActor.direction),
+                        //         gameActor.x,
+                        //         gameActor.y);
+                        // }
+
+                        // for (var gameObject of event.objects) {
+                        //     this.room.addObject(
+                        //         new RoomObject(gameObject.objectId, gameObject.description),
+                        //         gameObject.x,
+                        //         gameObject.y);
+                        // }
 
                         this.game.lockRender = false;
                         break;
@@ -231,7 +240,7 @@ export class UIMediator {
                     case "Idle": {
 
                         // Always let the player actor face front after the actions have executed.
-                        var player = this.room.getActor(gameInfo.playerActor);
+                        var player = this.room.getActor("player");
                         player.changeDirection('Front');
 
                         this.setUIVisible(true);

@@ -16,7 +16,7 @@ export class InventoryUI {
 
     public addToInventory(objectId: string, description: string) {
 
-        var item = new InventoryItem("inventory-" + objectId, description);
+        var item = new InventoryItem(objectId, description);
 
         item.create(this.game, this.uiMediator, 400 + (42 * this.items.size), 476, this.layers.ui);
         item.setVisible(this.visible);
@@ -28,7 +28,7 @@ export class InventoryUI {
 
     public removeFromInventory(objectId: string) {
         
-        var item = this.items.get("inventory-" + objectId);
+        var item = this.items.get(objectId);
         if (item) {
             item.kill();
             this.items.delete(item.name);

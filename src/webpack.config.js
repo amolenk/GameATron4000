@@ -61,6 +61,14 @@ module.exports = {
         from: './Gameplay/assets/*/*.png',
         to: 'gameplay/[1]/[2].png',
         test: /Gameplay[\\\/]assets[\\\/](.*?)[\\\/](.*?)\.png/
+      },
+      {
+        from: './Gameplay/assets/sprites.png',
+        to: 'gameplay/sprites.png'
+      },
+      {
+        from: './Gameplay/assets/sprites.json',
+        to: 'gameplay/sprites.json'
       }
     ])
   ],

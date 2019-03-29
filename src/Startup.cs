@@ -107,9 +107,9 @@ namespace GameATron4000
                 return new GameBotAccessors(conversationState)
                 {
                     DialogStateAccessor = conversationState.CreateProperty<DialogState>(GameBotAccessors.DialogStateAccessorName),
-                    StateFlagsAccessor = conversationState.CreateProperty<List<string>>(GameBotAccessors.StateFlagsAccessorName),
+                    RoomStateAccessor = conversationState.CreateProperty<Dictionary<string, RoomState>>(GameBotAccessors.RoomStateAccessorName),
                     InventoryItemsAccessor = conversationState.CreateProperty<List<string>>(GameBotAccessors.InventoryItemsAccessorName),
-                    RoomStateAccessor = conversationState.CreateProperty<Dictionary<string, RoomState>>(GameBotAccessors.RoomStateAccessorName)
+                    CustomStateAccessor = conversationState.CreateProperty<Dictionary<string, object>>(GameBotAccessors.CustomStateAccessorName)
                 };
             });
 

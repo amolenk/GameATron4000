@@ -1,7 +1,7 @@
 # Pro-tip: you can use '#' for comments
 player: <EnterRoom>
 [Text:Describe="You are in a park. You just went shopping at the supermarket and decided to take a detour home. There's a newspaper lying on the ground next to a park bench."]
-[GUI:MoveActor=guy 600 430]
+#[GUI:MoveActor=player 600 430]
 
 player: look at bag of groceries
 guy: It's my shopping bag with groceries.

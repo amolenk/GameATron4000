@@ -19,6 +19,8 @@ export class Walkbox {
 
     public snapTo(x: number, y: number): Phaser.Point {
 
+        // TODO Not optimal, we only snap based on Y-axis
+
         if (this._polygons[0].contains(x, y)) {
             if (this._polygons.length > 1) {
                 for (let i = 1; i < this._polygons.length; i++) {
@@ -39,6 +41,12 @@ export class Walkbox {
         // Create the complete walk graph including the 'from' and 'to' points.
         const from = new Phaser.Point(fromX, fromY);
         const to = this.snapTo(toX, toY);
+
+        // Don't move if 'from' and 'to' are very close together.
+        if (Math.abs(to.x - fromX) < 10 && Math.abs(to.y - fromY) < 10) {
+            return;
+        }
+                
         const walkGraph = this.createWalkGraph(from, to, this._baseGraph);
 
         return walkGraph.aStar(from, to);
@@ -147,7 +155,6 @@ export class Walkbox {
     private inLineOfSight(start: Phaser.Point, end: Phaser.Point) : boolean {
 
         // Not in line of sight if any edge is intersected by the start-end line.
-        // TODO Check other (inner) polygons as well.
         for (let polygon of this._polygons) {
             for (var i = 0; i < polygon.points.length; i++) {
                 var edgeStart = <Phaser.Point>polygon.points[i];
@@ -165,12 +172,17 @@ export class Walkbox {
             }
         }
 
+        // Check that the midpoint is inside the walkbox.
+        const line = new Phaser.Line(start.x, start.y, end.x, end.y);
+        const midPoint = line.midPoint();
+        if (!this.inPolygon(midPoint, this._polygons[0], true)) {
+            return false;
+        }
+
         // If there are any holes in the walkbox, check that the midpoint is not in a hole.
         if (this._polygons.length > 1) {
-            const line = new Phaser.Line(start.x, start.y, end.x, end.y);
-            const midPoint = line.midPoint();
             for (let i = 1; i < this._polygons.length; i++) {
-                if (this.inPolygon(midPoint, this._polygons[i])) {
+                if (this.inPolygon(midPoint, this._polygons[i], false)) {
                     return false;
                 }
             }
@@ -179,24 +191,19 @@ export class Walkbox {
         return true;
     }
 
-    private inPolygon(point: Phaser.Point, polygon: Phaser.Polygon) : boolean {
+    private inPolygon(point: Phaser.Point, polygon: Phaser.Polygon, defaultTo: boolean): boolean {
 
-        if (polygon.contains(point.x, point.y)) {
+        // If we use polygon.contains, we may get wrong results due to rounding errors.
+        for (var i = 0; i < polygon.points.length; i++) {
+            var edgeStart = <Phaser.Point>polygon.points[i];
+            var edgeEnd = <Phaser.Point>polygon.points[(i + 1) % polygon.points.length];
 
-            // We may be getting a false positives due to rounding errors.
-            for (var i = 0; i < polygon.points.length; i++) {
-                var edgeStart = <Phaser.Point>polygon.points[i];
-                var edgeEnd = <Phaser.Point>polygon.points[(i + 1) % polygon.points.length];
-
-                if (this.distanceBetweenPointAndLine(point.x, point.y, edgeStart.x, edgeStart.y, edgeEnd.x, edgeEnd.y ) < 0.5) {
-                    return false;
-                }
+            if (this.distanceBetweenPointAndLine(point.x, point.y, edgeStart.x, edgeStart.y, edgeEnd.x, edgeEnd.y ) < 0.5) {
+                return defaultTo;
             }
-
-            return true;
         }
 
-        return false;
+        return polygon.contains(point.x, point.y);
     }
 
     //https://stackoverflow.com/questions/849211/shortest-distance-between-a-point-and-a-line-segment

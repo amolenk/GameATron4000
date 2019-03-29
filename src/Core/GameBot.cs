@@ -32,8 +32,12 @@ namespace GameATron4000.Core
         public async Task OnTurnAsync(ITurnContext context, CancellationToken cancellationToken)
         {
             // Load the metadata for the game.
-            var gameInfoJson = File.ReadAllText("Gameplay/game.json");
-            var gameInfo = JsonConvert.DeserializeObject<GameInfo>(gameInfoJson);
+            var gameInfo = new GameInfo();
+            gameInfo.InitialRoom = "park";
+            // new LuaRunner()
+            //     .WithLinkedMethods(gameInfo)
+            //     .WithScript("Gameplay/scripts/game.lua")
+            //     .Run("initialize_game");
 
             // Establish dialog context from the game info.
             var dialogSet = CreateDialogSet(gameInfo);
@@ -78,21 +82,25 @@ namespace GameATron4000.Core
             var roomParser = new RoomParser(gameInfo);
             var conversationParser = new ConversationParser(gameInfo);
 
-            foreach (var script in gameInfo.RoomScripts)
+            foreach (var path in Directory.GetFiles("Gameplay/scripts/rooms", "*.lua"))
             {
-                var commands = roomParser.Parse(script.Value);
+//                var commands = roomParser.Parse(script.Value);
 
-                dialogSet.Add(new Room(script.Key, commands, gameInfo, _stateAccessors.InventoryItemsAccessor,
-                    _stateAccessors.StateFlagsAccessor, _stateAccessors.RoomStateAccessor));
+                dialogSet.Add(new Room(
+                    Path.GetFileNameWithoutExtension(path),
+                    _stateAccessors.RoomStateAccessor,
+                    _stateAccessors.InventoryItemsAccessor,
+                    _stateAccessors.CustomStateAccessor));
             }
 
-            foreach (var script in gameInfo.ConversationScripts)
-            {
-                var conversationRootNode = conversationParser.Parse(script.Value);
+            // TODO!
+            // foreach (var script in gameInfo.ConversationScripts)
+            // {
+            //     var conversationRootNode = conversationParser.Parse(script.Value);
 
-                dialogSet.Add(new Conversation(script.Key, gameInfo, conversationRootNode,
-                    _stateAccessors.StateFlagsAccessor));
-            }
+            //     dialogSet.Add(new Conversation(script.Key, gameInfo, conversationRootNode,
+            //         _stateAccessors.StateFlagsAccessor));
+            // }
 
             return dialogSet;
         }

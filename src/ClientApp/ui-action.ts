@@ -22,6 +22,7 @@ export class ActionUI {
         this.text.lineSpacing = -30;
         this.text.scale.x = 0.5;
         this.text.scale.y = 0.5;
+        this.text.fixedToCamera = true;
 
         this.layers.ui.add(this.text);
     }

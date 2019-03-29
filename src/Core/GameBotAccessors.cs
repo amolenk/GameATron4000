@@ -16,21 +16,21 @@ namespace GameATron4000.Core
     {
         public static readonly string DialogStateAccessorName = $"{nameof(GameBotAccessors)}.{nameof(DialogStateAccessor)}";
 
-        public static readonly string StateFlagsAccessorName = $"{nameof(GameBotAccessors)}.{nameof(StateFlagsAccessor)}";
+        public static readonly string RoomStateAccessorName = $"{nameof(GameBotAccessors)}.{nameof(RoomStateAccessor)}";
 
         public static readonly string InventoryItemsAccessorName = $"{nameof(GameBotAccessors)}.{nameof(InventoryItemsAccessor)}";
 
-        public static readonly string RoomStateAccessorName = $"{nameof(GameBotAccessors)}.{nameof(RoomStateAccessor)}";
-
+        public static readonly string CustomStateAccessorName = $"{nameof(GameBotAccessors)}.{nameof(CustomStateAccessor)}";
+        
         public ConversationState ConversationState { get; }
 
         public IStatePropertyAccessor<DialogState> DialogStateAccessor { get; set; }
 
-        public IStatePropertyAccessor<List<string>> StateFlagsAccessor { get; set; }
+        public IStatePropertyAccessor<Dictionary<string, RoomState>> RoomStateAccessor { get; set; }
 
         public IStatePropertyAccessor<List<string>> InventoryItemsAccessor { get; set; }
 
-        public IStatePropertyAccessor<Dictionary<string, RoomState>> RoomStateAccessor { get; set; }
+        public IStatePropertyAccessor<Dictionary<string, object>> CustomStateAccessor { get; set; }
 
         public GameBotAccessors(ConversationState conversationState)
         {
