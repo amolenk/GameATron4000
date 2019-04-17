@@ -1,7 +1,7 @@
 /// <reference path="../node_modules/phaser/typescript/phaser.d.ts" />
 /// <reference path="../node_modules/rx/ts/rx.d.ts" />
 
-import { Action } from "./action"
+import { IAction } from "./action"
 import { ActionUI } from "./ui-action"
 import { Actor } from "./actor"
 import { BotClient } from "./botclient"
@@ -12,6 +12,8 @@ import { Layers } from "./layers"
 import { Room } from "./room"
 import { RoomObject } from "./room-object"
 import { VerbsUI } from "./ui-verbs"
+import { InventoryItem } from "./inventory-item";
+import { Camera } from "phaser";
 
 declare var gameInfo: any;
 
@@ -22,16 +24,21 @@ export class UIMediator {
     private inventoryUI: InventoryUI;
     private verbsUI: VerbsUI;
 
-    private selectedAction: Action;
-    private focussedObject: RoomObject;
+    private selectedAction: IAction;
+    private focussedObject: RoomObject | InventoryItem | Actor;
 
     private room: Room;
+    private _selectedActor: string;
 
     constructor(private game: Phaser.Game, private cursor: Cursor, private botClient: BotClient, private layers: Layers) {
         this.actionUI = new ActionUI(game, layers);
         this.conversationUI = new ConversationUI(game, botClient, layers);
         this.inventoryUI = new InventoryUI(game, this, layers);
         this.verbsUI = new VerbsUI(game, this, layers);
+    }
+
+    get selectedActor(): string {
+        return this._selectedActor;
     }
 
     public create() {
@@ -44,17 +51,17 @@ export class UIMediator {
         this.connectToBot();
     }
 
-    public selectAction(action: Action) {
+    public selectAction(action: IAction) {
         this.selectedAction = action;
         this.updateText();
     }
 
-    public focusObject(roomObject: RoomObject) {
+    public focusObject(roomObject: RoomObject | InventoryItem | Actor) {
         this.focussedObject = roomObject;
         this.updateText();
     }
 
-    public selectObject(roomObject: RoomObject) {
+    public async selectObject(roomObject: RoomObject | InventoryItem | Actor) {
         if (this.selectedAction != null) {
             if (this.selectedAction.addSubject(roomObject)) {
 
@@ -63,11 +70,15 @@ export class UIMediator {
 
                 const action = this.selectedAction;
 
+                var actor = this.room.getActor(this._selectedActor);
 
+                if (roomObject instanceof RoomObject) {
+                    await this.room.moveActor(this._selectedActor, roomObject.x, roomObject.y, "Front")
+                        .then(() => this.botClient.sendActionToBot(action, actor));
+                } else {
+                    await this.botClient.sendActionToBot(action, actor);
+                }
 
-                this.room.moveActor("player", roomObject.x, roomObject.y, "Front")
-                    .then(() => this.botClient.sendActionToBot(action));
-                
                 // Set the selected action to null now that we've executed it.
                 // Also set the object that the mouse is hovering over to null.
                 // This will prevent the verb bar from showing the object display name
@@ -109,10 +120,12 @@ export class UIMediator {
 
                         if (message.suggestedActions) {
                             this.conversationUI.displaySuggestedActions(
-                                this.room.getActor("player"),
+                                this.room.getActor(this._selectedActor),
                                 message.suggestedActions.actions);
                         }
                     }
+                } else if (message.narrator) {
+                    await this.room.narrator.say(message.text);
                 }
             },
             async (event: any) => {
@@ -139,99 +152,108 @@ export class UIMediator {
 
                     case "ActorPlacedInRoom": {
                         this.room.addActor(
-                            new Actor(event.actor.id, event.actor.name, event.actor.textColor, "Front"),
+                            new Actor(event.actor.id, event.actor.name, event.actor.classes, event.actor.textColor, "Front"),
                             event.actor.x,
                             event.actor.y);
                         break;
                     }
 
-                    case "CloseUpOpened": {
-                        // TODO FIX DIRTY HACK!!
-                        // var roomObject = new RoomObject("closeup-" + event.closeUpId, "");
-                        // this.room.addActor(roomObject, 400, 300);
-                        break;
-                    }
+                    // case "CloseUpOpened": {
+                    //     // TODO FIX DIRTY HACK!!
+                    //     var roomObject = new RoomObject("closeup-" + event.closeUpId, "");
+                    //     this.room.addActor(roomObject, 400, 300);
+                    //     break;
+                    // }
 
-                    case "CloseUpClosed": {
-                        var roomObject = this.room.getObject("closeup-" + event.closeUpId);
-                        if (roomObject) {
-                            this.room.removeObject(roomObject);
+                    // case "CloseUpClosed": {
+                    //     var roomObject = this.room.getObject("closeup-" + event.closeUpId);
+                    //     if (roomObject) {
+                    //         this.room.removeObject(roomObject);
+                    //     }
+                    //     break;
+                    // }
+
+                    case "GameStarted": {
+                        this._selectedActor = event.actor.id;
+                        // TODO Set up camera
+                        for (let obj of event.inventory) {
+                            await this.inventoryUI.addToInventory(
+                                new InventoryItem(obj.id, obj.name, obj.classes));
                         }
                         break;
                     }
 
-                    case "Delayed": {
+                    case "Halted": {
                         await new Promise(resolve => setTimeout(resolve, event.time));
                         break;
                     }
 
-                    case "GameStarted": {
-                        for (var inventoryItem of event.inventoryItems) {
-                            await this.inventoryUI.addToInventory(inventoryItem.inventoryItemId, inventoryItem.description);
-                        }
-                        break;
-                    }
+                    // case "ObjectPickedUp": {
+                    //     // TODO Maybe the object isn't in the room yet.
+                    //     // E.g. it's given to you from another actor.
+                    //     const obj = this.room.getObject(event.object.id);
+                    //     await this.inventoryUI.addToInventory(obj);
+                    //     break;
+                    // }
 
                     case "InventoryItemAdded": {
-                        await this.inventoryUI.addToInventory(event.inventoryItemId, event.description);
+                        await this.inventoryUI.addToInventory(
+                            new InventoryItem(event.item.id, event.item.name, event.item.classes));
                         break;
                     }
 
                     case "InventoryItemRemoved": {
-                        await this.inventoryUI.removeFromInventory(event.inventoryItemId);
-                        break;
-                    }
-
-                    case "Narrated": {
-                        await this.room.narrator.say(event.text);
+                        await this.inventoryUI.removeFromInventory(event.item.id);
                         break;
                     }
 
                     case "ObjectPlacedInRoom": {
                         this.room.addObject(
-                            new RoomObject(event.object.id, event.object.name, event.object.classes),
-                            event.object.x,
-                            event.object.y);
+                            new RoomObject(event.object.id, event.object.name, event.object.classes, event.object.state),
+                            event.object.cam_offset ? event.object.x + this.game.camera.x: event.object.x,
+                            event.object.y,
+                            event.object.z_offset);
                         break;
                     }
 
                     case "ObjectRemovedFromRoom": {
-                        var roomObject = this.room.getObject(event.objectId);
+                        var roomObject = this.room.getObject(event.object.id);
                         if (roomObject) {
                             this.room.removeObject(roomObject);
                         }
                         break;
                     }
 
-                    case "RoomSwitching": {
-                        this.game.lockRender = true;
-                        if (this.room != null) {
-                            this.room.kill();
+                    case "ObjectStateChanged": {
+                        const object = this.room.getObject(event.object.id);
+                        if (object) {
+                            object.changeState(event.object.state);
                         }
-                        this.room = new Room(event.roomId);
-                        this.room.create(this.game, this, this.layers);
                         break;
                     }
 
                     case "RoomEntered": {
-                        // if (this.room != null) {
-                        //     this.room.kill();
-                        // }
-                        // this.game.lockRender = true;
+                        this.game.lockRender = true;
+                        if (this.room != null) {
+                            this.room.kill();
+                        }
+                        this.room = new Room(event.room.id);
+                        this.room.create(this.game, this, this.layers);
 
-                        // for (var gameActor of event.actors) {
-                        //     this.room.addActor(
-                        //         new Actor(gameActor.actorId, gameActor.description, gameActor.textColor, gameActor.direction),
-                        //         gameActor.x,
-                        //         gameActor.y);
-                        // }
+                        for (let actor of event.actors) {
+                            this.room.addActor(
+                                new Actor(actor.id, actor.name, actor.classes, actor.textColor, actor.direction),
+                                actor.x,
+                                actor.y);
+                        }
 
-                        // for (var gameObject of event.objects) {
-                        //     this.room.addObject(
-                        //         new RoomObject(gameObject.objectId, gameObject.description),
-                        //         gameObject.x,
-                        //         gameObject.y);
-                        // }
+                        for (let obj of event.objects) {
+                            this.room.addObject(
+                                new RoomObject(obj.id, obj.name, obj.classes, obj.state),
+                                obj.x,
+                                obj.y,
+                                obj.z_offset);
+                        }
 
                         this.game.lockRender = false;
                         break;
@@ -240,8 +262,8 @@ export class UIMediator {
                     case "Idle": {
 
                         // Always let the player actor face front after the actions have executed.
-                        var player = this.room.getActor("player");
-                        player.changeDirection('Front');
+                        //var player = this.room.getActor(this._selectedActor);
+                        //player.changeDirection('Front');
 
                         this.setUIVisible(true);
                         break;
@@ -265,7 +287,7 @@ export class UIMediator {
             text = this.selectedAction.getDisplayText(this.focussedObject);
         }
         else if (this.focussedObject != null) {
-            text = this.focussedObject.displayName;
+            text = this.focussedObject.name;
         }
 
         this.actionUI.setText(text);

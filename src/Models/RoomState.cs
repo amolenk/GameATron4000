@@ -8,9 +8,13 @@ namespace GameATron4000.Models
 {
     public class RoomState
     {
-        public Dictionary<string, ActorState> Actors { get; set; } = new Dictionary<string, ActorState>();
+        public Dictionary<string, ActorPosition> ActorPositions { get; set; } = new Dictionary<string, ActorPosition>();
 
-        public Dictionary<string, ObjectState> Objects { get; set; } = new Dictionary<string, ObjectState>();
+        public Dictionary<string, ObjectPosition> ObjectPositions { get; set; } = new Dictionary<string, ObjectPosition>();
+
+        // public Dictionary<string, ActorState> Actors { get; set; } = new Dictionary<string, ActorState>();
+
+        // public Dictionary<string, ObjectState> Objects { get; set; } = new Dictionary<string, ObjectState>();
     }
 
     public class ActorState
@@ -27,5 +31,22 @@ namespace GameATron4000.Models
         public int Y { get; set; }
 
         public string State { get; set; }
+
+        public string Owner { get; set; }
+    }
+
+    public class InventoryState
+    {
+        public InventoryState()
+        {
+            ObjectIds = new List<string>();
+        }
+
+        public InventoryState(IEnumerable<string> objectIds)
+        {
+            ObjectIds = new List<string>(objectIds);
+        }
+
+        public List<string> ObjectIds { get; private set; }
     }
 }

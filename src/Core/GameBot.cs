@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -31,16 +32,16 @@ namespace GameATron4000.Core
 
         public async Task OnTurnAsync(ITurnContext context, CancellationToken cancellationToken)
         {
-            // Load the metadata for the game.
-            var gameInfo = new GameInfo();
-            gameInfo.InitialRoom = "park";
-            // new LuaRunner()
-            //     .WithLinkedMethods(gameInfo)
-            //     .WithScript("Gameplay/scripts/game.lua")
-            //     .Run("initialize_game");
+            IGameScriptState scriptState = await _stateAccessors.GameScriptStateAccessor.GetAsync(
+                context, () => new LuaGameScriptState());
+
+            var activityFactory = new ActivityFactory(context);
+
+            IGameScript script = new LuaGameScript(activityFactory);
+            script.LoadScriptState(scriptState);
 
             // Establish dialog context from the game info.
-            var dialogSet = CreateDialogSet(gameInfo);
+            var dialogSet = CreateDialogSet(script);
             var dc = await dialogSet.CreateContextAsync(context, cancellationToken);
 
             if (dc.ActiveDialog == null)
@@ -51,15 +52,34 @@ namespace GameATron4000.Core
                     {
                         if (newMember.Id == context.Activity.Recipient.Id)
                         {
-                            // Add some items to the inventory for the player to start with.
-                            await _stateAccessors.InventoryItemsAccessor.SetAsync(
-                                context, gameInfo.InitialInventory);
+                            var result = script.OnInitializeGame();
+                            // if (string.IsNullOrWhiteSpace(result.NextDialogId))
+                            // {
+                            //     // TODO
+                            //     throw new Exception("No room specified!");
+                            // }
 
-                            // And send a GameStarted to the client that contains the inventory items.
-                            await context.SendActivityAsync(new ActivityFactory(gameInfo).GameStarted(dc));
+                            // if (script.World.SelectedActorId.Length > 0)
+                            // {
+                            //     var selectedActor = script.World.GetSelectedActor();
+                            //     var selectedActorChanged = activityFactory.SelectedActorChanged(selectedActor);
+                            //     await context.SendActivityAsync(selectedActorChanged);
+                            // }
+
+                            // TODO Camera follow
+
+                            // if (script.)
+
+                            // await context.SendActivityAsync(activityFactory.SelectedActorChanged(
+                            //     script.
+                            // ))
+
+                            // And send a GameStarted to the client that contains information on the selected
+                            // actor, inventory items and camera.
+                            await context.SendActivityAsync(activityFactory.GameStarted(script));
 
                             // Start the game's first room.
-                            await dc.BeginDialogAsync(gameInfo.InitialRoom);
+                            await dc.BeginDialogAsync("park");
                         }
                     }
                 }
@@ -72,25 +92,23 @@ namespace GameATron4000.Core
                 await dc.ContinueDialogAsync();
             }
 
+            scriptState = script.SaveScriptState();
+
+            await _stateAccessors.GameScriptStateAccessor.SetAsync(dc.Context, scriptState);
+
             // Save any changes back to conversation state.
             await _stateAccessors.ConversationState.SaveChangesAsync(context, false, cancellationToken);
         }
 
-        private DialogSet CreateDialogSet(GameInfo gameInfo)
+        private DialogSet CreateDialogSet(IGameScript gameScript)
         {
             var dialogSet = new DialogSet(_stateAccessors.DialogStateAccessor);
-            var roomParser = new RoomParser(gameInfo);
-            var conversationParser = new ConversationParser(gameInfo);
 
-            foreach (var path in Directory.GetFiles("Gameplay/scripts/rooms", "*.lua"))
+            foreach (var room in gameScript.Rooms)
             {
-//                var commands = roomParser.Parse(script.Value);
+                var dialog = new RoomDialog(room.Id, gameScript);
 
-                dialogSet.Add(new Room(
-                    Path.GetFileNameWithoutExtension(path),
-                    _stateAccessors.RoomStateAccessor,
-                    _stateAccessors.InventoryItemsAccessor,
-                    _stateAccessors.CustomStateAccessor));
+                dialogSet.Add(dialog);
             }
 
             // TODO!

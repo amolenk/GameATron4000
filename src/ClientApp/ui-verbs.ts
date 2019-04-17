@@ -1,6 +1,6 @@
 /// <reference path="../node_modules/phaser/typescript/phaser.d.ts" />
 
-import { Action } from "./action"
+import { GiveAction, UnaryAction, UseAction } from "./action"
 import { Layers } from "./layers"
 import { UIMediator } from "./ui-mediator"
 
@@ -14,15 +14,15 @@ export class VerbsUI {
 
     public create() {
         
-        this.addVerb("01_give", 0, 0, () => new Action(Action.GiveVerb, "to"));
-        this.addVerb("02_pickup", 1, 0, () => new Action(Action.PickUpVerb));
-        this.addVerb("03_use", 2, 0, () => new Action(Action.UseVerb, "with"));
-        this.addVerb("04_open", 0, 1, () => new Action(Action.OpenVerb));
-        this.addVerb("05_lookat", 1, 1, () => new Action(Action.LookAtVerb));
-        this.addVerb("06_push", 2, 1, () => new Action(Action.PushVerb));
-        this.addVerb("07_close", 0, 2, () => new Action(Action.CloseVerb));
-        this.addVerb("08_talkto", 1, 2, () => new Action(Action.TalkToVerb));
-        this.addVerb("09_pull", 2, 2, () => new Action(Action.PullVerb));
+        this.addVerb("01_give", 0, 0, () => new GiveAction());
+        this.addVerb("02_pickup", 1, 0, () => new UnaryAction("Pick up"));
+        this.addVerb("03_use", 2, 0, () => new UseAction());
+        this.addVerb("04_open", 0, 1, () => new UnaryAction("Open"));
+        this.addVerb("05_lookat", 1, 1, () => new UnaryAction("Look at"));
+        this.addVerb("06_push", 2, 1, () => new UnaryAction("Push"));
+        this.addVerb("07_close", 0, 2, () => new UnaryAction("Close"));
+        this.addVerb("08_talkto", 1, 2, () => new UnaryAction("Talk to"));
+        this.addVerb("09_pull", 2, 2, () => new UnaryAction("Pull"));
     }
 
     public setVisible(visible: boolean) {

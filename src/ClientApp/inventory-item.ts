@@ -4,24 +4,24 @@ export class InventoryItem {
 
     protected sprite: Phaser.Sprite;
 
-    constructor(public name: string, public displayName: string) {
+    constructor(public id: string, public name: string, public classes: string[]) {
     }
 
     public create(game: Phaser.Game, uiMediator: UIMediator, x: number, y: number, group: Phaser.Group) {
 
-        this.sprite = game.add.sprite(x, y, "sprites", "inventory/" + this.name);
+        this.sprite = game.add.sprite(x, y, "sprites", "inventory/" + this.id);
         this.sprite.anchor.set(0);
         this.sprite.inputEnabled = true;
-        this.sprite.input.pixelPerfectClick = true;
-        this.sprite.input.pixelPerfectOver = true;
+        // this.sprite.input.pixelPerfectClick = true;
+        // this.sprite.input.pixelPerfectOver = true;
         this.sprite.fixedToCamera = true;
 
         group.add(this.sprite);
 
         // TODO
-        // this.sprite.events.onInputOver.add(() => uiMediator.focusObject(this));
-        // this.sprite.events.onInputOut.add(() => uiMediator.focusObject(null));
-        // this.sprite.events.onInputDown.add(() => uiMediator.selectObject(this));
+        this.sprite.events.onInputOver.add(() => uiMediator.focusObject(this));
+        this.sprite.events.onInputOut.add(() => uiMediator.focusObject(null));
+        this.sprite.events.onInputDown.add(() => uiMediator.selectObject(this));
     }
 
     public setPosition(x: number, y: number) {

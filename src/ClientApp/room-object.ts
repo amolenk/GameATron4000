@@ -6,10 +6,9 @@ import { UIMediator } from "./ui-mediator"
 export class RoomObject {
 
     protected sprite: Phaser.Sprite;
-    private stateMap: Map<string, any>;
+    private _created: boolean = false;
 
-    constructor(public name: string, public displayName: string, public classes: string[]) {
-        this.stateMap = new Map<string, any>();
+    constructor(public id: string, public name: string, public classes: string[], private state: string) {
     }
 
     public get x() {
@@ -20,10 +19,23 @@ export class RoomObject {
         return this.sprite.y;
     }
 
-    public create(game: Phaser.Game, uiMediator: UIMediator, x: number, y: number, group: Phaser.Group) {
+    public get created() {
+        return this._created;
+    }
 
-        this.sprite = game.add.sprite(x, y, "sprites", "objects/" + this.name);
+    public create(game: Phaser.Game, uiMediator: UIMediator, x: number, y: number, zOffset: number, group: Phaser.Group) {
+
+        this.sprite = game.add.sprite(x, y, "sprites", this.getFrameName());
         this.sprite.anchor.set(0.5, 1);
+
+        this.sprite.data.z = y + zOffset;
+        console.log(`${this.id} = ${this.sprite.data.z}`);
+
+        group.add(this.sprite);
+
+        if (this.classes.indexOf("class_fixed_to_camera") != -1) {
+            this.sprite.fixedToCamera = true;
+        }
 
         if (this.classes.indexOf("class_untouchable") == -1) {
             this.sprite.inputEnabled = true;
@@ -35,9 +47,18 @@ export class RoomObject {
             this.sprite.events.onInputDown.add(() => uiMediator.selectObject(this));
         }
 
-        group.add(this.sprite);
-
+        this._created = true;
     }
+
+    public changeState(state: string) {
+        this.state = state;
+        this.sprite.frameName = this.getFrameName();
+    }
+
+    public setPosition(x: number, y: number) {
+        this.sprite.x = x;
+        this.sprite.y = y;
+    }  
 
     public setVisible(visible: boolean) : void {
         this.sprite.visible = visible;
@@ -46,5 +67,9 @@ export class RoomObject {
     public kill() {
         this.sprite.destroy();
         this.sprite = null;
+    }
+
+    private getFrameName(): string {
+        return this.state ? `objects/${this.id}/${this.state}` : `objects/${this.id}`;
     }
 }

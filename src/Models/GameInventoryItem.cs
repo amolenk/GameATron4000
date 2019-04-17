@@ -4,8 +4,8 @@ using Newtonsoft.Json;
 
 namespace GameATron4000.Models
 {
-    public class GameObject
+    public class GameInventoryItem
     {
-        public string Description { get; set; }
+        public string Id { get; set; }
     }
 }

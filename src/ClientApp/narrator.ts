@@ -2,7 +2,7 @@
 
 import { Layers } from "./layers"
 
-declare var options: any;
+declare var gameInfo: any;
 
 export class Narrator {
 
@@ -28,6 +28,7 @@ export class Narrator {
         this.text.lineSpacing = -30;
         this.text.scale.x = 0.5;
         this.text.scale.y = 0.5;
+        this.text.fixedToCamera = true;
 
         this.layers.text.add(this.text);
     }
@@ -47,7 +48,7 @@ export class Narrator {
         return new Promise((resolve) => {
             
             this.game.time.events.add(
-                Math.max(text.length * options.textSpeed, options.minTextDuration),
+                Math.max(text.length * gameInfo.textSpeed, gameInfo.minTextDuration),
                 () => {
                     this.text.setText('');
                     resolve();

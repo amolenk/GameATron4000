@@ -2,6 +2,7 @@ using System;
 using GameATron4000.Models;
 using GameATron4000.Scripting;
 using Microsoft.Bot.Builder;
+using Microsoft.Bot.Builder.Dialogs;
 using Newtonsoft.Json.Linq;
 using NLua;
 
@@ -35,6 +36,14 @@ namespace src.Core
             // });
         }
 
+        [LuaGlobal(Name = "switch_room")]
+        public void SwitchRoom(string roomId)
+        {
+            _addEventActivity("RoomSwitching", new 
+            {
+                room = new { id = roomId }
+            });
+        }
 
         [LuaGlobal(Name = "delay")]
         public void Delay(int milliseconds)
@@ -58,7 +67,7 @@ namespace src.Core
                 X = x,
                 Y = y
             };
-            _roomState.Actors[id] = actorState;
+            //_roomState.Actors[id] = actorState;
 
             _addEventActivity("ActorPlacedInRoom", new
             {
@@ -85,7 +94,7 @@ namespace src.Core
                 Y = y,
                 State = @object["state"]?.ToString()
             };
-            _roomState.Objects[id] = objectState;
+            //_roomState.Objects[id] = objectState;
 
             _addEventActivity("ObjectPlacedInRoom", new
             {
@@ -107,7 +116,7 @@ namespace src.Core
 
             @object["state"] = state;
 
-            _roomState.Objects[objectId].State = state;
+            //_roomState.Objects[objectId].State = state;
 
             _addEventActivity("ObjectStateChanged", new
             {

@@ -1,52 +1,51 @@
 /// <reference path="../node_modules/typescript/lib/lib.es6.d.ts" />
 
-import { InventoryItem } from "./inventory-item"
+import { RoomObject } from "./room-object"
 import { Layers } from "./layers"
 import { UIMediator } from "./ui-mediator"
+import { InventoryItem } from "./inventory-item";
 
 export class InventoryUI {
 
-    private items: Map<string, InventoryItem>;
+    private objects: Map<string, InventoryItem>; // TODO Rename to items
     private visible: boolean; 
 
     constructor(private game: Phaser.Game, private uiMediator: UIMediator, private layers: Layers) {
-        this.items = new Map<string, InventoryItem>();
+        this.objects = new Map<string, InventoryItem>();
         this.visible = true;
     }
 
-    public addToInventory(objectId: string, description: string) {
+    public addToInventory(item: InventoryItem) {//} objectId: string, description: string, classes: string[]) {
 
-        var item = new InventoryItem(objectId, description);
+        item.create(this.game, this.uiMediator, 400 + (42 * this.objects.size), 476, this.layers.ui);
+        item.setVisible(this.visible); // TODO necessary?
 
-        item.create(this.game, this.uiMediator, 400 + (42 * this.items.size), 476, this.layers.ui);
-        item.setVisible(this.visible);
-
-        this.items.set(item.name, item);
+        this.objects.set(item.id, item);
 
         return Promise.resolve();
     }
 
     public removeFromInventory(objectId: string) {
         
-        var item = this.items.get(objectId);
+        var item = this.objects.get(objectId);
         if (item) {
             item.kill();
-            this.items.delete(item.name);
-        }
+            this.objects.delete(item.id);
 
-        // reorder itemss
-        var itemIndex = 0;
-        this.items.forEach((value: InventoryItem, key: string) => {
-            value.setPosition(400 + (42 * itemIndex), 476);
-            itemIndex++;
-        });
+            // reorder itemss
+            var itemIndex = 0;
+            this.objects.forEach((value: InventoryItem, key: string) => {
+                value.setPosition(400 + (42 * itemIndex), 476);
+                itemIndex++;
+            });
+        }
 
         return Promise.resolve();
     }
 
     public setVisible(visible: boolean) {
         this.visible = visible;
-        for (var item of this.items.values()) {
+        for (var item of this.objects.values()) {
             item.setVisible(visible);
         }
     }

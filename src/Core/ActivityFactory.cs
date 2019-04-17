@@ -11,34 +11,46 @@ using Microsoft.Bot.Configuration;
 using Microsoft.Bot.Schema;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Linq;
+using NLua;
 
 namespace GameATron4000.Core
 {
-    // TODO Interface
+    // TODO GameInfo no longer needed (save all data in action objects)
+    // TODO Pass dialogContext as ctor parameter (lazy instantiate in Begin/Continue/Resume methods of RoomDialog)
     public class ActivityFactory
     {
-        private readonly GameInfo _gameInfo;
+        private readonly ITurnContext _context;
         private readonly Random _random;
 
-        public ActivityFactory(GameInfo gameInfo)
+        public ActivityFactory(ITurnContext context)
         {
-            _gameInfo = gameInfo;
+            _context = context;
             _random = new Random();
         }
 
-        public Activity ActorDirectionChanged(DialogContext dc, string actorId,
-            ActorDirection direction)
+        public Activity RoomEntering(string roomId)
         {
-            return CreateEventActivity(dc, "ActorDirectionChanged", new
+            return CreateEventActivity("RoomEntering", new
+            {
+                room = new
+                {
+                    id = roomId
+                }
+            });
+        }
+
+        public Activity ActorDirectionChanged(string actorId, ActorDirection direction)
+        {
+            return CreateEventActivity("ActorDirectionChanged", new
             {
                 actorId = actorId,
                 direction = direction.ToString()
             });
         }
 
-        public Activity ActorMoved(DialogContext dc, string actorId, ActorPosition position)
+        public Activity ActorMoved(string actorId, ActorPosition position)
         {
-            return CreateEventActivity(dc, "ActorMoved", new
+            return CreateEventActivity("ActorMoved", new
             {
                 actorId = actorId,
                 x = position.X,
@@ -47,143 +59,212 @@ namespace GameATron4000.Core
             });
         }
 
-        public Activity ActorPlacedInRoom(DialogContext dc, string actorId, ObjectPosition position)
+        public Activity ActorPlacedInRoom(IActor actor)
         {
-            var gameActor = _gameInfo.Actors[actorId];
-
-            return CreateEventActivity(dc, "ActorPlacedInRoom", new
+            return CreateEventActivity("ActorPlacedInRoom", new
             {
-                actorId = actorId,
-                description = gameActor.Description,
-                x = position.X,
-                y = position.Y,
-                textColor = gameActor.TextColor
+                actor = new
+                {
+                    id = actor.Id,
+                    name = actor.Name,
+                    classes = actor.Classes,
+                    x = actor.PositionX,
+                    y = actor.PositionY,
+                    textColor = actor.TextColor
+                }
             });
         }
 
-        public Activity CannedResponse(DialogContext dc)
+        public Activity CannedResponse(IGameScript script)
         {
-            return Speak(
-                dc,
-                "player",
-                _gameInfo.CannedResponses[_random.Next(0, _gameInfo.CannedResponses.Count)]);
+            var selectedActor = script.World.GetSelectedActor();
+
+            // TODO
+            return LineSpoken("(canned response)", selectedActor);
+
+//                _gameInfo.CannedResponses[_random.Next(0, _gameInfo.CannedResponses.Count)]);
         }
 
-        public Activity Delayed(DialogContext dc, int milliseconds)
+        public Activity Halted(int milliseconds)
         {
-            return CreateEventActivity(dc, "Delayed", new
+            return CreateEventActivity("Halted", new
             {
                 time = milliseconds
             });
         }
 
-        public Activity GameStarted(DialogContext dc)
+        public Activity GameStarted(IGameScript script)
         {
-            return CreateEventActivity(dc, "GameStarted", new
+            var selectedActor = script.World.GetSelectedActor();
+
+            return CreateEventActivity("GameStarted", new
             {
-                inventoryItems = _gameInfo.InitialInventory.Select(inventoryItemId => new
+                actor = new
                 {
-                    inventoryItemId = inventoryItemId,
-                    description = _gameInfo.InventoryItems[inventoryItemId].Description
-                })
+                    id = selectedActor.Id
+                },
+                camera = new
+                {
+                    actorId = script.World.CameraFollow ?? selectedActor.Id
+                },
+                inventory = selectedActor.GetInventory()
+                    .Select(o =>
+                    {
+                        return new
+                        {
+                            id = o.Id,
+                            name = o.Name,
+                            classes = o.Classes
+                        };
+                    })
             });
         }
 
-        public Activity Idle(DialogContext dc)
+        public Activity Idle()
         {
-            return CreateEventActivity(dc, "Idle");
+            return CreateEventActivity("Idle");
         }
 
-        public Activity InventoryItemAdded(DialogContext dc, string inventoryItemId)
+        public Activity ObjectPickedUp(IObject obj)
         {
-            var inventoryItem = _gameInfo.InventoryItems[inventoryItemId];
-
-            return CreateEventActivity(dc, "InventoryItemAdded", new
+            return CreateEventActivity("ObjectPickedUp", new
             {
-                inventoryItemId = inventoryItemId,
-                description = inventoryItem.Description
+                @object = new
+                {
+                    id = obj.Id,
+                    owner = obj.Owner
+                }
             });
         }
 
-        public Activity InventoryItemRemoved(DialogContext dc, string inventoryItemId)
+        public Activity InventoryItemAdded(IObject obj)
         {
-            return CreateEventActivity(dc, "InventoryItemRemoved", new
+            return CreateEventActivity("InventoryItemAdded", new
             {
-                inventoryItemId = inventoryItemId
+                item = new
+                {
+                    id = obj.Id,
+                    name = obj.Name,
+                    classes = obj.Classes
+                }
             });
         }
 
-        public Activity Narrated(DialogContext dc, string text)
+        public Activity InventoryItemRemoved(IObject obj)
         {
-            return CreateEventActivity(dc, "Narrated", new
+            return CreateEventActivity("InventoryItemRemoved", new
             {
-                text = text
+                item = new
+                {
+                    id = obj.Id
+                }
             });
         }
 
-        public Activity ObjectPlacedInRoom(DialogContext dc, string objectId, ObjectPosition position)
+        public Activity ObjectPlacedInRoom(IObject obj)
         {
-            var gameObject = _gameInfo.Objects[objectId];
-
-            return CreateEventActivity(dc, "ObjectPlacedInRoom", new
+            return CreateEventActivity("ObjectPlacedInRoom", new
             {
-                objectId = objectId,
-                description = gameObject.Description,
-                x = position.X,
-                y = position.Y,
-                foreground = position.Foreground
+                @object = new
+                {
+                    id = obj.Id,
+                    name = obj.Name,
+                    x = obj.PositionX,
+                    y = obj.PositionY,
+                    classes = obj.Classes,
+                    z_offset = obj.ZOffset ?? 0,
+                    state = obj.State
+                }
             });
         }
 
-        public Activity ObjectRemovedFromRoom(DialogContext dc, string objectId)
+        public Activity ObjectRemovedFromRoom(IObject obj)
         {
-            return CreateEventActivity(dc, "ObjectRemovedFromRoom", new
+            return CreateEventActivity("ObjectRemovedFromRoom", new
             {
-                objectId = objectId
+                @object = new
+                {
+                    id = obj.Id,
+                }
             });
         }
 
-        // public Activity RoomEntered(DialogContext dc, string roomId, RoomState roomState, Game game)
-        // {
-        //     return CreateEventActivity(dc, "RoomEntered", new
-        //     {
-        //         roomId = roomId,
-        //         actors = roomState.ActorPositions.Select(position => new
-        //         {
-        //             actorId = position.Key,
-        //             description = game.Actors[position.Key].Description,
-        //             x = position.Value.X,
-        //             y = position.Value.Y,
-        //             direction = "Front",// position.Value.Direction.ToString(),
-        //             textColor = game.Actors[position.Key].TextColor
-        //         }),
-        //         objects = new object[0]
-        //         //  roomState.ObjectPositions.Select(position => new
-        //         // {
-        //         //     objectId = position.Key,
-        //         //     description = _gameInfo.Objects[position.Key].Description,
-        //         //     x = position.Value.X,
-        //         //     y = position.Value.Y,
-        //         //     foreground = position.Value.Foreground
-        //         // })
-        //     });
-        // }
-
-        public Activity Speak(DialogContext dc, string actorId, string text)
+        public Activity ObjectStateChanged(IObject obj)
         {
-            var gameActor = _gameInfo.Actors[actorId];
+            return CreateEventActivity("ObjectStateChanged", new
+            {
+                @object = new
+                {
+                    id = obj.Id,
+                    state = obj.State
+                }
+            });
+        }
 
-            var messageActivity = MessageFactory.Text($"{gameActor.Description} > {text}");
+        // TODO Would love to have an IGameScript or something here.
+        public Activity RoomEntered(IGameScript script)
+        {
+            var room = script.World.GetSelectedRoom();
+
+            return CreateEventActivity("RoomEntered", new
+            {
+                room = new
+                {
+                    id = room.Id
+                },
+                actors = script.Actors
+                    .Where(a => a.RoomId == room.Id)
+                    .Select(a => new
+                    {
+                        id = a.Id,
+                        name = a.Name,
+                        x = a.PositionX,
+                        y = a.PositionY,
+                        classes = a.Classes,
+                        direction = "Front", // TODO
+                        textColor = a.TextColor
+                    }),
+                objects = room.GetObjects()
+                    .Where(o => o.IsVisible)
+                    .Select(o => new
+                    {
+                        id = o.Id,
+                        name = o.Name,
+                        x = o.PositionX,
+                        y = o.PositionY,
+                        classes = o.Classes,
+                        z_offset = o.ZOffset ?? 0,
+                        state = o.State
+                    })
+            });
+        }
+
+        public Activity LineSpoken(string text)
+        {
+            var messageActivity = MessageFactory.Text(text);
             messageActivity.Properties = JObject.FromObject(new {
-                actorId = actorId
+                narrator = true
+            });
+
+            return messageActivity;
+        }
+
+        public Activity LineSpoken(string text, IActor actor)
+        {
+            var messageActivity = MessageFactory.Text($"{actor.Name} > {text}");
+            messageActivity.Properties = JObject.FromObject(new {
+                actor = new
+                {
+                    id = actor.Id
+                }
             });
 
             return messageActivity;
         }
         
-        private static Activity CreateEventActivity(DialogContext dc, string name, object properties = null)
+        private Activity CreateEventActivity(string name, object properties = null)
         {
-            var eventActivity = dc.Context.Activity.CreateReply();
+            var eventActivity = _context.Activity.CreateReply();
             eventActivity.Type = "event";
             eventActivity.Name = name;
 

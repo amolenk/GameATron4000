@@ -75,7 +75,9 @@ class GameATron {
     private update() {
 
         // Depth sorting based on y-axis position.
-        this.layers.objects.sort('y', Phaser.Group.SORT_ASCENDING);
+//TODO        this.layers.objects.sort('data.z', Phaser.Group.SORT_ASCENDING);
+        this.layers.objects.customSort((a: Phaser.Sprite, b: Phaser.Sprite) => 
+            a.data.z < b.data.z ? -1 : a.data.z == b.data.z ? 0 : 1);
 
         this.uiMediator.update();
 

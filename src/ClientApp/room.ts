@@ -39,7 +39,7 @@ export class Room {
 
         this.actors = [];
 
-        var background = this.game.add.sprite(0, 0, "sprites", "rooms/park");// + this.name);
+        var background = this.game.add.sprite(0, 0, "sprites", "rooms/" + this.name);
         background.inputEnabled = true;
 
         // Update world bounds to size of room.
@@ -48,22 +48,12 @@ export class Room {
         // Whenever the player clicks on the background, move the actor to
         // that point.
         background.events.onInputDown.add(() =>
-            this.moveActor("player", this.game.input.x + this.game.camera.x, this.game.input.y + this.game.camera.y, "front"));
+            this.moveActor(this.uiMediator.selectedActor, this.game.input.x + this.game.camera.x, this.game.input.y + this.game.camera.y, "front"));
 
         this.layers.background.add(background);
 
         this.narrator = new Narrator(game, layers);
         this.narrator.create();
-
-        // const bench = this.game.add.sprite(323, 406, 'sprites', 'Objects/park-bench', this.layers.actors);
-        // bench.anchor.set(0.5, 1);
-
-        // const actor = new Actor("actor-guy", "guy", "White", "Front");
-        // this.addActor(actor, 640, 430);
-
-        // const al = new Actor("actor-al", "al", "Yellow", "Front");
-        // this.addActor(al, 520, 385);
-        // al.say("Let's do this!");
 
         // TODO Does Phaser close the polygon automatically?
         this.walkboxPolygons = [];
@@ -123,14 +113,14 @@ export class Room {
     }
 
     public debug() {
-        const actor = this.getActor("player");
+        const actor = this.getActor(this.uiMediator.selectedActor);
         const walkbox = this.createWalkbox();
         walkbox.debug(actor.x, actor.y, this.game.input.x + this.game.camera.x, this.game.input.y + this.game.camera.y, this.game.debug);
     }
 
     public getObject(objectId: string) {
         for (var object of this.roomObjects) {
-            if (object.name == objectId) {
+            if (object.id == objectId) {
                 return object;
             }
         }
@@ -139,12 +129,12 @@ export class Room {
 
     public addActor(actor: Actor, x: number, y: number) {
         
-        actor.create(this.game, this.uiMediator, x, y, this.layers.objects);
+        actor.create(this.game, this.uiMediator, x, y, this.layers);
         this.actors.push(actor);
 
         // When the player actor is added to the room, follow it
         // with the camera.
-        if (actor.name == "player") {
+        if (actor.id == this.uiMediator.selectedActor) {
             //  0.1 is the amount of linear interpolation to use.
             //  The smaller the value, the smooth the camera (and the longer it takes to catch up)
             this.game.camera.focusOn(actor.spriteDebug);
@@ -153,7 +143,7 @@ export class Room {
     }
 
     public getActor(actorId: string): Actor {
-        return this.actors.find(a => a.name == actorId);
+        return this.actors.find(a => a.id == actorId);
     }
 
     public async moveActor(actorId: string, toX: number, toY: number, faceDirection: string) {
@@ -166,14 +156,9 @@ export class Room {
         }
     }
 
-    public addObject(object: RoomObject, x: number, y: number) { //}, foreground: boolean) {
+    public addObject(object: RoomObject, x: number, y: number, zOffset: number) {
 
-        // Dirty hack: when an object needs to be shown in the foreground, place it in
-        // the actor layer.
-//        var layer = foreground ? this.layers.actors : this.layers.objects;
-        var layer = this.layers.objects;
-
-        object.create(this.game, this.uiMediator, x, y, layer);
+        object.create(this.game, this.uiMediator, x, y, zOffset, this.layers.objects);
 
         this.roomObjects.push(object);
     }
@@ -191,12 +176,15 @@ export class Room {
         for (var object of this.roomObjects) {
             object.kill();
         }
+        for (var actor of this.actors) {
+            actor.kill();
+        }
     }
 
     private createWalkbox(): Walkbox {
 
         const actorPolygons = this.actors
-            .filter(actor => actor instanceof Actor && actor.name != "player")
+            .filter(actor => actor instanceof Actor && actor.id != this.uiMediator.selectedActor)
             .map(actor => new Phaser.Polygon(
                 new Phaser.Point(actor.x - 40, actor.y - 10),
                 new Phaser.Point(actor.x + 40, actor.y - 10),

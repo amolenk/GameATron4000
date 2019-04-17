@@ -1,6 +1,6 @@
 /// <reference path="../node_modules/phaser/typescript/phaser.d.ts" />
 
-import { RoomObject } from "./room-object"
+import { Layers } from "./layers"
 import { UIMediator } from "./ui-mediator"
 
 declare var gameInfo: any;
@@ -27,8 +27,7 @@ export class Actor {
 
     private sprite2: Phaser.Sprite;
     
-    public constructor(public name: string, public displayName: string, private textColor: string, private direction: string) {
-
+    public constructor(public id: string, public name: string, public classes: string[], private textColor: string, private direction: string) {
     }
 
     get spriteDebug() {
@@ -43,72 +42,48 @@ export class Actor {
         return this.sprite2.y;
     }
 
-    public create(game: Phaser.Game, uiMediator: UIMediator, x: number, y: number, group: Phaser.Group) {
+    public create(game: Phaser.Game, uiMediator: UIMediator, x: number, y: number, layers: Layers) {
         
-        //super.create(game, uiMediator, x, y, group);
-
         this.game = game;
         this.originX = x;
         this.originY = y;
 
-        // Actors are anchored at the bottom instead of middle for easier placement.
-        // TODO not a field??
-// game.add.sprite
-        this.sprite2 = this.game.add.sprite(x, y, "sprites", "actors/" + this.name + "/front");
+        this.sprite2 = this.game.add.sprite(x, y, "sprites", "actors/" + this.id + "/front");
         this.sprite2.anchor.set(0.5, 1);
 
         // Animations
         this.sprite2.animations.add('walk-left',
-            Phaser.Animation.generateFrameNames("actors/" + this.name + "/walk/left/", 1, 6, '', 4), 6, true, false);
+            Phaser.Animation.generateFrameNames("actors/" + this.id + "/walk/left/", 1, 6, '', 4), 6, true, false);
 
         this.sprite2.animations.add('walk-right',
-            Phaser.Animation.generateFrameNames("actors/" + this.name + "/walk/right/", 1, 6, '', 4), 6, true, false);
-
-//        this.sprite2.animations.play("actor-guy-walk");
-
-
-        // this.walkSprite = game.add.sprite(x, y, this.name + "-walk");
-        // this.walkSprite.anchor.set(0.5, 1);
-        // this.walkSprite.inputEnabled = true;
-        // this.walkSprite.input.pixelPerfectClick = true;
-        // this.walkSprite.input.pixelPerfectOver = true;
-        // this.walkSprite.visible = false;
-
-        // this.backSprite = game.add.sprite(x, y, this.name + "-back");
-        // this.backSprite.anchor.set(0.5, 1);
-        // this.backSprite.visible = false;
+            Phaser.Animation.generateFrameNames("actors/" + this.id + "/walk/right/", 1, 6, '', 4), 6, true, false);
 
         this.text = this.game.add.text(x, y - this.sprite2.height - 40, "", this.createTextStyle());
         this.text.anchor.setTo(0.5);
         this.text.lineSpacing = -30;
         this.text.scale.x = 0.5;
-        this.text.scale.y = 0.5;
-
-//        this.sprite2.addChild(this.text);
-
-        // this.talkAnimation = this.sprite.animations.add("talk");
-        // this.walkAnimation = this.walkSprite.animations.add("walk");
+        this.text.scale.y = 0.5; 
 
         this.sprite2.addChild(this.text);
 
+        this.sprite2.data.z = y;
 
         this.spriteGroup = game.add.group();
         this.spriteGroup.addMultiple([ this.sprite2, this.text ]);
 
-        group.add(this.sprite2);
-        group.add(this.text);
+        layers.objects.add(this.sprite2);
+        layers.text.add(this.text);
 
-        // if (this.direction == "Front") {
-        //     this.backSprite.visible = false;
-        //     this.sprite.visible = true;
-        // } else if (this.direction == "Away") {
-        //     this.sprite.visible = false;
-        //     this.backSprite.visible = true;
-        // }
+        if (this.classes.indexOf("class_untouchable") == -1) {
+            this.sprite2.inputEnabled = true;
+            this.sprite2.input.pixelPerfectClick = true;
+            this.sprite2.input.pixelPerfectOver = true;
 
-        // group.add(this.spriteGroup);
+            this.sprite2.events.onInputOver.add(() => uiMediator.focusObject(this));
+            this.sprite2.events.onInputOut.add(() => uiMediator.focusObject(null));
+            this.sprite2.events.onInputDown.add(() => uiMediator.selectObject(this));
+        }
     }
-
 
     public moveTo(path: Phaser.Point[]): Promise<void> {
 
@@ -133,7 +108,10 @@ export class Actor {
                 this.isMoving = true;
                 this.moveTween = this.game.add.tween(this.sprite2).to({ x: path[i].x, y: path[i].y }, tweenDuration).start();
         
-                this.moveTween.onUpdateCallback(() => this.sprite2.scale.set(this.sprite2.y / 400));
+                this.moveTween.onUpdateCallback(() => {
+                    this.sprite2.scale.set(this.sprite2.y / 400)
+                    this.sprite2.data.z = this.sprite2.y;
+                });
                 this.moveTween.onComplete.add(() => {
                     i += 1;
                     if (i < path.length) {
@@ -141,7 +119,7 @@ export class Actor {
                     } else {
                         this.isMoving = false;
                         this.sprite2.animations.stop();
-                        this.sprite2.frameName = "actors/" + this.name + "/front";
+                        this.sprite2.frameName = "actors/" + this.id + "/front";
                         resolve();
                     }
                 });
@@ -172,64 +150,6 @@ export class Actor {
         return Promise.resolve();
     }
 
-    public async walkTo(x: number, y: number): Promise<void> {
-
-        // Ensure that we're facing front.
-        if (this.direction != 'Front') {
-            this.backSprite.visible = false;
-            this.sprite2.visible = true;
-        }
-
-        // Calculate the delta's compared to the original position.
-        var deltaX = x - this.originX;
-        var deltaY = y - this.originY;
-
-        // No need to walk anywhere if the actor's already there.
-        if (deltaX == this.spriteGroup.x && deltaY == this.spriteGroup.y) {
-            return;
-        }
-
-        // Walk animation plays at 6 frames per second.
-        // A single loop of the walk animation covers 100 pixels.
-        // So, an actor walks 100 pixels per second.
-        var duration = Math.abs((deltaX - this.spriteGroup.x) / 100 * 1000); // Milliseconds.
-
-        // If the actor walks to the left, flip the walk sprite.
-        // Otherwise, reset the sprite if it is already flipped.
-        var rightToLeft = deltaX < this.spriteGroup.x;
-        var isFlipped = this.walkSprite.scale.x < 0;
-
-        if ((rightToLeft && !isFlipped) || (!rightToLeft && isFlipped)) {
-            this.walkSprite.scale.x *= -1;
-        }
-
-        // Switch to the walk sprite.
-        this.walkAnimation.play(6, true);
-        this.sprite2.visible = false;
-        this.walkSprite.visible = true;
-                
-        // Animate!
-        var tween = this.game.add.tween(this.spriteGroup)
-            .to( { x: deltaX, y: deltaY }, duration, Phaser.Easing.Default, true);
-
-        await new Promise((resolve) => {
-            tween.onComplete.add(() => {
-
-                this.walkAnimation.stop();
-
-                // Switch back to the correct sprite.
-                this.walkSprite.visible = false;
-                if (this.direction == "Front") {
-                    this.sprite2.visible = true;
-                } else if (this.direction == "Away") {
-                    this.backSprite.visible = true;
-                }
-
-                resolve();
-            });
-        });
-    }
-
     public update() {
         this.text.x = Math.floor(this.sprite2.x);
         this.text.y = Math.floor(this.sprite2.y - this.sprite2.height - 40);
@@ -237,18 +157,11 @@ export class Actor {
 
     public kill() {
 
-        this.walkSprite.destroy();
-        this.backSprite.destroy();
+        this.sprite2.destroy();
         this.text.destroy();
-        this.talkAnimation.destroy();
-        this.walkAnimation.destroy();
-
-//        super.kill();
     }
 
     private sayLine(text: string) {
-
-        console.log(text);
 
         // if (!this.backSprite.visible) {
         //     this.talkAnimation.play(6, true);

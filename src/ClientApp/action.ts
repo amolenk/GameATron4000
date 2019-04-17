@@ -1,86 +1,149 @@
 /// <reference path="../node_modules/typescript/lib/lib.es6.d.ts" />
 
+import { Actor } from "./actor"
 import { RoomObject } from "./room-object"
+import { InventoryItem } from "./inventory-item";
 
-export class Action {
+export interface IAction {
+    addSubject: (subject: RoomObject | InventoryItem | Actor) => boolean;
+    getDisplayText: (subject?: RoomObject | InventoryItem | Actor) => string;
+}
 
-    public static GiveVerb: string = "Give";
-    public static PickUpVerb: string = "Pick up";
-    public static UseVerb: string = "Use";
-    public static OpenVerb: string = "Open";
-    public static LookAtVerb: string = "Look at";
-    public static PushVerb: string = "Push";
-    public static CloseVerb: string = "Close";
-    public static TalkToVerb: string = "Talk to";
-    public static PullVerb: string = "Pull";
+export class UnaryAction implements IAction {
 
-    private subjects: Array<RoomObject>;
+    private _objectOrActor: RoomObject | InventoryItem | Actor;
 
-    constructor(public text: string, private subjectSeparator?: string) {
-        this.subjects = new Array<RoomObject>();
+    constructor(private verb: string) {
     }
 
-    public addSubject(subject: RoomObject) {
+    public addSubject(subject: RoomObject | InventoryItem | Actor) {
 
-        var isComplexAction = this.subjectSeparator != null;
-
-        if (isComplexAction) {
-
-            // For complex actions (Give, Use), the first subject must always
-            // be an inventory item.
-            if (this.subjects.length == 0 && !subject.name.startsWith("inventory-")) {
-                return false;
-            }
-
-            // For the Give action, the second subject must always be an actor.
-            if (this.text == Action.GiveVerb
-                && this.subjects.length == 1
-                && !subject.name.startsWith("actor-")) {
-                return false;
-            }
-
-            // Don't add the subject if it's the same as an already selected subject.
-            if (this.subjects.length == 1 && this.subjects[0] == subject) {
-                return false;
-            }
-        }
-
-        this.subjects.push(subject);
-
-        var actionComplete = this.subjects.length == (isComplexAction ? 2 : 1);
-
-        return actionComplete;
+        this._objectOrActor = subject;
+        return true;
     }
 
-    public getDisplayText(roomObject?: RoomObject) {
+    public getDisplayText(subject?: RoomObject | InventoryItem | Actor) {
 
-        // Ignore the current room object that the mouse is over if it's the same as
-        // the first subject (if any).
-        if (this.subjects.length == 1 && this.subjects[0] == roomObject) {
-            roomObject = null;
+        if (this._objectOrActor) {
+            return `${this.verb} ${this._objectOrActor.name}`;
         }
 
-        if (this.subjects.length == 2) {
-            return `${this.text} ${this.subjects[0].displayName} ${this.subjectSeparator} ${this.subjects[1].displayName}`;
+        if (subject) {
+            return `${this.verb} ${subject.name}`;
         }
 
-        if (this.subjects.length == 1) {
+        return this.verb;
+    }
+}
 
-            if (roomObject != null) {
-                return `${this.text} ${this.subjects[0].displayName} ${this.subjectSeparator} ${roomObject.displayName}`;
+export class GiveAction implements IAction {
+
+    private _inventoryItem: InventoryItem;
+    private _actor: Actor;
+
+    public addSubject(subject: RoomObject | InventoryItem | Actor) {
+
+        if (this._inventoryItem)
+        {
+            if (subject instanceof Actor) {
+                this._actor = subject;
+                return true;
+            }
+        }
+        else
+        {
+            if (subject instanceof InventoryItem) {
+                this._inventoryItem = subject;
+            }
+        }
+
+        return false;
+    }
+
+    public getDisplayText(subject?: RoomObject | InventoryItem | Actor) {
+
+        if (this._inventoryItem)
+        {
+            if (this._actor) {
+                return `Give ${this._inventoryItem.name} to ${this._actor.name}`;
             }
 
-            if (this.subjectSeparator != null) {
-                return `${this.text} ${this.subjects[0].displayName} ${this.subjectSeparator}`;
+            if (subject instanceof Actor) {
+                return `Give ${this._inventoryItem.name} to ${subject.name}`;
             }
 
-            return `${this.text} ${this.subjects[0].displayName}`;
+            return `Give ${this._inventoryItem.name} to`;
         }
 
-        if (this.subjects.length == 0 && roomObject != null) {
-            return `${this.text} ${roomObject.displayName}`;
+        if (subject instanceof InventoryItem) {
+            return `Give ${subject.name}`;
         }
 
-        return this.text;
+        return "Give";
+    }
+}
+
+export class UseAction implements IAction {
+
+    private _inventoryItemOrObject1: RoomObject | InventoryItem;
+    private _inventoryItemOrObject2: RoomObject | InventoryItem;
+
+    public addSubject(subject: RoomObject | InventoryItem | Actor) {
+
+        if (this._inventoryItemOrObject1 && this.isUseWith())
+        {
+            if ((subject instanceof RoomObject || subject instanceof InventoryItem)
+                && subject != this._inventoryItemOrObject1) {
+                this._inventoryItemOrObject2 = subject;
+                return true;
+            }
+        }
+        else
+        {
+            if (subject instanceof RoomObject || subject instanceof InventoryItem) {
+                this._inventoryItemOrObject1 = subject;
+                return !this.isUseWith();
+            }
+        }
+
+        return false;
+    }
+
+    public getDisplayText(subject?: RoomObject | InventoryItem | Actor) {
+
+        if (this._inventoryItemOrObject1)
+        {
+            // Ignore the current room object that the mouse is over if it's the same as
+            // the first subject (if any).
+            if (subject == this._inventoryItemOrObject1) {
+                subject = null;
+            }
+
+            if (this._inventoryItemOrObject2) {
+                return `Use ${this._inventoryItemOrObject1.name} with ${this._inventoryItemOrObject2.name}`;
+            }
+
+            if (subject instanceof RoomObject || subject instanceof InventoryItem) {
+                return `Use ${this._inventoryItemOrObject1.name} with ${subject.name}`;
+            }
+
+            if (this.isUseWith()) {
+                return `Use ${this._inventoryItemOrObject1.name} with`;
+            }
+
+            return `Use ${this._inventoryItemOrObject1.name}`;
+        }
+
+        if (subject instanceof RoomObject || subject instanceof InventoryItem) {
+            return `Use ${subject.name}`;
+        }
+
+        return "Use";
+    }
+
+    private isUseWith() : boolean
+    {
+        return this._inventoryItemOrObject1 instanceof InventoryItem
+            && this._inventoryItemOrObject1.classes.indexOf("class_use_with") > -1;
     }
 }

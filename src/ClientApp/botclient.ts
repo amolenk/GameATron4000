@@ -1,7 +1,8 @@
 /// <reference path="../node_modules/phaser/typescript/phaser.d.ts" />
 /// <reference path="../node_modules/rx/ts/rx.d.ts" />
 
-import { Action } from "./action"
+import { IAction } from "./action"
+import { Actor } from "./actor"
 import { DirectLine } from "botframework-directlinejs";
 import "../node_modules/rxjs/add/operator/concatMap";
 
@@ -49,22 +50,31 @@ export class BotClient {
             .subscribe();
     }
 
-    public async sendActionToBot(action: Action) {
+    public async sendActionToBot(action: IAction, selectedActor?: Actor) {
 
         var text = action.getDisplayText();
 
-        await this.sendMessageToBot(text);
+        await this.sendMessageToBot(text, selectedActor);
     }
 
-    public async sendMessageToBot(text: string) {
-        
+    public async sendMessageToBot(text: string, selectedActor?: Actor) {
+
         console.log("👩‍💻 " + text);
 
-        this.directLine.postActivity({
+        const activity: any = {
             from: { id: this.conversationId },
             type: "message",
             text: text
-        })        
+        };
+
+        if (selectedActor) {
+            activity.player_pos = {
+                x: selectedActor.x,
+                y: selectedActor.y
+            };
+        }
+
+        this.directLine.postActivity(activity)        
         .subscribe();
     }
 }

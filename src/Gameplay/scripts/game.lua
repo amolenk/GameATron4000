@@ -1,86 +1,45 @@
 
---game.initial_room = "park"
-
-if game then
-    guy = game:register_actor(PLAYER_ACTOR, "Guy Scotthrie", "white")
-end
--- guy.say_hello = function()
---     guy.say_line("Hello!")
--- end
-
-
--- Deprecated
+-- this script is execute once on game startup
 function initialize_game()
 
-    set_initial_room("park")
+    select_actor(guy)
 
-    register_actor(PLAYER_ACTOR, "Guy Scotthrie", "white")
-    register_actor("al", "Al", "magenta")
-    register_actor("ian", "Ian", "yellow")
+--    camera_follow(guy)
 
---  fridge = register_object("fridge", ...)
---  fridge.open = ...
---  fridge.close = ...
+    set_owner(groceries, selected_actor)
+    set_owner(grocerylist, selected_actor)
+    set_owner(remote, selected_actor)
 
-    register_object("fridge-closed", "fridge")
-    register_object("fridge-open-empty", "empty fridge")
-    register_object("fridge-open-full", "full fridge")
-    register_object("groceries", "bag of groceries")
-    register_object("grocerylist", "grocery list")
-    register_object("newspaper", "newspaper")
-    register_object("newspaper-headline", "newspaper headline")
-    register_object("todolist", "to-do list")
-    register_object("tractorbeam", "rays of death and transportation")
+    put_object(newspaper, 410, 420, park)
+    put_object(park_bench, 323, 408, park)
+    put_object(fridge, 500, 340, park)    
 
-    register_inventory_item("groceries", "bag of groceries", true)
-    register_inventory_item("grocerylist", "grocery list", true)
-    register_inventory_item("newspaper", "newspaper")
-    register_inventory_item("todolist", "to-do list")
+    put_actor(al, 450, 360, ufo)
+    put_actor(ian, 700, 360, ufo)
 
-    register_canned_response("I can't do that.")
-    register_canned_response("Why?")
-    register_canned_response("Hmm, better not.")
-    register_canned_response("That will probably crash the game!")
+    change_room(park)
 
-    return "park"
 end
 
--- this script is execute once on game startup
--- function startup_script()	
--- 	-- set ui colors
--- 	reset_ui()
+function cutscene_test()
+    change_room(ufo)
+    say_line("Cutscene!", al)
+    change_room(park)
+    say_line("Wow!")
+end
 
--- 	-- set which room to start the game in 
--- 	-- (e.g. could be a "pseudo" room for title screen!)
--- 	change_room(rm_title, 1) -- iris fade
-
--- 	-- set initial inventory (if applicable)
--- 	-- pickup_obj(obj_switch_tent, main_actor)
--- 	-- pickup_obj(obj_switch_player, purp_tentacle)
-	
--- 	-- pickup_obj(obj_bucket, main_actor)
--- 	-- obj_bucket.state = "state_closed"
-	
--- 	-- set which actor the player controls by default
--- --	selected_actor = main_actor
-	
--- 	-- init actor
--- --	put_at(selected_actor, 100, 48, rm_kitchen)
--- 	--put_at(selected_actor, 60, 48, rm_hall)
--- 	--put_at(selected_actor, 16, 48, rm_computer)
--- --	put_at(selected_actor, 110, 38, rm_garden)
--- --	put_at(selected_actor, 110, 38, rm_library)
-	
--- 	-- make camera follow player
--- 	-- (setting now, will be re-instated after cutscene)
--- --	camera_follow(selected_actor)
-
-
-
--- 	--room_curr = rm_title
--- 	--room_curr = rm_kitchen
--- 	--room_curr = rm_hall
--- 	--room_curr = rm_computer
--- --	room_curr = rm_garden
--- 	--room_curr = rm_library
--- end
+function cutscene_beam_up()
+    say_line("It's yesterday's newspaper!")
+    put_object(newspaper_headline, 400, 600)
+    wait(2000)
+    say_line("Hmm, there seem to be a LOT of UFO sightings lately!", narrator)
+    wait(1000)
+    remove_object(newspaper_headline)
+    say_line("What a bunch of nonsense!")
+    wait(1000)
+    put_object(tractorbeam, selected_actor.x, 450)
+    wait(1000)
+    say_line("Uh oh...")
+    wait(3000)
+    change_room(ufo)
+end
