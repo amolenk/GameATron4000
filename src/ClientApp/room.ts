@@ -21,7 +21,7 @@ export class Room {
     private graphics: Phaser.Graphics;
     private walkboxPolygons: Phaser.Polygon[];
 
-    constructor(private name: string) {
+    constructor(private name: string, private walkbox: Phaser.Polygon) {
         this.roomObjects = new Array<RoomObject>();
         this.actors = new Array<Actor>();
         this.actionMap = new Map<string, Function>();
@@ -57,25 +57,7 @@ export class Room {
 
         // TODO Does Phaser close the polygon automatically?
         this.walkboxPolygons = [];
-        this.walkboxPolygons.push(new Phaser.Polygon(
-            new Phaser.Point(935, 295),
-            new Phaser.Point(935, 318),
-            new Phaser.Point(710, 375),
-            new Phaser.Point(710, 385),
-            new Phaser.Point(935, 442),
-            new Phaser.Point(935, 449),
-            new Phaser.Point(591, 449),
-            new Phaser.Point(393, 375),
-            new Phaser.Point(108, 336),
-            new Phaser.Point(0, 330),
-            new Phaser.Point(0, 312),
-            new Phaser.Point(130, 315),
-            new Phaser.Point(366, 338),
-
-            new Phaser.Point(470, 355),
-            new Phaser.Point(804, 316)));
-
-
+        this.walkboxPolygons.push(this.walkbox);
 
 //         polygons.push(new Phaser.Polygon(
 //             new Phaser.Point(799, 100),
@@ -114,7 +96,7 @@ export class Room {
 
     public debug() {
         const actor = this.getActor(this.uiMediator.selectedActor);
-        const walkbox = this.createWalkbox();
+        const walkbox = this.createWalkbox(actor);
         walkbox.debug(actor.x, actor.y, this.game.input.x + this.game.camera.x, this.game.input.y + this.game.camera.y, this.game.debug);
     }
 
@@ -137,8 +119,7 @@ export class Room {
         if (actor.id == this.uiMediator.selectedActor) {
             //  0.1 is the amount of linear interpolation to use.
             //  The smaller the value, the smooth the camera (and the longer it takes to catch up)
-            this.game.camera.focusOn(actor.spriteDebug);
-            this.game.camera.follow(actor.spriteDebug, Phaser.Camera.FOLLOW_LOCKON, 0.1, 0.1);
+            actor.focusCamera()
         }
     }
 
@@ -148,11 +129,13 @@ export class Room {
 
     public async moveActor(actorId: string, toX: number, toY: number, faceDirection: string) {
         const actor = this.getActor(actorId);
-        const walkbox = this.createWalkbox();
+        const walkbox = this.createWalkbox(actor);
         const path = walkbox.findPath(actor.x, actor.y, toX, toY);
         if (path) {
             path.shift();
-            await actor.moveTo(path);
+            await actor.walkTo(path, faceDirection);
+        } else {
+            actor.changeDirection(faceDirection);
         }
     }
 
@@ -181,15 +164,15 @@ export class Room {
         }
     }
 
-    private createWalkbox(): Walkbox {
+    private createWalkbox(forActor: Actor): Walkbox {
 
         const actorPolygons = this.actors
-            .filter(actor => actor instanceof Actor && actor.id != this.uiMediator.selectedActor)
-            .map(actor => new Phaser.Polygon(
-                new Phaser.Point(actor.x - 40, actor.y - 10),
-                new Phaser.Point(actor.x + 40, actor.y - 10),
-                new Phaser.Point(actor.x + 40, actor.y + 10),
-                new Phaser.Point(actor.x - 40, actor.y + 10)));
+            .filter(actor => actor instanceof Actor && actor.id != forActor.id)
+            .map(actor => new Phaser.Polygon( // TODO Consider scaling
+                new Phaser.Point(actor.x - 50, actor.y - 20),
+                new Phaser.Point(actor.x + 50, actor.y - 20),
+                new Phaser.Point(actor.x + 50, actor.y + 20),
+                new Phaser.Point(actor.x - 50, actor.y + 20)));
 
         const polygons = this.walkboxPolygons.concat(actorPolygons);
 

@@ -16,10 +16,11 @@ export class ConversationUI {
         // Render suggested actions.
         for (var action of suggestedActions) {
 
-            var optionText = this.game.add.text(10, y, action.value, this.createTextStyle());
+            var optionText = this.game.add.text(10, y, action.displayText, this.createTextStyle());
             optionText.scale.x = 0.5;
             optionText.scale.y = 0.5;
             optionText.inputEnabled = true;
+            optionText.data.value = action.value;
 
             this.layers.ui.add(optionText);
 
@@ -33,14 +34,16 @@ export class ConversationUI {
 
             optionText.events.onInputUp.add((option: any) => {
                 var selectedText = option.text;
+                var selectedValue = option.data.value;
 
                 // Destroy text objects used to display options.
                 for (var optionToDestroy of options) {
                     optionToDestroy.destroy();
                 }
 
-                actor.say(selectedText).then(
-                    () => this.botClient.sendMessageToBot(selectedText));
+                // TODO await
+                actor.sayLine(selectedText).then(
+                    () => this.botClient.sendMessageToBot(selectedValue));
             }, this);
 
             options.push(optionText);

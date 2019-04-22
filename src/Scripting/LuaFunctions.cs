@@ -12,8 +12,6 @@ using NLua;
 
 namespace GameATron4000.Scripting
 {
-
-
     public class LuaFunctions
     {
         private LuaGameScript _script;
@@ -50,6 +48,7 @@ namespace GameATron4000.Scripting
             _script.UpdateGlobalWorldVariables();
 
             Result.NextDialogId = room.Id;
+            Result.NextDialogReplace = true;
         }
 
         [LuaGlobal(Name = "change_state")]
@@ -67,26 +66,38 @@ namespace GameATron4000.Scripting
             // Check if any objects will become invisible due to this state change.
             var objectsToRemove = room.GetObjects().Where(o => o.DependsOn != null
                 && o.DependsOn.Object.Id == obj.Id
-                && o.DependsOn.State == obj.State);
-
-            foreach (var objectToRemove in objectsToRemove)
-            {
-                Result.Activities.Add(_activityFactory.ObjectRemovedFromRoom(objectToRemove));
-            }
+                && o.DependsOn.State == obj.State).ToList();
 
             // Apply the state change.
             obj.State = state;
-            Result.Activities.Add(_activityFactory.ObjectStateChanged(obj));
 
             // Check if any objects will become visible due to this state change.
-            var objectsToPlace = room.GetObjects().Where(o => o.DependsOn != null
+            var objectsToAdd = room.GetObjects().Where(o => o.DependsOn != null
                 && o.DependsOn.Object.Id == obj.Id
                 && o.DependsOn.State == state);
 
-            foreach (var objectToPlace in objectsToPlace)
+            Result.Activities.Add(_activityFactory.ObjectStateChanged(obj, objectsToAdd, objectsToRemove));
+        }
+
+        [LuaGlobal(Name = "option")]
+        public void ConversationOption(string text, string action, bool? predicate = null)
+        {
+            if (!predicate.HasValue || predicate.Value)
             {
-                Result.Activities.Add(_activityFactory.ObjectPlacedInRoom(objectToPlace));
+                Result.ConversationOptions.Add(action, text);
             }
+        }
+
+        [LuaGlobal(Name = "face_dir")]
+        public void FaceDirection(string direction, LuaTable actorTable = null)
+        {
+            var actor = actorTable != null
+                ? LuaActor.FromTable(actorTable, _script)
+                : _script.Actors.First(a => a.Id == _script.World.SelectedActorId);
+
+            actor.FaceDirection = direction;
+
+            Result.Activities.Add(_activityFactory.ActorDirectionFacedChanged(direction, actor));
         }
 
         [LuaGlobal(Name = "owned_by")]
@@ -206,20 +217,54 @@ namespace GameATron4000.Scripting
                 Result.Activities.Add(_activityFactory.ObjectRemovedFromRoom(obj));
             }
 
-            // If the owner is the selected actor, add the object to the
+            // If the current owner is the selected actor, remove it from the
             // player's inventory.
-            if (actor.Id == _script.World.SelectedActorId)
+            if (obj.Owner == _script.World.SelectedActorId)
+            {
+                Result.Activities.Add(_activityFactory.InventoryItemRemoved(obj));
+            }
+
+            // Change the owner.
+            obj.Owner = actor.Id;
+
+            // If the new owner is the selected actor, add the object to the
+            // player's inventory.
+            if (obj.Owner == _script.World.SelectedActorId)
             {
                 Result.Activities.Add(_activityFactory.InventoryItemAdded(obj));
             }
+        }
 
-            obj.Owner = actor.Id;
+        [LuaGlobal(Name = "start_talking")]
+        public void StartTalking(string conversationId)
+        {
+            Result.NextDialogId = conversationId;
+            Result.NextDialogReplace = false;
         }
 
         [LuaGlobal(Name = "wait")]
         public void Wait(int milliseconds)
         {
             Result.Activities.Add(_activityFactory.Halted(milliseconds));
+        }
+
+        [LuaGlobal(Name = "walk_to")]
+        public void WalkTo(int x, int y, string faceDirection = null, LuaTable actorTable = null)
+        {
+            var actor = GetActor(actorTable);
+            actor.PositionX = x;
+            actor.PositionY = y;
+            actor.FaceDirection = faceDirection; 
+
+            Result.Activities.Add(_activityFactory.ActorMoved(actor));
+        }
+
+        // TODO Make sure everything uses this
+        private IActor GetActor(LuaTable actorTable = null)
+        {
+            return actorTable != null
+                ? LuaActor.FromTable(actorTable, _script)
+                : _script.Actors.First(a => a.Id == _script.World.SelectedActorId);
         }
     }
 }

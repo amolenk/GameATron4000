@@ -12,8 +12,6 @@ export class InventoryItem {
         this.sprite = game.add.sprite(x, y, "sprites", "inventory/" + this.id);
         this.sprite.anchor.set(0);
         this.sprite.inputEnabled = true;
-        // this.sprite.input.pixelPerfectClick = true;
-        // this.sprite.input.pixelPerfectOver = true;
         this.sprite.fixedToCamera = true;
 
         group.add(this.sprite);
@@ -25,8 +23,10 @@ export class InventoryItem {
     }
 
     public setPosition(x: number, y: number) {
+        this.sprite.fixedToCamera = false;
         this.sprite.x = x;
         this.sprite.y = y;
+        this.sprite.fixedToCamera = true;
     }       
 
     public setVisible(visible: boolean) : void {

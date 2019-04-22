@@ -14,9 +14,15 @@ namespace GameATron4000.Core
 
         string RoomId { get; }
 
-        int? PositionX { get; }
+        int? PositionX { get; set; }
 
-        int? PositionY { get; }
+        int? PositionY { get; set; }
+
+        string UsePosition { get; }
+
+        string UseDirection { get; }
+
+        string FaceDirection { get; set; }
 
         IEnumerable<IObject> GetInventory();
     }

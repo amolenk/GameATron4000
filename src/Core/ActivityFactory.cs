@@ -39,23 +39,29 @@ namespace GameATron4000.Core
             });
         }
 
-        public Activity ActorDirectionChanged(string actorId, ActorDirection direction)
+        public Activity ActorDirectionFacedChanged(string direction, IActor actor)
         {
-            return CreateEventActivity("ActorDirectionChanged", new
+            return CreateEventActivity("ActorDirectionFacedChanged", new
             {
-                actorId = actorId,
-                direction = direction.ToString()
+                actor = new
+                {
+                    id = actor.Id,
+                    direction = direction
+                }
             });
         }
 
-        public Activity ActorMoved(string actorId, ActorPosition position)
+        public Activity ActorMoved(IActor actor)
         {
             return CreateEventActivity("ActorMoved", new
             {
-                actorId = actorId,
-                x = position.X,
-                y = position.Y,
-                direction = position.Direction.ToString()
+                actor = new
+                {
+                    id = actor.Id,
+                    x = actor.PositionX,
+                    y = actor.PositionY,
+                    faceDirection = actor.FaceDirection // TODO Set defaults in properties
+                }
             });
         }
 
@@ -83,6 +89,15 @@ namespace GameATron4000.Core
             return LineSpoken("(canned response)", selectedActor);
 
 //                _gameInfo.CannedResponses[_random.Next(0, _gameInfo.CannedResponses.Count)]);
+        }
+
+        public Activity ErrorOccured(Exception ex)
+        {
+            return CreateEventActivity("ErrorOccured", new
+            {
+                message = ex.Message,
+                stackTrace = ex.StackTrace // TODO Only debug
+            });
         }
 
         public Activity Halted(int milliseconds)
@@ -165,16 +180,7 @@ namespace GameATron4000.Core
         {
             return CreateEventActivity("ObjectPlacedInRoom", new
             {
-                @object = new
-                {
-                    id = obj.Id,
-                    name = obj.Name,
-                    x = obj.PositionX,
-                    y = obj.PositionY,
-                    classes = obj.Classes,
-                    z_offset = obj.ZOffset ?? 0,
-                    state = obj.State
-                }
+                @object = ToDto(obj)
             });
         }
 
@@ -189,7 +195,8 @@ namespace GameATron4000.Core
             });
         }
 
-        public Activity ObjectStateChanged(IObject obj)
+        public Activity ObjectStateChanged(IObject obj, IEnumerable<IObject> objectsToAdd,
+            IEnumerable<IObject> objectsToRemove)
         {
             return CreateEventActivity("ObjectStateChanged", new
             {
@@ -197,7 +204,19 @@ namespace GameATron4000.Core
                 {
                     id = obj.Id,
                     state = obj.State
-                }
+                },
+                add = objectsToAdd.Select(o => ToDto(o)),
+                // TODO Too much data.
+                remove = objectsToRemove.Select(o => new
+                {
+                    id = o.Id,
+                    name = o.Name,
+                    x = o.PositionX,
+                    y = o.PositionY,
+                    classes = o.Classes,
+                    z_offset = o.ZOffset ?? 0,
+                    state = o.State
+                })
             });
         }
 
@@ -210,32 +229,19 @@ namespace GameATron4000.Core
             {
                 room = new
                 {
-                    id = room.Id
+                    id = room.Id,
+                    walkbox = room.Walkbox.Select(p => new
+                    {
+                        x = p.X,
+                        y = p.Y
+                    })
                 },
                 actors = script.Actors
                     .Where(a => a.RoomId == room.Id)
-                    .Select(a => new
-                    {
-                        id = a.Id,
-                        name = a.Name,
-                        x = a.PositionX,
-                        y = a.PositionY,
-                        classes = a.Classes,
-                        direction = "Front", // TODO
-                        textColor = a.TextColor
-                    }),
+                    .Select(a => ToDto(a)),
                 objects = room.GetObjects()
                     .Where(o => o.IsVisible)
-                    .Select(o => new
-                    {
-                        id = o.Id,
-                        name = o.Name,
-                        x = o.PositionX,
-                        y = o.PositionY,
-                        classes = o.Classes,
-                        z_offset = o.ZOffset ?? 0,
-                        state = o.State
-                    })
+                    .Select(o => ToDto(o))
             });
         }
 
@@ -274,6 +280,38 @@ namespace GameATron4000.Core
             }
 
             return eventActivity;
+        }
+
+        private object ToDto(IActor actor)
+        {
+            return new
+            {
+                id = actor.Id,
+                name = actor.Name,
+                x = actor.PositionX,
+                y = actor.PositionY,
+                classes = actor.Classes,
+                textColor = actor.TextColor.Length > 0 ? actor.TextColor : "white",
+                usePosition = actor.UsePosition.Length > 0 ? actor.UsePosition : "center",
+                useDirection = actor.UseDirection.Length > 0 ? actor.UseDirection : "front",
+                faceDirection = actor.FaceDirection.Length > 0 ? actor.FaceDirection : "front"
+            };
+        }
+
+        private object ToDto(IObject obj)
+        {
+            return new
+            {
+                id = obj.Id,
+                name = obj.Name,
+                x = obj.PositionX,
+                y = obj.PositionY,
+                z_offset = obj.ZOffset ?? 0,
+                classes = obj.Classes,
+                state = obj.State,
+                usePosition = obj.UsePosition.Length > 0 ? obj.UsePosition : "center",
+                useDirection = obj.UseDirection.Length > 0 ? obj.UseDirection : "front"
+            };
         }
     }
 }

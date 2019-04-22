@@ -13,7 +13,6 @@ import { Room } from "./room"
 import { RoomObject } from "./room-object"
 import { VerbsUI } from "./ui-verbs"
 import { InventoryItem } from "./inventory-item";
-import { Camera } from "phaser";
 
 declare var gameInfo: any;
 
@@ -61,9 +60,12 @@ export class UIMediator {
         this.updateText();
     }
 
-    public async selectObject(roomObject: RoomObject | InventoryItem | Actor) {
+    public async selectObject(target: RoomObject | InventoryItem | Actor) {
+
+
+        
         if (this.selectedAction != null) {
-            if (this.selectedAction.addSubject(roomObject)) {
+            if (this.selectedAction.addSubject(target)) {
 
                 // If the action is complete it can be executed.
                 this.setUIVisible(false);
@@ -72,12 +74,21 @@ export class UIMediator {
 
                 var actor = this.room.getActor(this._selectedActor);
 
-                if (roomObject instanceof RoomObject) {
-                    await this.room.moveActor(this._selectedActor, roomObject.x, roomObject.y, "Front")
-                        .then(() => this.botClient.sendActionToBot(action, actor));
-                } else {
-                    await this.botClient.sendActionToBot(action, actor);
+                if (!(target instanceof InventoryItem))
+                {
+                    const walkToX = target.x;
+                    let walkToY = target.y;
+
+                    if (target.usePosition == "infront") {
+                        walkToY += 20; // TODO Consider scaling
+                    } else if (target.usePosition == "above") {
+                        walkToY -= 20;
+                    }
+
+                    await this.room.moveActor(this._selectedActor, walkToX, walkToY, target.useDirection);
                 }
+
+                await this.botClient.sendActionToBot(action, actor);
 
                 // Set the selected action to null now that we've executed it.
                 // Also set the object that the mouse is hovering over to null.
@@ -86,6 +97,13 @@ export class UIMediator {
                 // distracting for the player.
                 this.selectedAction = null;
                 this.focussedObject = null;
+            }
+        }
+        else
+        {
+            if (!(target instanceof InventoryItem))
+            {
+                await this.room.moveActor(this._selectedActor, target.x, target.y, "front");
             }
         }
 
@@ -116,7 +134,9 @@ export class UIMediator {
                     var match = /(.*?) \> (.*)/.exec(message.text);
                     if (match) {
 
-                        await actor.say(match[2]);
+                        if (match[2]) {
+                            await actor.sayLine(match[2]);
+                        }
 
                         if (message.suggestedActions) {
                             this.conversationUI.displaySuggestedActions(
@@ -133,45 +153,59 @@ export class UIMediator {
                 switch (event.name) {
                     
                     case "ActorMoved": {
-
-                        await this.room.moveActor(event.actorId, event.x, event.y, event.direction);
-
-                        // var actor = this.room.getActor(event.actorId);
-                        // await actor.walkTo(event.x, event.y);
-
-                        // // After actor has moved, change the direction the actor faces.
-                        // actor.changeDirection(event.direction);
+                        await this.room.moveActor(event.actor.id, event.actor.x, event.actor.y, event.actor.faceDirection);
                         break;
                     }
 
-                    case "ActorDirectionChanged": {
-                        var actor = this.room.getActor(event.actorId);
-                        actor.changeDirection(event.direction);
+                    case "ActorDirectionFacedChanged": {
+                        var actor = this.room.getActor(event.actor.id);
+                        actor.changeDirection(event.actor.direction);
                         break;
                     }
 
                     case "ActorPlacedInRoom": {
                         this.room.addActor(
-                            new Actor(event.actor.id, event.actor.name, event.actor.classes, event.actor.textColor, "Front"),
+                            new Actor(
+                                event.actor.id,
+                                event.actor.name,
+                                event.actor.classes,
+                                event.actor.usePosition,
+                                event.actor.useDirection,
+                                event.actor.faceDirection,
+                                event.actor.textColor),
                             event.actor.x,
                             event.actor.y);
                         break;
                     }
 
-                    // case "CloseUpOpened": {
-                    //     // TODO FIX DIRTY HACK!!
-                    //     var roomObject = new RoomObject("closeup-" + event.closeUpId, "");
-                    //     this.room.addActor(roomObject, 400, 300);
-                    //     break;
-                    // }
+                    case "ErrorOccured": {
 
-                    // case "CloseUpClosed": {
-                    //     var roomObject = this.room.getObject("closeup-" + event.closeUpId);
-                    //     if (roomObject) {
-                    //         this.room.removeObject(roomObject);
-                    //     }
-                    //     break;
-                    // }
+                        // TODO Extract
+                        var textStyle = {
+                            font: "54px Onesize", // Using a large font-size and scaling it back looks better.
+                            fill: "red",
+                            stroke: "black",
+                            strokeThickness: 12,
+                            align: "center",
+                            wordWrap: "true",
+                            wordWrapWidth: 1400 // Account for scaling.
+                        };
+
+                        this.game.camera.shake(0.05, 500);
+                        this.game.camera.flash(0xff0000, 500);
+
+                        var errorText = this.game.add.text(400, 150, event.message, textStyle);
+                        errorText.anchor.set(0.5);                        
+                        errorText.lineSpacing = -30;
+                        errorText.scale.x = 0.5;
+                        errorText.scale.y = 0.5;
+                        errorText.width = 600;
+                        errorText.fixedToCamera = true;
+
+                        console.log(event.message);
+                        console.log(event.stackTrace);
+                        break;
+                    }
 
                     case "GameStarted": {
                         this._selectedActor = event.actor.id;
@@ -209,7 +243,7 @@ export class UIMediator {
 
                     case "ObjectPlacedInRoom": {
                         this.room.addObject(
-                            new RoomObject(event.object.id, event.object.name, event.object.classes, event.object.state),
+                            new RoomObject(event.object.id, event.object.name, event.object.classes, event.object.state, event.object.usePosition, event.object.useDirection),
                             event.object.cam_offset ? event.object.x + this.game.camera.x: event.object.x,
                             event.object.y,
                             event.object.z_offset);
@@ -225,10 +259,29 @@ export class UIMediator {
                     }
 
                     case "ObjectStateChanged": {
+                        this.game.lockRender = true;
+
                         const object = this.room.getObject(event.object.id);
                         if (object) {
                             object.changeState(event.object.state);
                         }
+
+                        for (let obj of event.add) {
+                            this.room.addObject(
+                                new RoomObject(obj.id, obj.name, obj.classes, obj.state, event.object.usePosition, event.object.useDirection),
+                                obj.x,
+                                obj.y,
+                                obj.z_offset);
+                        }
+
+                        for (let obj of event.remove) {
+                            var roomObject = this.room.getObject(obj.id);
+                            if (roomObject) {
+                                this.room.removeObject(roomObject);
+                            }
+                        }
+
+                        this.game.lockRender = false;
                         break;
                     }
 
@@ -237,19 +290,30 @@ export class UIMediator {
                         if (this.room != null) {
                             this.room.kill();
                         }
-                        this.room = new Room(event.room.id);
+
+                        const walkbox = new Phaser.Polygon(
+                            event.room.walkbox.map((p: any) => new Phaser.Point(p.x, p.y)));
+
+                        this.room = new Room(event.room.id, walkbox);
                         this.room.create(this.game, this, this.layers);
 
                         for (let actor of event.actors) {
                             this.room.addActor(
-                                new Actor(actor.id, actor.name, actor.classes, actor.textColor, actor.direction),
+                                new Actor(
+                                    actor.id,
+                                    actor.name,
+                                    actor.classes,
+                                    actor.usePosition,
+                                    actor.useDirection,
+                                    actor.faceDirection,
+                                    actor.textColor),
                                 actor.x,
                                 actor.y);
                         }
 
                         for (let obj of event.objects) {
                             this.room.addObject(
-                                new RoomObject(obj.id, obj.name, obj.classes, obj.state),
+                                new RoomObject(obj.id, obj.name, obj.classes, obj.state, obj.usePosition, obj.useDirection),
                                 obj.x,
                                 obj.y,
                                 obj.z_offset);
@@ -261,9 +325,10 @@ export class UIMediator {
 
                     case "Idle": {
 
+                        // TODO Not anymore?
                         // Always let the player actor face front after the actions have executed.
-                        //var player = this.room.getActor(this._selectedActor);
-                        //player.changeDirection('Front');
+                        // const actor = this.room.getActor(this._selectedActor);
+                        // actor.changeDirection('front');
 
                         this.setUIVisible(true);
                         break;
@@ -281,13 +346,13 @@ export class UIMediator {
 
     private updateText() {
 
-        var text = "";
+        var text = "Walk to";
 
         if (this.selectedAction != null) {
             text = this.selectedAction.getDisplayText(this.focussedObject);
         }
         else if (this.focussedObject != null) {
-            text = this.focussedObject.name;
+            text = `Walk to ${this.focussedObject.name}`;
         }
 
         this.actionUI.setText(text);

@@ -23,10 +23,16 @@ namespace GameATron4000.Core
 
         IGameScriptResult OnPlayerInput(string input);
 
+        IGameScriptResult OnConversationStarted(string conversationId);
+
+        IGameScriptResult OnConversationContinued(string conversationId, string action);
+
         void LoadScriptState(IGameScriptState state);
 
         IGameScriptState SaveScriptState();
 
         void UpdateGlobalWorldVariables();
+
+        void UpdatePlayerPosition(int x, int y);
     }
 }

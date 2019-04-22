@@ -21,6 +21,10 @@ namespace GameATron4000.Core
         int? ZOffset { get; }
 
         string State { get; }
+
+        string UsePosition { get; }
+
+        string UseDirection { get; }
         
         IObjectDependency DependsOn { get; }
 

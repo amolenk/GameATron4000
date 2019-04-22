@@ -63,14 +63,30 @@ namespace GameATron4000.Scripting
 
         public int? PositionX
         {
-            get { return (int?)_luaTable.GetNumber(LuaConstants.Tables.Object.PositionX); }
-            set { _luaTable[LuaConstants.Tables.Object.PositionX] = (double?)value; }
+            get { return _luaTable.GetNumber(LuaConstants.Tables.Object.PositionX); }
+            set { _luaTable[LuaConstants.Tables.Object.PositionX] = value; }
         }
 
         public int? PositionY
         {
-            get { return (int?)_luaTable.GetNumber(LuaConstants.Tables.Object.PositionY); }
-            set { _luaTable[LuaConstants.Tables.Object.PositionY] = (double?)value; }
+            get { return _luaTable.GetNumber(LuaConstants.Tables.Object.PositionY); }
+            set { _luaTable[LuaConstants.Tables.Object.PositionY] = value; }
+        }
+
+        public string UsePosition
+        {
+            get { return _luaTable.GetString(LuaConstants.Tables.Object.UsePosition); } // TODO
+        }
+
+        public string UseDirection
+        {
+            get { return _luaTable.GetString(LuaConstants.Tables.Object.UseDirection); } // TODO
+        }
+
+        public string FaceDirection
+        {
+            get { return _luaTable.GetString(LuaConstants.Tables.Object.FaceDirection); } // TODO
+            set { _luaTable[LuaConstants.Tables.Object.FaceDirection] = value; }
         }
 
         public IEnumerable<IObject> GetInventory()

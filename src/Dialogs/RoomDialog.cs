@@ -47,12 +47,33 @@ namespace GameATron4000.Dialogs
             var scriptResult = _script.OnAfterEnterRoom();
             activities.AddRange(scriptResult.Activities);
 
-            // Add an Idle activity to let the GUI know that we're waiting for the
-            // player's input.
-            activities.Add(activityFactory.Idle());
+            // // Add an Idle activity to let the GUI know that we're waiting for the
+            // // player's input.
+            // activities.Add(activityFactory.Idle());
 
             // Send all collected activities to the client.
             await dc.Context.SendActivitiesAsync(activities.ToArray());
+
+            // TODO Below part can be extracted to separate method ''
+            // If the script tells us to go to another room, or start a conversation, 
+            // update the dialog stack.
+            if (scriptResult.NextDialogId.Length > 0)
+            {
+                if (scriptResult.NextDialogReplace)
+                {
+                    await dc.ReplaceDialogAsync(scriptResult.NextDialogId);
+                }
+                else
+                {
+                    await dc.BeginDialogAsync(scriptResult.NextDialogId);
+                }
+            }
+            // Otherwise, send an Idle activity to let the GUI know that we're waiting
+            // for the player's input.
+            else
+            {
+                await dc.Context.SendActivityAsync(activityFactory.Idle());
+            }
 
             return new DialogTurnResult(DialogTurnStatus.Waiting);
         }
@@ -81,7 +102,14 @@ namespace GameATron4000.Dialogs
             // update the dialog stack.
             if (scriptResult.NextDialogId.Length > 0)
             {
-                await dc.ReplaceDialogAsync(scriptResult.NextDialogId);
+                if (scriptResult.NextDialogReplace)
+                {
+                    await dc.ReplaceDialogAsync(scriptResult.NextDialogId);
+                }
+                else
+                {
+                    await dc.BeginDialogAsync(scriptResult.NextDialogId);
+                }
             }
             // Otherwise, send an Idle activity to let the GUI know that we're waiting
             // for the player's input.
@@ -101,31 +129,17 @@ namespace GameATron4000.Dialogs
         {
             if (dc == null) throw new ArgumentNullException(nameof(dc));
 
-            // // We've just finished a conversation with an actor. Check the state if the game script
-            // // contains any further actions to execute.
-            // object pendingActions;
-            // if (dc.ActiveDialog.State.TryGetValue(DialogStatePendingActions, out pendingActions))
-            // {
-            //     // Map the actions to Bot Framework activities and send them to the client.
-            //     if (!await ExecuteActionsAsync(dc, (List<CommandAction>)pendingActions))
-            //     {
-            //         // If ExecuteActionsAsync returns false, don't send anymore activities
-            //         // to the client. Control is handed over to a different dialog.
-            //         return new DialogTurnResult(DialogTurnStatus.Waiting);
-            //     }
+            var activityFactory = new ActivityFactory(dc.Context);
 
-            //     dc.ActiveDialog.State.Remove(DialogStatePendingActions);
-            // }
-
-            // // Send an Idle activity to let the GUI know that we're waiting for user interaction.
-            // await dc.Context.SendActivityAsync(_activityFactory.Idle(dc));
+            // We've just finished a conversation with an actor. 
+            // Send an Idle activity to let the GUI know that we're waiting for user interaction.
+            await dc.Context.SendActivityAsync(activityFactory.Idle());
 
             return new DialogTurnResult(DialogTurnStatus.Waiting);
         }
 
-        private Task ExecuteActivitiesAsync()
+        private async Task SendScriptResultsToClient(DialogContext dc, IGameScriptResult scriptResult)
         {
-            
         }
     }
 }

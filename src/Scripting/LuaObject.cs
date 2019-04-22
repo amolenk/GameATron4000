@@ -64,26 +64,36 @@ namespace GameATron4000.Scripting
 
         public int? PositionX
         {
-            get { return (int?)_luaTable.GetNumber(LuaConstants.Tables.Object.PositionX); }
-            set { _luaTable[LuaConstants.Tables.Object.PositionX] = (double?)value; }
+            get { return _luaTable.GetNumber(LuaConstants.Tables.Object.PositionX); }
+            set { _luaTable[LuaConstants.Tables.Object.PositionX] = value; }
         }
 
         public int? PositionY
         {
-            get { return (int?)_luaTable.GetNumber(LuaConstants.Tables.Object.PositionY); }
-            set { _luaTable[LuaConstants.Tables.Object.PositionY] = (double?)value; }
+            get { return _luaTable.GetNumber(LuaConstants.Tables.Object.PositionY); }
+            set { _luaTable[LuaConstants.Tables.Object.PositionY] = value; }
         }
 
         public int? ZOffset
         {
-            get { return (int?)_luaTable.GetNumber(LuaConstants.Tables.Object.ZOffset); }
-            set { _luaTable[LuaConstants.Tables.Object.ZOffset] = (double?)value; }
+            get { return _luaTable.GetNumber(LuaConstants.Tables.Object.ZOffset); }
+            set { _luaTable[LuaConstants.Tables.Object.ZOffset] = value; }
         }
 
         public string State
         {
             get { return _luaTable.GetString(LuaConstants.Tables.Object.State); }
             set { _luaTable[LuaConstants.Tables.Object.State] = value; }
+        }
+
+        public string UsePosition
+        {
+            get { return _luaTable.GetString(LuaConstants.Tables.Object.UsePosition); }
+        }
+
+        public string UseDirection
+        {
+            get { return _luaTable.GetString(LuaConstants.Tables.Object.UseDirection); } 
         }
 
         public IObjectDependency DependsOn

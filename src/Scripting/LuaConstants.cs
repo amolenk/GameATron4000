@@ -42,6 +42,9 @@ namespace GameATron4000.Scripting
                 public const string PositionY = "y";
                 public const string ZOffset = "z_offset";
                 public const string State = "state";
+                public const string UsePosition = "use_pos";
+                public const string UseDirection = "use_dir";
+                public const string FaceDirection = "face_dir";
                 public const string DependsOn = "depends_on";
             }
 
@@ -49,6 +52,11 @@ namespace GameATron4000.Scripting
             {
                 public const string Object = "object";
                 public const string State = "state";
+            }
+
+            public static class Room
+            {
+                public const string Walkbox = "walkbox";        
             }
 
             public static class Types

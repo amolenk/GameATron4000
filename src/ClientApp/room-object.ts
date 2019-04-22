@@ -8,7 +8,7 @@ export class RoomObject {
     protected sprite: Phaser.Sprite;
     private _created: boolean = false;
 
-    constructor(public id: string, public name: string, public classes: string[], private state: string) {
+    constructor(public id: string, public name: string, public classes: string[], private state: string, public usePosition: string, public useDirection: string) {
     }
 
     public get x() {
@@ -29,7 +29,6 @@ export class RoomObject {
         this.sprite.anchor.set(0.5, 1);
 
         this.sprite.data.z = y + zOffset;
-        console.log(`${this.id} = ${this.sprite.data.z}`);
 
         group.add(this.sprite);
 

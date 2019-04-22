@@ -10,6 +10,10 @@ namespace GameATron4000.Scripting
 
         public List<Activity> Activities { get; } = new List<Activity>();
 
+        public Dictionary<string, string> ConversationOptions { get; } = new Dictionary<string, string>();
+
         public string NextDialogId { get; set; } = string.Empty;
+
+        public bool NextDialogReplace { get; set; }
     }
 }

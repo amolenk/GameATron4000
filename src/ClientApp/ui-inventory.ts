@@ -7,37 +7,35 @@ import { InventoryItem } from "./inventory-item";
 
 export class InventoryUI {
 
-    private objects: Map<string, InventoryItem>; // TODO Rename to items
+    private items: Array<InventoryItem>;
     private visible: boolean; 
 
     constructor(private game: Phaser.Game, private uiMediator: UIMediator, private layers: Layers) {
-        this.objects = new Map<string, InventoryItem>();
+        this.items = new Array<InventoryItem>();
         this.visible = true;
     }
 
-    public addToInventory(item: InventoryItem) {//} objectId: string, description: string, classes: string[]) {
+    public addToInventory(item: InventoryItem) {
 
-        item.create(this.game, this.uiMediator, 400 + (42 * this.objects.size), 476, this.layers.ui);
+        item.create(this.game, this.uiMediator, 400 + (42 * this.items.length), 476, this.layers.ui);
         item.setVisible(this.visible); // TODO necessary?
 
-        this.objects.set(item.id, item);
+        this.items.push(item);
 
         return Promise.resolve();
     }
 
     public removeFromInventory(objectId: string) {
         
-        var item = this.objects.get(objectId);
-        if (item) {
-            item.kill();
-            this.objects.delete(item.id);
+        var index = this.items.findIndex(i => i.id == objectId);
+        if (index > -1) {
+            this.items[index].kill();
+            this.items.splice(index, 1);
 
-            // reorder itemss
-            var itemIndex = 0;
-            this.objects.forEach((value: InventoryItem, key: string) => {
-                value.setPosition(400 + (42 * itemIndex), 476);
-                itemIndex++;
-            });
+            // reorder items
+            for (let i = 0; i < this.items.length; i++) {
+                this.items[i].setPosition(400 + (42 * i), 476);
+            }
         }
 
         return Promise.resolve();
@@ -45,7 +43,7 @@ export class InventoryUI {
 
     public setVisible(visible: boolean) {
         this.visible = visible;
-        for (var item of this.objects.values()) {
+        for (let item of this.items) {
             item.setVisible(visible);
         }
     }

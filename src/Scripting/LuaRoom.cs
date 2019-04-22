@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using GameATron4000.Core;
 using Microsoft.Bot.Builder.Dialogs;
@@ -26,6 +27,22 @@ namespace GameATron4000.Scripting
         public string Id
         {
             get { return _luaTable.GetString(LuaConstants.Tables.Id); }
+        }
+
+        public IEnumerable<Point> Walkbox
+        {
+            get
+            {
+                var points = _luaTable.GetTable(LuaConstants.Tables.Room.Walkbox);
+                if (points != null)
+                {
+                    foreach (LuaTable point in points.Values)
+                    {
+                        // Lua indices are 1-based.
+                        yield return new Point(point.GetNumber(1).Value, point.GetNumber(2).Value);
+                    }
+                }
+            }
         }
 
         public IEnumerable<IObject> GetObjects()

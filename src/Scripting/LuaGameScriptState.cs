@@ -32,7 +32,7 @@ namespace GameATron4000.Scripting
             foreach (var entry in tablesToSave)
             {
                 var tableState = entry.Table.ToEnumerable()
-                    .Where(row => row.Value is string || row.Value is double)
+                    .Where(row => row.Value is string || row.Value is double || row.Value is bool)
                     .ToDictionary(row => row.Key, row => row.Value);
 
                 result.Add(entry.Key, tableState);

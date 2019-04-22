@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Dynamic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -30,6 +31,14 @@ namespace GameATron4000.Scripting
         private readonly LuaFunctions _luaFunctions;
         private readonly LuaGameScriptState _initialScriptState;
 
+        public object DebugStuff
+        {
+            get
+            {
+                return _lua["_G"];
+            }
+        }
+
         public LuaGameScript(ActivityFactory activityFactory)
         {
             _activityFactory = activityFactory;
@@ -44,6 +53,13 @@ namespace GameATron4000.Scripting
                 class_fixed_to_camera = ""class_fixed_to_camera""
                 class_untouchable = ""class_untouchable""
                 class_use_with = ""class_use_with""
+                
+                face_back = ""back""
+                face_front = ""front""
+
+                pos_infront = ""infront""
+                pos_center = ""center""
+                pos_above = ""above""
 
                 narrator = {{
                     type = ""narrator""
@@ -53,16 +69,30 @@ namespace GameATron4000.Scripting
                     type = ""world""
                 }}
 
+                start_cutscene = function(cutscene)
+                    selected_cutscene = cutscene
+                    cutscene.start()
+                end
+
+                end_cutscene = function()
+                    selected_cutscene = nil
+                end
+
                 ", "initialization");
 
             // Make the game engine functions available to the Lua script.
             _luaFunctions = new LuaFunctions(this, activityFactory);
             LuaRegistrationHelper.TaggedInstanceMethods(_lua, _luaFunctions);
 
-            _lua.DoFile($"Gameplay/scripts/game.lua");
-            _lua.DoFile($"Gameplay/scripts/actors.lua");
-            _lua.DoFile($"Gameplay/scripts/objects.lua");
-            _lua.DoFile($"Gameplay/scripts/rooms.lua");
+            _lua.DoFile("Gameplay/scripts/game.lua");
+            _lua.DoFile("Gameplay/scripts/actors.lua");
+            _lua.DoFile("Gameplay/scripts/objects.lua");
+            _lua.DoFile("Gameplay/scripts/rooms.lua");
+            
+            foreach (var path in Directory.GetFiles("Gameplay/scripts/conversations", "*.lua"))
+            {
+                _lua.DoFile(path);
+            }
 
             _initialScriptState = LuaGameScriptState.Save(_lua);
         }
@@ -112,7 +142,7 @@ namespace GameATron4000.Scripting
         {
             _luaFunctions.Reset();
 
-            _lua.DoString($"initialize_game()");
+            _lua.DoString("initialize_game()");
 
             return _luaFunctions.Result;
         }
@@ -155,6 +185,36 @@ namespace GameATron4000.Scripting
             return _luaFunctions.Result;
         }
 
+        public IGameScriptResult OnConversationStarted(string conversationId)
+        {
+            _luaFunctions.Reset();
+
+            var conversation = GetTable("id", conversationId, "conversation");
+            var function = conversation["start"] as LuaFunction;
+            if (function != null)
+            {
+                function.Call(conversation);
+            }
+
+            return _luaFunctions.Result;
+        }
+
+        public IGameScriptResult OnConversationContinued(string conversationId, string action)
+        {
+            _luaFunctions.Reset();
+
+            // TODO Extract to RunTableFunction (along with room?)
+
+            var conversation = GetTable("id", conversationId, "conversation");
+            var function = conversation[action] as LuaFunction;
+            if (function != null)
+            {
+                function.Call(conversation);
+            }
+
+            return _luaFunctions.Result;
+        }
+
         public IGameScriptState SaveScriptState()
         {
             var result = new Dictionary<string, object>();
@@ -175,6 +235,13 @@ namespace GameATron4000.Scripting
             ((LuaGameScriptState)scriptState).Load(_lua);
 
             UpdateGlobalWorldVariables();
+        }
+
+        public void UpdatePlayerPosition(int x, int y)
+        {
+            var selectedActor = World.GetSelectedActor();
+            selectedActor.PositionX = x;
+            selectedActor.PositionY = y;
         }
 
         public void UpdateGlobalWorldVariables()
@@ -244,13 +311,24 @@ namespace GameATron4000.Scripting
             _luaFunctions.Reset();
 
             var room = GetTable(LuaConstants.Tables.Id, World.CurrentRoomId, LuaConstants.Tables.Types.Room);
-            var function = room[functionName] as LuaFunction;
+            var selectedCutscene = GetSelectedCutscene();
+            
+            var function = (selectedCutscene != null)
+                ? selectedCutscene[$"{room.Id}_{functionName}"] as LuaFunction
+                : room[functionName] as LuaFunction;
+
             if (function != null)
             {
                 function.Call(room);
             }
 
             return _luaFunctions.Result;
+        }
+
+        private LuaTable GetSelectedCutscene()
+        {
+            return ((LuaTable)_lua[LuaConstants.Tables.Keys.Globals])
+                .FirstOrDefault(x => x.Key == "selected_cutscene") as LuaTable;
         }
 
         private LuaTable GetTable(string key, string value, params string[] types)

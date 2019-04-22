@@ -7,6 +7,10 @@ namespace GameATron4000.Core
     {
         List<Activity> Activities { get; }
 
-        //string NextDialogId { get; }
+        Dictionary<string, string> ConversationOptions { get; }
+
+        string NextDialogId { get; }
+
+        bool NextDialogReplace { get; }
     }
 }

@@ -17,7 +17,7 @@ export class ActionUI {
             align: "center"
         };
 
-        this.text = this.game.add.text(400, 462, "", textStyle);
+        this.text = this.game.add.text(400, 462, "Walk to", textStyle);
         this.text.anchor.setTo(0.5);
         this.text.lineSpacing = -30;
         this.text.scale.x = 0.5;
@@ -32,7 +32,7 @@ export class ActionUI {
     }
 
     public setVisible(visible: boolean) {
-        this.text.setText("");
+        this.text.setText("Walk to"); // TODO Default text
         this.text.visible = visible;
     }
 }

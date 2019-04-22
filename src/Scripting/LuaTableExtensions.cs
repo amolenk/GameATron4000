@@ -6,22 +6,27 @@ namespace GameATron4000.Scripting
 {
     public static class LuaTableExtensions
     {
-        public static bool? GetBoolean(this LuaTable table, string key)
+        public static bool? GetBoolean(this LuaTable table, object key)
         {
             return table[key] as bool?;
         }
 
-        public static string GetString(this LuaTable table, string key)
+        public static string GetString(this LuaTable table, object key)
         {
             return table[key]?.ToString() ?? string.Empty;
         }
 
-        public static double? GetNumber(this LuaTable table, string key)
+        public static int? GetNumber(this LuaTable table, object key)
         {
-            return table[key] as double?;
+            var result = table[key] as double?;
+            if (result.HasValue)
+            {
+                return (int)result;
+            }
+            return null;
         }
 
-        public static LuaTable GetTable(this LuaTable table, string key)
+        public static LuaTable GetTable(this LuaTable table, object key)
         {
             return table[key] as LuaTable;
         }

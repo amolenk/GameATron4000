@@ -14,6 +14,8 @@ using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Schema;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using NLua;
 
 namespace GameATron4000.Core
 {
@@ -37,67 +39,71 @@ namespace GameATron4000.Core
 
             var activityFactory = new ActivityFactory(context);
 
+            // TODO Move inside try
             IGameScript script = new LuaGameScript(activityFactory);
             script.LoadScriptState(scriptState);
 
-            // Establish dialog context from the game info.
-            var dialogSet = CreateDialogSet(script);
-            var dc = await dialogSet.CreateContextAsync(context, cancellationToken);
-
-            if (dc.ActiveDialog == null)
+            try
             {
-                if (context.Activity.Type is ActivityTypes.ConversationUpdate)
+
+                if (context.Activity.Properties != null
+                    && context.Activity.Properties.TryGetValue("player_pos", out JToken playerPosition))
                 {
-                    foreach (var newMember in context.Activity?.MembersAdded)
+                    script.UpdatePlayerPosition(
+                        (int)playerPosition.Value<double>("x"),
+                        (int)playerPosition.Value<double>("y"));
+                }
+                
+                // Establish dialog context from the game info.
+                var dialogSet = CreateDialogSet(script);
+                var dc = await dialogSet.CreateContextAsync(context, cancellationToken);
+
+                if (dc.ActiveDialog == null)
+                {
+                    if (context.Activity.Type is ActivityTypes.ConversationUpdate)
                     {
-                        if (newMember.Id == context.Activity.Recipient.Id)
+                        foreach (var newMember in context.Activity?.MembersAdded)
                         {
-                            var result = script.OnInitializeGame();
-                            // if (string.IsNullOrWhiteSpace(result.NextDialogId))
-                            // {
-                            //     // TODO
-                            //     throw new Exception("No room specified!");
-                            // }
+                            if (newMember.Id == context.Activity.Recipient.Id)
+                            {
+                                var result = script.OnInitializeGame();
+                                if (string.IsNullOrWhiteSpace(result.NextDialogId))
+                                {
+                                    // TODO
+                                    throw new Exception("No room specified!");
+                                }
 
-                            // if (script.World.SelectedActorId.Length > 0)
-                            // {
-                            //     var selectedActor = script.World.GetSelectedActor();
-                            //     var selectedActorChanged = activityFactory.SelectedActorChanged(selectedActor);
-                            //     await context.SendActivityAsync(selectedActorChanged);
-                            // }
+                                // And send a GameStarted to the client that contains information on the selected
+                                // actor, inventory items and camera.
+                                await context.SendActivityAsync(activityFactory.GameStarted(script));
 
-                            // TODO Camera follow
-
-                            // if (script.)
-
-                            // await context.SendActivityAsync(activityFactory.SelectedActorChanged(
-                            //     script.
-                            // ))
-
-                            // And send a GameStarted to the client that contains information on the selected
-                            // actor, inventory items and camera.
-                            await context.SendActivityAsync(activityFactory.GameStarted(script));
-
-                            // Start the game's first room.
-                            await dc.BeginDialogAsync("park");
+                                // Start the game's first room.
+                                await dc.BeginDialogAsync(result.NextDialogId);
+                            }
                         }
                     }
                 }
+                else if (context.Activity.Type is ActivityTypes.Message)
+                {
+                    // TODO Trial 3: Add call to LUIS service
+
+                    // Continue the dialog to handle the incoming command.
+                    await dc.ContinueDialogAsync();
+                }
+
+                scriptState = script.SaveScriptState();
+
+                await _stateAccessors.GameScriptStateAccessor.SetAsync(dc.Context, scriptState);
+
+                // Save any changes back to conversation state.
+                await _stateAccessors.ConversationState.SaveChangesAsync(context, false, cancellationToken);
             }
-            else if (context.Activity.Type is ActivityTypes.Message)
+            catch (Exception ex)
             {
-                // TODO Trial 3: Add call to LUIS service
-
-                // Continue the dialog to handle the incoming command.
-                await dc.ContinueDialogAsync();
+                var debug = (LuaTable)((LuaGameScript)script).DebugStuff;
+                var ian = (LuaTable)debug["ian"];
+                await context.SendActivityAsync(activityFactory.ErrorOccured(ex));
             }
-
-            scriptState = script.SaveScriptState();
-
-            await _stateAccessors.GameScriptStateAccessor.SetAsync(dc.Context, scriptState);
-
-            // Save any changes back to conversation state.
-            await _stateAccessors.ConversationState.SaveChangesAsync(context, false, cancellationToken);
         }
 
         private DialogSet CreateDialogSet(IGameScript gameScript)
@@ -111,14 +117,13 @@ namespace GameATron4000.Core
                 dialogSet.Add(dialog);
             }
 
-            // TODO!
-            // foreach (var script in gameInfo.ConversationScripts)
-            // {
-            //     var conversationRootNode = conversationParser.Parse(script.Value);
+            // TODO Replace with gameScript.Conversations
+            foreach (var path in Directory.GetFiles("Gameplay/scripts/conversations", "*.lua"))
+            {
+                var dialog = new ConversationDialog(Path.GetFileNameWithoutExtension(path), gameScript);
 
-            //     dialogSet.Add(new Conversation(script.Key, gameInfo, conversationRootNode,
-            //         _stateAccessors.StateFlagsAccessor));
-            // }
+                dialogSet.Add(dialog);
+            }
 
             return dialogSet;
         }

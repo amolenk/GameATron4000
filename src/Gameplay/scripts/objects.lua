@@ -4,6 +4,7 @@ fridge = {
     name = "fridge",
     classes = {},
     state = "closed",
+    use_dir = face_back,
     verbs = {
         open = function(obj)
              change_state(obj, "open")
@@ -11,11 +12,22 @@ fridge = {
         close = function(obj)
             change_state(obj, "closed")
         end,
+        push = function(obj)
+            start_cutscene(cutscene)
+        end,
         look_at = function(obj)
-            if obj.state == "open" then
-                say_line("It's an open fridge!")
+            if obj.state == "closed" then
+                say_line("It's a big fridge!")
+                say_line("The badge on the side reads 'Brrrr-a-tron 9000™'")
+                face_dir(face_front)
+                say_line("Never heard of it!")
+                say_line("It's top of the line!", al)
+            elseif owned_by(groceries, selected_actor) then
+                say_line("It's empty!")
+                face_dir(face_front)
+                say_line("I wonder where these guys do their shopping!")
             else
-                say_line("It's a closed fridge!")
+                say_line("All my groceries are now in the fridge!")
             end
         end
     }
@@ -24,12 +36,19 @@ fridge = {
 groceries = {
     id = "groceries",
     type = "object",
-    name = "bag of groceries",
+    name = "groceries",
     classes = { class_use_with },
     verbs = {
         look_at = function(obj)
-            say_line("It's my shopping bag with groceries.")
-            say_line("There's even a bottle of Info Support Awesome Sauce™ in there!")
+            if owned_by(obj, selected_actor) then
+                say_line("It's my shopping bag with groceries.")
+                say_line("There's even a bottle of Info Support Awesome Sauce™ in there!")
+            else
+                say_line("All my groceries stay nice and cool in the fridge!")
+            end
+        end,
+        pick_up = function(obj)
+            set_owner(obj, selected_actor)
         end,
         use_with = function(obj, other)
             if other == grocerylist then
@@ -39,7 +58,7 @@ groceries = {
                 if fridge.state == "closed" then
                     say_line("What do you expect me to do? Throw them at the fridge door?")
                 else
-                    put_object(groceries, fridge.x, fridge.y - 83, park)
+                    put_object(groceries, fridge.x, fridge.y - 83)
                 end
             end
         end
@@ -58,12 +77,22 @@ grocerylist = {
     classes = { class_use_with },
     verbs = {
         look_at = function(obj)
-            say_line("It's my grocery list!")
-            say_line("I've bought everything that's on it!")
+            if owned_by(obj, selected_actor) then
+                say_line("It's my grocery list!")
+                say_line("I've bought everything that's on it!")
+            else
+                say_line("It's my old grocery list!")
+                say_line("I guess these guys have a new to-do list now!")
+            end
         end,
         use_with = function(obj, other)
             if other == groceries then
                 say_line("Yep, I've got everything on the list!")
+            elseif other == todolist then
+                set_owner(todolist, selected_actor)
+                put_object(grocerylist, 650, 300)
+                face_dir(face_front)
+                say_line("That should do the trick!")
             end
         end
     }
@@ -108,32 +137,34 @@ newspaper_headline = {
     classes = { class_fixed_to_camera, class_untouchable }
 }
 
-remote = {
-    id = "remote",
+todolist = {
+    id = "todolist",
     type = "object",
-    name = "teleportation device",
+    name = "to-do list",
+    use_dir = face_back,
     verbs = {
         look_at = function(obj)
-            say_line("It's my teleportation device.")
-            say_line("Great for debugging!")
-        end,
-        use = function(obj)
-            cutscene_test()
-            -- world.teleported = true
-            -- if current_room == park then
-            --     change_room(ufo)
-            -- else
-            --     change_room(park)
-            -- end
-        end,
-        give_to = function(obj, actor)
-            -- am i being given to the right person?
-            if actor == al then
-                say_line("here you go")
-                set_owner(obj, actor);
-                say_line("thank you!", actor)
+            if owned_by(obj, selected_actor) then
+                say_line("It's the alien to-do list I've replaced with my grocery list!")
             else
-                say_line("i might need this")
+                say_line("It's a list with names.")
+                say_line("The title says: 'Body-snatch list'.")
+                face_dir(face_front)
+                say_line("YIKES, this can't be good!!")
+            end
+        end,
+        pick_up = function(obj)
+            if not owned_by(obj, selected_actor) then
+                remove_object(obj)
+                face_dir(face_front)
+                say_line("Got it!")
+                say_line("Hey, put that back!", ian)
+                say_line("We need that to finish the mission!", al)
+                face_dir(face_back)
+                wait(500)
+                put_object(obj, 650, 300)
+                face_dir(face_front)
+                say_line("I guess I have to think of something sneakier!")
             end
         end
     }
