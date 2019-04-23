@@ -13,41 +13,27 @@ function initialize_game()
     put_object(fridge, 185, 352, ufo)    
     put_object(todolist, 650, 300, ufo)
 
+    put_object(beamcontrol, 73, 281, transport)
+    put_object(transport_glow, 442, 450, transport)
+
     put_actor(al, 440, 370, ufo)
     put_actor(ian, 650, 420, ufo)
 
-    change_room(ufo)
+    change_room(park)
 
 end
 
--- function no_result()
---     if selected_room != intro then
---         local line = random(canned_responses)
---         say_line(line)
---     end
--- end
-
-cutscene = {
-
-    start = function()
-        say_line("Ok, here we go!")
-        change_room(beach)
-        say_line("Works?")
-        cutscene_next = beach_before_enter
-    end,
-
-    beach_before_enter = function()
-        put_actor(guy, 400, 225, beach)
-        cutscene_next = beach_after_enter
-    end,
-
-    beach_after_enter = function()
-        say_line("I should be feeling sand now!")
-        change_room(park)
-        end_cutscene()
-    end
+canned_responses = {
+    "I can't do that.",
+    "Why?",
+    "Hmm, better not.",
+    "That will probably crash the game!"
 }
 
+function no_result()
+    local canned_response = canned_responses[rand(1, 4)]
+    say_line(canned_response)
+end
 
 function cutscene_beam_up()
     say_line("It's yesterday's newspaper!")

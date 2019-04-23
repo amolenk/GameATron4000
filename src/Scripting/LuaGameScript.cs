@@ -26,6 +26,8 @@ namespace GameATron4000.Scripting
     // TODO Dispose!!!
     public class LuaGameScript : IGameScript
     {
+        private const string FUNCTION_NO_RESULT = "no_result";
+
         private readonly ActivityFactory _activityFactory;
         private readonly Lua _lua;
         private readonly LuaFunctions _luaFunctions;
@@ -176,10 +178,10 @@ namespace GameATron4000.Scripting
             }
 
             if (!_luaFunctions.Result.Activities.Any()
-                && _luaFunctions.Result.NextDialogId.Length == 0)
+                && _luaFunctions.Result.NextDialogId.Length == 0
+                && _lua[FUNCTION_NO_RESULT] is LuaFunction)
             {
-                _luaFunctions.Result.Activities.Add(
-                    _activityFactory.CannedResponse(this));
+                ((LuaFunction)_lua[FUNCTION_NO_RESULT]).Call();
             }
 
             return _luaFunctions.Result;
@@ -311,24 +313,14 @@ namespace GameATron4000.Scripting
             _luaFunctions.Reset();
 
             var room = GetTable(LuaConstants.Tables.Id, World.CurrentRoomId, LuaConstants.Tables.Types.Room);
-            var selectedCutscene = GetSelectedCutscene();
             
-            var function = (selectedCutscene != null)
-                ? selectedCutscene[$"{room.Id}_{functionName}"] as LuaFunction
-                : room[functionName] as LuaFunction;
-
+            var function = room[functionName] as LuaFunction;
             if (function != null)
             {
                 function.Call(room);
             }
 
             return _luaFunctions.Result;
-        }
-
-        private LuaTable GetSelectedCutscene()
-        {
-            return ((LuaTable)_lua[LuaConstants.Tables.Keys.Globals])
-                .FirstOrDefault(x => x.Key == "selected_cutscene") as LuaTable;
         }
 
         private LuaTable GetTable(string key, string value, params string[] types)

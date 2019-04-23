@@ -14,13 +14,15 @@ namespace GameATron4000.Scripting
 {
     public class LuaFunctions
     {
-        private LuaGameScript _script;
-        private ActivityFactory _activityFactory;
+        private readonly LuaGameScript _script;
+        private readonly ActivityFactory _activityFactory;
+        private readonly Random _random;
 
         public LuaFunctions(LuaGameScript script, ActivityFactory activityFactory)
         {
             _script = script;
             _activityFactory = activityFactory;
+            _random = new Random();
         }
 
         public LuaGameScriptResult Result { get; private set; } = new LuaGameScriptResult();
@@ -30,13 +32,19 @@ namespace GameATron4000.Scripting
             Result = new LuaGameScriptResult();
         }
 
-        [LuaGlobal(Name = "camera_follow")]
-        public void CameraFollow(LuaTable actorTable)
+        [LuaGlobal(Name = "rand")]
+        public int Random(int min, int max)
         {
-            var actor = LuaActor.FromTable(actorTable, _script);
-
-            _script.World.CameraFollow = actor.Id;
+            return _random.Next(min, max + 1);
         }
+
+        // [LuaGlobal(Name = "camera_follow")]
+        // public void CameraFollow(LuaTable actorTable)
+        // {
+        //     var actor = LuaActor.FromTable(actorTable, _script);
+
+        //     _script.World.CameraFollow = actor.Id;
+        // }
 
         [LuaGlobal(Name = "change_room")]
         public void ChangeRoom(LuaTable roomTable)

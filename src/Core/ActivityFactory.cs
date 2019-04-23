@@ -81,16 +81,6 @@ namespace GameATron4000.Core
             });
         }
 
-        public Activity CannedResponse(IGameScript script)
-        {
-            var selectedActor = script.World.GetSelectedActor();
-
-            // TODO
-            return LineSpoken("(canned response)", selectedActor);
-
-//                _gameInfo.CannedResponses[_random.Next(0, _gameInfo.CannedResponses.Count)]);
-        }
-
         public Activity ErrorOccured(Exception ex)
         {
             return CreateEventActivity("ErrorOccured", new

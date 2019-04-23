@@ -137,9 +137,5 @@ namespace GameATron4000.Dialogs
 
             return new DialogTurnResult(DialogTurnStatus.Waiting);
         }
-
-        private async Task SendScriptResultsToClient(DialogContext dc, IGameScriptResult scriptResult)
-        {
-        }
     }
 }

@@ -25,6 +25,22 @@ park = {
     end
 }
 
+transport = {
+    id = "transport",
+    type = "room",
+    walkbox = {
+        { 0, 412 },
+        { 220, 306 },
+        { 634, 306 },
+        { 884, 417 },
+        { 884, 449 },
+        { 0, 449}
+    },
+    before_enter = function(room)
+        put_actor(guy, 420, 380)
+    end
+}
+
 ufo = {
     id = "ufo",
     type = "room",
@@ -62,9 +78,9 @@ beach = {
         { 0, 449}
     },
     before_enter = function(room)
-        cutscene.beach_before_enter()
+        -- TODO
     end,
     after_enter = function(room)
-        cutscene.beach_after_enter()
+        -- TODO
     end
 }

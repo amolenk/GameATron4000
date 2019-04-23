@@ -1,3 +1,22 @@
+beamcontrol = {
+    id = "beamcontrol",
+    type = "object",
+    name = "big button",
+    state = "on",
+    verbs = {
+        push = function(obj)
+            obj.verbs.use(obj)
+        end,
+        use = function(obj)
+            if obj.state == "on" then
+                change_state(obj, "off")
+            else
+                change_state(obj, "on")
+            end
+        end
+    }
+}
+
 fridge = {
     id = "fridge",
     type = "object",
@@ -174,6 +193,16 @@ tractorbeam = {
     id = "tractorbeam",
     type = "object",
     classes = { class_untouchable }
+}
+
+transport_glow = {
+    id = "transport_glow",
+    type = "object",
+    classes = { class_untouchable },
+    depends_on = {
+        object = beamcontrol,
+        state = "on"
+    }
 }
 
 park_bench = {
