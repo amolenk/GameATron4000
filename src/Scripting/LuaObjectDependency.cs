@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using GameATron4000.Core;
 using Microsoft.Bot.Builder.Dialogs;
 using Newtonsoft.Json;
@@ -9,36 +11,41 @@ namespace GameATron4000.Scripting
 {
     public class LuaObjectDependency : IObjectDependency
     {
-        private readonly LuaTable _luaTable;
+        private readonly string _objectId;
+        private readonly string _state;
         private readonly LuaGameScript _script;
 
-        private LuaObjectDependency(LuaTable luaTable, LuaGameScript script)
+        private LuaObjectDependency(string objectId, string state, LuaGameScript script)
         {
-            _luaTable = luaTable;
+            _objectId = objectId;
+            _state = state;
             _script = script;
         }
 
-        public static LuaObjectDependency FromTable(LuaTable table, LuaGameScript script)
+        public static LuaObjectDependency FromString(string value, LuaGameScript script)
         {
-            return new LuaObjectDependency(table, script);
+            var parts = value.Split('.', StringSplitOptions.RemoveEmptyEntries);
+            if (parts.Length != 2)
+            {
+                return null;
+//                throw new ArgumentException($"Invalid object dependency '{value}'.", nameof(value));
+            }
+
+            return new LuaObjectDependency(parts[0], parts[1], script);
         }
 
         public IObject Object
         {
             get
             {
-                var objectTable = _luaTable.GetTable(LuaConstants.Tables.ObjectDependency.Object);
-                if (objectTable != null)
-                {
-                    return LuaObject.FromTable(objectTable, _script);
-                }
-                return null; // TODO Throw?
+                return _script.Objects.FirstOrDefault(o => o.Id == _objectId);
+                // TODO Throw if null?
             }
         }
 
         public string State
         {
-            get { return _luaTable.GetString(LuaConstants.Tables.ObjectDependency.State); }
+            get { return _state; }
         }
     }
 }

@@ -38,19 +38,25 @@ export class Actor {
         
         this.game = game;
 
-        this.sprite = this.game.add.sprite(x, y, "sprites", `actors/${this.id}/${this.faceDirection}`);
+        // TODO Refactor to GetFrameName
+        var frameName = (this.classes.indexOf("class_invisible") == -1)
+            ? `actors/${this.id}/${this.faceDirection}` : `./transparent`;
+
+        this.sprite = this.game.add.sprite(x, y, "sprites", frameName);
         this.sprite.anchor.set(0.5, 1);
         this.sprite.data.z = y;
 
         // Animations
-        this.sprite.animations.add('walk-left',
-            Phaser.Animation.generateFrameNames(`actors/${this.id}/walk/left/`, 1, 6, '', 4), 9, true, false);
+        if (this.classes.indexOf("class_invisible") == -1) {
+            this.sprite.animations.add('walk-left',
+                Phaser.Animation.generateFrameNames(`actors/${this.id}/walk/left/`, 1, 6, '', 4), 9, true, false);
 
-        this.sprite.animations.add('walk-right',
-            Phaser.Animation.generateFrameNames(`actors/${this.id}/walk/right/`, 1, 6, '', 4), 9, true, false);
+            this.sprite.animations.add('walk-right',
+                Phaser.Animation.generateFrameNames(`actors/${this.id}/walk/right/`, 1, 6, '', 4), 9, true, false);
 
-        this.sprite.animations.add('talk',
-            Phaser.Animation.generateFrameNames(`actors/${this.id}/talk/`, 1, 6, '', 4), 9, true, false);
+            this.sprite.animations.add('talk',
+                Phaser.Animation.generateFrameNames(`actors/${this.id}/talk/`, 1, 6, '', 4), 9, true, false);
+        }
 
         this.text = this.game.add.text(x, y - this.sprite.height - 40, "", this.createTextStyle());
         this.text.anchor.setTo(0.5);

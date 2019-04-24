@@ -45,3 +45,26 @@ ian = {
         end
     }
 }
+
+carl = {
+    id = "carl",
+    type = "actor",
+    name = "Carl",
+    text_col = "#584def",
+    use_pos = pos_infront,
+    use_dir = face_back
+}
+
+richard = {
+    id = "richard",
+    type = "actor",
+    name = "Richard",
+    text_col = "#f4ff6b",
+    use_pos = pos_infront,
+    use_dir = face_back,
+    verbs = {
+        talk_to = function(actor)
+            start_talking("talk_to_richard")
+        end
+    }
+}

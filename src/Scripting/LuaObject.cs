@@ -100,10 +100,10 @@ namespace GameATron4000.Scripting
         {
             get
             {
-                var dependsOnTable = _luaTable.GetTable(LuaConstants.Tables.Object.DependsOn);
+                var dependsOnTable = _luaTable.GetString(LuaConstants.Tables.Object.DependsOn);
                 if (dependsOnTable != null)
                 {
-                    return LuaObjectDependency.FromTable(dependsOnTable, _script);
+                    return LuaObjectDependency.FromString(dependsOnTable, _script);
                 }
                 return null;
             }

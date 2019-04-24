@@ -85,6 +85,8 @@ export class UIMediator {
                         walkToY -= 20;
                     }
 
+                    console.log(walkToY);
+
                     await this.room.moveActor(this._selectedActor, walkToX, walkToY, target.useDirection);
                 }
 

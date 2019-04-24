@@ -53,6 +53,7 @@ namespace GameATron4000.Scripting
                 
                 -- Constants
                 class_fixed_to_camera = ""class_fixed_to_camera""
+                class_invisible = ""class_invisible""
                 class_untouchable = ""class_untouchable""
                 class_use_with = ""class_use_with""
                 
@@ -268,14 +269,16 @@ namespace GameATron4000.Scripting
         {
             // TODO Only search in context of Room! (for text adventure)
 
+            var selectedRoomId = World.CurrentRoomId;
+
             // "Use With"
             var useWithPattern = @"^(use)\s(?<arg1>.*?)\swith\s(?<arg2>.*)$";
             var match = Regex.Match(input, useWithPattern, RegexOptions.IgnoreCase);
             if (match.Success)
             {
-                var arg1 = GetTable(LuaConstants.Tables.Name, match.Groups["arg1"].Value,
+                var arg1 = GetTableInScope(selectedRoomId, LuaConstants.Tables.Name, match.Groups["arg1"].Value,
                     LuaConstants.Tables.Types.Actor, LuaConstants.Tables.Types.Object);
-                var arg2 = GetTable(LuaConstants.Tables.Name, match.Groups["arg2"].Value,
+                var arg2 = GetTableInScope(selectedRoomId, LuaConstants.Tables.Name, match.Groups["arg2"].Value,
                     LuaConstants.Tables.Types.Object);
 
                 return ("use_with", arg1, new object[] { arg1, arg2 });
@@ -286,20 +289,31 @@ namespace GameATron4000.Scripting
             match = Regex.Match(input, giveToPattern, RegexOptions.IgnoreCase);
             if (match.Success)
             {
-                var arg1 = GetTable(LuaConstants.Tables.Name, match.Groups["arg1"].Value,
+                var arg1 = GetTableInScope(selectedRoomId, LuaConstants.Tables.Name, match.Groups["arg1"].Value,
                     LuaConstants.Tables.Types.Actor, LuaConstants.Tables.Types.Object);
-                var arg2 = GetTable(LuaConstants.Tables.Name, match.Groups["arg2"].Value,
+                var arg2 = GetTableInScope(selectedRoomId, LuaConstants.Tables.Name, match.Groups["arg2"].Value,
                     LuaConstants.Tables.Types.Actor);
 
                 return ("give_to", arg1, new object[] { arg1, arg2 });
             }
+
+            // "Walk To"
+            // var walkToPattern = @"^(walk to)\s(?<arg1>.*?)$";
+            // match = Regex.Match(input, walkToPattern, RegexOptions.IgnoreCase);
+            // if (match.Success)
+            // {
+            //     var arg = GetTable(LuaConstants.Tables.Name, match.Groups["arg1"].Value,
+            //         LuaConstants.Tables.Types.Actor, LuaConstants.Tables.Types.Object);
+
+            //     return ("walk_to", arg, new object[] { arg });
+            // }
 
             // Get the name of the Lua function to invoke from the player's command.
             var otherPattern = @"^(?<verb>open|close|pick up|look at|talk to|use|push|pull)\s(?<arg>.*)$";
             match = Regex.Match(input, otherPattern, RegexOptions.IgnoreCase);
             if (match.Success)
             {
-                var arg = GetTable(LuaConstants.Tables.Name, match.Groups["arg"].Value,
+                var arg = GetTableInScope(selectedRoomId, LuaConstants.Tables.Name, match.Groups["arg"].Value,
                     LuaConstants.Tables.Types.Actor, LuaConstants.Tables.Types.Object);
 
                 return (match.Groups["verb"].Value.ToLowerInvariant().Replace(' ', '_'), arg, new object[] { arg });
@@ -321,6 +335,17 @@ namespace GameATron4000.Scripting
             }
 
             return _luaFunctions.Result;
+        }
+
+        private LuaTable GetTableInScope(string roomId, string key, string value, params string[] types)
+        {
+            var result = GetTable(key, value, types);
+            return GetTables()
+                .Where(t => types.Contains(t.GetString(LuaConstants.Tables.Type))
+                    && (t.GetString(LuaConstants.Tables.Object.RoomId) == roomId
+                    || t.GetString(LuaConstants.Tables.Object.Owner) == World.SelectedActorId))
+                // TODO Weird that we need to use an Object constant.
+                .FirstOrDefault(t => string.Equals(t.GetString(key), value, StringComparison.OrdinalIgnoreCase));
         }
 
         private LuaTable GetTable(string key, string value, params string[] types)

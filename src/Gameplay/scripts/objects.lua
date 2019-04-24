@@ -12,7 +12,110 @@ beamcontrol = {
                 change_state(obj, "off")
             else
                 change_state(obj, "on")
+                change_state(transport_door, "closed")
             end
+        end
+    }
+}
+
+bottle = {
+    id = "bottle",
+    type = "object",
+    name = "bottle",
+    depends_on = "fridge.open",
+    use_pos = pos_infront,
+    use_dir = face_back,
+    z_offset = 91,
+    verbs = {
+        pick_up = function(obj)
+            set_owner(obj, selected_actor)
+        end
+    }
+}
+
+bridge_transport_door = {
+    id = "bridge_transport_door",
+    type = "object",
+    name = "door",
+    verbs = {
+        close = function(obj)
+            say_line("It doesn't seem to close from this side.")
+        end,
+        look_at = function(obj)
+            say_line("It's the doorway to the transportation room.");
+        end,
+        open = function(obj)
+            say_line("It's already open.")
+        end,
+        use = function(obj)
+        --walk_to = function(obj)
+            change_room(transport)
+        end
+    }
+}
+
+claw_hammer = {
+    id = "claw_hammer",
+    type = "object",
+    name = "claw hammer",
+    classes = { class_use_with },
+    use_dir = face_back,
+    use_pos = pos_infront,
+    verbs = {
+        give_to = function(obj)
+            say_line("I think I'll keep it for now.")
+        end,
+        look_at = function(obj)
+            say_line("From wikipedia:")
+            say_line("1. a hammer with one side of the head split and curved, used for extracting nails.")
+            say_line("2. a style of banjo playing in which the thumb and fingers strum or pluck the strings in a downward motion.")
+            face_dir(face_front)
+            say_line("I'd say option 1 is applicable here.")
+        end,
+        pick_up = function(obj)
+            say_line("Hey Richard!");
+            say_line("Yeah?", richard)
+            say_line("Can I take this hammer?")
+            say_line("Er...", richard)
+            say_line("Sure, the booth is fine as it is.", richard)
+            say_line("Aarghh, now we need to start over again!", carl)
+            set_owner(obj, selected_actor)
+            face_dir(face_front)
+        end,
+        use_with = function(obj, other)
+            if other == podcast_booth then
+                say_line("Knock, knock!")
+                say_line("Who's there?", richard)
+                say_line("Aarghh, now we need to start over again!", carl)
+            elseif other == crate then
+                change_state(crate, "open")
+            end
+        end
+    }
+}
+
+cooker = {
+    id = "cooker",
+    type = "object",
+    name = "cooker",
+    depends_on = "crate.open"
+}
+
+crate = {
+    id = "crate",
+    type = "object",
+    name = "crate",
+    state = "closed",
+    use_dir = face_infront,
+    use_pos = pos_above,
+    verbs = {
+        look_at = function(obj)
+            say_line("It's a wooden crate.")
+            say_line("The address label says 'Edison family'.")
+            say_line("Never heard of them.")
+        end,
+        open = function(obj)
+            say_line("It's nailed shut.")
         end
     }
 }
@@ -56,7 +159,7 @@ groceries = {
     id = "groceries",
     type = "object",
     name = "groceries",
-    classes = { class_use_with },
+    classes = { class_untouchable, class_use_with },
     verbs = {
         look_at = function(obj)
             if owned_by(obj, selected_actor) then
@@ -82,10 +185,7 @@ groceries = {
             end
         end
     },
-    depends_on = {
-        object = fridge,
-        state = "open"
-    },
+    depends_on = "fridge.open",
     z_offset = 84
 }
 
@@ -156,6 +256,38 @@ newspaper_headline = {
     classes = { class_fixed_to_camera, class_untouchable }
 }
 
+podcast_booth = {
+    id = "podcast_booth",
+    type = "object",
+    name = "podcast booth",
+    use_dir = face_back,
+    z_offset = -400,
+    verbs = {
+        look_at = function(obj)
+            say_line("It's a podcast booth!")
+        end
+    }
+}
+
+power_cord = {
+    id = "power_cord",
+    type = "object",
+    name = "alien power cord",
+    z_offset = 50,
+    verbs = {
+        pick_up = function(obj)
+            say_line("I'm sure they won't mind me borrowing this power cord.")
+            set_owner(obj, selected_actor)
+            say_line("...flux capacity of this ship is enormous...", richard)
+            say_line("Hmm, interesting...", carl)
+            say_line("Er...Carl...", richard)
+            say_line("Yeah?", carl)
+            say_line("Why is the microphone off?", richard)
+            say_line("Aarghh, now we need to start over again!", carl)
+        end
+    }
+}
+
 todolist = {
     id = "todolist",
     type = "object",
@@ -195,14 +327,45 @@ tractorbeam = {
     classes = { class_untouchable }
 }
 
+transport_door = {
+    id = "transport_door",
+    type = "object",
+    name = "door",
+    state = "closed",
+    verbs = {
+        close = function(obj)
+            if obj.state == "closed" then
+                say_line("It's already closed!")
+            else
+                change_state(obj, "closed")
+            end
+        end,
+        look_at = function(obj)
+            say_line("It looks like a fancy high-tech door.");
+        end,
+        open = function(obj)
+            if obj.state == "open" then
+                say_line("It's already open!")
+            elseif beamcontrol.state == "on" then
+                say_line("It won't budge!");
+            else
+                change_state(obj, "open")
+            end
+        end,
+        use = function(obj)
+        --walk_to = function(obj)
+            if (obj.state == "open") then
+                change_room(bridge)
+            end
+        end
+    }
+}
+
 transport_glow = {
     id = "transport_glow",
     type = "object",
     classes = { class_untouchable },
-    depends_on = {
-        object = beamcontrol,
-        state = "on"
-    }
+    depends_on = "beamcontrol.on"
 }
 
 park_bench = {

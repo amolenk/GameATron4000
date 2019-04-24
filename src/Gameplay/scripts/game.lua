@@ -5,22 +5,41 @@ function initialize_game()
     select_actor(guy)
 --    camera_follow(guy)
 
+    -- inventory
     set_owner(groceries, selected_actor)
     set_owner(grocerylist, selected_actor)
 
+    -- park
     put_object(newspaper, 410, 420, park)
     put_object(park_bench, 323, 408, park)
-    put_object(fridge, 185, 352, ufo)    
-    put_object(todolist, 650, 300, ufo)
 
+    -- transportation
     put_object(beamcontrol, 73, 281, transport)
+    put_object(cooker, 280, 440, transport)
+    put_object(crate, 256, 435, transport)
+    put_object(transport_door, 775, 329, transport)
     put_object(transport_glow, 442, 450, transport)
 
-    put_actor(al, 440, 370, ufo)
-    put_actor(ian, 650, 420, ufo)
+    -- bridge
+    put_actor(al, 968, 375, bridge)
+    put_actor(ian, 650, 420, bridge)
+    put_actor(carl, 300, 319, bridge)
+    put_actor(richard, 217, 318, bridge)
+    put_object(bottle, 1371, 312, bridge)
+    put_object(bridge_transport_door, 30, 430, bridge)
+    put_object(claw_hammer, 500, 430, bridge)
+    put_object(fridge, 1436, 402, bridge)    
+    put_object(podcast_booth, 322, 402, bridge)
+    put_object(power_cord, 193, 392, bridge)
+    put_object(todolist, 650, 300, bridge)
 
-    change_room(park)
+    change_room(bridge)
 
+    -- debug
+    change_state(beamcontrol, "off")
+    change_state(transport_door, "open")
+--    set_owner(claw_hammer, selected_actor)
+    put_actor(selected_actor, 400, 400)
 end
 
 canned_responses = {
@@ -48,7 +67,7 @@ function cutscene_beam_up()
     wait(1000)
     say_line("Uh oh...")
     wait(1500)
-    change_room(ufo)
+    change_room(transport)
 end
 
 function cutscene_check_list()

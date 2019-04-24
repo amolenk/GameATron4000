@@ -1,3 +1,25 @@
+bridge = {
+    id = "bridge",
+    type = "room",
+    walkbox = {
+        { 0, 420 },
+        { 613, 420 },
+        { 790, 290 },
+        { 960, 290 },
+        { 1115, 420 },
+        { 1740, 420 },
+        { 1740, 449 },
+        { 0, 449}
+    },
+    before_enter = function(room)
+        put_actor(guy, 150, 430)
+    end,
+    after_enter = function(room)
+        -- say_line("Hey, Richard!", carl)
+        -- say_line("Hey, buddy!", richard)
+    end
+}
+
 park = {
     id = "park",
     type = "room",
@@ -25,6 +47,7 @@ park = {
     end
 }
 
+-- TODO Rename to Terminal
 transport = {
     id = "transport",
     type = "room",
@@ -37,7 +60,11 @@ transport = {
         { 0, 449}
     },
     before_enter = function(room)
-        put_actor(guy, 420, 380)
+        if prev_room == park then
+            put_actor(guy, 420, 380)
+        elseif prev_room == bridge then
+            put_actor(guy, 700, 353)
+        end
     end
 }
 

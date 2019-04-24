@@ -19,6 +19,7 @@ export class ConversationUI {
             var optionText = this.game.add.text(10, y, action.displayText, this.createTextStyle());
             optionText.scale.x = 0.5;
             optionText.scale.y = 0.5;
+            optionText.fixedToCamera = true;
             optionText.inputEnabled = true;
             optionText.data.value = action.value;
 
