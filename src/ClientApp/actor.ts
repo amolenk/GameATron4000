@@ -10,7 +10,7 @@ export class Actor {
 
     private WALK_SPEED_FACTOR = 4;
 
-    private text: Phaser.Text;
+    private textBox: Phaser.Text;
     private sprite: Phaser.Sprite;
 
     private moveTween: Phaser.Tween;
@@ -18,6 +18,9 @@ export class Actor {
     private game: Phaser.Game;
 
     private layers: Layers;
+    private spaceKey: Phaser.Key;
+
+    private resolveWaitForLine: any;
 
     public constructor(
         public id: string,
@@ -62,11 +65,11 @@ export class Actor {
                 Phaser.Animation.generateFrameNames(`actors/${this.id}/talk/`, 1, 6, '', 4), 9, true, false);
         }
 
-        this.text = this.game.add.text(x, y - this.sprite.height - 40, "", this.createTextStyle(0));
-        this.text.anchor.setTo(0.5);
-        this.text.lineSpacing = -30;
-        this.text.scale.x = 0.5;
-        this.text.scale.y = 0.5; 
+        // this.text = this.game.add.text(x, y - this.sprite.height - 40, "", this.createTextStyle(0));
+        // this.text.anchor.setTo(0.5);
+        // this.text.lineSpacing = -30;
+        // this.text.scale.x = 0.5;
+        // this.text.scale.y = 0.5; 
 
         if (this.classes.indexOf("class_untouchable") == -1) {
             this.sprite.inputEnabled = true;
@@ -79,7 +82,17 @@ export class Actor {
         }
 
         layers.objects.add(this.sprite);
-        layers.text.add(this.text);
+//        layers.text.add(this.text);
+
+        this.spaceKey = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+
+        this.spaceKey.onDown.add(
+            () => {
+                if (this.resolveWaitForLine) {
+                    this.resolveWaitForLine();
+                    this.resolveWaitForLine = null;
+                }
+            });
     }
 
     public changeDirection(direction: string) {
@@ -92,7 +105,7 @@ export class Actor {
         this.game.camera.follow(this.sprite, Phaser.Camera.FOLLOW_LOCKON, 0.1, 0.1);
     }
 
-    public sayLine(text: string) {
+    public async sayLine(text: string) {
 
         // TODO Constant
         if (this.faceDirection == "front") {
@@ -104,25 +117,28 @@ export class Actor {
 
         const maxWordWrap = Math.min(spaceLeft, spaceRight) * 2;
 
-        const textBox = this.game.add.text(this.sprite.x, 0, text, this.createTextStyle(maxWordWrap));
-        textBox.anchor.setTo(0.5);
-        textBox.lineSpacing = -30;
-        textBox.scale.x = 0.5;
-        textBox.scale.y = 0.5; 
+        this.textBox = this.game.add.text(this.sprite.x, 0, text, this.createTextStyle(maxWordWrap));
+        this.textBox.anchor.setTo(0.5);
+        this.textBox.lineSpacing = -30;
+        this.textBox.scale.x = 0.5;
+        this.textBox.scale.y = 0.5; 
 
-        textBox.y = this.sprite.y - this.sprite.height - (textBox.height / 2);
+        this.textBox.y = this.sprite.y - this.sprite.height - (this.textBox.height / 2);
 
 
-        this.layers.text.add(textBox);
+        this.layers.text.add(this.textBox);
 
     //  this.text.setText(text);
 
-        return new Promise((resolve) => {
+        await this.waitWhileSpeaking(text.length);
+
+        // return new Promise((resolve) => {
             
-            this.game.time.events.add(
-                Math.max(text.length * gameInfo.textSpeed, gameInfo.minTextDuration),
-                () => {
-                    textBox.kill();
+        //     this.game.time.events.add(
+        //         Math.max(text.length * gameInfo.textSpeed, gameInfo.minTextDuration),
+        //         () => {
+                    this.layers.text.remove(this.textBox, true);
+//                    this.textBox.kill();
 //                    this.text.setText('');
                     if (this.faceDirection == "front") {
                         this.sprite.animations.stop("talk", true);
@@ -130,8 +146,25 @@ export class Actor {
                         // Reset the frame.
                         this.changeDirection(this.faceDirection);
                     }
-                    resolve();
+        //             resolve();
+        //         });
+        // });
+    }
+
+    private waitWhileSpeaking(textLength: number) {
+        return new Promise((resolve) => {
+            
+            this.resolveWaitForLine = resolve;
+
+            this.game.time.events.add(
+                Math.max(textLength * gameInfo.textSpeed, gameInfo.minTextDuration),
+                () => {
+                    if (this.resolveWaitForLine) {
+                        this.resolveWaitForLine();
+                        this.resolveWaitForLine = null;
+                    }
                 });
+
         });
     }
 
@@ -179,13 +212,13 @@ export class Actor {
     }
 
     public update() {
-        this.text.x = Math.floor(this.sprite.x);
-        this.text.y = Math.floor(this.sprite.y - this.sprite.height - 40);
+//        this.text.x = Math.floor(this.sprite.x);
+  //      this.text.y = Math.floor(this.sprite.y - this.sprite.height - 40);
     }
 
     public kill() {
         this.sprite.destroy();
-        this.text.destroy();
+    //    this.text.destroy();
     }
 
     // TODO Extract
