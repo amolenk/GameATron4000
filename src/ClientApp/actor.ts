@@ -5,6 +5,7 @@ import { UIMediator } from "./ui-mediator"
 
 declare var gameInfo: any;
 
+// TODO Clean-up after textbox updates
 export class Actor {
 
     private WALK_SPEED_FACTOR = 4;
@@ -15,6 +16,8 @@ export class Actor {
     private moveTween: Phaser.Tween;
 
     private game: Phaser.Game;
+
+    private layers: Layers;
 
     public constructor(
         public id: string,
@@ -37,6 +40,7 @@ export class Actor {
     public create(game: Phaser.Game, uiMediator: UIMediator, x: number, y: number, layers: Layers) {
         
         this.game = game;
+        this.layers = layers;
 
         // TODO Refactor to GetFrameName
         var frameName = (this.classes.indexOf("class_invisible") == -1)
@@ -58,7 +62,7 @@ export class Actor {
                 Phaser.Animation.generateFrameNames(`actors/${this.id}/talk/`, 1, 6, '', 4), 9, true, false);
         }
 
-        this.text = this.game.add.text(x, y - this.sprite.height - 40, "", this.createTextStyle());
+        this.text = this.game.add.text(x, y - this.sprite.height - 40, "", this.createTextStyle(0));
         this.text.anchor.setTo(0.5);
         this.text.lineSpacing = -30;
         this.text.scale.x = 0.5;
@@ -95,14 +99,31 @@ export class Actor {
             this.sprite.animations.play("talk");
         }
 
-        this.text.setText(text);
+        const spaceLeft = this.sprite.x - this.game.camera.x;
+        const spaceRight = this.game.camera.x + this.game.camera.width - this.sprite.x;
+
+        const maxWordWrap = Math.min(spaceLeft, spaceRight) * 2;
+
+        const textBox = this.game.add.text(this.sprite.x, 0, text, this.createTextStyle(maxWordWrap));
+        textBox.anchor.setTo(0.5);
+        textBox.lineSpacing = -30;
+        textBox.scale.x = 0.5;
+        textBox.scale.y = 0.5; 
+
+        textBox.y = this.sprite.y - this.sprite.height - (textBox.height / 2);
+
+
+        this.layers.text.add(textBox);
+
+    //  this.text.setText(text);
 
         return new Promise((resolve) => {
             
             this.game.time.events.add(
                 Math.max(text.length * gameInfo.textSpeed, gameInfo.minTextDuration),
                 () => {
-                    this.text.setText('');
+                    textBox.kill();
+//                    this.text.setText('');
                     if (this.faceDirection == "front") {
                         this.sprite.animations.stop("talk", true);
 
@@ -168,7 +189,7 @@ export class Actor {
     }
 
     // TODO Extract
-    private createTextStyle() {
+    private createTextStyle(maxWordWrap: number) {
 
         return {
             font: "54px Onesize", // Using a large font-size and scaling it back looks better.
@@ -177,7 +198,7 @@ export class Actor {
             strokeThickness: 12,
             align: "center",
             wordWrap: "true",
-            wordWrapWidth: 600 // Account for scaling.
+            wordWrapWidth: Math.min(600, maxWordWrap) * 2 // Account for scaling.
         };
     }
 }
