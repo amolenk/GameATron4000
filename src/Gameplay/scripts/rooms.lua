@@ -52,18 +52,22 @@ transport = {
     id = "transport",
     type = "room",
     walkbox = {
-        { 0, 412 },
-        { 220, 306 },
-        { 634, 306 },
-        { 884, 417 },
+        { 0, 430 },
+        { 180, 335 },
+        { 600, 335 },
+        { 884, 430 },
         { 884, 449 },
+        { 360, 449 },
+        { 360, 400 },
+        { 80, 400 },
+        { 80, 449 },
         { 0, 449}
     },
     before_enter = function(room)
         if prev_room == park then
             put_actor(guy, 420, 380)
         elseif prev_room == bridge then
-            put_actor(guy, 700, 353)
+            put_actor(guy, 665, 365)
         end
     end
 }

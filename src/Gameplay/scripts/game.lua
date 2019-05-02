@@ -14,11 +14,15 @@ function initialize_game()
     put_object(park_bench, 323, 408, park)
 
     -- transportation
+    put_object(beam_glow, 442, 450, transport)
+    put_object(beam_transportation, 442, 403, transport)
     put_object(beamcontrol, 73, 281, transport)
-    put_object(cooker, 280, 440, transport)
-    put_object(crate, 256, 435, transport)
-    put_object(transport_door, 775, 329, transport)
-    put_object(transport_glow, 442, 450, transport)
+    put_object(cooker, 280, 450, transport)
+    put_object(crate_left, 148, 450, transport)
+    put_object(crate_right, 256, 450, transport)
+    put_object(crate_right_front, 256, 450, transport)
+    put_object(crate_top, 204, 390, transport)
+    put_object(transportation_door, 774, 332, transport)
 
     -- bridge
     put_actor(al, 968, 375, bridge)
@@ -29,17 +33,18 @@ function initialize_game()
     put_object(bridge_transport_door, 30, 430, bridge)
     put_object(claw_hammer, 500, 430, bridge)
     put_object(fridge, 1436, 402, bridge)    
+    put_object(onair, 260, 395, bridge)
     put_object(podcast_booth, 322, 402, bridge)
-    put_object(power_cord, 193, 392, bridge)
+    put_object(power_cord, 175, 392, bridge)
     put_object(todolist, 650, 300, bridge)
 
-    change_room(bridge)
+    change_room(transport)
 
     -- debug
-    change_state(beamcontrol, "off")
-    change_state(transport_door, "open")
+    --change_state(beamcontrol, "off")
+--    change_state(transportation_door, "open")
 --    set_owner(claw_hammer, selected_actor)
-    put_actor(selected_actor, 400, 400)
+    put_actor(selected_actor, 442, 370)
 end
 
 canned_responses = {

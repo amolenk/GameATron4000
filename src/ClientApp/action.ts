@@ -147,3 +147,27 @@ export class UseAction implements IAction {
             && this._inventoryItemOrObject1.classes.indexOf("class_use_with") > -1;
     }
 }
+
+export class WalkToAction implements IAction {
+
+    private _objectOrActor: RoomObject | Actor;
+
+    public addSubject(subject: RoomObject | Actor) {
+
+        this._objectOrActor = subject;
+        return true;
+    }
+
+    public getDisplayText(subject?: RoomObject| Actor) {
+
+        if (this._objectOrActor) {
+            return `Walk to ${this._objectOrActor.name}`;
+        }
+
+        if (subject) {
+            return `Walk to ${subject.name}`;
+        }
+
+        return "Walk to";
+    }
+}

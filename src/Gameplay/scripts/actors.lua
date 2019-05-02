@@ -18,7 +18,6 @@ al = {
 guy = {
     id = "guy",
     type = "actor",
-    name = "Guy Scotthrie",
     classes = { class_untouchable },
     text_col = "White"
 }

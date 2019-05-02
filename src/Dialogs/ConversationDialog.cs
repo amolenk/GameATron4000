@@ -88,6 +88,11 @@ namespace GameATron4000.Dialogs
             }
             else
             {
+                if (scriptResult.Activities.Any())
+                {
+                    await dc.Context.SendActivitiesAsync(scriptResult.Activities.ToArray());
+                }
+
                 await dc.EndDialogAsync();
             }
 

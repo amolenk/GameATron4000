@@ -1,7 +1,7 @@
 /// <reference path="../node_modules/phaser/typescript/phaser.d.ts" />
 /// <reference path="../node_modules/rx/ts/rx.d.ts" />
 
-import { IAction } from "./action"
+import { IAction, WalkToAction } from "./action"
 import { ActionUI } from "./ui-action"
 import { Actor } from "./actor"
 import { BotClient } from "./botclient"
@@ -33,6 +33,7 @@ export class UIMediator {
         this.actionUI = new ActionUI(game, layers);
         this.conversationUI = new ConversationUI(game, botClient, layers);
         this.inventoryUI = new InventoryUI(game, this, layers);
+        this.selectedAction = new WalkToAction();
         this.verbsUI = new VerbsUI(game, this, layers);
     }
 
@@ -61,8 +62,6 @@ export class UIMediator {
     }
 
     public async selectObject(target: RoomObject | InventoryItem | Actor) {
-
-
         
         if (this.selectedAction != null) {
             if (this.selectedAction.addSubject(target)) {
@@ -79,13 +78,13 @@ export class UIMediator {
                     const walkToX = target.x;
                     let walkToY = target.y;
 
+                    console.log(target.useDirection);
+
                     if (target.usePosition == "infront") {
                         walkToY += 20; // TODO Consider scaling
                     } else if (target.usePosition == "above") {
                         walkToY -= 20;
                     }
-
-                    console.log(walkToY);
 
                     await this.room.moveActor(this._selectedActor, walkToX, walkToY, target.useDirection);
                 }
@@ -270,7 +269,7 @@ export class UIMediator {
 
                         for (let obj of event.add) {
                             this.room.addObject(
-                                new RoomObject(obj.id, obj.name, obj.classes, obj.state, event.object.usePosition, event.object.useDirection),
+                                new RoomObject(obj.id, obj.name, obj.classes, obj.state, obj.usePosition, obj.useDirection),
                                 obj.x,
                                 obj.y,
                                 obj.z_offset);
@@ -331,7 +330,7 @@ export class UIMediator {
                         // Always let the player actor face front after the actions have executed.
                         // const actor = this.room.getActor(this._selectedActor);
                         // actor.changeDirection('front');
-
+                        this.selectedAction = new WalkToAction();
                         this.setUIVisible(true);
                         break;
                     }

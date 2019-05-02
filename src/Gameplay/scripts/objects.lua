@@ -1,8 +1,25 @@
+beam_glow = {
+    id = "beam_glow",
+    type = "object",
+    classes = { class_untouchable },
+    depends_on = "beamcontrol.on",
+    z_offset = 100
+}
+
+beam_transportation = {
+    id = "beam_transportation",
+    type = "object",
+    classes = { class_untouchable },
+    depends_on = "beamcontrol.on"
+}
+
 beamcontrol = {
     id = "beamcontrol",
     type = "object",
     name = "big button",
     state = "on",
+    use_dir = face_back,
+    use_pos = pos_infront,
     verbs = {
         push = function(obj)
             obj.verbs.use(obj)
@@ -12,7 +29,7 @@ beamcontrol = {
                 change_state(obj, "off")
             else
                 change_state(obj, "on")
-                change_state(transport_door, "closed")
+                change_state(transportation_door, "closed")
             end
         end
     }
@@ -78,17 +95,17 @@ claw_hammer = {
             say_line("Can I take this hammer?")
             say_line("Er...", richard)
             say_line("Sure, the booth is fine as it is.", richard)
-            say_line("Aarghh, now we need to start over again!", carl)
+            if not owned_by(power_cord, selected_actor) then
+                say_line("Aarghh, now we need to start over again!", carl)
+            end
             set_owner(obj, selected_actor)
             face_dir(face_front)
         end,
         use_with = function(obj, other)
             if other == podcast_booth then
-                say_line("Knock, knock!")
-                say_line("Who's there?", richard)
-                say_line("Aarghh, now we need to start over again!", carl)
-            elseif other == crate then
-                change_state(crate, "open")
+                start_talking("knock_knock")
+            elseif other == crate_right then
+                change_state(crate_right, "open")
             end
         end
     }
@@ -98,15 +115,31 @@ cooker = {
     id = "cooker",
     type = "object",
     name = "cooker",
-    depends_on = "crate.open"
+    state = "off",
+    depends_on = "crate_right.open",
+    verbs = {
+        pick_up = function(obj)
+            set_owner(obj, selected_actor)
+        end
+    }
 }
 
-crate = {
-    id = "crate",
+crate_left = {
+    id = "crate_left",
     type = "object",
-    name = "crate",
+    name = "left crate",
+    use_dir = face_front,
+    use_pos = pos_above,
+    verbs = {
+    }
+}
+
+crate_right = {
+    id = "crate_right",
+    type = "object",
+    name = "right crate",
     state = "closed",
-    use_dir = face_infront,
+    use_dir = face_front,
     use_pos = pos_above,
     verbs = {
         look_at = function(obj)
@@ -117,6 +150,25 @@ crate = {
         open = function(obj)
             say_line("It's nailed shut.")
         end
+    }
+}
+
+crate_right_front = {
+    id = "crate_right_front",
+    type = "object",
+    classes = { class_untouchable },
+    depends_on = "crate_right.open",
+    z_offset = 10
+}
+
+crate_top = {
+    id = "crate_top",
+    type = "object",
+    name = "top crate",
+    use_dir = face_front,
+    use_pos = pos_above,
+    z_offset = 50,
+    verbs = {
     }
 }
 
@@ -256,6 +308,13 @@ newspaper_headline = {
     classes = { class_fixed_to_camera, class_untouchable }
 }
 
+onair = {
+    id = "onair",
+    type = "object",
+    classes = { class_untouchable },
+    state = "on"
+}
+
 podcast_booth = {
     id = "podcast_booth",
     type = "object",
@@ -273,13 +332,25 @@ power_cord = {
     id = "power_cord",
     type = "object",
     name = "alien power cord",
-    z_offset = 50,
+    use_pos = pos_infront,
+    use_dir = face_back,
     verbs = {
         pick_up = function(obj)
             say_line("I'm sure they won't mind me borrowing this power cord.")
-            set_owner(obj, selected_actor)
             say_line("...flux capacity of this ship is enormous...", richard)
             say_line("Hmm, interesting...", carl)
+            set_owner(obj, selected_actor)
+            wait(500)
+            change_state(onair, "off")
+            wait(200)
+            change_state(onair, "on")
+            wait(200)
+            change_state(onair, "off")
+            wait(200)
+            change_state(onair, "on")
+            wait(100)
+            change_state(onair, "off")
+            wait(1000)
             say_line("Er...Carl...", richard)
             say_line("Yeah?", carl)
             say_line("Why is the microphone off?", richard)
@@ -327,11 +398,12 @@ tractorbeam = {
     classes = { class_untouchable }
 }
 
-transport_door = {
-    id = "transport_door",
+transportation_door = {
+    id = "transportation_door",
     type = "object",
     name = "door",
     state = "closed",
+    use_dir = face_back,
     verbs = {
         close = function(obj)
             if obj.state == "closed" then
@@ -352,20 +424,12 @@ transport_door = {
                 change_state(obj, "open")
             end
         end,
-        use = function(obj)
-        --walk_to = function(obj)
+        walk_to = function(obj)
             if (obj.state == "open") then
                 change_room(bridge)
             end
         end
     }
-}
-
-transport_glow = {
-    id = "transport_glow",
-    type = "object",
-    classes = { class_untouchable },
-    depends_on = "beamcontrol.on"
 }
 
 park_bench = {

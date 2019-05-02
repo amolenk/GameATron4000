@@ -180,6 +180,7 @@ namespace GameATron4000.Scripting
 
             if (!_luaFunctions.Result.Activities.Any()
                 && _luaFunctions.Result.NextDialogId.Length == 0
+                && (!parsedInput.HasValue || parsedInput.Value.Verb != "walk_to")
                 && _lua[FUNCTION_NO_RESULT] is LuaFunction)
             {
                 ((LuaFunction)_lua[FUNCTION_NO_RESULT]).Call();
@@ -267,8 +268,6 @@ namespace GameATron4000.Scripting
 
         private (string Verb, LuaTable ObjectOrActorTable, object[] FunctionParameters)? ParsePlayerInput(string input)
         {
-            // TODO Only search in context of Room! (for text adventure)
-
             var selectedRoomId = World.CurrentRoomId;
 
             // "Use With"
@@ -297,19 +296,8 @@ namespace GameATron4000.Scripting
                 return ("give_to", arg1, new object[] { arg1, arg2 });
             }
 
-            // "Walk To"
-            // var walkToPattern = @"^(walk to)\s(?<arg1>.*?)$";
-            // match = Regex.Match(input, walkToPattern, RegexOptions.IgnoreCase);
-            // if (match.Success)
-            // {
-            //     var arg = GetTable(LuaConstants.Tables.Name, match.Groups["arg1"].Value,
-            //         LuaConstants.Tables.Types.Actor, LuaConstants.Tables.Types.Object);
-
-            //     return ("walk_to", arg, new object[] { arg });
-            // }
-
             // Get the name of the Lua function to invoke from the player's command.
-            var otherPattern = @"^(?<verb>open|close|pick up|look at|talk to|use|push|pull)\s(?<arg>.*)$";
+            var otherPattern = @"^(?<verb>open|close|pick up|look at|talk to|use|push|pull|walk to)\s(?<arg>.*)$";
             match = Regex.Match(input, otherPattern, RegexOptions.IgnoreCase);
             if (match.Success)
             {
@@ -339,7 +327,6 @@ namespace GameATron4000.Scripting
 
         private LuaTable GetTableInScope(string roomId, string key, string value, params string[] types)
         {
-            var result = GetTable(key, value, types);
             return GetTables()
                 .Where(t => types.Contains(t.GetString(LuaConstants.Tables.Type))
                     && (t.GetString(LuaConstants.Tables.Object.RoomId) == roomId
