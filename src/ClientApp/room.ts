@@ -21,7 +21,7 @@ export class Room {
     private graphics: Phaser.Graphics;
     private walkboxPolygons: Phaser.Polygon[];
 
-    constructor(private name: string, private walkbox: Phaser.Polygon) {
+    constructor(private name: string, private scale: any, private walkbox: Phaser.Polygon) {
         this.roomObjects = new Array<RoomObject>();
         this.actors = new Array<Actor>();
         this.actionMap = new Map<string, Function>();
@@ -47,45 +47,18 @@ export class Room {
 
         // Whenever the player clicks on the background, move the actor to
         // that point.
-        background.events.onInputDown.add(() =>
-            this.moveActor(this.uiMediator.selectedActor, this.game.input.x + this.game.camera.x, this.game.input.y + this.game.camera.y, "front"));
+        background.events.onInputDown.add(() => {
+            if (this.uiMediator.uiEnabled) {
+                this.moveActor(this.uiMediator.selectedActor, this.game.input.x + this.game.camera.x, this.game.input.y + this.game.camera.y, "front")
+            }});
 
         this.layers.background.add(background);
 
         this.narrator = new Narrator(game, layers);
         this.narrator.create();
 
-        // TODO Does Phaser close the polygon automatically?
         this.walkboxPolygons = [];
         this.walkboxPolygons.push(this.walkbox);
-
-//         polygons.push(new Phaser.Polygon(
-//             new Phaser.Point(799, 100),
-//             new Phaser.Point(799, 318),
-//             new Phaser.Point(590, 364),
-//             new Phaser.Point(799, 416),
-//             new Phaser.Point(799, 449),
-//             new Phaser.Point(568, 449),
-//             new Phaser.Point(380, 375),
-// //            new Phaser.Point(250, 400), // TODO Remove this point and it breaks (concerns snapping)
-//             new Phaser.Point(100, 300),
-//             new Phaser.Point(0, 324),
-//             new Phaser.Point(0, 316),
-//             new Phaser.Point(130, 150),
-//             new Phaser.Point(250, 320),
-//             new Phaser.Point(380, 150),
-//             new Phaser.Point(799, 100)
-//         ));
-//         polygons.push(new Phaser.Polygon(
-//             new Phaser.Point(420, 250),
-//             new Phaser.Point(470, 250),
-//             new Phaser.Point(495, 300),
-//             new Phaser.Point(470, 350),
-//             new Phaser.Point(420, 350),
-//             new Phaser.Point(395, 300)
-//         ));
-
-        
     }
 
     public update() {
@@ -111,7 +84,7 @@ export class Room {
 
     public addActor(actor: Actor, x: number, y: number) {
         
-        actor.create(this.game, this.uiMediator, x, y, this.layers);
+        actor.create(this.game, this.uiMediator, x, y, this.layers, this.scale);
         this.actors.push(actor);
 
         // When the player actor is added to the room, follow it
@@ -119,7 +92,7 @@ export class Room {
         if (actor.id == this.uiMediator.selectedActor) {
             //  0.1 is the amount of linear interpolation to use.
             //  The smaller the value, the smooth the camera (and the longer it takes to catch up)
-            actor.focusCamera()
+            actor.focusCamera(true)
         }
     }
 

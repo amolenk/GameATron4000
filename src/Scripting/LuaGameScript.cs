@@ -63,6 +63,7 @@ namespace GameATron4000.Scripting
                 pos_infront = ""infront""
                 pos_center = ""center""
                 pos_above = ""above""
+                pos_none = ""none""
 
                 narrator = {{
                     type = ""narrator""

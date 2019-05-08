@@ -1,3 +1,10 @@
+
+-- Dummy object to hold unused inventory items.
+nobody = {
+    id = "nobody",
+    type = "actor"
+}
+
 al = {
     id = "al",
     type = "actor",
@@ -10,7 +17,11 @@ al = {
             say_line("I guess it's an alien. Hard to see at this resolution.")
         end,
         talk_to = function(actor)
-            start_talking("meet_al")
+            if not world.alarm then
+                start_talking("meet_al")
+            else
+                say_line("MY HOT DOGS!", al)
+            end
         end
     }
 }
@@ -36,10 +47,10 @@ ian = {
             say_line("Hey, I'm right here!", al)
         end,
         talk_to = function(actor)
-            if world.knows_about_list then
-                cutscene_check_list()
+            if not world.alarm then
+                start_talking("meet_ian")
             else
-                say_line("Go away, can't you see I'm extremely busy!", actor)
+                say_line("Not now, can't you see we're dealing with an emergency?", ian)
             end
         end
     }
@@ -48,22 +59,32 @@ ian = {
 carl = {
     id = "carl",
     type = "actor",
-    name = "Carl",
+    name = "Richard & Carl",
     text_col = "#584def",
-    use_pos = pos_infront,
-    use_dir = face_back
+    use_pos = pos_none,
+    verbs = {
+        talk_to = function(actor)
+            richard.verbs.talk_to(richard)
+        end,
+        walk_to = function(actor)
+            richard.verbs.walk_to(richard)
+        end
+    }
 }
 
 richard = {
     id = "richard",
     type = "actor",
-    name = "Richard",
+    name = "Richard & Carl",
     text_col = "#f4ff6b",
-    use_pos = pos_infront,
-    use_dir = face_back,
+    use_pos = pos_none,
     verbs = {
         talk_to = function(actor)
+            walk_to(245, 420, face_back)
             start_talking("talk_to_richard")
+        end,
+        walk_to = function(actor)
+            walk_to(245, 420, face_back)
         end
     }
 }

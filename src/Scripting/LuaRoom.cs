@@ -29,6 +29,19 @@ namespace GameATron4000.Scripting
             get { return _luaTable.GetString(LuaConstants.Tables.Id); }
         }
 
+        public IScale Scale
+        {
+            get
+            {
+                var scaleTable = _luaTable.GetTable(LuaConstants.Tables.Room.Scale);
+                if (scaleTable != null)
+                {
+                    return LuaScale.FromTable(scaleTable, _script);
+                }
+                return null;
+            }
+        }
+
         public IEnumerable<Point> Walkbox
         {
             get

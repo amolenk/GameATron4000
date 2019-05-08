@@ -1,20 +1,11 @@
-beam_glow = {
-    id = "beam_glow",
+alarm = {
+    id = "alarm",
     type = "object",
-    classes = { class_untouchable },
-    depends_on = "beamcontrol.on",
-    z_offset = 100
+    classes = { class_untouchable }
 }
 
-beam_transportation = {
-    id = "beam_transportation",
-    type = "object",
-    classes = { class_untouchable },
-    depends_on = "beamcontrol.on"
-}
-
-beamcontrol = {
-    id = "beamcontrol",
+beam_button = {
+    id = "beam_button",
     type = "object",
     name = "big button",
     state = "on",
@@ -26,19 +17,43 @@ beamcontrol = {
         end,
         use = function(obj)
             if obj.state == "on" then
+                say_line("* DEACTIVATING BEAM SECURITY PROTOCOL *", narrator)
                 change_state(obj, "off")
             else
+                say_line("* ACTIVATING BEAM SECURITY PROTOCOL *", narrator)
                 change_state(obj, "on")
-                change_state(transportation_door, "closed")
+                change_state(door_terminal, "closed")
             end
         end
     }
+}
+
+beam_glow = {
+    id = "beam_glow",
+    type = "object",
+    classes = { class_untouchable },
+    depends_on = "beam_button.on",
+    z_offset = 100
+}
+
+beam_park = {
+    id = "beam_park",
+    type = "object",
+    classes = { class_untouchable }
+}
+
+beam_terminal = {
+    id = "beam_terminal",
+    type = "object",
+    classes = { class_untouchable },
+    depends_on = "beam_button.on"
 }
 
 bottle = {
     id = "bottle",
     type = "object",
     name = "bottle",
+    classes = { class_use_with },
     depends_on = "fridge.open",
     use_pos = pos_infront,
     use_dir = face_back,
@@ -46,27 +61,18 @@ bottle = {
     verbs = {
         pick_up = function(obj)
             set_owner(obj, selected_actor)
-        end
-    }
-}
-
-bridge_transport_door = {
-    id = "bridge_transport_door",
-    type = "object",
-    name = "door",
-    verbs = {
-        close = function(obj)
-            say_line("It doesn't seem to close from this side.")
         end,
-        look_at = function(obj)
-            say_line("It's the doorway to the transportation room.");
-        end,
-        open = function(obj)
-            say_line("It's already open.")
-        end,
-        use = function(obj)
-        --walk_to = function(obj)
-            change_room(transport)
+        use_with = function(obj, other)
+            if other == cooker then
+                if cooker.state ~= "on" then
+                    say_line("I should turn it on first.")
+                else
+                    say_line("Ok, I guess it's practically the same thing as water.")
+                    say_line("Wow, it's boiling already!")
+                    set_owner(obj, nobody)
+                    world.cooker_boiling = true
+                end
+            end
         end
     }
 }
@@ -90,16 +96,7 @@ claw_hammer = {
             say_line("I'd say option 1 is applicable here.")
         end,
         pick_up = function(obj)
-            say_line("Hey Richard!");
-            say_line("Yeah?", richard)
-            say_line("Can I take this hammer?")
-            say_line("Er...", richard)
-            say_line("Sure, the booth is fine as it is.", richard)
-            if not owned_by(power_cord, selected_actor) then
-                say_line("Aarghh, now we need to start over again!", carl)
-            end
-            set_owner(obj, selected_actor)
-            face_dir(face_front)
+            say_line("Hey, we need that for the show!", carl);
         end,
         use_with = function(obj, other)
             if other == podcast_booth then
@@ -111,17 +108,93 @@ claw_hammer = {
     }
 }
 
+cheese_grater = {
+    id = "cheese_grater",
+    type = "object",
+    name = "cheese grater",
+    use_dir = face_back,
+    use_pos = pos_infront,
+    verbs = {
+        give_to = function(obj, actor)
+            if actor == richard or actor == carl then
+                walk_to(245, 420, face_back)
+                say_line("Can you use this for the show?")
+                say_line("What is it?", carl)
+                say_line("It's a highly advanced alien artifact with holes edged by slightly raised cutting edges, used for grating a certain type of nutritious substance.")
+                say_line("That's just what we need for the show!", richard)
+                say_line("We'll trade you for the claw hammer.", carl)
+                say_line("Er, *alien* claw hammer.", carl)
+                say_line("Sure!")
+                set_owner(claw_hammer, selected_actor)
+                put_object(cheese_grater, 245, 350)
+                world.traded_hammer = true
+                face_dir(face_front)
+            end
+        end,
+        look_at = function(obj)
+            say_line("It's an alien cheese grater.")
+        end,
+        pick_up = function(obj)
+            if world.traded_hammer then
+                say_line("Hey, we need that for the show!", carl);
+            else
+                set_owner(obj, selected_actor)
+            end
+        end
+    }
+}
+
 cooker = {
     id = "cooker",
     type = "object",
     name = "cooker",
+    classes = { class_use_with },
     state = "off",
-    depends_on = "crate_right.open",
+    use_dir = face_back,
+    use_pos = pos_infront,
     verbs = {
-        pick_up = function(obj)
-            set_owner(obj, selected_actor)
+        look_at = function(obj)
+            if obj.state == "smoke" then
+                say_line("Never trust hot dogs with green smoke coming off them.")
+            elseif obj.state == "burned" then
+                say_line("They look a bit overcooked.")
+            else
+                say_line("It's an electrical cooker.")
+            end
+        end,
+        use_with = function(obj, other)
+            if other == countertop then
+                put_object(obj, 1485, 327, bridge)
+            end
         end
     }
+}
+
+cooker_in_crate = {
+    id = "cooker_in_crate",
+    type = "object",
+    name = "thing in crate",
+    use_dir = face_front,
+    use_pos = pos_above,
+    depends_on = "crate_right.open",
+    verbs = {
+        look_at = function(obj)
+            say_line("It looks like some kind of cooking device.")
+        end,
+        pick_up = function(obj)
+            remove_object(cooker_in_crate)
+            set_owner(cooker, selected_actor)
+        end
+    }
+}
+
+countertop = {
+    id = "countertop",
+    type = "object",
+    name = "countertop",
+    use_dir = face_back,
+    use_pos = pos_infront,
+    z_offset = -1000
 }
 
 crate_left = {
@@ -143,9 +216,10 @@ crate_right = {
     use_pos = pos_above,
     verbs = {
         look_at = function(obj)
-            say_line("It's a wooden crate.")
-            say_line("The address label says 'Edison family'.")
-            say_line("Never heard of them.")
+            say_line("It's a decidedly low-tech wooden crate.")
+            if obj.state == "closed" then
+                say_line("The label says: 'don't open until mission is complete!'")
+            end
         end,
         open = function(obj)
             say_line("It's nailed shut.")
@@ -172,6 +246,61 @@ crate_top = {
     }
 }
 
+door_bridge = {
+    id = "door_bridge",
+    type = "object",
+    name = "door",
+    z_offset = -1000,
+    verbs = {
+        close = function(obj)
+            say_line("It doesn't seem to close from this side.")
+        end,
+        look_at = function(obj)
+            say_line("It's the doorway to the transportation room.");
+        end,
+        open = function(obj)
+            say_line("It's already open.")
+        end,
+        walk_to = function(obj)
+            change_room(terminal)
+        end
+    }
+}
+
+door_terminal = {
+    id = "door_terminal",
+    type = "object",
+    name = "door",
+    state = "closed",
+    use_dir = face_back,
+    verbs = {
+        close = function(obj)
+            if obj.state == "closed" then
+                say_line("It's already closed!")
+            else
+                change_state(obj, "closed")
+            end
+        end,
+        look_at = function(obj)
+            say_line("It looks like a fancy high-tech door.");
+        end,
+        open = function(obj)
+            if obj.state == "open" then
+                say_line("It's already open!")
+            elseif beam_button.state == "on" then
+                say_line("It won't budge!");
+            else
+                change_state(obj, "open")
+            end
+        end,
+        walk_to = function(obj)
+            if (obj.state == "open") then
+                change_room(bridge)
+            end
+        end
+    }
+}
+
 fridge = {
     id = "fridge",
     type = "object",
@@ -179,6 +308,7 @@ fridge = {
     classes = {},
     state = "closed",
     use_dir = face_back,
+    z_offset = 10,
     verbs = {
         open = function(obj)
              change_state(obj, "open")
@@ -217,12 +347,7 @@ groceries = {
             if owned_by(obj, selected_actor) then
                 say_line("It's my shopping bag with groceries.")
                 say_line("There's even a bottle of Info Support Awesome Sauce™ in there!")
-            else
-                say_line("All my groceries stay nice and cool in the fridge!")
             end
-        end,
-        pick_up = function(obj)
-            set_owner(obj, selected_actor)
         end,
         use_with = function(obj, other)
             if other == grocerylist then
@@ -232,13 +357,13 @@ groceries = {
                 if fridge.state == "closed" then
                     say_line("What do you expect me to do? Throw them at the fridge door?")
                 else
-                    put_object(groceries, fridge.x, fridge.y - 83)
+                    put_object(groceries, fridge.x, fridge.y - 16)
                 end
             end
         end
     },
     depends_on = "fridge.open",
-    z_offset = 84
+    z_offset = 30
 }
 
 grocerylist = {
@@ -260,10 +385,32 @@ grocerylist = {
             if other == groceries then
                 say_line("Yep, I've got everything on the list!")
             elseif other == todolist then
-                set_owner(todolist, selected_actor)
-                put_object(grocerylist, 650, 300)
-                face_dir(face_front)
-                say_line("That should do the trick!")
+                if not world.alarm then
+                    local ian_pos = save_actor_pos(ian)
+                    local todolist_pos = save_object_pos(todolist)
+                    remove_object(obj)
+                    walk_to(750, 325, face_front, ian)
+                    say_line("Hey, what are you doing there?", ian)
+                    wait(500)
+                    restore_object_pos(todolist_pos)
+                    say_line("Er, nothing!")
+                    restore_actor_pos(ian_pos)
+                    face_dir(face_front)
+                    say_line("I wish he was more distracted.")
+                else
+                    set_owner(todolist, selected_actor)
+                    wait(500)
+                    put_object(grocerylist, 660, 250)
+                    face_dir(face_front)
+                    say_line("Nothing better than a surprise mission change!")
+                    say_line("* KITCHEN ZONE CLEAR: ALARM DEACTIVATED *", narrator)
+                    walk_to(810, 300, face_back, ian)
+                    walk_to(990, 375, face_front, al)
+                    remove_object(alarm)
+                    remove_object(power_cord)
+                    change_state(cooker, "burned")
+                    world.alarm = false
+                end
             end
         end
     }
@@ -277,27 +424,14 @@ newspaper = {
     verbs = {
         look_at = function(obj)
             if owned_by(obj, selected_actor) then
-                obj.verbs.open(obj);
+                say_line("It's yesterday's paper.")
             else
-                say_line("It looks like an old newspaper!")
-            end
-        end,
-        open = function(obj)
-            if owned_by(obj, selected_actor) then
-                if world.beamed_up then
-                    say_line("It's a newspaper full of facts!")
-                else
-                    world.beamed_up = true;
-                    cutscene_beam_up();
-                end
+                say_line("It looks like an old newspaper.")
             end
         end,
         pick_up = function(obj)
-            if not owned_by(obj, selected_actor) then
-                set_owner(obj, selected_actor)
-            else
-                say_line("I've already picked it up!")
-            end
+            set_owner(obj, selected_actor)
+            cutscene_beam_up()
         end
     }
 }
@@ -313,6 +447,24 @@ onair = {
     type = "object",
     classes = { class_untouchable },
     state = "on"
+}
+
+outlet_booth = {
+    id = "outlet_booth",
+    type = "object",
+    classes = { class_untouchable }
+}
+
+outlet_kitchen = {
+    id = "outlet_kitchen",
+    type = "object",
+    classes = { class_untouchable }
+}
+
+park_bench = {
+    id = "park_bench",
+    type = "object",
+    classes = { class_untouchable }
 }
 
 podcast_booth = {
@@ -331,30 +483,99 @@ podcast_booth = {
 power_cord = {
     id = "power_cord",
     type = "object",
-    name = "alien power cord",
-    use_pos = pos_infront,
+    name = "power cord",
+    classes = { class_use_with },
+    state = "booth",
+    use_pos = pos_center,
     use_dir = face_back,
     verbs = {
+        look_at = function(obj)
+            say_line("Looks like the podcast booth gets it electricity from the ship.")
+            say_line("I wonder how the aliens feel about that.")
+        end,
         pick_up = function(obj)
             say_line("I'm sure they won't mind me borrowing this power cord.")
             say_line("...flux capacity of this ship is enormous...", richard)
             say_line("Hmm, interesting...", carl)
+            walk_to(435, 365, face_back)
+            wait(1000)
             set_owner(obj, selected_actor)
+            world.booth_disconnected = true
             wait(500)
-            change_state(onair, "off")
-            wait(200)
-            change_state(onair, "on")
-            wait(200)
-            change_state(onair, "off")
-            wait(200)
-            change_state(onair, "on")
-            wait(100)
+            for i = 0,1,4 
+            do 
+                change_state(onair, "off")
+                wait(200)
+                change_state(onair, "on")
+                wait(200)
+            end
             change_state(onair, "off")
             wait(1000)
             say_line("Er...Carl...", richard)
             say_line("Yeah?", carl)
             say_line("Why is the microphone off?", richard)
-            say_line("Aarghh, now we need to start over again!", carl)
+            say_line("Hm, seems like all power is gone!", carl)
+            say_line("Maybe the solar radiation is interfering with the ships primary capacitators.", richard)
+            walk_to(430, 405, face_front)
+        end,
+        use_with = function(obj, other)
+            if other == cooker then
+                if owned_by(cooker, selected_actor) then
+                    say_line("I really should put it on a stable surface first.")
+                else
+                    change_state(power_cord, "kitchen")
+                    put_object(power_cord, 1540, 414, bridge)
+                    change_state(cooker, "on")
+                end
+            end
+        end
+    }
+}
+
+saucages = {
+    id = "saucages",
+    type = "object",
+    name = "hot dogs",
+    classes = { class_use_with },
+    use_dir = face_back,
+    use_pos = pos_infront,
+    depends_on = "fridge.open",
+    z_offset = 91,
+    verbs = {
+        give_to = function(obj, actor)
+            if actor == al then
+                say_line("No thanks, I've already got a package in the fridge.", al)
+                say_line("I'm saving them to celebrate when the mission is done!", al)
+            end
+        end,
+        pick_up = function(obj)
+            set_owner(obj, selected_actor)
+        end,
+        use_with = function(obj, other)
+            if other == cooker then
+                if not world.cooker_boiling then
+                    say_line("According to the package, I should boil some water first.")
+                else
+                    say_line("Here goes nothing!");
+                    set_owner(obj, nobody)
+                    change_state(other, "full")
+                    wait(1500)
+                    say_line("I wonder if they're supposed to turn green...");
+                    change_state(other, "smoke")
+                    say_line("Yikes!")
+                    walk_to(1310, 425, face_front)
+                    say_line("This can't be good!")
+                    put_object(alarm, 1449, 330)
+                    say_line("* WARNING: SMOKE DETECTED IN KITCHEN ZONE *", narrator)
+                    walk_to(1490, 425, face_back, al)
+                    say_line("WHAT ARE YOU DOING TO MY HOT DOGS?", al)
+                    walk_to(1395, 425, face_back, ian)
+                    say_line("What's going on here?", ian)
+                    say_line("MY HOT DOGS!", al)
+                    say_line("I told you to wait until the mission was done!", ian)
+                    world.alarm = true
+                end
+            end
         end
     }
 }
@@ -364,6 +585,7 @@ todolist = {
     type = "object",
     name = "to-do list",
     use_dir = face_back,
+    use_pos = pos_infront,
     verbs = {
         look_at = function(obj)
             if owned_by(obj, selected_actor) then
@@ -372,68 +594,30 @@ todolist = {
                 say_line("It's a list with names.")
                 say_line("The title says: 'Body-snatch list'.")
                 face_dir(face_front)
-                say_line("YIKES, this can't be good!!")
+                say_line("YIKES!!")
             end
         end,
         pick_up = function(obj)
             if not owned_by(obj, selected_actor) then
+                local ian_pos = save_actor_pos(ian)
+                local todolist_pos = save_object_pos(todolist)
                 remove_object(obj)
                 face_dir(face_front)
                 say_line("Got it!")
+                if world.alarm then
+                    walk_to(860, 430, face_back, ian)
+                else
+                    walk_to(750, 325, face_front, ian)
+                end
                 say_line("Hey, put that back!", ian)
-                say_line("We need that to finish the mission!", al)
+                say_line("We need that to finish the mission!", ian)
+                restore_actor_pos(ian_pos)
                 face_dir(face_back)
                 wait(500)
-                put_object(obj, 650, 300)
+                restore_object_pos(todolist_pos)
                 face_dir(face_front)
                 say_line("I guess I have to think of something sneakier!")
-            end
+             end
         end
     }
-}
-
-tractorbeam = {
-    id = "tractorbeam",
-    type = "object",
-    classes = { class_untouchable }
-}
-
-transportation_door = {
-    id = "transportation_door",
-    type = "object",
-    name = "door",
-    state = "closed",
-    use_dir = face_back,
-    verbs = {
-        close = function(obj)
-            if obj.state == "closed" then
-                say_line("It's already closed!")
-            else
-                change_state(obj, "closed")
-            end
-        end,
-        look_at = function(obj)
-            say_line("It looks like a fancy high-tech door.");
-        end,
-        open = function(obj)
-            if obj.state == "open" then
-                say_line("It's already open!")
-            elseif beamcontrol.state == "on" then
-                say_line("It won't budge!");
-            else
-                change_state(obj, "open")
-            end
-        end,
-        walk_to = function(obj)
-            if (obj.state == "open") then
-                change_room(bridge)
-            end
-        end
-    }
-}
-
-park_bench = {
-    id = "park_bench",
-    type = "object",
-    classes = { class_untouchable }
 }

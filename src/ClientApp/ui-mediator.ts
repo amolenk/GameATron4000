@@ -73,12 +73,11 @@ export class UIMediator {
 
                 var actor = this.room.getActor(this._selectedActor);
 
-                if (!(target instanceof InventoryItem))
+                if (!(target instanceof InventoryItem)
+                    && target.usePosition != "none")
                 {
                     const walkToX = target.x;
                     let walkToY = target.y;
-
-                    console.log(target.useDirection);
 
                     if (target.usePosition == "infront") {
                         walkToY += 20; // TODO Consider scaling
@@ -176,6 +175,12 @@ export class UIMediator {
                                 event.actor.textColor),
                             event.actor.x,
                             event.actor.y);
+                        break;
+                    }
+
+                    case "CameraFocusChanged": {
+                        var actor = this.room.getActor(event.actor.id);
+                        actor.focusCamera(false);
                         break;
                     }
 
@@ -295,7 +300,7 @@ export class UIMediator {
                         const walkbox = new Phaser.Polygon(
                             event.room.walkbox.map((p: any) => new Phaser.Point(p.x, p.y)));
 
-                        this.room = new Room(event.room.id, walkbox);
+                        this.room = new Room(event.room.id, event.room.scale, walkbox);
                         this.room.create(this.game, this, this.layers);
 
                         for (let actor of event.actors) {
@@ -339,10 +344,13 @@ export class UIMediator {
         )
     }
 
-    private setUIVisible(visible: boolean) {
+    public uiEnabled: boolean = false;
+
+    public setUIVisible(visible: boolean) {
         this.actionUI.setVisible(visible);
         this.inventoryUI.setVisible(visible);
         this.verbsUI.setVisible(visible);
+        this.uiEnabled = visible;
     }
 
     private updateText() {

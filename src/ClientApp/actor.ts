@@ -16,8 +16,9 @@ export class Actor {
     private moveTween: Phaser.Tween;
 
     private game: Phaser.Game;
-
     private layers: Layers;
+    private scale: any;
+
     private spaceKey: Phaser.Key;
 
     private resolveWaitForLine: any;
@@ -40,10 +41,12 @@ export class Actor {
         return this.sprite.y;
     }
 
-    public create(game: Phaser.Game, uiMediator: UIMediator, x: number, y: number, layers: Layers) {
+    public create(game: Phaser.Game, uiMediator: UIMediator, x: number, y: number, layers: Layers,
+        scale: any) {
         
         this.game = game;
         this.layers = layers;
+        this.scale = scale;
 
         // TODO Refactor to GetFrameName
         var frameName = (this.classes.indexOf("class_invisible") == -1)
@@ -81,6 +84,9 @@ export class Actor {
             this.sprite.events.onInputDown.add(() => uiMediator.selectObject(this));
         }
 
+        this.updateScale();
+        this.sprite.data.z = this.sprite.y;
+
         layers.objects.add(this.sprite);
 //        layers.text.add(this.text);
 
@@ -100,8 +106,10 @@ export class Actor {
         this.faceDirection = direction;
     }
 
-    public focusCamera() {
-        this.game.camera.focusOn(this.sprite);
+    public focusCamera(jump: boolean) {
+        if (jump) {
+            this.game.camera.focusOn(this.sprite);
+        }
         this.game.camera.follow(this.sprite, Phaser.Camera.FOLLOW_LOCKON, 0.1, 0.1);
     }
 
@@ -191,7 +199,7 @@ export class Actor {
                 this.moveTween = this.game.add.tween(this.sprite).to({ x: path[i].x, y: path[i].y }, tweenDuration).start();
         
                 this.moveTween.onUpdateCallback(() => {
-                    this.sprite.scale.set(this.sprite.y / 400) // TODO
+                    this.updateScale();
                     this.sprite.data.z = this.sprite.y;
                 });
                 this.moveTween.onComplete.add(() => {
@@ -219,6 +227,27 @@ export class Actor {
     public kill() {
         this.sprite.destroy();
     //    this.text.destroy();
+    }
+
+    private updateScale() {
+        if (this.scale) {
+            if (this.sprite.y < this.scale.start) {
+                this.sprite.scale.set(this.scale.min / 100);
+            }
+            else if (this.sprite.y > this.scale.start && this.sprite.y < this.scale.end) {
+                const scaleAreaHeight = this.scale.end - this.scale.start;
+                const scaleDiff = this.scale.max - this.scale.min;
+                const percentageInArea = (this.sprite.y - this.scale.start) / scaleAreaHeight;
+                const scale = scaleDiff * percentageInArea + this.scale.min;
+                this.sprite.scale.set(scale / 100);
+            }
+            else {
+                this.sprite.scale.set(this.scale.max / 100);
+            }
+        }
+        else {
+            this.sprite.scale.set(1);
+        }
     }
 
     // TODO Extract

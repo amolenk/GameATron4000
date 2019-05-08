@@ -25,10 +25,19 @@ export class RoomObject {
 
     public create(game: Phaser.Game, uiMediator: UIMediator, x: number, y: number, zOffset: number, group: Phaser.Group) {
 
-        this.sprite = game.add.sprite(x, y, "sprites", this.getFrameName());
+        this.sprite = game.add.sprite(x, y, "sprites");
         this.sprite.anchor.set(0.5, 1);
 
         this.sprite.data.z = y + zOffset;
+
+        // TODO Make animations configurable on objects, for now automagically
+        // register the 'smoke' animation for the 'cooker.
+        if (this.id == "cooker") {
+            this.sprite.animations.add("smoke",
+                Phaser.Animation.generateFrameNames(`objects/${this.id}/smoke/`, 1, 3, '', 4), 6, true, false);
+        }
+
+        this.updateFrame();
 
         group.add(this.sprite);
 
@@ -38,8 +47,8 @@ export class RoomObject {
 
         if (this.classes.indexOf("class_untouchable") == -1) {
             this.sprite.inputEnabled = true;
-            this.sprite.input.pixelPerfectClick = true;
-            this.sprite.input.pixelPerfectOver = true;
+            //this.sprite.input.pixelPerfectClick = true;
+            //this.sprite.input.pixelPerfectOver = true;
 
             this.sprite.events.onInputOver.add(() => uiMediator.focusObject(this));
             this.sprite.events.onInputOut.add(() => uiMediator.focusObject(null));
@@ -50,8 +59,11 @@ export class RoomObject {
     }
 
     public changeState(state: string) {
+        if (this.sprite.animations.getAnimation(this.state) != null) {
+            this.sprite.animations.stop(this.state);
+        }
         this.state = state;
-        this.sprite.frameName = this.getFrameName();
+        this.updateFrame();
     }
 
     public setPosition(x: number, y: number) {
@@ -68,7 +80,15 @@ export class RoomObject {
         this.sprite = null;
     }
 
-    private getFrameName(): string {
-        return this.state ? `objects/${this.id}/${this.state}` : `objects/${this.id}`;
+    private updateFrame() {
+        if (this.state) {
+            if (this.sprite.animations.getAnimation(this.state) != null) {
+                this.sprite.animations.play(this.state);
+            } else {
+                this.sprite.frameName = `objects/${this.id}/${this.state}`;
+            }    
+        } else {
+            this.sprite.frameName = `objects/${this.id}`;
+        }
     }
 }

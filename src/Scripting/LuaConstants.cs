@@ -56,7 +56,16 @@ namespace GameATron4000.Scripting
 
             public static class Room
             {
-                public const string Walkbox = "walkbox";        
+                public const string Scale = "scale";
+                public const string Walkbox = "walkbox";
+            }
+
+            public static class Scale
+            {
+                public const string Min = "min";
+                public const string Max = "max";
+                public const string Start = "start_pos";
+                public const string End = "end_pos";
             }
 
             public static class Types

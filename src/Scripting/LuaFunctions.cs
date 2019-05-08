@@ -38,13 +38,15 @@ namespace GameATron4000.Scripting
             return _random.Next(min, max + 1);
         }
 
-        // [LuaGlobal(Name = "camera_follow")]
-        // public void CameraFollow(LuaTable actorTable)
-        // {
-        //     var actor = LuaActor.FromTable(actorTable, _script);
+        [LuaGlobal(Name = "camera_follow")]
+        public void CameraFollow(LuaTable actorTable)
+        {
+            var actor = LuaActor.FromTable(actorTable, _script);
 
-        //     _script.World.CameraFollow = actor.Id;
-        // }
+//            _script.World.CameraFollow = actor.Id;
+
+            Result.Activities.Add(_activityFactory.CameraFocusChanged(actor));
+        }
 
         [LuaGlobal(Name = "change_room")]
         public void ChangeRoom(LuaTable roomTable)

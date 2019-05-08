@@ -102,14 +102,7 @@ namespace GameATron4000.Dialogs
             // update the dialog stack.
             if (scriptResult.NextDialogId.Length > 0)
             {
-                if (scriptResult.NextDialogReplace)
-                {
-                    await dc.ReplaceDialogAsync(scriptResult.NextDialogId);
-                }
-                else
-                {
-                    await dc.BeginDialogAsync(scriptResult.NextDialogId);
-                }
+                await StartNextDialog(dc, scriptResult);
             }
             // Otherwise, send an Idle activity to let the GUI know that we're waiting
             // for the player's input.
@@ -129,13 +122,33 @@ namespace GameATron4000.Dialogs
         {
             if (dc == null) throw new ArgumentNullException(nameof(dc));
 
-            var activityFactory = new ActivityFactory(dc.Context);
+            if (result is IGameScriptResult scriptResult
+                && scriptResult.NextDialogId.Length > 0)
+            {
+                await StartNextDialog(dc, scriptResult);
+            }
+            else
+            {
+                var activityFactory = new ActivityFactory(dc.Context);
 
-            // We've just finished a conversation with an actor. 
-            // Send an Idle activity to let the GUI know that we're waiting for user interaction.
-            await dc.Context.SendActivityAsync(activityFactory.Idle());
+                // We've just finished a conversation with an actor. 
+                // Send an Idle activity to let the GUI know that we're waiting for user interaction.
+                await dc.Context.SendActivityAsync(activityFactory.Idle());
+            }
 
             return new DialogTurnResult(DialogTurnStatus.Waiting);
+        }
+
+        private async Task StartNextDialog(DialogContext dc, IGameScriptResult scriptResult)
+        {
+            if (scriptResult.NextDialogReplace)
+            {
+                await dc.ReplaceDialogAsync(scriptResult.NextDialogId);
+            }
+            else
+            {
+                await dc.BeginDialogAsync(scriptResult.NextDialogId);
+            }
         }
     }
 }

@@ -70,6 +70,11 @@ class GameATron {
                 this.game.scale.startFullScreen(false);
             }
         });
+
+        var resetKey = this.game.input.keyboard.addKey(Phaser.Keyboard.R);
+        resetKey.onDown.add(() => {
+            this.uiMediator.setUIVisible(true);
+        });
     }
 
     private update() {

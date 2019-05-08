@@ -7,6 +7,8 @@ namespace GameATron4000.Core
     {
         string Id { get; }
 
+        IScale Scale { get; }
+
         IEnumerable<Point> Walkbox { get; }
 
         IEnumerable<IObject> GetObjects();

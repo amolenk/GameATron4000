@@ -39,6 +39,17 @@ namespace GameATron4000.Core
             });
         }
 
+        public Activity CameraFocusChanged(IActor actor)
+        {
+            return CreateEventActivity("CameraFocusChanged", new
+            {
+                actor = new
+                {
+                    id = actor.Id
+                }
+            });
+        }
+
         public Activity ActorDirectionFacedChanged(string direction, IActor actor)
         {
             return CreateEventActivity("ActorDirectionFacedChanged", new
@@ -210,7 +221,6 @@ namespace GameATron4000.Core
             });
         }
 
-        // TODO Would love to have an IGameScript or something here.
         public Activity RoomEntered(IGameScript script)
         {
             var room = script.World.GetSelectedRoom();
@@ -220,6 +230,14 @@ namespace GameATron4000.Core
                 room = new
                 {
                     id = room.Id,
+                    scale = room.Scale != null ?
+                        new
+                        {
+                            min = room.Scale.Min,
+                            max = room.Scale.Max,
+                            start = room.Scale.StartPos,
+                            end = room.Scale.EndPos
+                        } : null,
                     walkbox = room.Walkbox.Select(p => new
                     {
                         x = p.X,
