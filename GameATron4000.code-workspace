@@ -7,5 +7,7 @@
 			"path": "docs"
 		}
 	],
-	"settings": {}
+    "settings": {
+        "docker.defaultRegistryPath": "amolenk"
+    }
 }

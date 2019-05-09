@@ -60,7 +60,7 @@ carl = {
     id = "carl",
     type = "actor",
     name = "Richard & Carl",
-    text_col = "#584def",
+    text_col = "#48CC1A",
     use_pos = pos_none,
     verbs = {
         talk_to = function(actor)
@@ -80,11 +80,11 @@ richard = {
     use_pos = pos_none,
     verbs = {
         talk_to = function(actor)
-            walk_to(245, 420, face_back)
+            walk_to(340, 430, face_back)
             start_talking("talk_to_richard")
         end,
         walk_to = function(actor)
-            walk_to(245, 420, face_back)
+            walk_to(340, 430, face_back)
         end
     }
 }

@@ -65,6 +65,18 @@ bridge = {
     },
     before_enter = function(room)
         put_actor(guy, 65, 440)
+    end,
+    after_enter = function(room)
+        if not world.visited_bridge then
+            wait(1000)
+            say_line("No, you can't have access to the reactor core!", ian)
+            say_line("Can we at least have a look at the warp drive?", carl)
+            say_line("NO!", ian)
+            walk_to(455, 430, face_front, ian)
+            say_line("Jeez, these earthlings are nosy!", ian)
+            walk_to(810, 300, face_back, ian)
+            world.visited_bridge = true
+        end
     end
 }
 

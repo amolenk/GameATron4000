@@ -31,7 +31,7 @@ talk_to_richard = {
         if world.booth_disconnected then
             say_line("Well, until we lost power!", richard)
         end
-        say_line("We're examining this alien artifact!", carl)
+        say_line("We're examining this alien artifact here!", carl)
         if not world.traded_hammer then
             say_line("It kinda looks like a regular claw hammer.")
             say_line("It most definitely is not!", richard)

@@ -25,7 +25,7 @@ function initialize_game()
 
     -- bridge
     put_actor(al, 990, 375, bridge)
-    put_actor(ian, 810, 300, bridge)
+    put_actor(ian, 250, 420, bridge)
     put_actor(carl, 305, 361, bridge)
     put_actor(richard, 185, 361, bridge)
     face_dir(face_back, ian)
@@ -44,7 +44,7 @@ function initialize_game()
     put_object(saucages, 1225, 296, bridge)
     put_object(todolist, 660, 250, bridge)
 
-    change_room(park)
+    change_room(bridge)
 end
 
 canned_responses = {
@@ -125,6 +125,7 @@ function cutscene_check_list()
             face_dir(face_front, ian)
             say_line("Al, did you know we need to collect earthly food products?", ian)
             say_line("Too bad the hot dogs are burned!", al)
+            say_line("Maybe there's something left in the fridge.", al)
             world.mission_changed = true;
         else
             say_line("Still looking for those earthly food products.", ian)

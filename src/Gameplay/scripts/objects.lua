@@ -12,6 +12,9 @@ beam_button = {
     use_dir = face_back,
     use_pos = pos_infront,
     verbs = {
+        look_at = function(obj)
+            say_line("That's a big button!")
+        end,
         push = function(obj)
             obj.verbs.use(obj)
         end,
@@ -59,6 +62,19 @@ bottle = {
     use_dir = face_back,
     z_offset = 91,
     verbs = {
+        give_to = function(obj, actor)
+            if actor == richard or actor == carl then
+                walk_to(245, 420, face_back)
+                say_line("No thanks, we're recording right now.", carl)
+                say_line("Maybe after the show.", richard)
+            end
+        end,
+        look_at = function(obj)
+            say_line("It's a bottle with some liquid in it.")
+            say_line("'Canes Venatici Cosmic Scotch. Drink at your own risk!'")
+            face_dir(face_front)
+            say_line("Strong stuff!")
+        end,
         pick_up = function(obj)
             set_owner(obj, selected_actor)
         end,
@@ -101,8 +117,11 @@ claw_hammer = {
         use_with = function(obj, other)
             if other == podcast_booth then
                 start_talking("knock_knock")
+            elseif other == crate_left or other == crate_top then
+                say_line("The nails in this crate are stuck.")
             elseif other == crate_right then
                 change_state(crate_right, "open")
+                say_line("There's something inside!")
             end
         end
     }
@@ -120,7 +139,7 @@ cheese_grater = {
                 walk_to(245, 420, face_back)
                 say_line("Can you use this for the show?")
                 say_line("What is it?", carl)
-                say_line("It's a highly advanced alien artifact with holes edged by slightly raised cutting edges, used for grating a certain type of nutritious substance.")
+                say_line("It's a highly advanced alien artifact with holes edged by slightly raised cutting edges, used for grating a certain type of yellow nutritious substance.")
                 say_line("That's just what we need for the show!", richard)
                 say_line("We'll trade you for the claw hammer.", carl)
                 say_line("Er, *alien* claw hammer.", carl)
@@ -129,6 +148,8 @@ cheese_grater = {
                 put_object(cheese_grater, 245, 350)
                 world.traded_hammer = true
                 face_dir(face_front)
+            else
+                say_line("I think I'll keep it for now.")
             end
         end,
         look_at = function(obj)
@@ -153,6 +174,9 @@ cooker = {
     use_dir = face_back,
     use_pos = pos_infront,
     verbs = {
+        give_to = function(obj, actor)
+            say_line("I think I'll keep it for now.")
+        end,
         look_at = function(obj)
             if obj.state == "smoke" then
                 say_line("Never trust hot dogs with green smoke coming off them.")
@@ -194,7 +218,12 @@ countertop = {
     name = "countertop",
     use_dir = face_back,
     use_pos = pos_infront,
-    z_offset = -1000
+    z_offset = -1000,
+    verbs = {
+        look_at = function(obj)
+            say_line("It's a countertop, not much to add here.")
+        end
+    }
 }
 
 crate_left = {
@@ -204,6 +233,9 @@ crate_left = {
     use_dir = face_front,
     use_pos = pos_above,
     verbs = {
+        look_at = function(obj)
+            say_line("It's a decidedly low-tech wooden crate.")
+        end
     }
 }
 
@@ -243,6 +275,9 @@ crate_top = {
     use_pos = pos_above,
     z_offset = 50,
     verbs = {
+        look_at = function(obj)
+            say_line("It's a decidedly low-tech wooden crate.")
+        end
     }
 }
 
@@ -256,7 +291,7 @@ door_bridge = {
             say_line("It doesn't seem to close from this side.")
         end,
         look_at = function(obj)
-            say_line("It's the doorway to the transportation room.");
+            say_line("It's the doorway to the terminal.");
         end,
         open = function(obj)
             say_line("It's already open.")
@@ -343,6 +378,9 @@ groceries = {
     name = "groceries",
     classes = { class_untouchable, class_use_with },
     verbs = {
+        give_to = function(obj, actor)
+            say_line("I think I'll keep it for now.")
+        end,
         look_at = function(obj)
             if owned_by(obj, selected_actor) then
                 say_line("It's my shopping bag with groceries.")
@@ -372,6 +410,9 @@ grocerylist = {
     name = "grocery list",
     classes = { class_use_with },
     verbs = {
+        give_to = function(obj, actor)
+            say_line("I think I'll keep it for now.")
+        end,
         look_at = function(obj)
             if owned_by(obj, selected_actor) then
                 say_line("It's my grocery list!")
@@ -422,6 +463,9 @@ newspaper = {
     classes = { class_use_with },
     name = "newspaper",
     verbs = {
+        give_to = function(obj, actor)
+            say_line("I think I'll keep it for now.")
+        end,
         look_at = function(obj)
             if owned_by(obj, selected_actor) then
                 say_line("It's yesterday's paper.")
@@ -489,6 +533,9 @@ power_cord = {
     use_pos = pos_center,
     use_dir = face_back,
     verbs = {
+        give_to = function(obj, actor)
+            say_line("I think I'll keep it for now.")
+        end,
         look_at = function(obj)
             say_line("Looks like the podcast booth gets it electricity from the ship.")
             say_line("I wonder how the aliens feel about that.")
@@ -518,6 +565,9 @@ power_cord = {
             say_line("Maybe the solar radiation is interfering with the ships primary capacitators.", richard)
             walk_to(430, 405, face_front)
         end,
+        pull = function(obj)
+            obj.verbs.pick_up(obj)
+        end,
         use_with = function(obj, other)
             if other == cooker then
                 if owned_by(cooker, selected_actor) then
@@ -542,10 +592,16 @@ saucages = {
     depends_on = "fridge.open",
     z_offset = 91,
     verbs = {
+        look_at = function(obj)
+            say_line("'100% premium mystery meat hot dogs!'")
+            say_line("'Heat up in boiled water for 10 minutes!'")
+        end,
         give_to = function(obj, actor)
             if actor == al then
                 say_line("No thanks, I've already got a package in the fridge.", al)
                 say_line("I'm saving them to celebrate when the mission is done!", al)
+            else
+                say_line("I think I'll keep them for now.")
             end
         end,
         pick_up = function(obj)
