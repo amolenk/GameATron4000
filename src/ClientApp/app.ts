@@ -73,14 +73,13 @@ class GameATron {
 
         var resetKey = this.game.input.keyboard.addKey(Phaser.Keyboard.R);
         resetKey.onDown.add(() => {
-            this.uiMediator.setUIVisible(true);
+            this.uiMediator.reset();
         });
     }
 
     private update() {
 
         // Depth sorting based on y-axis position.
-//TODO        this.layers.objects.sort('data.z', Phaser.Group.SORT_ASCENDING);
         this.layers.objects.customSort((a: Phaser.Sprite, b: Phaser.Sprite) => 
             a.data.z < b.data.z ? -1 : a.data.z == b.data.z ? 0 : 1);
 

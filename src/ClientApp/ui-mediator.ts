@@ -61,6 +61,16 @@ export class UIMediator {
         this.updateText();
     }
 
+    public async reset() {
+
+        await this.botClient.sendMessageToBot("__reset");
+
+        this.selectedAction = null;
+        this.focussedObject = null;
+
+        this.updateText();
+    }
+
     public async selectObject(target: RoomObject | InventoryItem | Actor) {
         
         if (this.selectedAction != null) {
@@ -215,7 +225,6 @@ export class UIMediator {
 
                     case "GameStarted": {
                         this._selectedActor = event.actor.id;
-                        // TODO Set up camera
                         for (let obj of event.inventory) {
                             await this.inventoryUI.addToInventory(
                                 new InventoryItem(obj.id, obj.name, obj.classes));

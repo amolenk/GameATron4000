@@ -41,6 +41,13 @@ export class InventoryUI {
         return Promise.resolve();
     }
 
+    public clear() {
+        for (let i = this.items.length - 1; i >= 0; i--) {
+            this.removeFromInventory(this.items[i].id);
+        }
+        return Promise.resolve();
+    }
+
     public setVisible(visible: boolean) {
         this.visible = visible;
         for (let item of this.items) {

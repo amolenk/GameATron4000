@@ -27,7 +27,7 @@
   </Target>
   <Target Name="PublishRunWebpack" AfterTargets="ComputeFilesToPublish">
     <ItemGroup>
-      <DistFiles Include="wwwroot\dist\**; Gameplay/scripts/*.*; GameATron4000.Production.bot"/>
+      <DistFiles Include="wwwroot\dist\**; Gameplay/scripts/**; GameATron4000.Production.bot"/>
       <ResolvedFileToPublish Include="@(DistFiles->'%(FullPath)')" Exclude="@(ResolvedFileToPublish)">
         <RelativePath>%(DistFiles.Identity)</RelativePath>
         <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>

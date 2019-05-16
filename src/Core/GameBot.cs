@@ -85,10 +85,17 @@ namespace GameATron4000.Core
                 }
                 else if (context.Activity.Type is ActivityTypes.Message)
                 {
-                    // TODO Trial 3: Add call to LUIS service
+                    if (context.Activity.Text == "__reset")
+                    {
+                        await context.SendActivityAsync(activityFactory.GameStarted(script));
+                    }
+                    else
+                    {
+                        // TODO Trial 3: Add call to LUIS service
 
-                    // Continue the dialog to handle the incoming command.
-                    await dc.ContinueDialogAsync();
+                        // Continue the dialog to handle the incoming command.
+                        await dc.ContinueDialogAsync();
+                    }
                 }
 
                 scriptState = script.SaveScriptState();

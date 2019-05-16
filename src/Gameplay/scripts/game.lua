@@ -44,7 +44,7 @@ function initialize_game()
     put_object(saucages, 1225, 296, bridge)
     put_object(todolist, 660, 250, bridge)
 
-    change_room(bridge)
+    change_room(park)
 end
 
 canned_responses = {

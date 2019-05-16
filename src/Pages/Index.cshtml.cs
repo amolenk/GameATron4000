@@ -27,8 +27,7 @@ namespace GameATron4000.Pages
                 directLineSecret = botServices.DirectLineSecret,
                 minTextDuration = guiOptions.MinTextDuration,
                 textSpeed = guiOptions.TextSpeed,
-                assets = Directory.GetFiles("Gameplay/assets/", "*.png")
-                    .Select(path => Path.GetFileNameWithoutExtension(path))
+                assets = new string[] { "sprites" }
             });
         }
     }
