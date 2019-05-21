@@ -351,9 +351,6 @@ fridge = {
         close = function(obj)
             change_state(obj, "closed")
         end,
-        push = function(obj)
-            start_cutscene(cutscene)
-        end,
         look_at = function(obj)
             if obj.state == "closed" then
                 say_line("It's a big fridge!")

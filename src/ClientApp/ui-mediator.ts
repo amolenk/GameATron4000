@@ -63,6 +63,8 @@ export class UIMediator {
 
     public async reset() {
 
+        this.setUIVisible(false);
+
         await this.botClient.sendMessageToBot("__reset");
 
         this.selectedAction = null;
@@ -225,6 +227,7 @@ export class UIMediator {
 
                     case "GameStarted": {
                         this._selectedActor = event.actor.id;
+                        this.inventoryUI.clear();
                         for (let obj of event.inventory) {
                             await this.inventoryUI.addToInventory(
                                 new InventoryItem(obj.id, obj.name, obj.classes));

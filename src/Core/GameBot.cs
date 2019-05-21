@@ -88,6 +88,7 @@ namespace GameATron4000.Core
                     if (context.Activity.Text == "__reset")
                     {
                         await context.SendActivityAsync(activityFactory.GameStarted(script));
+                        await context.SendActivityAsync(activityFactory.Idle());
                     }
                     else
                     {
