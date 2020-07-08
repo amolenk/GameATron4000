@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using GameATron4000.BotFileAssistant;
 using GameATron4000.Configuration;
 using GameATron4000.Core;
 using GameATron4000.Models;
@@ -79,10 +78,6 @@ namespace GameATron4000
                 {
                     options.CredentialProvider = new SimpleCredentialProvider(endpointService.AppId, endpointService.AppPassword);
                 }
-
-                options.Middleware.Add(new BotFileAssistantMiddleware());
-
-                // TODO Trial 2: Register middleware here.
 
                 IStorage dataStore = new MemoryStorage();
                 options.State.Add(new ConversationState(dataStore));
