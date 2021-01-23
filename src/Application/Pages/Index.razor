@@ -1,0 +1,21 @@
+﻿@page "/"
+@using GameATron4000.Application
+@using GameATron4000.Core.Services
+@using GameATron4000.Infrastructure.Phaser
+@inject IGraphicsEngine GraphicsEngine
+@inject IServiceProvider ServiceProvider
+
+<div id="phaser-container"></div>
+
+@code {
+
+    Game game;
+
+    protected override void OnInitialized()
+    {
+        GraphicsEngine.Initialize("phaser-container", "🤖 Game-a-Tron 4000™️");
+
+        game = Game.Load(ServiceProvider);
+        game.Start();
+    }
+}
