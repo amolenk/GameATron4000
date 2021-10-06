@@ -1,20 +1,40 @@
 ﻿namespace Amolenk.GameATron4000.Engine.Phaser;
 
-public class PhaserScene<TScene> where TScene : Scene
+public class PhaserLoader : IAssetLoader
 {
-    private readonly Scene _scene;
+    private string _sceneId;
+    private string _basePath;
+    private IJSRuntime _js;
 
-    public PhaserScene(TScene scene)
+    public PhaserLoader(
+        string sceneId,
+        string basePath,
+        IJSRuntime js)
     {
-        _scene = scene;
+        _sceneId = sceneId;
+        _basePath = basePath;
+        _js = js;
     }
 
-    [JSInvokable]
-    public Task PreloadAsync() => _scene.PreloadAsync();
+    public ValueTask LoadAtlasAsync(
+        string key,
+        string textureUrl,
+        string atlasUrl)
+    {
+        return _js!.InvokeVoidAsync(
+            PhaserConstants.Functions.LoadAtlas,
+            _sceneId,
+            key,
+            _basePath + textureUrl,
+            _basePath + atlasUrl);
+    }
 
-    [JSInvokable]
-    public Task CreateAsync() => _scene.CreateAsync();
-
-    [JSInvokable]
-    public Task UpdateAsync() => _scene.UpdateAsync();
+    public ValueTask LoadImageAsync(string key, string imageUrl)
+    {
+        return _js!.InvokeVoidAsync(
+            PhaserConstants.Functions.LoadImage,
+            _sceneId,
+            key,
+            _basePath + imageUrl);
+    }
 }

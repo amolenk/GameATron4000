@@ -27,7 +27,7 @@ namespace Application
 
             builder.Services.AddTransient(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
             builder.Services.AddDomain();
-            builder.Services.AddInfrastructure();
+//            builder.Services.AddInfrastructure();
 
             await builder.Build().RunAsync();
         }

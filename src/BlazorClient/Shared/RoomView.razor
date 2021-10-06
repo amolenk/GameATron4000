@@ -1,17 +1,38 @@
-﻿<div class="alert alert-secondary mt-4">
-    <span class="oi oi-pencil me-2" aria-hidden="true"></span>
-    <strong>@Title</strong>
+﻿@implements INotificationHandler<GameStartedEvent>
+@implements INotificationHandler<RoomEnteredEvent>
+@inject IDynamicMediator _mediator
+@inject IJSRuntime _jsRuntime
+@inject ILoggerFactory _loggerFactory
 
-    <span class="text-nowrap">
-        Please take our
-        <a target="_blank" class="font-weight-bold" href="https://go.microsoft.com/fwlink/?linkid=2148851">brief survey</a>
-    </span>
-    and tell us what you think.
+<div id="phaser">
 </div>
 
 @code {
-    // Demonstrates how a parent component can supply parameters
-    [Parameter]
-    public string? Title { get; set; }
-}
 
+    private PhaserHost? _phaser;
+
+    protected override void OnInitialized()
+    {
+        _mediator.Subscribe<GameStartedEvent>(this);
+        _mediator.Subscribe<RoomEnteredEvent>(this);
+    }
+
+    public async Task Handle(GameStartedEvent notification, CancellationToken cancellationToken)
+    {
+        _phaser = new PhaserHost(
+            notification.Manifest,
+            _jsRuntime,
+            _loggerFactory,
+            _mediator,
+            () => new RunStartScriptCommand());
+
+        await _phaser.StartAsync("phaser");
+    }
+
+    public async Task Handle(RoomEnteredEvent notification, CancellationToken cancellationToken)
+    {
+        await _phaser!.Graphics.AddImageAsync(250, 250, "assets", "rooms/park");
+
+        await _phaser!.Graphics.AddTextAsync(100, 100, "You are in a room!");
+    }
+}

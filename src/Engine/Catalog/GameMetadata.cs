@@ -1,12 +1,6 @@
 ﻿namespace Amolenk.GameATron4000.Engine;
 
-public class GameManifest
+public class GameMetadata
 {
-    public GameManifest()
-    {
-    }
-
-    public string Name { get; set; }
-
-    public AssetsSpec Assets { get; set; }
+    public string Name { get; set; } = string.Empty;
 }

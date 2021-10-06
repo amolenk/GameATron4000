@@ -1,39 +1,20 @@
 ﻿namespace Amolenk.GameATron4000.Engine;
 
-public class BootScene : PhaserScene
+public abstract class Scene
 {
-    public BootScene() : base("_boot")
+    public string Id { get; }
+
+    protected Scene(string id)
     {
+        Id = id;
     }
 
-    protected override Task PreloadAsync()
-        => Task.WhenAll(CreateLoadAssetTasks());
+    public virtual Task PreloadAsync(IAssetLoader loader) =>
+        Task.CompletedTask;
 
-    protected override async Task CreateAsync()
-    {
+    public virtual Task CreateAsync(IGraphics graphics) =>
+        Task.CompletedTask;
 
-        await AddImageAsync(0, 0, "assets", "rooms/park");
-
-        await AddImageAsync(200, 200, "pretzel");
-
-        await AddTextAsync(100, 100, $"Loaded {Manifest.Metadata.Name}!");
-    }
-
-    private IEnumerable<Task> CreateLoadAssetTasks()
-    {
-        foreach (var imageSpec in Manifest.Spec.Images)
-        {
-            yield return LoadImageAsync(imageSpec.Key, imageSpec.ImageUrl)
-                .AsTask();
-        }
-
-        foreach (var atlasSpec in Manifest.Spec.Atlases)
-        {
-            yield return LoadAtlasAsync(
-                atlasSpec.Key,
-                atlasSpec.TextureUrl,
-                atlasSpec.AtlasUrl)
-                .AsTask();
-        }
-    }
+    public virtual Task UpdateAsync(IGraphics graphics) =>
+        Task.CompletedTask;
 }

@@ -1,8 +1,8 @@
 ﻿namespace Amolenk.GameATron4000.Engine;
 
-public class AtlasTexture
+public class GameSpec
 {
-    public string TextureUrl { get; set; }
+    public List<ImageSpec> Images { get; set; } = new();
 
-    public string AtlasUrl { get; set; }
+    public List<AtlasTextureSpec> Atlases { get; set; } = new();
 }

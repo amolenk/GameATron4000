@@ -1,10 +1,8 @@
 ﻿namespace Amolenk.GameATron4000.Engine;
 
-public class AtlasTextureSpec
+public class ImageSpec
 {
-    public string? Key { get; set; }
+    public string Key { get; set; } = string.Empty;
 
-    public string? TextureUrl { get; set; }
-
-    public string? AtlasUrl { get; set; }
+    public string ImageUrl { get; set; } = string.Empty;
 }

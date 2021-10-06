@@ -1,10 +1,21 @@
-﻿namespace Amolenk.GameATron4000.Engine;
+﻿namespace Amolenk.GameATron4000.Engine.Mediator;
 
-public interface IDynamicMediator : IMediator
+public class DynamicMediator : MediatR.Mediator, IDynamicMediator
 {
-    void Subscribe<TRequest>(IRequestHandler<TRequest> handler)
-        where TRequest : IRequest;
+    private readonly MediatorServiceFactory _serviceFactory;
 
-    void Subscribe<TNotification>(INotificationHandler<TNotification> handler)
-        where TNotification : INotification;
+    public DynamicMediator(MediatorServiceFactory serviceFactory)
+        : base(serviceFactory.Resolve)
+    {
+        _serviceFactory = serviceFactory;
+    }
+
+    public void Subscribe<TRequest>(IRequestHandler<TRequest> handler)
+        where TRequest : IRequest =>
+        _serviceFactory.Subscribe(handler);
+
+    public void Subscribe<TNotification>(
+        INotificationHandler<TNotification> handler)
+        where TNotification : INotification =>
+        _serviceFactory.Subscribe(handler);
 }

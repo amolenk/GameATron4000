@@ -1,146 +1,46 @@
 ﻿namespace Amolenk.GameATron4000.Engine.Phaser;
 
-public abstract class PhaserScene
+public class PhaserSceneWrapper<TScene> where TScene : Scene
 {
-    public class PhaserSceneCallbacks
+    private readonly Scene _scene;
+    private readonly PhaserGraphics _graphics;
+    private readonly PhaserLoader _loader;
+
+    public PhaserSceneWrapper(TScene scene, string gameBasePath, IJSRuntime js, ILoggerFactory loggerFactory)
     {
-        private readonly Func<Task> _onPreload;
-        private readonly Func<Task> _onCreate;
-        private readonly Func<Task> _onUpdate;
-
-        public PhaserSceneCallbacks(
-            Func<Task> onPreload,
-            Func<Task> onCreate,
-            Func<Task> onUpdate)
-        {
-            _onPreload = onPreload;
-            _onCreate = onCreate;
-            _onUpdate = onUpdate;
-        }
-
-        [JSInvokable]
-        public Task PreloadAsync() => _onPreload();
-
-        [JSInvokable]
-        public Task CreateAsync() => _onCreate();
-
-        [JSInvokable]
-        public Task UpdateAsync() => _onUpdate();
+        _scene = scene;
+        _graphics = new PhaserGraphics(scene.Id, js, loggerFactory);
+        _loader = new PhaserLoader(scene.Id, gameBasePath, js);
     }
 
-    private readonly string _id;
+    [JSInvokable]
+    public Task PreloadAsync() => _scene.PreloadAsync(_loader);
 
-    private Game? _game;
-    private IJSRuntime? _js;
-    private ILoggerFactory? _loggerFactory;
+    [JSInvokable]
+    public Task CreateAsync() => _scene.CreateAsync(_graphics);
 
-    protected GameManifest Manifest => _game.Manifest;
+    [JSInvokable]
+    public Task UpdateAsync() => _scene.UpdateAsync(_graphics);
+}
 
-    protected PhaserScene(
-        string id,
-        Game game,
-        IJSRuntime js,
-        ILoggerFactory loggerFactory)
+public class PhaserScene
+{
+    private readonly PhaserGraphics _graphics;
+    private readonly PhaserLoader _loader;
+    private readonly IMediator _mediator;
+
+    public PhaserScene(string gameBasePath, IJSRuntime js, ILoggerFactory loggerFactory)
     {
-        _id = id;
-        _game = game;
-        _js = js;
-        _loggerFactory = loggerFactory;
+        _graphics = new PhaserGraphics("room", js, loggerFactory);
+        _loader = new PhaserLoader("room", gameBasePath, js);
     }
 
-    public async Task InitializeAsync(
-        Game game,
-        IJSRuntime js,
-        ILoggerFactory loggerFactory)
-    {
-        _game = game;
-        _js = js;
-        _loggerFactory = loggerFactory;
+    [JSInvokable]
+    public Task PreloadAsync() => _mediator.Send(new LoadRoomAssetsCommand(_loader));
 
-        var sceneCallbacks = new PhaserSceneCallbacks(
-            PreloadAsync,
-            CreateAsync,
-            UpdateAsync);
+    [JSInvokable]
+    public Task CreateAsync() => Task.CompletedTask;
 
-        await _js.InvokeVoidAsync(
-            PhaserConstants.Functions.RegisterScene,
-            _id,
-            DotNetObjectReference.Create(sceneCallbacks),
-            new ImageAsset[0],
-            true);
-    }
-
-    protected virtual Task PreloadAsync() => Task.CompletedTask;
-
-    protected virtual Task CreateAsync() => Task.CompletedTask;
-
-    protected virtual Task UpdateAsync() => Task.CompletedTask;
-
-    protected ValueTask AddImageAsync(
-        int x,
-        int y,
-        string texture,
-        string? frame = null)
-    {
-        VerifyInitialized();
-
-        return _js!.InvokeVoidAsync(
-            PhaserConstants.Functions.AddImage,
-            _id,
-            x,
-            y,
-            texture,
-            frame);
-    }
-
-    //protected async ValueTask<ISprite> AddSpriteAsync(int x, int y, string imageName)
-    //{
-    //    var id = await _js.InvokeAsync<string>(
-    //        "addSprite",
-    //        _id,
-    //        x,
-    //        y,
-    //        imageName);
-
-    //    return new PhaserSprite(id, _js, _loggerFactory.CreateLogger<PhaserSprite>());
-    //}
-
-    protected ValueTask AddTextAsync(int x, int y, string text)
-    {
-        VerifyInitialized();
-
-        return _js!.InvokeVoidAsync("addText", _id, x, y, text);
-    }
-
-    protected ValueTask LoadAtlasAsync(
-        string key,
-        string textureUrl,
-        string atlasUrl)
-    {
-        VerifyInitialized();
-
-        return _js!.InvokeVoidAsync(
-            PhaserConstants.Functions.LoadAtlas,
-            _id,
-            key,
-            _game!.BasePath + textureUrl,
-            _game!.BasePath + atlasUrl);
-    }
-
-    protected ValueTask LoadImageAsync(string key, string imageUrl)
-    {
-        VerifyInitialized();
-
-        return _js!.InvokeVoidAsync(
-            PhaserConstants.Functions.LoadImage,
-            _id,
-            key,
-            _game!.BasePath + imageUrl);
-    }
-
-    private void VerifyInitialized()
-    {
-        if (_js == null) throw new InvalidOperationException(
-            "Scene not initialized.");
-    }
+    [JSInvokable]
+    public Task UpdateAsync() => Task.CompletedTask;
 }
