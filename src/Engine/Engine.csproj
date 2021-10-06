@@ -1,0 +1,48 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Amolenk.GameATron4000.Engine</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="6.0.0-rc.1.21452.15" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="5.0.0" />
+    <PackageReference Include="YamlDotNet" Version="11.2.1" />
+    <PackageReference Include="MediatR" Version="9.0.0" />
+  </ItemGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="Graphics\" />
+    <None Remove="Phaser\" />
+    <None Remove="Microsoft.Extensions.Http" />
+    <None Remove="YamlDotNet" />
+    <None Remove="Catalog\" />
+    <None Remove="MediatR" />
+    <None Remove="MediatR.Extensions.Microsoft.DependencyInjection" />
+    <None Remove="Messages\" />
+    <None Remove="Messages\Notifications\" />
+    <None Remove="Scripting\" />
+    <None Remove="MessageHandlers\" />
+    <None Remove="Messages\Requests\" />
+    <None Remove="Scenes\" />
+    <None Remove="Mediator\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Graphics\" />
+    <Folder Include="Phaser\" />
+    <Folder Include="Catalog\" />
+    <Folder Include="Messages\" />
+    <Folder Include="Messages\Notifications\" />
+    <Folder Include="Scripting\" />
+    <Folder Include="MessageHandlers\" />
+    <Folder Include="Messages\Requests\" />
+    <Folder Include="Scenes\" />
+    <Folder Include="Mediator\" />
+  </ItemGroup>
+</Project>
