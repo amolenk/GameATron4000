@@ -1,35 +1,40 @@
 ﻿namespace Amolenk.GameATron4000.Engine.Scripting;
 
-public class GameScript
-    : IRequestHandler<RunStartScriptCommand>
-//    : INotificationHandler<RoomViewReadyEvent>
+// TODO Make disposable and unsubscribe in Dispose
+public class GameScript : IGameScriptApi
+    , IRequestHandler<StartGameCommand>
 {
-    private readonly GameManifest _manifest;
-    private readonly IDynamicMediator _mediator;
+    public List<RoomScript> Rooms { get; } = new();
 
-    // TODO Move params to InitializeAsync, or create a static Create/Init method
-    public GameScript(GameManifest manifest, IDynamicMediator mediator)
+    private readonly ICustomMediator _mediator;
+
+    public GameScript(ICustomMediator mediator)
     {
-        _manifest = manifest;
         _mediator = mediator;
+        _mediator.Subscribe<StartGameCommand>(this);
     }
 
-    public Task InitializeAsync()
+    public RoomScript AddRoom(string id)
     {
-        _mediator.Subscribe<RunStartScriptCommand>(this);
-//        _mediator.Subscribe<RoomViewReadyEvent>(this);
+        var room = new RoomScript();
+        Rooms.Add(room);
 
-        return Task.CompletedTask;
+        return room;
     }
 
-    //public async Task Handle(RoomViewReadyEvent notification, CancellationToken cancellationToken)
-    //{
-    //    await _mediator.Publish(new RoomEnteredEvent());
-    //}
-
-    public async Task<Unit> Handle(RunStartScriptCommand request, CancellationToken cancellationToken)
+    public async Task<Unit> Handle(StartGameCommand notification, CancellationToken cancellationToken)
     {
-        await _mediator.Publish(new RoomEnteredEvent());
+        await _mediator.Publish(new RoomEnteredEvent(
+            "park",
+            new[]
+            {
+                new ActorTemp
+                {
+                    Id = "al",
+                    PositionX = 560,
+                    PositionY = 400
+                }
+            }));
 
         return Unit.Value;
     }

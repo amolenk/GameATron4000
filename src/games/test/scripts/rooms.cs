@@ -1,0 +1,1 @@
+﻿var park = AddRoom("park");

@@ -25,13 +25,16 @@
     <None Remove="Infrastructure\" />
     <None Remove="MediatR" />
     <None Remove="Microsoft.Extensions.Logging.Configuration" />
+    <None Remove="AsyncEvent" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="wwwroot\games\" />
     <Content Remove="wwwroot\games\game001\" />
+    <Content Remove="wwwroot\games\disk001\scripts\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="wwwroot\games\" />
+    <Folder Include="wwwroot\games\disk001\scripts\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Engine\Engine.csproj">

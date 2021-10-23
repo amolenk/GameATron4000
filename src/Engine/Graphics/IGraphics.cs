@@ -1,14 +1,23 @@
-﻿//namespace Amolenk.GameATron4000.Engine.Graphics;
+﻿namespace Amolenk.GameATron4000.Engine.Graphics;
 
-//public interface IGraphics
-//{
-//    //IWorldRenderer World { get; }
+public interface IGraphics
+{
+    int Width { get; }
 
-//    ValueTask AddImageAsync(int x, int y, string name);
+    int Height { get; }
 
-//    ValueTask<ISprite> AddSpriteAsync(int x, int y, string imageName);
+    ValueTask AddImageAsync(
+        int x,
+        int y,
+        string key);
 
-//    ValueTask<IText> AddTextAsync(int x, int y, string text);
+    ValueTask<ISprite> AddSpriteAsync(
+        int x,
+        int y,
+        string key,
+        Action<SpriteOptions>? configure = null);
 
-//}
+    ValueTask AddTextAsync(int x, int y, string text);
 
+    ValueTask SetWorldBoundsAsync(int x, int y, int width, int height);
+}

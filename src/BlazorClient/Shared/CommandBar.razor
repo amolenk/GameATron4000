@@ -1,0 +1,68 @@
+﻿
+<div>
+    <p>Command: @_command</p>
+</div>
+
+@code {
+
+    private string _verb = string.Empty;
+    private string _item = string.Empty;
+
+    private string _command = "";
+
+    @*[CascadingParameter]
+    protected ScriptCascading Script { get; set; }*@
+
+    [Parameter]
+    public string Verb
+    {
+        get => _verb;
+        set
+        {
+            _verb = value;
+            ChangeItemValue(string.Empty);
+            UpdateCommand();
+        }
+    }
+
+    [Parameter]
+    public string Item
+    {
+        get => _item;
+        set
+        {
+            _item = value;
+            UpdateCommand();
+        }
+    }
+
+    [Parameter]
+    public EventCallback<string> ItemChanged { get; set; }
+
+    protected override Task OnInitializedAsync()
+    {
+        //Script.CommandChanged += new AsyncEventHandler<string>(OnScriptCommandChanged);
+
+        return base.OnInitializedAsync();
+    }
+
+    private async Task ChangeItemValue(string item)
+    {
+        await ItemChanged.InvokeAsync(item);
+    }
+
+    private void UpdateCommand()
+    {
+        _command = $"{_verb} {_item}";
+    }
+
+    private async Task OnScriptCommandChanged(object sender, string e)
+    {
+        Console.WriteLine("CommandBar: " + e);
+
+        _command = e;
+
+        StateHasChanged();
+    }
+
+}

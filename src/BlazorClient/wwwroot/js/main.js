@@ -1,21 +1,28 @@
+
+// TODO Rename to phaser.interop
+
 let scene;
 let spriteLookup = [];
-
-function addImage(x, y, key) {
-    scene.add.image(x, y, key);
-}
 
 function addImage(x, y, texture, frame) {
     scene.add.image(x, y, texture, frame);
 }
 
-function addSprite(x, y, key) {
-    const sprite = scene.add.sprite(x, y, key);
+function addSprite(spriteId, x, y, texture, frame, options) {
+    const sprite = scene.add.sprite(x, y, texture, frame, options);
+    spriteLookup[spriteId] = sprite;
 
-    const spriteKey = `${sceneKey}-${key}`;
-    spriteLookup[spriteKey] = sprite;
+    sprite.setOrigin(options.originX, options.originY);
 
-    return spriteKey;
+    if (options.isInteractive) {
+        sprite.setInteractive();
+    }
+
+    return {
+        id: spriteId,
+        width: sprite.width,
+        height: sprite.height
+    };
 }
 
 function addText(x, y, text) {
@@ -26,26 +33,19 @@ function loadAtlas(key, textureUrl, atlasUrl) {
     scene.load.atlas(key, textureUrl, atlasUrl);
 }
 
-function loadImage(key, imageUrl) {
-    scene.load.image(key, imageUrl);
-}
+function setSpriteInteraction(spriteId, eventName, callbackObject, callbackName) {
+    const sprite = spriteLookup[spriteId];
 
-function setSpriteInteraction(spriteKey, callbackObject, eventName) {
-    const sprite = spriteLookup[spriteKey];
-
-    console.log('registering!: ' + eventName);
-
-    sprite.setInteractive().on(eventName, async function (pointer, localX, localY, even) {
-
-        console.log(eventName + ' callback started!');
-
-        await callbackObject.invokeMethodAsync('OnInteractionAsync', eventName);
-
-        console.log(eventName + ' callback ended!');
+    sprite.on(eventName, async function (pointer, localX, localY, even) {
+        await callbackObject.invokeMethodAsync(callbackName);
     });
 }
 
-function startPhaser(container, dotNetSceneCallback) {
+function setWorldBounds(x, y, width, height) {
+    scene.physics.world.setBounds(x, y, width, height);
+}
+
+function startPhaser(container, width, height, dotNetSceneCallback) {
 
     this.dotNetSceneCallback = dotNetSceneCallback;
 
@@ -64,9 +64,9 @@ function startPhaser(container, dotNetSceneCallback) {
 
     var gameConfig = {
         title: 'Game-a-Tron 4000™',
-        type: Phaser.CANVAS,
-        width: 640,//1280,
-        height: 480,//600,
+        type: Phaser.AUTO,
+        width: width,
+        height: height,
         backgroundColor: '#336023',
         parent: container,
         pixelArt: true,

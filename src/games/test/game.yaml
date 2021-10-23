@@ -2,9 +2,8 @@ metadata:
   name: Test
 spec:
   images:
-    - key: pretzel
-      imageUrl: assets/pretzel.png
-  atlases:
-    - key: assets
-      textureUrl: assets/sprites.png
-      atlasUrl: assets/sprites.json
+    textureUrl: assets/sprites.png
+    atlasUrl: assets/sprites.json
+  scripts:
+    - scripts/rooms.cs
+    - scripts/start.cs

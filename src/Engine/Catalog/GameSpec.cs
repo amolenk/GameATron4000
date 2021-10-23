@@ -2,7 +2,7 @@
 
 public class GameSpec
 {
-    public List<ImageSpec> Images { get; set; } = new();
+    public ImagesSpec Images { get; set; } = new();
 
-    public List<AtlasTextureSpec> Atlases { get; set; } = new();
+    public string[] Scripts { get; set; } = Array.Empty<string>();
 }

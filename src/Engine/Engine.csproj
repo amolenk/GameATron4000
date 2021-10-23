@@ -12,6 +12,8 @@
     <PackageReference Include="Microsoft.Extensions.Http" Version="5.0.0" />
     <PackageReference Include="YamlDotNet" Version="11.2.1" />
     <PackageReference Include="MediatR" Version="9.0.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.11.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="3.11.0" />
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -19,7 +21,6 @@
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Graphics\" />
-    <None Remove="Phaser\" />
     <None Remove="Microsoft.Extensions.Http" />
     <None Remove="YamlDotNet" />
     <None Remove="Catalog\" />
@@ -28,21 +29,24 @@
     <None Remove="Messages\" />
     <None Remove="Messages\Notifications\" />
     <None Remove="Scripting\" />
-    <None Remove="MessageHandlers\" />
     <None Remove="Messages\Requests\" />
-    <None Remove="Scenes\" />
     <None Remove="Mediator\" />
+    <None Remove="Graphics\Phaser\" />
+    <None Remove="Microsoft.CodeAnalysis.CSharp.Scripting" />
+    <None Remove="Scripting\Model\" />
+    <None Remove="Microsoft.CodeAnalysis.CSharp" />
+    <None Remove="Scripting\CSharp\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Graphics\" />
-    <Folder Include="Phaser\" />
     <Folder Include="Catalog\" />
     <Folder Include="Messages\" />
     <Folder Include="Messages\Notifications\" />
     <Folder Include="Scripting\" />
-    <Folder Include="MessageHandlers\" />
     <Folder Include="Messages\Requests\" />
-    <Folder Include="Scenes\" />
     <Folder Include="Mediator\" />
+    <Folder Include="Graphics\Phaser\" />
+    <Folder Include="Scripting\Model\" />
+    <Folder Include="Scripting\CSharp\" />
   </ItemGroup>
 </Project>

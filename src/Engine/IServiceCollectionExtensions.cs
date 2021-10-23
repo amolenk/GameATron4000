@@ -7,12 +7,8 @@ public static class IServiceCollectionExtensions
         Uri baseAddress)
     {
         services
-            .AddScoped<IDynamicMediator>(sp =>
-                new DynamicMediator(new MediatorServiceFactory()));
-            //.AddScoped<MediatorServiceFactory>()
-            //.AddScoped<ServiceFactory>(
-            //    sp => sp.GetRequiredService<MediatorServiceFactory>().Resolve)
-            //.AddScoped<IMediator, Mediator>();
+            .AddSingleton<CustomServiceFactory>()
+            .AddSingleton<ICustomMediator, CustomMediator>();
 
         services.AddHttpClient<GameCatalog>(
             client => client.BaseAddress = baseAddress);

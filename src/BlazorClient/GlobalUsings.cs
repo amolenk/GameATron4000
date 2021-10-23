@@ -1,13 +1,13 @@
 ﻿global using Amolenk.GameATron4000.BlazorClient;
 global using Amolenk.GameATron4000.Engine;
+global using Amolenk.GameATron4000.Engine.Catalog;
+global using Amolenk.GameATron4000.Engine.Graphics;
+global using Amolenk.GameATron4000.Engine.Graphics.Phaser;
 global using Amolenk.GameATron4000.Engine.Mediator;
 global using Amolenk.GameATron4000.Engine.Messages.Notifications;
 global using Amolenk.GameATron4000.Engine.Messages.Requests;
-global using Amolenk.GameATron4000.Engine.Phaser;
-global using Amolenk.GameATron4000.Engine.Scenes;
 global using Amolenk.GameATron4000.Engine.Scripting;
+global using Amolenk.GameATron4000.Engine.Scripting.CSharp;
 global using MediatR;
 global using Microsoft.AspNetCore.Components.Web;
 global using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-global using Microsoft.JSInterop;
-global using System.Collections.ObjectModel;

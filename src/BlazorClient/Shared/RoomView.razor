@@ -1,38 +1,152 @@
-﻿@implements INotificationHandler<GameStartedEvent>
-@implements INotificationHandler<RoomEnteredEvent>
-@inject IDynamicMediator _mediator
+﻿@inject ICustomMediator _mediator
 @inject IJSRuntime _jsRuntime
 @inject ILoggerFactory _loggerFactory
+@implements INotificationHandler<GameManifestLoadedEvent>
+@implements INotificationHandler<RoomEnteredEvent>
 
 <div id="phaser">
 </div>
 
 @code {
 
-    private PhaserHost? _phaser;
+    private IGraphics _graphics = null!;
 
-    protected override void OnInitialized()
+    public async Task Handle(GameManifestLoadedEvent notification, CancellationToken cancellationToken)
     {
-        _mediator.Subscribe<GameStartedEvent>(this);
-        _mediator.Subscribe<RoomEnteredEvent>(this);
-    }
+        Console.WriteLine("Handle RoomView.GameManifestLoadedEvent!");
 
-    public async Task Handle(GameStartedEvent notification, CancellationToken cancellationToken)
-    {
-        _phaser = new PhaserHost(
+        var phaser = new PhaserHost(
             notification.Manifest,
+            800,
+            450,
             _jsRuntime,
             _loggerFactory,
-            _mediator,
-            () => new RunStartScriptCommand());
+            () => Task.CompletedTask);
 
-        await _phaser.StartAsync("phaser");
+        _graphics = await phaser.StartAsync("phaser");
     }
 
     public async Task Handle(RoomEnteredEvent notification, CancellationToken cancellationToken)
     {
-        await _phaser!.Graphics.AddImageAsync(250, 250, "assets", "rooms/park");
+        Console.WriteLine("Handle roomEntered!");
 
-        await _phaser!.Graphics.AddTextAsync(100, 100, "You are in a room!");
+        try
+        {
+            //    await graphics!.SetRenderLockAsync(true);
+
+            //            //                    if (this.room != null) {
+            //            //                        this.room.kill();
+            //            //                    }
+
+            //            //                    const walkbox = new Phaser.Polygon(
+            //            //                        event.room.walkbox.map((p: any) => new Phaser.Point(p.x, p.y)));
+
+            //            //                    this.room = new Room(event.room.id, event.room.scale, walkbox);
+            //            //                    this.room.create(this.game, this, this.layers);
+
+            // Add the room background.
+            var background = await _graphics.AddSpriteAsync(
+                0,
+                0,
+                $"rooms/{notification.RoomName}",
+                options =>
+                {
+                    options.SetInteractive();
+                    options.SetOrigin(0, 0);
+                });
+
+            await background.OnPointerDownAsync(OnBackgroundPointerDownAsync);
+
+            // Update world bounds to size of room.
+            await _graphics!.SetWorldBoundsAsync(0, 0, background.Width, _graphics.Height);
+
+
+            @*
+
+                this.narrator = new Narrator(game, layers);
+                this.narrator.create();
+
+                this.walkboxPolygons = [];
+                this.walkboxPolygons.push(this.walkbox);*@
+
+            foreach (var actor in notification.Actors)
+            {
+                await AddActorAsync(actor, actor.PositionX, actor.PositionY);
+            }
+
+            //            //                    for (let actor of event.actors) {
+            //            //                        this.room.addActor(
+            //            //                            new Actor(
+            //            //                                actor.id,
+            //            //                                actor.name,
+            //            //                                actor.classes,
+            //            //                                actor.usePosition,
+            //            //                                actor.useDirection,
+            //            //                                actor.faceDirection,
+            //            //                                actor.textColor),
+            //            //                            actor.x,
+            //            //                            actor.y);
+            //            //                    }
+
+            //            //                    for (let obj of event.objects) {
+            //            //                        this.room.addObject(
+            //            //                            new RoomObject(obj.id, obj.name, obj.classes, obj.state, obj.usePosition, obj.useDirection),
+            //            //                            obj.x,
+            //            //                            obj.y,
+            //            //                            obj.z_offset);
+            //            //                    }
+
+        }
+        finally
+        {
+            //    await graphics!.SetRenderLockAsync(false);
+        }
     }
+
+    protected override void OnInitialized()
+    {
+        Console.WriteLine("RoomView: OnInitialized");
+
+        _mediator.Subscribe<GameManifestLoadedEvent>(this);
+        _mediator.Subscribe<RoomEnteredEvent>(this);
+
+        Console.WriteLine("RoomView: OnInitialized DONE");
+    }
+
+    private Task OnCreateAsync() => Task.CompletedTask;
+
+
+
+    private async Task AddActorAsync(ActorTemp actor, int x, int y)
+    {
+        await Actor.CreateAsync(actor, _graphics);
+
+        //        this.actors.push(actor);
+
+        // When the player actor is added to the room, follow it
+        // with the camera.
+        @*if (actor.id == this.uiMediator.selectedActor)
+                {
+                    //  0.1 is the amount of linear interpolation to use.
+                    //  The smaller the value, the smooth the camera (and the longer it takes to catch up)
+                    actor.focusCamera(true)
+                    }
+            }*@
+    }
+
+    private async Task OnBackgroundPointerDownAsync()
+    {
+        //        await ScriptCompiler.RunScript("var i = 42;");
+
+        Console.WriteLine("OnPointerDown");
+
+        @*if (this.uiMediator.uiEnabled)
+            {
+                this.moveActor(this.uiMediator.selectedActor, this.game.input.x + this.game.camera.x, this.game.input.y + this.game.camera.y, "front")
+                        }*@
+
+
+        //        return Task.CompletedTask;
+    }
+
 }

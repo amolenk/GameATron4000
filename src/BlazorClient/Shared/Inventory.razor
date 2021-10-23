@@ -1,0 +1,27 @@
+﻿
+<ul>
+    <li @onclick="@(() => ChangeValue("Item1"))">Item1</li>
+    <li @onclick="@(() => ChangeValue("Item2"))">Item2</li>
+    <li @onclick="@(() => ChangeValue("Item3"))">Item3</li>
+</ul>
+
+@code {
+
+    [Parameter]
+    public string Item { get; set; }
+
+    [Parameter]
+    public EventCallback<string> ItemChanged { get; set; }
+
+    @*[CascadingParameter]
+    protected ScriptCascading Script { get; set; }*@
+
+    private async Task ChangeValue(string item)
+    {
+        //Script.SetItem(item);
+
+
+//        await ItemChanged.InvokeAsync(item);
+    }
+
+}
