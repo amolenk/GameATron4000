@@ -57,32 +57,20 @@ public class Polygon
 
     public Point? FindClosestPoint(Point point)
     {
-        Point? result = null;
-        double minDistance = double.MinValue;
+        double minDistance = double.MaxValue;
+        Point? closestPoint = null;
 
-        // Not optimal, we only consider the Y-axis.
         foreach (var edge in Edges)
         {
-            // Create a vertical line that stops below the edge.
-            var testLine = new Line(
-                new Point(point.X, 0),
-                new Point(point.X, Math.Max(edge.Start.Y, edge.End.Y) + 1));
-
-            // Check where the edge intersects the vertical line.
-            if (edge.Intersects(testLine, out Point intersection))
+            var distance = point.DistanceToSegment(edge, out Point intersection);
+            if (distance < minDistance)
             {
-                var distance = Math.Abs(point.Y - intersection.Y);
-                if (minDistance == double.MinValue || minDistance > distance)
-                {
-                    minDistance = distance;
-                    result = intersection;
-                }
+                minDistance = distance;
+                closestPoint = intersection;
             }
         }
 
-        return result != null
-            ? new Point(result.X, result.Y)
-            : null;
+        return closestPoint;
     }
 }
 
