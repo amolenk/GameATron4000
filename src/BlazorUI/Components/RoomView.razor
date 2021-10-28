@@ -12,7 +12,22 @@
     private IGraphics _graphics = null!;
     private Walkbox? _walkbox;
 
+    private bool _inDebugMode = false;
+
     private Actor _actor;
+
+    [JSInvokable]
+    public bool OnKeyDown(string key)
+    {
+        switch (key)
+        {
+            case "d":
+                _inDebugMode = !_inDebugMode;
+                return true;
+        }
+
+        return false;
+    }
 
     public async Task Handle(GameManifestLoaded notification, CancellationToken cancellationToken)
     {
@@ -114,11 +129,20 @@
         _mediator.Subscribe<RoomEntered>(this);
     }
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await _jsRuntime.InvokeVoidAsync("window.CaptureKeyDown", DotNetObjectReference.Create(this));
+        }
+        base.OnAfterRender(firstRender);
+    }    
+
     private Task OnCreateAsync() => Task.CompletedTask;
 
     private void OnUpdate(Point mousePosition)
     {
-        if (_walkbox != null)
+        if (_inDebugMode && _walkbox != null)
         {
             var excludedAreas = new Polygon[]
             {

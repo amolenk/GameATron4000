@@ -33,7 +33,7 @@ public class Actor
         Position = new Point(x, y);
     }
 
-    public void Walk(IEnumerable<Line> path)
+    public void Walk(IEnumerable<Point> path)
     {
         // https://rexrainbow.github.io/phaser3-rex-notes/docs/site/tween/
 
@@ -49,7 +49,7 @@ public class Actor
 
         if (path.Any())
         {
-            _walkPath = new Stack<Point>(path.Select(edge => edge.End).Reverse());
+            _walkPath = new Stack<Point>(path.Reverse());
 
             TryWalkNextSegment();
         }

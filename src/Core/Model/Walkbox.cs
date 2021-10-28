@@ -19,7 +19,7 @@ public class Walkbox
     public static Walkbox FromVertices(params Point[] vertices)
         => new Walkbox(new Polygon(vertices));
 
-    public IEnumerable<Line> FindShortestPath(
+    public IEnumerable<Point> FindShortestPath(
         Point walkFrom,
         Point walkTo,
         IEnumerable<Polygon> excludedAreas)
@@ -29,7 +29,8 @@ public class Walkbox
 
         var graph = CreateWalkGraph(walkFrom, walkTo, excludedAreas);
 
-        return ComputeShortestPath(walkFrom, walkTo, graph);
+        return ComputeShortestPath(walkFrom, walkTo, graph)
+            .Select(edge => edge.Target);
     }
 
     public void Draw(
@@ -49,20 +50,27 @@ public class Walkbox
             2,
             0xFFFFFF);
 
+        // Draw walk graph
         var graph = CreateWalkGraph(walkFrom, walkTo, excludedAreas);
-        graph.Draw(graphics);
+        graphics.DrawLines(
+            graph.Edges.Select(edge => new Line(edge.Source, edge.Target)),
+            2,
+            0x0000FF);
         
         // Find the shortest path and draw it with a green line.
         var path = ComputeShortestPath(walkFrom, walkTo, graph);
-        graphics.DrawLines(path, 2, 0x00FF00);
+        graphics.DrawLines(
+            path.Select(edge => new Line(edge.Source, edge.Target)),
+            2,
+            0x00FF00);
     }
 
-    private Graph CreateWalkGraph(
+    private AdjacencyGraph<Point, Edge<Point>> CreateWalkGraph(
         Point walkFrom,
         Point walkTo,
         IEnumerable<Polygon> excludedAreas)
     {
-        var graph = new Graph();
+        var graph = new AdjacencyGraph<Point, Edge<Point>>();
 
         // Include all concave vertices for the main area.
         // Concave polygons have curves inward, which means that it's not
@@ -102,14 +110,22 @@ public class Walkbox
         return graph;
     }
 
-    private IEnumerable<Line> ComputeShortestPath(
+    private IEnumerable<Edge<Point>> ComputeShortestPath(
         Point from,
         Point to,
-        Graph graph) =>
-        graph.AStar(
-            from,
-            to,
-            (source, target) => Point.DistanceBetween(source, target));
+        AdjacencyGraph<Point, Edge<Point>> graph)
+    {
+        var tryGetPaths = graph.ShortestPathsDijkstra(
+            (edge) => Point.DistanceBetween(edge.Source, edge.Target),
+            from);
+
+        if (tryGetPaths(to, out IEnumerable<Edge<Point>> path))
+        {
+            return path;
+        }
+
+        return Enumerable.Empty<Edge<Point>>();
+    }
 
     private Point SnapToWalkbox(Point point, IEnumerable<Polygon> excludedAreas)
     {
@@ -131,7 +147,7 @@ public class Walkbox
 
     private void AddLineOfSightEdges(
         Point source,
-        Graph graph,
+        AdjacencyGraph<Point, Edge<Point>> graph,
         IEnumerable<Polygon> excludedAreas)
     {
         foreach (var target in graph.Vertices)
@@ -139,7 +155,7 @@ public class Walkbox
             if (source != target
                 && InLineOfSight(source, target, excludedAreas))
             {
-                graph.AddEdge(source, target);
+                graph.AddEdge(new Edge<Point>(source, target));
             }
         }
     }
