@@ -1,0 +1,30 @@
+﻿@inject IGameManifestRepository _gameManifestRepository
+@inject ILogger<Game> _logger
+@inject ICustomMediator _mediator
+
+<GameScriptView />
+<RoomView />
+
+@code {
+
+    [Parameter]
+    public int DiskNumber { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _logger.LogDebug("Loading game manifest...");
+
+            var manifest = await _gameManifestRepository.TryLoadGameManifest(DiskNumber);
+            if (manifest != null)
+            {
+                _logger.LogDebug("Game manifest loaded.");
+
+                await _mediator.Publish(new GameManifestLoaded(manifest));
+
+                await _mediator.Send(new StartGame());
+            }
+        }
+    }
+}
