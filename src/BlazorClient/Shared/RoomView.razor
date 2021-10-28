@@ -10,6 +10,9 @@
 @code {
 
     private IGraphics _graphics = null!;
+    private Walkbox? _walkbox;
+
+    private Actor _actor;
 
     public async Task Handle(GameManifestLoadedEvent notification, CancellationToken cancellationToken)
     {
@@ -19,9 +22,9 @@
             notification.Manifest,
             800,
             450,
-            _jsRuntime,
+            (IJSInProcessRuntime)_jsRuntime,
             _loggerFactory,
-            () => Task.CompletedTask);
+            OnUpdate);
 
         _graphics = await phaser.StartAsync("phaser");
     }
@@ -48,7 +51,7 @@
             var background = await _graphics.AddSpriteAsync(
                 0,
                 0,
-                $"rooms/{notification.RoomName}",
+                $"rooms/{notification.Room.Id}",
                 options =>
                 {
                     options.SetInteractive();
@@ -59,6 +62,8 @@
 
             // Update world bounds to size of room.
             await _graphics!.SetWorldBoundsAsync(0, 0, background.Width, _graphics.Height);
+
+            _walkbox = notification.Room.Walkbox;
 
 
             @*
@@ -105,21 +110,41 @@
 
     protected override void OnInitialized()
     {
-        Console.WriteLine("RoomView: OnInitialized");
-
         _mediator.Subscribe<GameManifestLoadedEvent>(this);
         _mediator.Subscribe<RoomEnteredEvent>(this);
-
-        Console.WriteLine("RoomView: OnInitialized DONE");
     }
 
     private Task OnCreateAsync() => Task.CompletedTask;
 
+    private void OnUpdate(Point mousePosition)
+    {
+        if (_walkbox != null)
+        {
+            var excludedAreas = new Polygon[]
+            {
+                @* new Polygon(new Point[]
+                {
+                    new Point(600, 420),
+                    new Point(640, 420),
+                    new Point(640, 440),
+                    new Point(600, 440),
+                }),
+                new Polygon(new Point[]
+                {
+                    new Point(100, 100),
+                    new Point(200, 100),
+                    new Point(200, 200),
+                    new Point(100, 200),
+                }) *@
+            };
 
+            _walkbox.Draw(_actor.Position, mousePosition, excludedAreas, _graphics);
+        }
+    }
 
     private async Task AddActorAsync(ActorTemp actor, int x, int y)
     {
-        await Actor.CreateAsync(actor, _graphics);
+        _actor = await Actor.CreateAsync(actor, _graphics);
 
         //        this.actors.push(actor);
 
@@ -134,11 +159,28 @@
             }*@
     }
 
-    private async Task OnBackgroundPointerDownAsync()
+    private async Task OnBackgroundPointerDownAsync(Point mousePosition)
     {
-        //        await ScriptCompiler.RunScript("var i = 42;");
+        Console.WriteLine($"Clicked at: {mousePosition}");
 
-        Console.WriteLine("OnPointerDown");
+        var path = _walkbox.FindShortestPath(
+            _actor.Position,
+            mousePosition,
+            Enumerable.Empty<Polygon>());
+
+        _actor.Walk(path);
+
+    @* public async moveActor(actorId: string, toX: number, toY: number, faceDirection: string) {
+        const actor = this.getActor(actorId);
+        const walkbox = this.createWalkbox(actor);
+        const path = walkbox.findPath(actor.x, actor.y, toX, toY);
+        if (path) {
+            path.shift();
+            await actor.walkTo(path, faceDirection);
+        } else {
+            actor.changeDirection(faceDirection);
+        } *@
+
 
         @*if (this.uiMediator.uiEnabled)
             {

@@ -3,6 +3,8 @@
 
 let scene;
 let spriteLookup = [];
+let tweenLookup = [];
+let graphics;
 
 function addImage(x, y, texture, frame) {
     scene.add.image(x, y, texture, frame);
@@ -29,6 +31,35 @@ function addText(x, y, text) {
     scene.add.text(x, y, text, { fontFamily: 'Helvetica' });
 }
 
+function addTween(id, spriteId, x, y, duration, callback) {
+    var sprite = spriteLookup[spriteId];
+    var tween = scene.tweens.add({
+        targets: sprite,
+        x: x,
+        y: y,
+        duration: duration,
+        onUpdate: function() {
+            callback.invokeMethod('OnUpdate', { x: sprite.x, y: sprite.y });
+        },
+        onComplete: function() {
+            callback.invokeMethod('OnComplete', { x: sprite.x, y: sprite.y });
+        }
+    });
+    tweenLookup[id] = tween;
+}
+
+function stopTween(tweenId) {
+    tweenLookup[tweenId].stop();
+    tweenLookup[tweenId] = null; // TODO Kill?
+}
+
+function drawLines(lines, lineWidth, color) {
+    graphics.lineStyle(lineWidth, color, 1);
+    for (line of lines) {
+        graphics.lineBetween(line.start.x, line.start.y, line.end.x, line.end.y);
+    }
+}
+
 function loadAtlas(key, textureUrl, atlasUrl) {
     scene.load.atlas(key, textureUrl, atlasUrl);
 }
@@ -37,7 +68,12 @@ function setSpriteInteraction(spriteId, eventName, callbackObject, callbackName)
     const sprite = spriteLookup[spriteId];
 
     sprite.on(eventName, async function (pointer, localX, localY, even) {
-        await callbackObject.invokeMethodAsync(callbackName);
+        await callbackObject.invokeMethodAsync(callbackName, 
+            {
+                // TODO GetMousePosition()
+                x: Math.round(scene.input.x),
+                y: Math.round(scene.input.y)
+            });
     });
 }
 
@@ -50,15 +86,23 @@ function startPhaser(container, width, height, dotNetSceneCallback) {
     this.dotNetSceneCallback = dotNetSceneCallback;
 
     var sceneConfig = {
-        preload: async function () {
+        preload: function () {
             scene = this;
-            await dotNetSceneCallback.invokeMethodAsync('PreloadAsync', key);
+            dotNetSceneCallback.invokeMethod('OnPreload');
         },
-        create: async function () {
-            await dotNetSceneCallback.invokeMethodAsync('CreateAsync', key);
+        create: function () {
+            graphics = this.add.graphics();
+            graphics.setDepth(100);
+            dotNetSceneCallback.invokeMethod('OnCreate');
         },
-        update: async function () {
-            await dotNetSceneCallback.invokeMethodAsync('UpdateAsync', key);
+        update: function () {
+            graphics.clear();
+            dotNetSceneCallback.invokeMethod(
+                'OnUpdate',
+                {
+                    x: Math.round(this.input.x),
+                    y: Math.round(this.input.y)
+                });
         }
     };
 
