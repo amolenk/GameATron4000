@@ -1,4 +1,4 @@
-﻿namespace Amolenk.GameATron4000.Infrastructure.Meta;
+﻿namespace Amolenk.GameATron4000.Infrastructure.Repositories;
 
 public class LocalGameManifestRepository : IGameManifestRepository
 {

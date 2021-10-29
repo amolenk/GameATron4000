@@ -1,4 +1,4 @@
-﻿namespace Amolenk.GameATron4000.Model.Meta;
+﻿namespace Amolenk.GameATron4000.Model;
 
 public class ImagesSpec
 {

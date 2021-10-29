@@ -1,4 +1,4 @@
-﻿namespace Amolenk.GameATron4000.Model;
+﻿namespace Amolenk.GameATron4000.BlazorUI.Graphics;
 
 public class Walkbox
 {
@@ -15,9 +15,6 @@ public class Walkbox
 
         _area = area;
     }
-
-    public static Walkbox FromVertices(params Point[] vertices)
-        => new Walkbox(new Polygon(vertices));
 
     public IEnumerable<Point> FindShortestPath(
         Point walkFrom,

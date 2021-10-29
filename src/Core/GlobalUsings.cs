@@ -1,13 +1,10 @@
 ﻿global using Amolenk.GameATron4000.Graphics;
 global using Amolenk.GameATron4000.Graphics.Geometry;
 global using Amolenk.GameATron4000.Model;
-global using Amolenk.GameATron4000.Model.Meta;
 global using Amolenk.GameATron4000.Mediator;
 global using Amolenk.GameATron4000.Messages.Notifications;
 global using Amolenk.GameATron4000.Messages.Requests;
 global using Amolenk.GameATron4000.Scripting.Model;
 global using MediatR;
-global using QuikGraph;
-global using QuikGraph.Algorithms;
 global using System.Collections.Immutable;
 global using System.Runtime.Serialization;

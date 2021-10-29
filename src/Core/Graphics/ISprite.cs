@@ -2,20 +2,34 @@
 
 public interface ISprite
 {
-    string Id { get; }
+    string Key { get; }
+
+    Size Size { get; }
 
     Point Position { get; }
-    int Width { get; }
 
-    int Height { get; }
+    void AddAnimation(
+        string key,
+        string framePrefix,
+        int frameStart,
+        int frameEnd,
+        int frameZeroPad,
+        int frameRate,
+        int repeat = -1,
+        int repeatDelay = 0);
+
+    void PlayAnimation(string key);
+
+    void StopAnimation();
+
+    void SetFrame(string frameName);
 
     ValueTask SetAnchorAsync(double value);
 
-    ValueTask OnPointerDownAsync(Func<Point, Task> handler);
+    void OnPointerDown(Action<Point> handler);
 
     ISpriteTween Move(
         Point target,
         int duration,
-        Action<Point> onUpdate,
         Action<Point> onComplete);
 }

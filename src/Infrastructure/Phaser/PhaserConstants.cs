@@ -11,6 +11,10 @@ public static class PhaserConstants
         public const string AddTween = "addTween";
         public const string DrawLines = "drawLines";
         public const string LoadAtlas = "loadAtlas";
+
+        public const string PlaySpriteAnimation = "playSpriteAnimation";
+        public const string StopSpriteAnimation = "stopSpriteAnimation";
+
         public const string SetSpriteInteraction = "setSpriteInteraction";
         public const string SetWorldBounds = "setWorldBounds";
         public const string StartPhaser = "startPhaser";
@@ -23,6 +27,4 @@ public static class PhaserConstants
             public const string PointerDown = "pointerdown";
         }
     }
-
-    public const string ImagesKey = "images";
 }

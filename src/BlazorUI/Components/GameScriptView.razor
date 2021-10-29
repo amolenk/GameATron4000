@@ -69,13 +69,6 @@
             sources.Add(new ScriptFile(content, sourceUrl));
         }
 
-        // TODO Dispose ScriptRunner
-        var scriptRunner = _compiler.Compile<IGameScriptApi>(sources);
-
-        var script = new GameScript(_mediator);
-
-        await scriptRunner.RunAsync(script);
-
-        return script;
+        return await GameScript.LoadAsync(sources, _compiler, _mediator);
     }
 }

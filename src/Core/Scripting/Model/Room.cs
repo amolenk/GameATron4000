@@ -3,18 +3,22 @@
 public class Room
 {
     public string Id { get; }
-    public Walkbox Walkbox { get; }
+    public Polygon Walkbox { get; }
+    public IReadOnlyList<Actor> Actors => _actors.AsReadOnly();
 
-    public Room(
+    private readonly List<Actor> _actors;
+
+    internal Room(
         string id,
-        Walkbox walkbox)
+        IEnumerable<Point> walkbox)
     {
         Id = id;
-        Walkbox = walkbox;
+        Walkbox = new Polygon(walkbox);
+
+        _actors = new List<Actor>();
     }
 
-    public void Enter()
-    {
-        //IPublisher RoomEntereted
-    }
+    internal void AddActor(Actor actor) => _actors.Add(actor);
+
+    internal void RemoveActor(Actor actor) => _actors.Remove(actor);
 }

@@ -32,39 +32,27 @@ public class PhaserGraphics : IGraphics
             PhaserConstants.Functions.AddImage,
             x,
             y,
-            PhaserConstants.ImagesKey,
+            "images",
             key);
 
-    public async ValueTask<ISprite> AddSpriteAsync(
-        int x,
-        int y,
-        string key,
+    public ISprite AddSprite(
+        string textureKey,
+        string frameKey,
+        Point position,
         Action<SpriteOptions>? configure)
     {
-        var id = Guid.NewGuid().ToString();
-        PhaserSpriteInfo spriteInfo;
-
         var options = new SpriteOptions();
         if (configure != null)
         {
             configure(options);
         }
 
-        spriteInfo = await _jsRuntime.InvokeAsync<PhaserSpriteInfo>(
-            PhaserConstants.Functions.AddSprite,
-            id,
-            x,
-            y,
-            PhaserConstants.ImagesKey,
-            key,
-            options);
-
-        return new PhaserSprite(
-            spriteInfo,
-            x,
-            y,
-            _jsRuntime,
-            _loggerFactory.CreateLogger<PhaserSprite>());
+        return PhaserSprite.Create(
+            textureKey,
+            frameKey,
+            position,
+            options,
+            _jsInProcessRuntime);
     }
 
     public ValueTask AddTextAsync(int x, int y, string text) =>
@@ -81,13 +69,13 @@ public class PhaserGraphics : IGraphics
             lineWidth,
             color);
 
-    public async ValueTask SetWorldBoundsAsync(int x, int y, int width, int height)
-    {
-        await _jsRuntime.InvokeVoidAsync(
+    public void StartCameraFollow(ISprite sprite) =>
+        _jsInProcessRuntime.InvokeVoid(
+            "startCameraFollow",
+            sprite.Key);
+
+    public void SetWorldBounds(Size size) =>
+        _jsInProcessRuntime.InvokeVoid(
             PhaserConstants.Functions.SetWorldBounds,
-            x,
-            y,
-            width,
-            height);
-    }
+            size);
 }

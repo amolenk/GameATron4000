@@ -11,15 +11,17 @@ public interface IGraphics
         int y,
         string key);
 
-    ValueTask<ISprite> AddSpriteAsync(
-        int x,
-        int y,
-        string key,
+    ISprite AddSprite(
+        string textureKey,
+        string frameKey,
+        Point position,
         Action<SpriteOptions>? configure = null);
 
     ValueTask AddTextAsync(int x, int y, string text);
 
     void DrawLines(IEnumerable<Line> lines, int lineWidth, int color);
 
-    ValueTask SetWorldBoundsAsync(int x, int y, int width, int height);
+    void SetWorldBounds(Size size);
+
+    void StartCameraFollow(ISprite sprite);
 }

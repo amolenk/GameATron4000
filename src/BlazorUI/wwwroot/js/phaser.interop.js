@@ -10,21 +10,73 @@ function addImage(x, y, texture, frame) {
     scene.add.image(x, y, texture, frame);
 }
 
-function addSprite(spriteId, x, y, texture, frame, options) {
-    const sprite = scene.add.sprite(x, y, texture, frame, options);
-    spriteLookup[spriteId] = sprite;
+function addSprite(spriteKey, textureKey, frameKey, position, options) {
+    const sprite = scene.add.sprite(position.x, position.y, textureKey, frameKey);
+    spriteLookup[spriteKey] = sprite;
 
-    sprite.setOrigin(options.originX, options.originY);
+    sprite.setOrigin(options.origin.x, options.origin.y);
 
     if (options.isInteractive) {
         sprite.setInteractive();
     }
 
     return {
-        id: spriteId,
         width: sprite.width,
         height: sprite.height
     };
+}
+
+function addSpriteAnimation(
+    spriteKey,
+    key,
+    atlasKey,
+    framePrefix,
+    frameStart,
+    frameEnd,
+    frameZeroPad,
+    frameRate,
+    repeat,
+    repeatDelay) {
+    spriteLookup[spriteKey].anims.create({
+        key: key,
+        frames: scene.anims.generateFrameNames(atlasKey, {
+            prefix: framePrefix,
+            start: frameStart,
+            end: frameEnd,
+            zeroPad: frameZeroPad
+        }),
+        frameRate: frameRate,
+        repeat: repeat,
+        repeatDelay: repeatDelay
+    });
+
+    // this.anims.create({
+    //     key: "fly",
+    //     frameRate: 7,
+    //     frames: this.anims.generateFrameNames("plane", {
+    //         prefix: "plane",
+    //         suffix: ".png",
+    //         start: 1,
+    //         end: 3,
+    //         zeroPad: 1
+    //     }),
+    //     repeat: -1
+    // });
+    
+    //  This code should be run from within a Scene:
+    //this.anims.create(config););
+}
+
+function playSpriteAnimation(spriteKey, animationKey) {
+    spriteLookup[spriteKey].play(animationKey);
+}
+
+function stopSpriteAnimation(spriteKey) {
+    spriteLookup[spriteKey].stop();
+}
+
+function setSpriteFrame(spriteKey, frameName) {
+    spriteLookup[spriteKey].setFrame(frameName);
 }
 
 function addText(x, y, text) {
@@ -48,6 +100,10 @@ function addTween(id, spriteId, x, y, duration, callback) {
     tweenLookup[id] = tween;
 }
 
+function startCameraFollow(spriteKey) {
+    scene.cameras.main.startFollow(spriteLookup[spriteKey], true, 0.1, 0.1);
+}
+
 function stopTween(tweenId) {
     tweenLookup[tweenId].stop();
     tweenLookup[tweenId] = null; // TODO Kill?
@@ -67,18 +123,20 @@ function loadAtlas(key, textureUrl, atlasUrl) {
 function setSpriteInteraction(spriteId, eventName, callbackObject, callbackName) {
     const sprite = spriteLookup[spriteId];
 
-    sprite.on(eventName, async function (pointer, localX, localY, even) {
-        await callbackObject.invokeMethodAsync(callbackName, 
+    sprite.on(eventName, function (pointer, localX, localY, even) {
+        callbackObject.invokeMethod(
+            callbackName, 
             {
                 // TODO GetMousePosition()
-                x: Math.round(scene.input.x),
-                y: Math.round(scene.input.y)
+                x: Math.round(scene.input.x + scene.cameras.main.scrollX),
+                y: Math.round(scene.input.y + scene.cameras.main.scrollY)
             });
     });
 }
 
-function setWorldBounds(x, y, width, height) {
-    scene.physics.world.setBounds(x, y, width, height);
+// TODO Rename to setCameraBounds
+function setWorldBounds(size) {
+    scene.cameras.main.setBounds(0, 0, size.width, 450);
 }
 
 function startPhaser(container, width, height, dotNetSceneCallback) {
@@ -100,8 +158,8 @@ function startPhaser(container, width, height, dotNetSceneCallback) {
             dotNetSceneCallback.invokeMethod(
                 'OnUpdate',
                 {
-                    x: Math.round(this.input.x),
-                    y: Math.round(this.input.y)
+                    x: Math.round(this.input.x + this.cameras.main.scrollX),
+                    y: Math.round(this.input.y + this.cameras.main.scrollY)
                 });
         }
     };

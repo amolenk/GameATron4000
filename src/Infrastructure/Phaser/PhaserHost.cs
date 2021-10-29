@@ -44,7 +44,7 @@ public class PhaserHost
     {
         _jsRuntime.InvokeVoid(
             PhaserConstants.Functions.LoadAtlas,
-            PhaserConstants.ImagesKey,
+            "images",
             _manifest.BasePath + _manifest.Spec.Images.TextureUrl,
             _manifest.BasePath + _manifest.Spec.Images.AtlasUrl);
     }

@@ -2,39 +2,67 @@
 
 public class PhaserSprite : ISprite
 {
+    private readonly IJSInProcessRuntime _jsRuntime;
+    private Action<Point>? _onPointerDown;
 
-    private readonly PhaserSpriteInfo _info;
-    private readonly IJSRuntime _jsRuntime;
-    private readonly ILogger<PhaserSprite> _logger;
-
-    private Func<Point, Task>? _onPointerDown;
-
-    public string Id => _info.Id;
-
-    public int Width => _info.Width;
-
-    public int Height => _info.Height;
-
+    public string Key { get; private set; }
     public Point Position { get; private set; }
+    public Size Size { get; private set; }
 
-    public PhaserSprite(PhaserSpriteInfo info, int x, int y, IJSRuntime jsRuntime, ILogger<PhaserSprite> logger)
+    private PhaserSprite(string key, Point position, Size size, IJSInProcessRuntime jsRuntime)
     {
-        _info = info;
-        Position = new Point(x, y);
         _jsRuntime = jsRuntime;
-        _logger = logger;
+
+        Key = key;
+        Position = position;
+        Size = size;
     }
 
-    public async ValueTask OnPointerDownAsync(Func<Point, Task> handler)
+    public void AddAnimation(string key, string framePrefix, int frameStart, int frameEnd, int frameZeroPad, int frameRate, int repeat, int repeatDelay)
+    {
+        _jsRuntime.InvokeVoid(
+            "addSpriteAnimation",
+            Key,
+            key,
+            "images",
+            framePrefix,
+            frameStart,
+            frameEnd,
+            frameZeroPad,
+            frameRate,
+            repeat,
+            repeatDelay);
+    }
+
+    public void PlayAnimation(string animationKey) =>
+        _jsRuntime.InvokeVoid(
+            PhaserConstants.Functions.PlaySpriteAnimation,
+            Key,
+            animationKey);
+
+    public void StopAnimation() =>
+        _jsRuntime.InvokeVoid(
+            PhaserConstants.Functions.StopSpriteAnimation,
+            Key);
+
+    public void SetFrame(string frameName)
+    {
+        ((IJSInProcessRuntime)_jsRuntime).InvokeVoid(
+            "setSpriteFrame",
+            Key,
+            frameName);
+    }
+
+    public void OnPointerDown(Action<Point> handler)
     {
         _onPointerDown = handler;
 
-        await _jsRuntime.InvokeVoidAsync(
+        ((IJSInProcessRuntime)_jsRuntime).InvokeVoid(
             PhaserConstants.Functions.SetSpriteInteraction,
-            _info.Id,
+            Key,
             PhaserConstants.Input.Events.PointerDown,
             DotNetObjectReference.Create(this),
-            nameof(OnPointerDownAsync));
+            nameof(OnPointerDown));
     }
 
     public ValueTask SetAnchorAsync(double value)
@@ -43,23 +71,48 @@ public class PhaserSprite : ISprite
     }
 
     [JSInvokable]
-    public async Task OnPointerDownAsync(Point mousePosition)
+    public void OnPointerDown(Point mousePosition)
     {
         if (_onPointerDown != null)
         {
-            await _onPointerDown(mousePosition);
+            _onPointerDown(mousePosition);
         }
     }
 
     public ISpriteTween Move(
         Point target,
         int duration,
-        Action<Point> onUpdate,
         Action<Point> onComplete)
     {
         IJSInProcessRuntime js = (IJSInProcessRuntime)_jsRuntime;
 
         // TODO Rename to PhaserSpriteTween
-        return PhaserSpriteTween.MoveSprite(this, target, duration, onUpdate, onComplete, js);
+        return PhaserSpriteTween.MoveSprite(
+            this,
+            target,
+            duration,
+            position => Position = position,
+            onComplete,
+            js);
+    }
+
+    public static ISprite Create(
+        string textureKey,
+        string frameKey,
+        Point position,
+        SpriteOptions options,
+        IJSInProcessRuntime jsRuntime)
+    {
+        var spriteKey = Guid.NewGuid().ToString();
+
+        var size = jsRuntime.Invoke<Size>(
+            PhaserConstants.Functions.AddSprite,
+            spriteKey,
+            textureKey,
+            frameKey,
+            position,
+            options);
+
+        return new PhaserSprite(spriteKey, position, size, jsRuntime);
     }
 }

@@ -7,7 +7,7 @@ public class PhaserSpriteTween : ISpriteTween
     private readonly Action<Point> _onUpdate;
     private readonly Action<Point> _onComplete;
 
-    public PhaserSpriteTween(string id, Action<Point> onUpdate, Action<Point> onComplete, IJSInProcessRuntime jsRuntime)
+    private PhaserSpriteTween(string id, Action<Point> onUpdate, Action<Point> onComplete, IJSInProcessRuntime jsRuntime)
     {
         _id = id;
         _onUpdate = onUpdate;
@@ -43,7 +43,7 @@ public class PhaserSpriteTween : ISpriteTween
         jsRuntime.InvokeVoid(
             PhaserConstants.Functions.AddTween,
             id,
-            sprite.Id,
+            sprite.Key,
             target.X,
             target.Y,
             duration,

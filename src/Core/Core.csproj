@@ -7,6 +7,5 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="MediatR" Version="9.0.0"/>
-    <PackageReference Include="QuikGraph" Version="2.3.0"/>
   </ItemGroup>
 </Project>
