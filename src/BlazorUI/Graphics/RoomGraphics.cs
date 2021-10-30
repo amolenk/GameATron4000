@@ -2,24 +2,18 @@ namespace Amolenk.GameATron4000.BlazorUI.Graphics;
 
 public class RoomGraphics
 {
-    private readonly Action<Point> _onPointerDown;
- 
     public Room Room { get; }
     public ISprite Sprite { get; }
 
-    private RoomGraphics(Room room, ISprite sprite, Action<Point> onPointerDown)
+    private RoomGraphics(Room room, ISprite sprite)
     {
-        _onPointerDown = onPointerDown;
-
         Room = room;
         Sprite = sprite;
-
-        sprite.OnPointerDown(OnPointerDown);
     }
 
     public static RoomGraphics Create(
         Room room,
-        Action<Point> onPointerDown,
+        Func<Point, Task> onPointerDown,
         IGraphics graphics)
     {
         // Add the room background.
@@ -29,13 +23,9 @@ public class RoomGraphics
             new Point(0, 0),
             options =>
             {
-                options.IsInteractive = true;
+                options.OnPointerDown = onPointerDown;
             });
 
-        return new RoomGraphics(room, sprite, onPointerDown);
+        return new RoomGraphics(room, sprite);
     }
-
-    [JSInvokable]
-    public void OnPointerDown(Point mousePosition) =>
-        _onPointerDown(mousePosition);
 }

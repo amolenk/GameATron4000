@@ -7,7 +7,7 @@ public class PhaserHost
     private readonly int _height;
     private readonly IJSInProcessRuntime _jsRuntime;
     private readonly ILoggerFactory _loggerFactory;
-    private readonly Action<Point> _onUpdate;
+    private readonly Action<Point> _onDraw;
     private readonly TaskCompletionSource<IGraphics> _startTaskCompletionSource;
 
     public PhaserHost(
@@ -16,14 +16,14 @@ public class PhaserHost
         int height,
         IJSInProcessRuntime jsRuntime,
         ILoggerFactory loggerFactory,
-        Action<Point> onUpdate)
+        Action<Point> onDraw)
     {
         _manifest = manifest;
         _width = width;
         _height = height;
         _jsRuntime = jsRuntime;
         _loggerFactory = loggerFactory;
-        _onUpdate = onUpdate;
+        _onDraw = onDraw;
         _startTaskCompletionSource = new TaskCompletionSource<IGraphics>();
     }
 
@@ -62,5 +62,5 @@ public class PhaserHost
     }
 
     [JSInvokable]
-    public void OnUpdate(Point mousePosition) => _onUpdate(mousePosition);
+    public void OnUpdate(Point mousePosition) => _onDraw(mousePosition);
 }

@@ -40,16 +40,13 @@ public class ActorGraphics
     public void FaceDirection(Direction direction)
     {
         _faceDirection = direction;
-        Sprite.SetFrame(
-            $"actors/{Actor.Id}/{direction.ToString().ToLowerInvariant()}");
+        Sprite.SetFrame(GetFrameName(Actor, _faceDirection));
     }
 
     private void TryWalkNextSegment()
     {
         // TODO Dispose of used tweens
 
-//        var walkFrom = _walkPath!.Pop();
-        
         if (_walkPath.TryPop(out Point? walkTo))
         {
             Sprite.PlayAnimation(
@@ -60,10 +57,8 @@ public class ActorGraphics
             _walkTween = Sprite.Move(
                 walkTo,
                 duration,
-                (position) => 
-                {
-                    TryWalkNextSegment();
-                });
+                position => Sprite.SetDepth(position.Y),
+                position => TryWalkNextSegment());
         }
         else
         {
@@ -76,81 +71,71 @@ public class ActorGraphics
         }
     }
 
-
-
-    public static  ActorGraphics Create(Actor actor, IGraphics graphics)
+    public static  ActorGraphics Create(
+        Actor actor,
+        Func<GameObject, Point, Task> onPointerOut,
+        Func<GameObject, Point, Task> onPointerOver,
+        IGraphics graphics)
     {
         var sprite = graphics.AddSprite(
             "images", // TODO
-            $"actors/{actor.Id}/front",
+            GetFrameName(actor, Direction.Front),
             actor.Position,
             options =>
             {
                 options.Origin = new Point(0.5, 1);
+                options.Depth = actor.Position.Y;
+
+                if (actor.IsTouchable)
+                {
+                    options.OnPointerOut = (pointerPosition) =>
+                        onPointerOut(actor, pointerPosition);
+                    options.OnPointerOver = (pointerPosition) =>
+                        onPointerOver(actor, pointerPosition);
+                }
             });
 
         // Animations
         // TODO Make global and register from script!
-        // TODO if (this.classes.indexOf("class_invisible") == -1) {
-        sprite.AddAnimation(
-            ANIM_WALK_LEFT,
-            framePrefix: $"actors/{actor.Id}/walk/left/",
-            frameStart: 1,
-            frameEnd: 6,
-            frameZeroPad: 4,
-            frameRate: 9);
-        
-        sprite.AddAnimation(
-            ANIM_WALK_RIGHT,
-            framePrefix: $"actors/{actor.Id}/walk/right/",
-            frameStart: 1,
-            frameEnd: 6,
-            frameZeroPad: 4,
-            frameRate: 9);
+        if (actor.IsVisible)
+        {
+            sprite.AddAnimation(
+                ANIM_WALK_LEFT,
+                framePrefix: $"actors/{actor.Id}/walk/left/",
+                frameStart: 1,
+                frameEnd: 6,
+                frameZeroPad: 4,
+                frameRate: 9);
+            
+            sprite.AddAnimation(
+                ANIM_WALK_RIGHT,
+                framePrefix: $"actors/{actor.Id}/walk/right/",
+                frameStart: 1,
+                frameEnd: 6,
+                frameZeroPad: 4,
+                frameRate: 9);
 
-        sprite.AddAnimation(
-            ANIM_TALK,
-            framePrefix: $"actors/{actor.Id}/talk/",
-            frameStart: 1,
-            frameEnd: 4,
-            frameZeroPad: 4,
-            frameRate: 9);
+            sprite.AddAnimation(
+                ANIM_TALK,
+                framePrefix: $"actors/{actor.Id}/talk/",
+                frameStart: 1,
+                frameEnd: 4,
+                frameZeroPad: 4,
+                frameRate: 9);
+        }
 
         return new ActorGraphics(actor, sprite);
     }
+
+    private static string GetFrameName(Actor actor, Direction faceDirection) =>
+        actor.IsVisible
+            ? $"actors/{actor.Id}/{faceDirection.ToString().ToLowerInvariant()}"
+            : "./transparent";
 }
 
 
 ///////////
 
-// export class Actor {
-
-//     public create(game: Phaser.Game, uiMediator: UIMediator, x: number, y: number, layers: Layers,
-//         scale: any) {
-        
-//         this.game = game;
-//         this.layers = layers;
-//         this.scale = scale;
-
-//         // TODO Refactor to GetFrameName
-//         var frameName = (this.classes.indexOf("class_invisible") == -1)
-//             ? `actors/${this.id}/${this.faceDirection}` : `./transparent`;
-
-//         this.sprite = this.game.add.sprite(x, y, "sprites", frameName);
-//         this.sprite.anchor.set(0.5, 1);
-//         this.sprite.data.z = y;
-
-//         // Animations
-//         if (this.classes.indexOf("class_invisible") == -1) {
-//             this.sprite.animations.add('walk-left',
-//                 Phaser.Animation.generateFrameNames(`actors/${this.id}/walk/left/`, 1, 6, '', 4), 9, true, false);
-
-//             this.sprite.animations.add('walk-right',
-//                 Phaser.Animation.generateFrameNames(`actors/${this.id}/walk/right/`, 1, 6, '', 4), 9, true, false);
-
-//             this.sprite.animations.add('talk',
-//                 Phaser.Animation.generateFrameNames(`actors/${this.id}/talk/`, 1, 6, '', 4), 9, true, false);
-//         }
 
 //         // this.text = this.game.add.text(x, y - this.sprite.height - 40, "", this.createTextStyle(0));
 //         // this.text.anchor.setTo(0.5);
@@ -158,21 +143,9 @@ public class ActorGraphics
 //         // this.text.scale.x = 0.5;
 //         // this.text.scale.y = 0.5; 
 
-//         if (this.classes.indexOf("class_untouchable") == -1) {
-//             this.sprite.inputEnabled = true;
-//             this.sprite.input.pixelPerfectClick = true;
-//             this.sprite.input.pixelPerfectOver = true;
 
-//             this.sprite.events.onInputOver.add(() => uiMediator.focusObject(this));
-//             this.sprite.events.onInputOut.add(() => uiMediator.focusObject(null));
-//             this.sprite.events.onInputDown.add(() => uiMediator.selectObject(this));
-//         }
 
 //         this.updateScale();
-//         this.sprite.data.z = this.sprite.y;
-
-//         layers.objects.add(this.sprite);
-// //        layers.text.add(this.text);
 
 //         this.spaceKey = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
 
@@ -183,18 +156,6 @@ public class ActorGraphics
 //                     this.resolveWaitForLine = null;
 //                 }
 //             });
-//     }
-
-//     public changeDirection(direction: string) {
-//         this.sprite.frameName = `actors/${this.id}/${direction}`;
-//         this.faceDirection = direction;
-//     }
-
-//     public focusCamera(jump: boolean) {
-//         if (jump) {
-//             this.game.camera.focusOn(this.sprite);
-//         }
-//         this.game.camera.follow(this.sprite, Phaser.Camera.FOLLOW_LOCKON, 0.1, 0.1);
 //     }
 
 //     public async sayLine(text: string) {

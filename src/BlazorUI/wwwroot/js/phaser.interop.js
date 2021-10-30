@@ -10,21 +10,65 @@ function addImage(x, y, texture, frame) {
     scene.add.image(x, y, texture, frame);
 }
 
-function addSprite(spriteKey, textureKey, frameKey, position, options) {
-    const sprite = scene.add.sprite(position.x, position.y, textureKey, frameKey);
-    spriteLookup[spriteKey] = sprite;
-
-    sprite.setOrigin(options.origin.x, options.origin.y);
-
-    if (options.isInteractive) {
-        sprite.setInteractive();
+function getPointerPosition() {
+    return {
+        x: Math.round(scene.input.x + scene.cameras.main.scrollX),
+        y: Math.round(scene.input.y + scene.cameras.main.scrollY)
     }
+}
+
+function addSprite(spriteKey, textureKey, frameKey, position, origin, depth,
+    onPointerDown, onPointerOut, onPointerOver) {
+    const sprite = scene.add.sprite(position.x, position.y, textureKey, frameKey);
+    sprite.setOrigin(origin.x, origin.y);
+    sprite.setDepth(depth);
+
+    if (onPointerDown || onPointerOut || onPointerOver) {
+        sprite.setInteractive({ pixelPerfect: true });
+        if (onPointerDown) {
+            sprite.on('pointerdown', async function () {
+                await onPointerDown.invokeMethod('InvokeAsync', getPointerPosition());
+            });
+        }
+        if (onPointerOut) {
+            sprite.on('pointerout', async function () {
+                await onPointerOut.invokeMethod('InvokeAsync', getPointerPosition());
+            });
+        }
+        if (onPointerOver) {
+            sprite.on('pointerover', async function () {
+                await onPointerOver.invokeMethod('InvokeAsync', getPointerPosition());
+            });
+        }
+    }
+
+    spriteLookup[spriteKey] = sprite;
 
     return {
         width: sprite.width,
         height: sprite.height
     };
 }
+
+function setSpriteInteraction(spriteId, eventName, callbackObject, callbackName) {
+    const sprite = spriteLookup[spriteId];
+
+    sprite.on(eventName, function (pointer, localX, localY, even) {
+        callbackObject.invokeMethod(
+            callbackName, 
+            {
+                // TODO GetMousePosition()
+                x: Math.round(scene.input.x + scene.cameras.main.scrollX),
+                y: Math.round(scene.input.y + scene.cameras.main.scrollY)
+            });
+    });
+}
+
+
+
+
+
+
 
 function addSpriteAnimation(
     spriteKey,
@@ -79,6 +123,10 @@ function setSpriteFrame(spriteKey, frameName) {
     spriteLookup[spriteKey].setFrame(frameName);
 }
 
+function setSpriteDepth(spriteKey, index) {
+    spriteLookup[spriteKey].setDepth(index);
+}
+
 function addText(x, y, text) {
     scene.add.text(x, y, text, { fontFamily: 'Helvetica' });
 }
@@ -118,20 +166,6 @@ function drawLines(lines, lineWidth, color) {
 
 function loadAtlas(key, textureUrl, atlasUrl) {
     scene.load.atlas(key, textureUrl, atlasUrl);
-}
-
-function setSpriteInteraction(spriteId, eventName, callbackObject, callbackName) {
-    const sprite = spriteLookup[spriteId];
-
-    sprite.on(eventName, function (pointer, localX, localY, even) {
-        callbackObject.invokeMethod(
-            callbackName, 
-            {
-                // TODO GetMousePosition()
-                x: Math.round(scene.input.x + scene.cameras.main.scrollX),
-                y: Math.round(scene.input.y + scene.cameras.main.scrollY)
-            });
-    });
 }
 
 // TODO Rename to setCameraBounds

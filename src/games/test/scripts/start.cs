@@ -1,6 +1,6 @@
 OnGameStart(() =>
 {
-    SetProtagonist(al);
+    SetProtagonist(guy);
 
     // TODO Temp while Room.BeforeEnter does not work yet
     PutActor(guy, park, 600, 430);

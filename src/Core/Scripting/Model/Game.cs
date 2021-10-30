@@ -18,14 +18,14 @@ public class Game
         _notificationCollector = notificationCollector;
     }
 
-    public Actor AddActor(string name)
+    public ActorBuilder Actor(string id)
     {
-        return new Actor(name);
+        return new ActorBuilder(id, new ItemCollector<Actor>(_actors));
     }
 
     public Room AddRoom(string id, IEnumerable<Point> walkbox)
     {
-        var room = new Room(id, walkbox);
+        var room = new Room(id, new Polygon(walkbox));
         _rooms.Add(room);
         return room;
     }

@@ -1,4 +1,7 @@
-﻿
+﻿@inject ICustomMediator _mediator
+@implements INotificationHandler<GameObjectPointerOut>
+@implements INotificationHandler<GameObjectPointerOver>
+
 <div>
     <p>Command: @_command</p>
 </div>
@@ -10,59 +13,23 @@
 
     private string _command = "";
 
-    @*[CascadingParameter]
-    protected ScriptCascading Script { get; set; }*@
-
-    [Parameter]
-    public string Verb
+    public Task Handle(GameObjectPointerOut notification, CancellationToken cancellationToken)
     {
-        get => _verb;
-        set
-        {
-            _verb = value;
-            ChangeItemValue(string.Empty);
-            UpdateCommand();
-        }
-    }
-
-    [Parameter]
-    public string Item
-    {
-        get => _item;
-        set
-        {
-            _item = value;
-            UpdateCommand();
-        }
-    }
-
-    [Parameter]
-    public EventCallback<string> ItemChanged { get; set; }
-
-    protected override Task OnInitializedAsync()
-    {
-        //Script.CommandChanged += new AsyncEventHandler<string>(OnScriptCommandChanged);
-
-        return base.OnInitializedAsync();
-    }
-
-    private async Task ChangeItemValue(string item)
-    {
-        await ItemChanged.InvokeAsync(item);
-    }
-
-    private void UpdateCommand()
-    {
-        _command = $"{_verb} {_item}";
-    }
-
-    private async Task OnScriptCommandChanged(object sender, string e)
-    {
-        Console.WriteLine("CommandBar: " + e);
-
-        _command = e;
-
+        _command = string.Empty;
         StateHasChanged();
+        return Task.CompletedTask;
     }
 
+    public Task Handle(GameObjectPointerOver notification, CancellationToken cancellationToken)
+    {
+        _command = notification.GameObject.Id;
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    protected override void OnInitialized()
+    {
+        _mediator.Subscribe<GameObjectPointerOut>(this);
+        _mediator.Subscribe<GameObjectPointerOver>(this);
+    }
 }

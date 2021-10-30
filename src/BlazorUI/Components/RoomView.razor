@@ -41,7 +41,7 @@
             450,
             (IJSInProcessRuntime)_jsRuntime,
             _loggerFactory,
-            OnUpdate);
+            OnDraw);
 
         _graphics = await phaser.StartAsync("phaser");
     }
@@ -62,11 +62,17 @@
             //            //                        this.room.kill();
             //            //                    }
 
-            _roomGraphics = RoomGraphics.Create(notification.Room, OnPointerDown, _graphics);
+            _roomGraphics = RoomGraphics.Create(notification.Room, OnRoomPointerDownAsync, _graphics);
 
             foreach (var actor in notification.Room.Actors)
             {
-                var actorGraphics = ActorGraphics.Create(actor, _graphics);
+                var actorGraphics = ActorGraphics.Create(
+                    actor,
+                    OnGameObjectPointerOutAsync,
+                    OnGameObjectPointerOverAsync,
+                    _graphics);
+
+
                 _actorGraphicsById.Add(actor.Id, actorGraphics);
 
                 // When the protagonist actor is added to the room, follow it
@@ -118,9 +124,7 @@
         base.OnAfterRender(firstRender);
     }    
 
-    private Task OnCreateAsync() => Task.CompletedTask;
-
-    private void OnUpdate(Point mousePosition)
+    private void OnDraw(Point mousePosition)
     {
         if (_inDebugMode &&
             _walkbox is not null &&
@@ -128,33 +132,15 @@
                 _protagonistId,
                 out ActorGraphics actorGraphics))
         {
-            var excludedAreas = new Polygon[]
-            {
-                @* new Polygon(new Point[]
-                {
-                    new Point(600, 420),
-                    new Point(640, 420),
-                    new Point(640, 440),
-                    new Point(600, 440),
-                }),
-                new Polygon(new Point[]
-                {
-                    new Point(100, 100),
-                    new Point(200, 100),
-                    new Point(200, 200),
-                    new Point(100, 200),
-                }) *@
-            };
-
             _walkbox.Draw(
                 actorGraphics.Sprite.Position,
                 mousePosition,
-                excludedAreas,
+                GetWalkboxExcludedAreas(),
                 _graphics);
         }
     }
 
-    private void OnPointerDown(Point mousePosition)
+    private Task OnRoomPointerDownAsync(Point mousePosition)
     {
         if (_actorGraphicsById.TryGetValue(
             _protagonistId,
@@ -163,10 +149,12 @@
             var path = _walkbox.FindShortestPath(
                 actorGraphics.Sprite.Position,
                 mousePosition,
-                Enumerable.Empty<Polygon>());
+                GetWalkboxExcludedAreas());
 
             actorGraphics.Walk(path);
         }
+
+        return Task.CompletedTask;
 
 
     @* public async moveActor(actorId: string, toX: number, toY: number, faceDirection: string) {
@@ -188,4 +176,26 @@
 
     }
 
+    private Task OnGameObjectPointerOutAsync(GameObject gameObject, Point mousePosition) =>
+        _mediator.Publish(new GameObjectPointerOut(gameObject));
+
+    private Task OnGameObjectPointerOverAsync(GameObject gameObject, Point mousePosition) =>
+        _mediator.Publish(new GameObjectPointerOver(gameObject));
+
+    // Exclude the areas around the actors to make sure the protagonist
+    // doesn't bump into any other actors.
+    private IEnumerable<Polygon> GetWalkboxExcludedAreas() =>
+        _actorGraphicsById
+            .Where(entry => entry.Key != _protagonistId &&
+                entry.Value.Actor.IsVisible)
+            .Select(entry =>
+            {
+                var position = entry.Value.Sprite.Position;
+
+                return new Polygon(
+                    new Point(position.X - 50, position.Y - 20),
+                    new Point(position.X + 50, position.Y - 20),
+                    new Point(position.X + 50, position.Y + 20),
+                    new Point(position.X - 50, position.Y + 20));
+            });
 }

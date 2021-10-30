@@ -19,12 +19,4 @@ public static class PhaserConstants
         public const string SetWorldBounds = "setWorldBounds";
         public const string StartPhaser = "startPhaser";
     }
-
-    public static class Input
-    {
-        public static class Events
-        {
-            public const string PointerDown = "pointerdown";
-        }
-    }
 }

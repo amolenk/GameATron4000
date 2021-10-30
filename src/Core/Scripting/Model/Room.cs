@@ -10,10 +10,10 @@ public class Room
 
     internal Room(
         string id,
-        IEnumerable<Point> walkbox)
+        Polygon walkbox)
     {
         Id = id;
-        Walkbox = new Polygon(walkbox);
+        Walkbox = walkbox;
 
         _actors = new List<Actor>();
     }

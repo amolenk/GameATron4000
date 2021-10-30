@@ -24,12 +24,11 @@ public interface ISprite
 
     void SetFrame(string frameName);
 
-    ValueTask SetAnchorAsync(double value);
-
-    void OnPointerDown(Action<Point> handler);
+    void SetDepth(double depth);
 
     ISpriteTween Move(
         Point target,
         int duration,
+        Action<Point> onUpdate,
         Action<Point> onComplete);
 }

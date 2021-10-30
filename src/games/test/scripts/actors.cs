@@ -5,11 +5,11 @@
 //     type = "actor"
 // }
 
-var al = AddActor("al");
-//     name = "Al",
-//     text_col = "Yellow",
-//     use_pos = pos_infront,
-//     use_dir = face_back,
+var al = Actor("al")
+    .Named("Al")
+    .WithTextColor("Yellow")
+    .InteractFromPosition(RelativePosition.InFront)
+    .InteractWhileFacing(Direction.Back)
 //     verbs = {
 //         look_at = function(actor)
 //             say_line("I guess it's an alien. Hard to see at this resolution.")
@@ -23,11 +23,11 @@ var al = AddActor("al");
 //         end
 //     }
 // }
+    .Add();
 
-var guy = AddActor("guy");
-//     classes = { class_untouchable },
-//     text_col = "White"
-// }
+var guy = Actor("guy")
+    .Untouchable()
+    .Add();
 
 // ian = {
 //     id = "ian",

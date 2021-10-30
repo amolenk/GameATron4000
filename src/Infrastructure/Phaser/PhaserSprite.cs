@@ -3,13 +3,20 @@
 public class PhaserSprite : ISprite
 {
     private readonly IJSInProcessRuntime _jsRuntime;
+    private Action<Point>? _onPointerOver;
+    private Action<Point>? _onPointerOut;
     private Action<Point>? _onPointerDown;
 
     public string Key { get; private set; }
     public Point Position { get; private set; }
     public Size Size { get; private set; }
 
-    private PhaserSprite(string key, Point position, Size size, IJSInProcessRuntime jsRuntime)
+    private PhaserSprite(
+        string key,
+        Point position,
+        Size size,
+        IEnumerable<IDisposable> disposables,
+        IJSInProcessRuntime jsRuntime)
     {
         _jsRuntime = jsRuntime;
 
@@ -53,21 +60,30 @@ public class PhaserSprite : ISprite
             frameName);
     }
 
-    public void OnPointerDown(Action<Point> handler)
+    public void SetDepth(double depth)
     {
-        _onPointerDown = handler;
-
         ((IJSInProcessRuntime)_jsRuntime).InvokeVoid(
-            PhaserConstants.Functions.SetSpriteInteraction,
+            "setSpriteDepth",
             Key,
-            PhaserConstants.Input.Events.PointerDown,
-            DotNetObjectReference.Create(this),
-            nameof(OnPointerDown));
+            depth);
     }
 
-    public ValueTask SetAnchorAsync(double value)
+    [JSInvokable]
+    public void OnPointerOver(Point mousePosition)
     {
-        throw new NotImplementedException();
+        if (_onPointerOver != null)
+        {
+            _onPointerOver(mousePosition);
+        }
+    }
+
+    [JSInvokable]
+    public void OnPointerOut(Point mousePosition)
+    {
+        if (_onPointerOut != null)
+        {
+            _onPointerOut(mousePosition);
+        }
     }
 
     [JSInvokable]
@@ -82,6 +98,7 @@ public class PhaserSprite : ISprite
     public ISpriteTween Move(
         Point target,
         int duration,
+        Action<Point> onUpdate,
         Action<Point> onComplete)
     {
         IJSInProcessRuntime js = (IJSInProcessRuntime)_jsRuntime;
@@ -91,7 +108,11 @@ public class PhaserSprite : ISprite
             this,
             target,
             duration,
-            position => Position = position,
+            position =>
+            {
+                onUpdate(position);
+                Position = position;
+            },
             onComplete,
             js);
     }
@@ -104,6 +125,26 @@ public class PhaserSprite : ISprite
         IJSInProcessRuntime jsRuntime)
     {
         var spriteKey = Guid.NewGuid().ToString();
+        var dotNetObjectRefs = new List<IDisposable>();
+
+        DotNetObjectReference<PhaserPointerCallback>? onPointerDown = null;
+        DotNetObjectReference<PhaserPointerCallback>? onPointerOut = null;
+        DotNetObjectReference<PhaserPointerCallback>? onPointerOver = null;
+
+        if (TryCreateDotNetObjectRef(options.OnPointerDown, out onPointerDown))
+        {
+            dotNetObjectRefs.Add(onPointerDown!);
+        }
+
+        if (TryCreateDotNetObjectRef(options.OnPointerOut, out onPointerOut))
+        {
+            dotNetObjectRefs.Add(onPointerOut!);
+        }
+
+        if (TryCreateDotNetObjectRef(options.OnPointerOver, out onPointerOver))
+        {
+            dotNetObjectRefs.Add(onPointerOver!);
+        }
 
         var size = jsRuntime.Invoke<Size>(
             PhaserConstants.Functions.AddSprite,
@@ -111,8 +152,33 @@ public class PhaserSprite : ISprite
             textureKey,
             frameKey,
             position,
-            options);
+            options.Origin,
+            options.Depth,
+            onPointerDown,
+            onPointerOut,
+            onPointerOver);
 
-        return new PhaserSprite(spriteKey, position, size, jsRuntime);
+
+        return new PhaserSprite(
+            spriteKey,
+            position,
+            size,
+            dotNetObjectRefs,
+            jsRuntime);
+    }
+
+    private static bool TryCreateDotNetObjectRef(
+        Func<Point, Task>? callback,
+        out DotNetObjectReference<PhaserPointerCallback>? dotNetObjectRef)
+    {
+        if (callback is not null)
+        {
+            dotNetObjectRef = DotNetObjectReference.Create(
+                new PhaserPointerCallback(callback));
+            return true;
+        }
+
+        dotNetObjectRef = null;
+        return false;
     }
 }
