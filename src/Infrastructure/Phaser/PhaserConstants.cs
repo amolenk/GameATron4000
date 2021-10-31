@@ -4,19 +4,24 @@ public static class PhaserConstants
 {
     public static class Functions
     {
-        // TODO Cleanup / check
-        public const string AddImage = "addImage";
-        public const string AddSprite = "addSprite";
-        public const string AddText = "addText";
-        public const string AddTween = "addTween";
-        public const string DrawLines = "drawLines";
-        public const string LoadAtlas = "loadAtlas";
+        public const string StartPhaser = "startPhaser";
+        public const string SetWorldBounds = "setWorldBounds";
 
+        public const string LoadAtlas = "loadAtlas";
+        
+        public const string AddImage = "addImage";
+        
+        public const string AddText = "addText";
+
+        public const string AddSprite = "addSprite";
+        public const string MoveSprite = "moveSprite";
+        public const string SetSpriteDepth = "setSpriteDepth";
+        public const string SetSpriteFrame = "setSpriteFrame";
+        public const string AddSpriteAnimation = "addSpriteAnimation";
         public const string PlaySpriteAnimation = "playSpriteAnimation";
         public const string StopSpriteAnimation = "stopSpriteAnimation";
-
-        public const string SetSpriteInteraction = "setSpriteInteraction";
-        public const string SetWorldBounds = "setWorldBounds";
-        public const string StartPhaser = "startPhaser";
+        public const string KillSprite = "killSprite";
+        
+        public const string DrawLines = "drawLines";
     }
 }

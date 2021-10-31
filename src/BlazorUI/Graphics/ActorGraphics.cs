@@ -1,6 +1,6 @@
 ﻿namespace Amolenk.GameATron4000.BlazorUI.Graphics;
 
-public class ActorGraphics
+public sealed class ActorGraphics : IDisposable
 {
     private const int WALK_SPEED_FACTOR = 4;
 
@@ -8,10 +8,7 @@ public class ActorGraphics
     private const string ANIM_WALK_RIGHT = "walk-right";
     private const string ANIM_TALK = "talk";
 
-    private Stack<Point>? _walkPath;
-    private ISpriteTween _walkTween;
-
-    private Direction _faceDirection;
+    private (Task Task, CancellationTokenSource Cts)? _walkState;
 
     public Actor Actor { get; }
     public ISprite Sprite { get; }
@@ -20,55 +17,6 @@ public class ActorGraphics
     {
         Actor = actor;
         Sprite = sprite;
-    }
-
-    public void Walk(IEnumerable<Point> path)
-    {
-        if (_walkTween != null)
-        {
-            _walkTween.Stop();
-        }
-
-        if (path.Any())
-        {
-            _walkPath = new Stack<Point>(path.Reverse());
-
-            TryWalkNextSegment();
-        }
-    }
-
-    public void FaceDirection(Direction direction)
-    {
-        _faceDirection = direction;
-        Sprite.SetFrame(GetFrameName(Actor, _faceDirection));
-    }
-
-    private void TryWalkNextSegment()
-    {
-        // TODO Dispose of used tweens
-
-        if (_walkPath.TryPop(out Point? walkTo))
-        {
-            Sprite.PlayAnimation(
-                (Sprite.Position.X < walkTo.X) ? ANIM_WALK_RIGHT : ANIM_WALK_LEFT);
-
-            var duration = (int)Point.DistanceBetween(Sprite.Position, walkTo) * WALK_SPEED_FACTOR;
-
-            _walkTween = Sprite.Move(
-                walkTo,
-                duration,
-                position => Sprite.SetDepth(position.Y),
-                position => TryWalkNextSegment());
-        }
-        else
-        {
-            Sprite.StopAnimation();
-
-            // TODO
-            FaceDirection(_faceDirection);
-
-            _walkPath = null;
-        }
     }
 
     public static  ActorGraphics Create(
@@ -127,10 +75,76 @@ public class ActorGraphics
         return new ActorGraphics(actor, sprite);
     }
 
+
+    public async Task WalkAsync(
+        IEnumerable<Point> path,
+        Direction faceDirection)
+    {
+        if (_walkState.HasValue)
+        {
+            _walkState.Value.Cts.Cancel();
+            await _walkState.Value.Task;
+        }
+
+        var cts = new CancellationTokenSource();
+        var task = WalkCoreAsync(path, faceDirection, cts.Token);
+
+        _walkState = (task, cts);
+
+        await task;
+    }
+
+    public void FaceDirection(Direction direction)
+    {
+        Sprite.SetFrame(GetFrameName(Actor, direction));
+    }
+
+    private async Task WalkCoreAsync(
+        IEnumerable<Point> path,
+        Direction faceDirection,
+        CancellationToken cancellationToken)
+    {
+        var currentAnimation = string.Empty;
+
+        foreach (var target in path)
+        {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                break;
+            }
+
+            var animation = (Sprite.Position.X < target.X)
+                ? ANIM_WALK_RIGHT : ANIM_WALK_LEFT;
+
+            if (animation != currentAnimation)
+            {
+                Sprite.PlayAnimation(animation);
+                currentAnimation = animation;
+            }
+
+            var duration = Point.DistanceBetween(Sprite.Position, target) *
+                WALK_SPEED_FACTOR;
+
+            await Sprite.MoveAsync(
+                target,
+                duration,
+                () => Sprite.SetDepth(Sprite.Position.Y),
+                cancellationToken);
+        }
+
+        FaceDirection(faceDirection);
+        Sprite.StopAnimation();
+    }
+
     private static string GetFrameName(Actor actor, Direction faceDirection) =>
         actor.IsVisible
             ? $"actors/{actor.Id}/{faceDirection.ToString().ToLowerInvariant()}"
             : "./transparent";
+
+    public void Dispose()
+    {
+        Sprite.Dispose();
+    }
 }
 
 

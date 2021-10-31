@@ -1,11 +1,9 @@
 ﻿namespace Amolenk.GameATron4000.Infrastructure.Phaser;
 
-public class PhaserSprite : ISprite
+public sealed class PhaserSprite : ISprite
 {
     private readonly IJSInProcessRuntime _jsRuntime;
-    private Action<Point>? _onPointerOver;
-    private Action<Point>? _onPointerOut;
-    private Action<Point>? _onPointerDown;
+    private readonly IEnumerable<IDisposable> _disposables;
 
     public string Key { get; private set; }
     public Point Position { get; private set; }
@@ -19,102 +17,11 @@ public class PhaserSprite : ISprite
         IJSInProcessRuntime jsRuntime)
     {
         _jsRuntime = jsRuntime;
+        _disposables = disposables;
 
         Key = key;
         Position = position;
         Size = size;
-    }
-
-    public void AddAnimation(string key, string framePrefix, int frameStart, int frameEnd, int frameZeroPad, int frameRate, int repeat, int repeatDelay)
-    {
-        _jsRuntime.InvokeVoid(
-            "addSpriteAnimation",
-            Key,
-            key,
-            "images",
-            framePrefix,
-            frameStart,
-            frameEnd,
-            frameZeroPad,
-            frameRate,
-            repeat,
-            repeatDelay);
-    }
-
-    public void PlayAnimation(string animationKey) =>
-        _jsRuntime.InvokeVoid(
-            PhaserConstants.Functions.PlaySpriteAnimation,
-            Key,
-            animationKey);
-
-    public void StopAnimation() =>
-        _jsRuntime.InvokeVoid(
-            PhaserConstants.Functions.StopSpriteAnimation,
-            Key);
-
-    public void SetFrame(string frameName)
-    {
-        ((IJSInProcessRuntime)_jsRuntime).InvokeVoid(
-            "setSpriteFrame",
-            Key,
-            frameName);
-    }
-
-    public void SetDepth(double depth)
-    {
-        ((IJSInProcessRuntime)_jsRuntime).InvokeVoid(
-            "setSpriteDepth",
-            Key,
-            depth);
-    }
-
-    [JSInvokable]
-    public void OnPointerOver(Point mousePosition)
-    {
-        if (_onPointerOver != null)
-        {
-            _onPointerOver(mousePosition);
-        }
-    }
-
-    [JSInvokable]
-    public void OnPointerOut(Point mousePosition)
-    {
-        if (_onPointerOut != null)
-        {
-            _onPointerOut(mousePosition);
-        }
-    }
-
-    [JSInvokable]
-    public void OnPointerDown(Point mousePosition)
-    {
-        if (_onPointerDown != null)
-        {
-            _onPointerDown(mousePosition);
-        }
-    }
-
-    public ISpriteTween Move(
-        Point target,
-        int duration,
-        Action<Point> onUpdate,
-        Action<Point> onComplete)
-    {
-        IJSInProcessRuntime js = (IJSInProcessRuntime)_jsRuntime;
-
-        // TODO Rename to PhaserSpriteTween
-        return PhaserSpriteTween.MoveSprite(
-            this,
-            target,
-            duration,
-            position =>
-            {
-                onUpdate(position);
-                Position = position;
-            },
-            onComplete,
-            js);
     }
 
     public static ISprite Create(
@@ -127,23 +34,23 @@ public class PhaserSprite : ISprite
         var spriteKey = Guid.NewGuid().ToString();
         var dotNetObjectRefs = new List<IDisposable>();
 
-        DotNetObjectReference<PhaserPointerCallback>? onPointerDown = null;
-        DotNetObjectReference<PhaserPointerCallback>? onPointerOut = null;
-        DotNetObjectReference<PhaserPointerCallback>? onPointerOver = null;
+        DotNetObjectReference<PhaserFuncCallback<Point, Task>>? onPointerDownRef = null;
+        DotNetObjectReference<PhaserFuncCallback<Point, Task>>? onPointerOutRef = null;
+        DotNetObjectReference<PhaserFuncCallback<Point, Task>>? onPointerOverRef = null;
 
-        if (TryCreateDotNetObjectRef(options.OnPointerDown, out onPointerDown))
+        if (TryCreateDotNetObjectRef(options.OnPointerDown, out onPointerDownRef))
         {
-            dotNetObjectRefs.Add(onPointerDown!);
+            dotNetObjectRefs.Add(onPointerDownRef!);
         }
 
-        if (TryCreateDotNetObjectRef(options.OnPointerOut, out onPointerOut))
+        if (TryCreateDotNetObjectRef(options.OnPointerOut, out onPointerOutRef))
         {
-            dotNetObjectRefs.Add(onPointerOut!);
+            dotNetObjectRefs.Add(onPointerOutRef!);
         }
 
-        if (TryCreateDotNetObjectRef(options.OnPointerOver, out onPointerOver))
+        if (TryCreateDotNetObjectRef(options.OnPointerOver, out onPointerOverRef))
         {
-            dotNetObjectRefs.Add(onPointerOver!);
+            dotNetObjectRefs.Add(onPointerOverRef!);
         }
 
         var size = jsRuntime.Invoke<Size>(
@@ -154,9 +61,9 @@ public class PhaserSprite : ISprite
             position,
             options.Origin,
             options.Depth,
-            onPointerDown,
-            onPointerOut,
-            onPointerOver);
+            onPointerDownRef,
+            onPointerOutRef,
+            onPointerOverRef);
 
 
         return new PhaserSprite(
@@ -167,14 +74,122 @@ public class PhaserSprite : ISprite
             jsRuntime);
     }
 
+    public async Task MoveAsync(
+        Point target,
+        double duration,
+        Action onUpdate,
+        CancellationToken cancellationToken)
+    {
+        // MoveAsync uses a Phaser tween to change the x/y position of the
+        // sprite. Use a TaskCompletionSource to wait until the tween is
+        // done.
+        var tcs = new TaskCompletionSource();
+
+        // When the tween has updated the sprite, check if cancellation
+        // is requested, and inform the caller of the new position.
+        var onUpdateHandler = new PhaserFuncCallback<Point, bool>(
+            pointerPosition =>
+            {
+                Position = pointerPosition;
+
+                onUpdate();
+
+                return !cancellationToken.IsCancellationRequested;
+            });
+
+        // When the tween has completed, set the result on the
+        // TaskCompletionSource to allow this method to run to completion.
+        var onCompleteHandler = new PhaserActionCallback<Point>(
+            pointerPosition =>
+            {
+                Position = pointerPosition;
+
+                tcs.SetResult();
+            });
+
+        // Create DotNetObjectReference instances for the callbacks. These
+        // need to be disposed once we're done with them.
+        using var onUpdateRef = DotNetObjectReference.Create(onUpdateHandler);
+        using var onCompleteRef = DotNetObjectReference.Create(onCompleteHandler);
+
+        // Start the tween.
+        _jsRuntime.InvokeVoid(
+            PhaserConstants.Functions.MoveSprite,
+            Key,
+            target.X,
+            target.Y,
+            duration,
+            onUpdateRef,
+            onCompleteRef);
+
+        // Wait for tween to complete.
+        await tcs.Task;
+    }
+    public void SetDepth(double depth) =>
+        ((IJSInProcessRuntime)_jsRuntime).InvokeVoid(
+            PhaserConstants.Functions.SetSpriteDepth,
+            Key,
+            depth);
+
+    public void SetFrame(string frameName) =>
+        ((IJSInProcessRuntime)_jsRuntime).InvokeVoid(
+            PhaserConstants.Functions.SetSpriteFrame,
+            Key,
+            frameName);
+
+    public void AddAnimation(
+        string key,
+        string framePrefix,
+        int frameStart,
+        int frameEnd,
+        int frameZeroPad,
+        int frameRate,
+        int repeat,
+        int repeatDelay) =>
+        _jsRuntime.InvokeVoid(
+            PhaserConstants.Functions.AddSpriteAnimation,
+            Key,
+            key,
+            "images", // TODO
+            framePrefix,
+            frameStart,
+            frameEnd,
+            frameZeroPad,
+            frameRate,
+            repeat,
+            repeatDelay);
+
+    public void PlayAnimation(string animationKey) =>
+        _jsRuntime.InvokeVoid(
+            PhaserConstants.Functions.PlaySpriteAnimation,
+            Key,
+            animationKey);
+
+    public void StopAnimation() =>
+        _jsRuntime.InvokeVoid(
+            PhaserConstants.Functions.StopSpriteAnimation,
+            Key);
+
+    public void Dispose()
+    {
+        _jsRuntime.InvokeVoid(
+            PhaserConstants.Functions.KillSprite,
+            Key);
+
+        foreach (var disposable in _disposables)
+        {
+            disposable.Dispose();
+        }
+    }
+
     private static bool TryCreateDotNetObjectRef(
         Func<Point, Task>? callback,
-        out DotNetObjectReference<PhaserPointerCallback>? dotNetObjectRef)
+        out DotNetObjectReference<PhaserFuncCallback<Point, Task>>? dotNetObjectRef)
     {
         if (callback is not null)
         {
             dotNetObjectRef = DotNetObjectReference.Create(
-                new PhaserPointerCallback(callback));
+                new PhaserFuncCallback<Point, Task>(callback));
             return true;
         }
 

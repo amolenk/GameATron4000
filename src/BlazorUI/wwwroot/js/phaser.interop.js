@@ -1,9 +1,8 @@
 
-// TODO Rename to phaser.interop
+
 
 let scene;
 let spriteLookup = [];
-let tweenLookup = [];
 let graphics;
 
 function addImage(x, y, texture, frame) {
@@ -27,17 +26,17 @@ function addSprite(spriteKey, textureKey, frameKey, position, origin, depth,
         sprite.setInteractive({ pixelPerfect: true });
         if (onPointerDown) {
             sprite.on('pointerdown', async function () {
-                await onPointerDown.invokeMethod('InvokeAsync', getPointerPosition());
+                await onPointerDown.invokeMethodAsync('Invoke', getPointerPosition());
             });
         }
         if (onPointerOut) {
             sprite.on('pointerout', async function () {
-                await onPointerOut.invokeMethod('InvokeAsync', getPointerPosition());
+                await onPointerOut.invokeMethodAsync('Invoke', getPointerPosition());
             });
         }
         if (onPointerOver) {
             sprite.on('pointerover', async function () {
-                await onPointerOver.invokeMethod('InvokeAsync', getPointerPosition());
+                await onPointerOver.invokeMethodAsync('Invoke', getPointerPosition());
             });
         }
     }
@@ -50,25 +49,10 @@ function addSprite(spriteKey, textureKey, frameKey, position, origin, depth,
     };
 }
 
-function setSpriteInteraction(spriteId, eventName, callbackObject, callbackName) {
-    const sprite = spriteLookup[spriteId];
-
-    sprite.on(eventName, function (pointer, localX, localY, even) {
-        callbackObject.invokeMethod(
-            callbackName, 
-            {
-                // TODO GetMousePosition()
-                x: Math.round(scene.input.x + scene.cameras.main.scrollX),
-                y: Math.round(scene.input.y + scene.cameras.main.scrollY)
-            });
-    });
+function killSprite(spriteKey) {
+    spriteLookup[spriteKey].kill();
+    spriteLookup[spriteKey] = null;
 }
-
-
-
-
-
-
 
 function addSpriteAnimation(
     spriteKey,
@@ -93,22 +77,6 @@ function addSpriteAnimation(
         repeat: repeat,
         repeatDelay: repeatDelay
     });
-
-    // this.anims.create({
-    //     key: "fly",
-    //     frameRate: 7,
-    //     frames: this.anims.generateFrameNames("plane", {
-    //         prefix: "plane",
-    //         suffix: ".png",
-    //         start: 1,
-    //         end: 3,
-    //         zeroPad: 1
-    //     }),
-    //     repeat: -1
-    // });
-    
-    //  This code should be run from within a Scene:
-    //this.anims.create(config););
 }
 
 function playSpriteAnimation(spriteKey, animationKey) {
@@ -131,21 +99,30 @@ function addText(x, y, text) {
     scene.add.text(x, y, text, { fontFamily: 'Helvetica' });
 }
 
-function addTween(id, spriteId, x, y, duration, callback) {
-    var sprite = spriteLookup[spriteId];
-    var tween = scene.tweens.add({
+function moveSprite(spriteKey, x, y, duration, onUpdate, onComplete) {
+    var sprite = spriteLookup[spriteKey];
+    scene.tweens.add({
         targets: sprite,
         x: x,
         y: y,
         duration: duration,
-        onUpdate: function() {
-            callback.invokeMethod('OnUpdate', { x: sprite.x, y: sprite.y });
+        onUpdate: function(tween) {
+            if (!tween.isCancelled)
+            {
+                 var continueTween = onUpdate.invokeMethod('Invoke', { x: sprite.x, y: sprite.y });
+                 if (!continueTween) {
+                    tween.complete();
+                    tween.isCancelled = true;
+             }
+            }
         },
-        onComplete: function() {
-            callback.invokeMethod('OnComplete', { x: sprite.x, y: sprite.y });
+        onComplete: function(tween) {
+            if (!tween.isCompleted) {
+                onComplete.invokeMethod('Invoke', { x: sprite.x, y: sprite.y });
+                tween.isCompleted = true;
+            }
         }
     });
-    tweenLookup[id] = tween;
 }
 
 function startCameraFollow(spriteKey) {

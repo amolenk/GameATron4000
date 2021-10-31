@@ -1,12 +1,20 @@
 ﻿namespace Amolenk.GameATron4000.Graphics;
 
-public interface ISprite
+public interface ISprite : IDisposable
 {
     string Key { get; }
-
+    Point Position { get; }
     Size Size { get; }
 
-    Point Position { get; }
+    Task MoveAsync(
+        Point target,
+        double duration,
+        Action onUpdate,
+        CancellationToken cancellationToken);
+
+    void SetDepth(double depth);
+
+    void SetFrame(string frameName);
 
     void AddAnimation(
         string key,
@@ -21,14 +29,4 @@ public interface ISprite
     void PlayAnimation(string key);
 
     void StopAnimation();
-
-    void SetFrame(string frameName);
-
-    void SetDepth(double depth);
-
-    ISpriteTween Move(
-        Point target,
-        int duration,
-        Action<Point> onUpdate,
-        Action<Point> onComplete);
 }

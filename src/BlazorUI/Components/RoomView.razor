@@ -62,6 +62,8 @@
             //            //                        this.room.kill();
             //            //                    }
 
+            _walkbox = new Walkbox(notification.Room.Walkbox);
+
             _roomGraphics = RoomGraphics.Create(notification.Room, OnRoomPointerDownAsync, _graphics);
 
             foreach (var actor in notification.Room.Actors)
@@ -85,7 +87,6 @@
 
             // TODO Add objects/items
 
-            _walkbox = new Walkbox(notification.Room.Walkbox);
 
             // Update world bounds to size of room.
             // TODO Actually SetCameraBounds
@@ -124,56 +125,38 @@
         base.OnAfterRender(firstRender);
     }    
 
-    private void OnDraw(Point mousePosition)
+    private void OnDraw(Point pointerPosition)
     {
         if (_inDebugMode &&
             _walkbox is not null &&
             _actorGraphicsById.TryGetValue(
                 _protagonistId,
-                out ActorGraphics actorGraphics))
+                out ActorGraphics? actorGraphics))
         {
             _walkbox.Draw(
                 actorGraphics.Sprite.Position,
-                mousePosition,
-                GetWalkboxExcludedAreas(),
+                pointerPosition,
+                GetWalkboxExcludedAreas(_protagonistId),
                 _graphics);
         }
     }
 
-    private Task OnRoomPointerDownAsync(Point mousePosition)
+    private Task OnRoomPointerDownAsync(Point pointerPosition) =>
+        MoveActor(_protagonistId, pointerPosition);
+
+    private async Task MoveActor(string actorId, Point to, Direction faceDirection = Direction.Front)
     {
-        if (_actorGraphicsById.TryGetValue(
-            _protagonistId,
-            out ActorGraphics actorGraphics))
+        if (_walkbox is not null && _actorGraphicsById.TryGetValue(
+            actorId,
+            out ActorGraphics? actorGraphics))
         {
             var path = _walkbox.FindShortestPath(
                 actorGraphics.Sprite.Position,
-                mousePosition,
-                GetWalkboxExcludedAreas());
+                to,
+                GetWalkboxExcludedAreas(actorId));
 
-            actorGraphics.Walk(path);
+            await actorGraphics.WalkAsync(path, faceDirection);
         }
-
-        return Task.CompletedTask;
-
-
-    @* public async moveActor(actorId: string, toX: number, toY: number, faceDirection: string) {
-        const actor = this.getActor(actorId);
-        const walkbox = this.createWalkbox(actor);
-        const path = walkbox.findPath(actor.x, actor.y, toX, toY);
-        if (path) {
-            path.shift();
-            await actor.walkTo(path, faceDirection);
-        } else {
-            actor.changeDirection(faceDirection);
-        } *@
-
-
-        @*if (this.uiMediator.uiEnabled)
-            {
-                this.moveActor(this.uiMediator.selectedActor, this.game.input.x + this.game.camera.x, this.game.input.y + this.game.camera.y, "front")
-                        }*@
-
     }
 
     private Task OnGameObjectPointerOutAsync(GameObject gameObject, Point mousePosition) =>
@@ -182,11 +165,11 @@
     private Task OnGameObjectPointerOverAsync(GameObject gameObject, Point mousePosition) =>
         _mediator.Publish(new GameObjectPointerOver(gameObject));
 
-    // Exclude the areas around the actors to make sure the protagonist
-    // doesn't bump into any other actors.
-    private IEnumerable<Polygon> GetWalkboxExcludedAreas() =>
+    // Exclude the areas around the other actors to make sure the given
+    // actor doesn't bump into them.
+    private IEnumerable<Polygon> GetWalkboxExcludedAreas(string actorId) =>
         _actorGraphicsById
-            .Where(entry => entry.Key != _protagonistId &&
+            .Where(entry => entry.Key != actorId &&
                 entry.Value.Actor.IsVisible)
             .Select(entry =>
             {
