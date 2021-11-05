@@ -5,11 +5,26 @@
 //     type = "actor"
 // }
 
-var al = Actor("al")
+Actor al = Actor("al")
     .Named("Al")
+    .FacingDirection(Direction.Back) // TODO!!
     .WithTextColor("Yellow")
     .InteractFromPosition(RelativePosition.InFront)
     .InteractWhileFacing(Direction.Back)
+    .When(handlers =>
+    {
+        handlers.LookAt(() =>
+        {
+            SayLine("I guess it's an alien. Hard to see at this resolution.");
+            SayLine("Hi, I'm selling these fine leather jackets.");
+            SayLine("Look behind you, a three-headed monkey!");
+            SayLine("Doh!");
+
+            al.SayLine("Hi there!");
+
+            // handlers.HandlePush();
+        });
+    })
 //     verbs = {
 //         look_at = function(actor)
 //             say_line("I guess it's an alien. Hard to see at this resolution.")

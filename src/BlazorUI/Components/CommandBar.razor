@@ -1,35 +1,59 @@
-﻿@inject ICustomMediator _mediator
-@implements INotificationHandler<GameObjectPointerOut>
-@implements INotificationHandler<GameObjectPointerOver>
+﻿@inject IMediator _mediator
 
-<div>
-    <p>Command: @_command</p>
+<div style="text-align: center">
+    <p>@_commandText</p>
 </div>
 
 @code {
 
-    private string _verb = string.Empty;
-    private string _item = string.Empty;
-
-    private string _command = "";
-
-    public Task Handle(GameObjectPointerOut notification, CancellationToken cancellationToken)
-    {
-        _command = string.Empty;
-        StateHasChanged();
-        return Task.CompletedTask;
-    }
-
-    public Task Handle(GameObjectPointerOver notification, CancellationToken cancellationToken)
-    {
-        _command = notification.GameObject.Id;
-        StateHasChanged();
-        return Task.CompletedTask;
-    }
+    private IAction _command = new WalkToAction();
+    private string _commandText = Verb.WalkTo.Text;
 
     protected override void OnInitialized()
     {
-        _mediator.Subscribe<GameObjectPointerOut>(this);
-        _mediator.Subscribe<GameObjectPointerOver>(this);
+        _mediator.Subscribe<GameObjectPointerDown>(OnGameObjectPointerDown);
+        _mediator.Subscribe<GameObjectPointerOut>(OnGameObjectPointerOut);
+        _mediator.Subscribe<GameObjectPointerOver>(OnGameObjectPointerOver);
+        _mediator.Subscribe<VerbSelected>(OnVerbSelected);
+    }
+
+    private async Task OnGameObjectPointerDown(GameObjectPointerDown @event)
+    {
+        if (_command.Add(@event.GameObject))
+        {
+            await _mediator.SendAsync(new ExecutePlayerAction(_command));
+
+            _command = new WalkToAction();
+            _commandText = _command.GetDisplayText(null);
+
+        }
+        else
+        {
+            _commandText = _command.GetDisplayText(null);
+        }
+
+        StateHasChanged();
+    }
+
+    private Task OnGameObjectPointerOut(GameObjectPointerOut @event)
+    {
+        _commandText = _command.GetDisplayText(null);
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private Task OnGameObjectPointerOver(GameObjectPointerOver @event)
+    {
+        _commandText = _command.GetDisplayText(@event.GameObject);
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private Task OnVerbSelected(VerbSelected @event)
+    {
+        _command = @event.Action;
+        _commandText = _command.GetDisplayText(null);
+        StateHasChanged();
+        return Task.CompletedTask;
     }
 }

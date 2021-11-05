@@ -4,24 +4,22 @@ public class Game
 {
     private List<Actor> _actors;
     private List<Room> _rooms;
-    private NotificationCollector _notificationCollector;
+    private ICollector<IEvent> _events;
     private Action? _onStart;
 
     public Room? CurrentRoom { get; private set; }
 
     public Actor? Protagonist { get; private set; }
 
-    internal Game(NotificationCollector notificationCollector)
+    internal Game(ICollector<IEvent> events)
     {
         _actors = new();
         _rooms = new();
-        _notificationCollector = notificationCollector;
+        _events = events;
     }
 
-    public ActorBuilder Actor(string id)
-    {
-        return new ActorBuilder(id, new ItemCollector<Actor>(_actors));
-    }
+    public ActorBuilder Actor(string id) =>
+        new ActorBuilder(id, new Collector<Actor>(_actors), _events);
 
     public Room AddRoom(string id, IEnumerable<Point> walkbox)
     {
@@ -34,7 +32,7 @@ public class Game
     {
         CurrentRoom = room;
 
-        _notificationCollector.Add(new RoomEntered(CurrentRoom));
+        _events.Add(new RoomEntered(CurrentRoom));
     }
 
     public void OnGameStart(Action onStart) => _onStart = onStart;
@@ -52,16 +50,17 @@ public class Game
         room.AddActor(actor);
     }
 
+    public void SayLine(string line) => Protagonist?.SayLine(line);
+
     public void SetProtagonist(Actor actor)
     {
         Protagonist = actor;
 
-        _notificationCollector.Add(new ProtagonistChanged(actor));
+        _events.Add(new ProtagonistChanged(actor));
     }
 
     internal void Start()
     {
-        // TODO Is this null check the way to go?
         if (_onStart is not null)
         {
             _onStart();

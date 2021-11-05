@@ -2,6 +2,13 @@
 
 html, body {
     margin: 0;
+    image-rendering: optimizeSpeed;              /* Older versions of FF */
+    image-rendering: -moz-crisp-edges;           /* FF 6.0+ */
+    image-rendering: -webkit-optimize-contrast;  /* Webkit (non standard naming) */
+    image-rendering: -o-crisp-edges;             /* OS X & Windows Opera (12.02+) */
+    image-rendering: crisp-edges;                /* Possible future browsers. */
+    -ms-interpolation-mode: nearest-neighbor;    /* IE (non standard naming) */
+    image-rendering: pixelated;                  /* Chrome 41 */
 }
 
 #app {
@@ -20,12 +27,36 @@ html, body {
 
 @font-face {
     font-family: 'Onesize';
-    src: url('assets/onesize.ttf') format('truetype');
+    src: url('../assets/onesize.ttf') format('truetype');
 }
 
 @font-face {
     font-family: 'OnesizeReverse';
-    src: url('assets/onesize-reverse.ttf') format('truetype');
+    src: url('../assets/onesize-reverse.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Monkey Island 1990';
+    src: url('../assets/MonkeyIsland-1990.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Monkey Island 1990 refined';
+    src: url('../assets/MonkeyIsland-1990-refined.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Monkey Island 1991';
+    src: url('../assets/MonkeyIsland-1991.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Monkey Island 1991 refined';
+    src: url('../assets/MonkeyIsland-1991-refined.ttf') format('truetype');
+}
+
+p {
+    font: 18px 'Onesize';
 }
 
 /*----------------------------*/

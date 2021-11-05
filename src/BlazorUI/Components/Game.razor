@@ -1,10 +1,11 @@
 ﻿@inject IGameManifestRepository _gameManifestRepository
 @inject ILogger<Game> _logger
-@inject ICustomMediator _mediator
+@inject IMediator _mediator
 
 <GameScriptView />
 <RoomView />
 <CommandBar />
+<Verbs />
 
 @code {
 
@@ -22,9 +23,9 @@
             {
                 _logger.LogDebug("Game manifest loaded.");
 
-                await _mediator.Publish(new GameManifestLoaded(manifest));
+                await _mediator.PublishAsync(new GameManifestLoaded(manifest));
 
-                await _mediator.Send(new StartGame());
+                await _mediator.SendAsync(new StartGame());
             }
         }
     }

@@ -1,12 +1,17 @@
-
-
-
 let scene;
 let spriteLookup = [];
+let textLookup = [];
 let graphics;
 
 function addImage(x, y, texture, frame) {
     scene.add.image(x, y, texture, frame);
+}
+
+function getCameraPosition() {
+    return {
+        x: scene.cameras.main.scrollX,
+        y: scene.cameras.main.scrollY
+    }
 }
 
 function getPointerPosition() {
@@ -49,8 +54,8 @@ function addSprite(spriteKey, textureKey, frameKey, position, origin, depth,
     };
 }
 
-function killSprite(spriteKey) {
-    spriteLookup[spriteKey].kill();
+function destroySprite(spriteKey) {
+    spriteLookup[spriteKey].destroy();
     spriteLookup[spriteKey] = null;
 }
 
@@ -95,10 +100,6 @@ function setSpriteDepth(spriteKey, index) {
     spriteLookup[spriteKey].setDepth(index);
 }
 
-function addText(x, y, text) {
-    scene.add.text(x, y, text, { fontFamily: 'Helvetica' });
-}
-
 function moveSprite(spriteKey, x, y, duration, onUpdate, onComplete) {
     var sprite = spriteLookup[spriteKey];
     scene.tweens.add({
@@ -125,6 +126,35 @@ function moveSprite(spriteKey, x, y, duration, onUpdate, onComplete) {
     });
 }
 
+function addText(textKey, position, text, options) {
+    
+    var style = {
+        font: "24px Onesize",
+        fill: options.fillColor,
+        stroke: "black",
+        strokeThickness: 6,
+        align: "center",
+    };
+
+    if (options.wordWrapWidth > 0)
+    {
+        style.wordWrap = {
+            width: options.wordWrapWidth
+        };
+    }
+    
+    textbox = scene.add.text(position.x, 0, text, style);
+    textbox.setOrigin(options.origin.x, options.origin.y);
+    textbox.y = position.y - (textbox.height / 2);
+    textLookup[textKey] = textbox;
+    textbox.setDepth(options.depth);
+}
+
+function destroyText(textKey) {
+    textLookup[textKey].destroy();
+    textLookup[textKey] = null;
+}
+
 function startCameraFollow(spriteKey) {
     scene.cameras.main.startFollow(spriteLookup[spriteKey], true, 0.1, 0.1);
 }
@@ -147,7 +177,7 @@ function loadAtlas(key, textureUrl, atlasUrl) {
 
 // TODO Rename to setCameraBounds
 function setWorldBounds(size) {
-    scene.cameras.main.setBounds(0, 0, size.width, 450);
+    scene.cameras.main.setBounds(0, 0, size.width, 450); // TODO
 }
 
 function startPhaser(container, width, height, dotNetSceneCallback) {
@@ -161,7 +191,7 @@ function startPhaser(container, width, height, dotNetSceneCallback) {
         },
         create: function () {
             graphics = this.add.graphics();
-            graphics.setDepth(100);
+            graphics.setDepth(1); // TODO
             dotNetSceneCallback.invokeMethod('OnCreate');
         },
         update: function () {

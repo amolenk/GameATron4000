@@ -1,8 +1,7 @@
 ﻿@inject HttpClient _client
-@inject ICustomMediator _mediator
+@inject IMediator _mediator
 @inject ILogger<GameScriptView> _logger
 @inject IGameManifestRepository _gameManifestRepository
-@implements INotificationHandler<GameManifestLoaded>
 
 <div>[SCRIPT]</div>
 
@@ -12,19 +11,19 @@
     private GameManifest _manifest = null!;
     private GameScript _script = null!;
 
-    public async Task Handle(GameManifestLoaded notification, CancellationToken cancellationToken)
+    protected override void OnInitialized()
+    {
+        _mediator.Subscribe<GameManifestLoaded>(OnGameManifestLoaded);
+    }
+
+    private async Task OnGameManifestLoaded(GameManifestLoaded @event)
     {
         Console.WriteLine("Handle GameScriptView.GameManifestLoadedEvent!");
 
         _compiler = await CSharpScriptCompiler.CreateAsync(_client);
-        _manifest = notification.Manifest;
+        _manifest = @event.Manifest;
 
         await TryLoadGameScriptAsync();
-    }
-
-    protected override void OnInitialized()
-    {
-        _mediator.Subscribe<GameManifestLoaded>(this);
     }
 
     private async Task<bool> TryLoadGameScriptAsync()

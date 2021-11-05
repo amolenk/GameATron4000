@@ -4,7 +4,7 @@ OnGameStart(() =>
 
     // TODO Temp while Room.BeforeEnter does not work yet
     PutActor(guy, park, 600, 430);
-    PutActor(al, park, 600, 400);
+    PutActor(al, park, 400, 345);
 
 
 //     -- inventory

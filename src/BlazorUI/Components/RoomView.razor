@@ -1,9 +1,6 @@
-﻿@inject ICustomMediator _mediator
+﻿@inject IMediator _mediator
 @inject IJSRuntime _jsRuntime
 @inject ILoggerFactory _loggerFactory
-@implements INotificationHandler<GameManifestLoaded>
-@implements INotificationHandler<ProtagonistChanged>
-@implements INotificationHandler<RoomEntered>
 
 <div id="phaser">
 </div>
@@ -18,6 +15,9 @@
     private Dictionary<string, ActorGraphics> _actorGraphicsById = new();
     private Walkbox? _walkbox;
 
+    private (Task Task, CancellationTokenSource Cts)? _talkState;
+    private (Task Task, CancellationTokenSource Cts)? _walkState;
+
     private bool _inDebugMode = false;
 
     [JSInvokable]
@@ -28,15 +28,40 @@
             case "d":
                 _inDebugMode = !_inDebugMode;
                 return true;
+            case ".":
+            case " ":
+                _talkState?.Cts.Cancel();
+                return true;
         }
 
         return false;
     }
 
-    public async Task Handle(GameManifestLoaded notification, CancellationToken cancellationToken)
+    protected override void OnInitialized()
+    {
+        _mediator.Subscribe<GameManifestLoaded>(OnGameManifestLoaded);
+        _mediator.Subscribe<LineSpoken>(OnLineSpoken);
+        _mediator.Subscribe<ProtagonistChanged>(OnProtagonistChanged);
+        _mediator.Subscribe<RoomEntered>(OnRoomEntered);
+
+        Console.WriteLine("Subscribed!");
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await _jsRuntime.InvokeVoidAsync(
+                "window.CaptureKeyDown",
+                DotNetObjectReference.Create(this));
+        }
+        base.OnAfterRender(firstRender);
+    } 
+
+    private async Task OnGameManifestLoaded(GameManifestLoaded @event)
     {
         var phaser = new PhaserHost(
-            notification.Manifest,
+            @event.Manifest,
             800,
             450,
             (IJSInProcessRuntime)_jsRuntime,
@@ -46,13 +71,28 @@
         _graphics = await phaser.StartAsync("phaser");
     }
 
-    public Task Handle(ProtagonistChanged notification, CancellationToken cancellationToken)
+    private async Task OnLineSpoken(LineSpoken @event)
     {
-        _protagonistId = notification.Protagonist.Id;
+        if (_actorGraphicsById.TryGetValue(
+            @event.Actor.Id,
+            out ActorGraphics actorGraphics))
+        {
+            var cts = new CancellationTokenSource();
+            var task = actorGraphics.SpeakAsync(@event.Line, cts.Token);
+
+            _talkState = (task, cts);
+
+            await task;
+        }
+    }
+
+    public Task OnProtagonistChanged(ProtagonistChanged @event)
+    {
+        _protagonistId = @event.Protagonist.Id;
         return Task.CompletedTask;
     }
 
-    public async Task Handle(RoomEntered notification, CancellationToken cancellationToken)
+    public async Task OnRoomEntered(RoomEntered @event)
     {
         try
         {
@@ -62,14 +102,15 @@
             //            //                        this.room.kill();
             //            //                    }
 
-            _walkbox = new Walkbox(notification.Room.Walkbox);
+            _walkbox = new Walkbox(@event.Room.Walkbox);
 
-            _roomGraphics = RoomGraphics.Create(notification.Room, OnRoomPointerDownAsync, _graphics);
+            _roomGraphics = RoomGraphics.Create(@event.Room, OnRoomPointerDownAsync, _graphics);
 
-            foreach (var actor in notification.Room.Actors)
+            foreach (var actor in @event.Room.Actors)
             {
                 var actorGraphics = ActorGraphics.Create(
                     actor,
+                    OnGameObjectPointerDownAsync,
                     OnGameObjectPointerOutAsync,
                     OnGameObjectPointerOverAsync,
                     _graphics);
@@ -107,23 +148,7 @@
         {
             //    await graphics!.SetRenderLockAsync(false);
         }
-    }
-
-    protected override void OnInitialized()
-    {
-        _mediator.Subscribe<GameManifestLoaded>(this);
-        _mediator.Subscribe<ProtagonistChanged>(this);
-        _mediator.Subscribe<RoomEntered>(this);
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            await _jsRuntime.InvokeVoidAsync("window.CaptureKeyDown", DotNetObjectReference.Create(this));
-        }
-        base.OnAfterRender(firstRender);
-    }    
+    }   
 
     private void OnDraw(Point pointerPosition)
     {
@@ -144,6 +169,16 @@
     private Task OnRoomPointerDownAsync(Point pointerPosition) =>
         MoveActor(_protagonistId, pointerPosition);
 
+    private Task OnGameObjectPointerDownAsync(GameObject gameObject, Point mousePosition) =>
+        _mediator.PublishAsync(new GameObjectPointerDown(gameObject));
+
+    private Task OnGameObjectPointerOutAsync(GameObject gameObject, Point mousePosition) =>
+        _mediator.PublishAsync(new GameObjectPointerOut(gameObject));
+
+    private Task OnGameObjectPointerOverAsync(GameObject gameObject, Point mousePosition) =>
+        _mediator.PublishAsync(new GameObjectPointerOver(gameObject));
+
+
     private async Task MoveActor(string actorId, Point to, Direction faceDirection = Direction.Front)
     {
         if (_walkbox is not null && _actorGraphicsById.TryGetValue(
@@ -155,15 +190,20 @@
                 to,
                 GetWalkboxExcludedAreas(actorId));
 
-            await actorGraphics.WalkAsync(path, faceDirection);
+            if (_walkState.HasValue)
+            {
+                _walkState.Value.Cts.Cancel();
+                await _walkState.Value.Task;
+            }
+
+            var cts = new CancellationTokenSource();
+            var task = actorGraphics.WalkAsync(path, faceDirection, cts.Token);
+
+            _walkState = (task, cts);
+
+            await task;
         }
     }
-
-    private Task OnGameObjectPointerOutAsync(GameObject gameObject, Point mousePosition) =>
-        _mediator.Publish(new GameObjectPointerOut(gameObject));
-
-    private Task OnGameObjectPointerOverAsync(GameObject gameObject, Point mousePosition) =>
-        _mediator.Publish(new GameObjectPointerOver(gameObject));
 
     // Exclude the areas around the other actors to make sure the given
     // actor doesn't bump into them.

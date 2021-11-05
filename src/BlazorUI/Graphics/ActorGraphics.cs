@@ -3,24 +3,31 @@
 public sealed class ActorGraphics : IDisposable
 {
     private const int WALK_SPEED_FACTOR = 4;
+    private const int MIN_WORD_WRAP_WIDTH = 400;
+
+    private const int DELAY_PER_CHAR = 75;
+    private const int MIN_TEXT_DELAY = 1500;
 
     private const string ANIM_WALK_LEFT = "walk-left";
     private const string ANIM_WALK_RIGHT = "walk-right";
     private const string ANIM_TALK = "talk";
 
-    private (Task Task, CancellationTokenSource Cts)? _walkState;
+    private readonly IGraphics _graphics;
 
     public Actor Actor { get; }
     public ISprite Sprite { get; }
 
-    private ActorGraphics(Actor actor, ISprite sprite)
+    private ActorGraphics(Actor actor, ISprite sprite, IGraphics graphics)
     {
+        _graphics = graphics;
+
         Actor = actor;
         Sprite = sprite;
     }
 
-    public static  ActorGraphics Create(
+    public static ActorGraphics Create(
         Actor actor,
+        Func<GameObject, Point, Task> onPointerDown,
         Func<GameObject, Point, Task> onPointerOut,
         Func<GameObject, Point, Task> onPointerOver,
         IGraphics graphics)
@@ -36,6 +43,8 @@ public sealed class ActorGraphics : IDisposable
 
                 if (actor.IsTouchable)
                 {
+                    options.OnPointerDown = (pointerPosition) =>
+                        onPointerDown(actor, pointerPosition);
                     options.OnPointerOut = (pointerPosition) =>
                         onPointerOut(actor, pointerPosition);
                     options.OnPointerOver = (pointerPosition) =>
@@ -72,26 +81,70 @@ public sealed class ActorGraphics : IDisposable
                 frameRate: 9);
         }
 
-        return new ActorGraphics(actor, sprite);
+        return new ActorGraphics(actor, sprite, graphics);
     }
 
-
-    public async Task WalkAsync(
-        IEnumerable<Point> path,
-        Direction faceDirection)
+    public async Task SpeakAsync(string line, CancellationToken cancellationToken)
     {
-        if (_walkState.HasValue)
+        var cameraPosition = _graphics.GetCameraPosition();
+        var textPosition = Sprite.Position.Offset(0, -Sprite.Size.Height - 20);
+
+        var marginLeft = textPosition.X - cameraPosition.X;
+        var marginRight = _graphics.Width - marginLeft;
+
+        var wordWrapWidth = (int)Math.Min(marginLeft, marginRight) * 2;
+
+        // TODO Must take into account real width of the text!
+
+        // Move the textbox if we're to close to an edge of the screen.
+        if (wordWrapWidth < MIN_WORD_WRAP_WIDTH)
         {
-            _walkState.Value.Cts.Cancel();
-            await _walkState.Value.Task;
+            wordWrapWidth = MIN_WORD_WRAP_WIDTH;
+
+            if (marginLeft < marginRight)
+            {
+                textPosition = new Point(
+                    wordWrapWidth / 2,
+                    textPosition.Y);
+            }
+            else
+            {
+                textPosition = new Point(
+                    _graphics.Width - (wordWrapWidth / 2) + cameraPosition.X, 
+                    textPosition.Y);
+            }
         }
 
-        var cts = new CancellationTokenSource();
-        var task = WalkCoreAsync(path, faceDirection, cts.Token);
+        var animate = (Actor.FacingDirection == Direction.Front);
+        if (animate)
+        {
+            Sprite.PlayAnimation(ANIM_TALK);
+        }
 
-        _walkState = (task, cts);
+        using var text = _graphics.AddText(
+            line,
+            textPosition,
+            options =>
+            {
+                options.Depth = _graphics.Height;
+                options.Origin = new Point(0.5, 0.5);
+                options.FillColor = Actor.TextColor;
+                options.WordWrapWidth = wordWrapWidth;
+            });
 
-        await task;
+        var delay = Math.Max(line.Length * DELAY_PER_CHAR, MIN_TEXT_DELAY);
+        try
+        {
+            await Task.Delay(delay, cancellationToken);
+        }
+        catch (TaskCanceledException)
+        {}
+
+        if (animate)
+        {
+            Sprite.StopAnimation();
+            FaceDirection(Direction.Front);
+        }
     }
 
     public void FaceDirection(Direction direction)
@@ -99,13 +152,11 @@ public sealed class ActorGraphics : IDisposable
         Sprite.SetFrame(GetFrameName(Actor, direction));
     }
 
-    private async Task WalkCoreAsync(
+    public async Task WalkAsync(
         IEnumerable<Point> path,
         Direction faceDirection,
         CancellationToken cancellationToken)
     {
-        var currentAnimation = string.Empty;
-
         foreach (var target in path)
         {
             if (cancellationToken.IsCancellationRequested)
@@ -116,11 +167,7 @@ public sealed class ActorGraphics : IDisposable
             var animation = (Sprite.Position.X < target.X)
                 ? ANIM_WALK_RIGHT : ANIM_WALK_LEFT;
 
-            if (animation != currentAnimation)
-            {
-                Sprite.PlayAnimation(animation);
-                currentAnimation = animation;
-            }
+            Sprite.PlayAnimation(animation);
 
             var duration = Point.DistanceBetween(Sprite.Position, target) *
                 WALK_SPEED_FACTOR;
@@ -132,8 +179,14 @@ public sealed class ActorGraphics : IDisposable
                 cancellationToken);
         }
 
-        FaceDirection(faceDirection);
-        Sprite.StopAnimation();
+        // If cancellation is requested, we're going to move to a
+        // different location. Leaving the animation running makes the
+        // transition smoother.
+        if (!cancellationToken.IsCancellationRequested)
+        {
+            FaceDirection(faceDirection);
+            Sprite.StopAnimation();
+        }
     }
 
     private static string GetFrameName(Actor actor, Direction faceDirection) =>

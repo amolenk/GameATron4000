@@ -12,6 +12,7 @@ public static class PhaserConstants
         public const string AddImage = "addImage";
         
         public const string AddText = "addText";
+        public const string DestroyText = "destroyText";
 
         public const string AddSprite = "addSprite";
         public const string MoveSprite = "moveSprite";
@@ -20,7 +21,7 @@ public static class PhaserConstants
         public const string AddSpriteAnimation = "addSpriteAnimation";
         public const string PlaySpriteAnimation = "playSpriteAnimation";
         public const string StopSpriteAnimation = "stopSpriteAnimation";
-        public const string KillSprite = "killSprite";
+        public const string DestroySprite = "destroySprite";
         
         public const string DrawLines = "drawLines";
     }

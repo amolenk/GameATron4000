@@ -4,8 +4,12 @@ public abstract class GameObject
 {
     public string Id { get; }
 
-    protected GameObject(string id)
+    internal ActionHandlers ActionHandlers { get; private set; }
+
+
+    protected GameObject(string id, ActionHandlers actionHandlers)
     {
         Id = id;
+        ActionHandlers = actionHandlers;
     }
 }

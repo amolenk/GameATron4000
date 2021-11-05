@@ -17,9 +17,14 @@ public interface IGraphics
         Point position,
         Action<SpriteOptions>? configure = null);
 
-    ValueTask AddTextAsync(int x, int y, string text);
+    IText AddText(
+        string text,
+        Point position,
+        Action<TextOptions>? configure = null);
 
     void DrawLines(IEnumerable<Line> lines, int lineWidth, int color);
+
+    Point GetCameraPosition();
 
     void SetWorldBounds(Size size);
 

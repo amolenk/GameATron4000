@@ -8,6 +8,7 @@ public sealed class PhaserSprite : ISprite
     public string Key { get; private set; }
     public Point Position { get; private set; }
     public Size Size { get; private set; }
+    public string? PlayingAnimation { get; private set; }
 
     private PhaserSprite(
         string key,
@@ -159,21 +160,32 @@ public sealed class PhaserSprite : ISprite
             repeat,
             repeatDelay);
 
-    public void PlayAnimation(string animationKey) =>
-        _jsRuntime.InvokeVoid(
-            PhaserConstants.Functions.PlaySpriteAnimation,
-            Key,
-            animationKey);
+    public void PlayAnimation(string animationKey)
+    {
+        if (PlayingAnimation != animationKey)
+        {
+            _jsRuntime.InvokeVoid(
+                PhaserConstants.Functions.PlaySpriteAnimation,
+                Key,
+                animationKey);
 
-    public void StopAnimation() =>
+            PlayingAnimation = animationKey;
+        }
+    }
+
+    public void StopAnimation()
+    {
         _jsRuntime.InvokeVoid(
             PhaserConstants.Functions.StopSpriteAnimation,
             Key);
 
+        PlayingAnimation = null;
+    }
+
     public void Dispose()
     {
         _jsRuntime.InvokeVoid(
-            PhaserConstants.Functions.KillSprite,
+            PhaserConstants.Functions.DestroySprite,
             Key);
 
         foreach (var disposable in _disposables)

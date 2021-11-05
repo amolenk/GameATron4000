@@ -5,7 +5,4 @@
     <Nullable>enable</Nullable>
     <RootNamespace>Amolenk.GameATron4000</RootNamespace>
   </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include="MediatR" Version="9.0.0"/>
-  </ItemGroup>
 </Project>

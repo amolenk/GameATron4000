@@ -41,8 +41,8 @@ public class PhaserGraphics : IGraphics
         Point position,
         Action<SpriteOptions>? configure)
     {
-        var options = new SpriteOptions();
-        if (configure != null)
+        SpriteOptions options = new();
+        if (configure is not null)
         {
             configure(options);
         }
@@ -55,12 +55,23 @@ public class PhaserGraphics : IGraphics
             _jsInProcessRuntime);
     }
 
-    public ValueTask AddTextAsync(int x, int y, string text) =>
-        _jsRuntime.InvokeVoidAsync(
-            PhaserConstants.Functions.AddText,
-            x,
-            y,
-            text);
+    public IText AddText(
+        string text,
+        Point position,
+        Action<TextOptions>? configure)
+    {
+        TextOptions options = new();
+        if (configure is not null)
+        {
+            configure(options);
+        }
+
+        return PhaserText.Create(
+            text,
+            position,
+            options,
+            _jsInProcessRuntime);
+    }
 
     public void DrawLines(IEnumerable<Line> lines, int lineWidth, int color) =>
         _jsInProcessRuntime.InvokeVoid(
@@ -68,6 +79,10 @@ public class PhaserGraphics : IGraphics
             lines,
             lineWidth,
             color);
+
+    public Point GetCameraPosition() =>
+        _jsInProcessRuntime.Invoke<Point>(
+            "getCameraPosition"); // TODO
 
     public void StartCameraFollow(ISprite sprite) =>
         _jsInProcessRuntime.InvokeVoid(

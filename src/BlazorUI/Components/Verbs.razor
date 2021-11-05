@@ -1,27 +1,40 @@
-﻿
-<ul>
-    <li @onclick="@(() => ChangeValue("Look at"))">Look at</li>
-    <li @onclick="@(() => ChangeValue("Push"))">Push</li>
-    <li @onclick="@(() => ChangeValue("Pull"))">Pull</li>
-</ul>
+﻿@inject IMediator _mediator;
+
+@if (_playerInputEnabled)
+{
+    <ul>
+        <li @onclick="@(() => OnVerbClick("Look at"))">Look at</li>
+        <li @onclick="@(() => OnVerbClick("Push"))">Push</li>
+        <li @onclick="@(() => OnVerbClick("Pull"))">Pull</li>
+    </ul>
+}
 
 @code {
 
-    @*[CascadingParameter]
-    protected ScriptCascading Script { get; set; }*@
+    private bool _playerInputEnabled = true;
 
-    [Parameter]
-    public string Verb { get; set; }
-
-    [Parameter]
-    public EventCallback<string> VerbChanged { get; set; }
-
-    private async Task ChangeValue(string value)
+    protected override void OnInitialized()
     {
-        Console.WriteLine(value);
-
-        //Script.SetVerb(value);
-        await VerbChanged.InvokeAsync(value);
+        _mediator.Subscribe<PlayerActionStarted>(OnPlayerCommandStarted);
+        _mediator.Subscribe<PlayerActionCompleted>(OnPlayerActionCompleted);
     }
 
+    private Task OnPlayerCommandStarted(PlayerActionStarted @event)
+    {
+        _playerInputEnabled = false;
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private Task OnPlayerActionCompleted(PlayerActionCompleted @event)
+    {
+        _playerInputEnabled = true;
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private async Task OnVerbClick(string value)
+    {
+        await _mediator.PublishAsync(new VerbSelected(new LookAtAction()));
+    }
 }

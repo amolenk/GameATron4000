@@ -1,6 +1,5 @@
 ﻿namespace Amolenk.GameATron4000.Graphics;
 
-public interface IText
+public interface IText : IDisposable
 {
-    ValueTask SetTextAsync(string value);
 }

@@ -10,8 +10,7 @@ var baseAddress = new Uri(builder.HostEnvironment.BaseAddress);
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = baseAddress });
 
 builder.Services
-    .AddSingleton<CustomServiceFactory>()
-    .AddSingleton<ICustomMediator, CustomMediator>();
+    .AddSingleton<IMediator, DefaultMediator>();
 
 builder.Services.AddHttpClient<IGameManifestRepository, LocalGameManifestRepository>(
     client => client.BaseAddress = baseAddress);

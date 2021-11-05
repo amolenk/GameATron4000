@@ -1,10 +1,10 @@
 ﻿namespace Amolenk.GameATron4000.Scripting.Model;
 
-public class ItemCollector<T>
+public class Collector<T> : ICollector<T>
 {
     private ICollection<T> _items;
 
-    public ItemCollector(ICollection<T> items)
+    public Collector(ICollection<T> items)
     {
         _items = items;
     }
