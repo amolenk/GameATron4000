@@ -1,31 +1,31 @@
 namespace Amolenk.GameATron4000.BlazorUI.Graphics;
 
-public class RoomGraphics
+public class RoomSprite : IDisposable
 {
     public Room Room { get; }
     public ISprite Sprite { get; }
 
-    private RoomGraphics(Room room, ISprite sprite)
-    {
-        Room = room;
-        Sprite = sprite;
-    }
-
-    public static RoomGraphics Create(
+    public RoomSprite(
         Room room,
         Func<Point, Task> onPointerDown,
+        SpriteSpec spriteSpec,
         IGraphics graphics)
     {
+        Room = room;
+
         // Add the room background.
-        var sprite = graphics.AddSprite(
-            "images", // TODO
-            $"rooms/{room.Id}",
+        Sprite = graphics.AddSprite(
+            spriteSpec.AtlasKey,
+            spriteSpec.Frames[WellKnownState.Default],
             new Point(0, 0),
             options =>
             {
                 options.OnPointerDown = onPointerDown;
             });
+    }
 
-        return new RoomGraphics(room, sprite);
+    public void Dispose()
+    {
+        Sprite.Dispose();
     }
 }

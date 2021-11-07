@@ -3,22 +3,28 @@
 public class Room
 {
     public string Id { get; }
-    public Polygon Walkbox { get; }
-    public IReadOnlyList<Actor> Actors => _actors.AsReadOnly();
+    public Polygon WalkboxArea { get; }
+    public IReadOnlyList<GameObject> Objects => _objects.AsReadOnly();
 
-    private readonly List<Actor> _actors;
+    private readonly List<GameObject> _objects;
 
-    internal Room(
-        string id,
-        Polygon walkbox)
+    internal Room(RoomBuilder builder)
     {
-        Id = id;
-        Walkbox = walkbox;
+        if (builder.WalkboxArea is null)
+        {
+            throw new ArgumentException(
+                "Walkbox area must be set for a room.",
+                nameof(builder));
+        }
 
-        _actors = new List<Actor>();
+        _objects = new List<GameObject>();
+
+        Id = builder.Id;
+        WalkboxArea = builder.WalkboxArea;
     }
 
-    internal void AddActor(Actor actor) => _actors.Add(actor);
+    internal void AddObject(GameObject gameObject) => _objects.Add(gameObject);
 
-    internal void RemoveActor(Actor actor) => _actors.Remove(actor);
+    internal void RemoveObject(GameObject gameObject) =>
+        _objects.Remove(gameObject);
 }

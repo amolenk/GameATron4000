@@ -5,16 +5,23 @@
 //     type = "actor"
 // }
 
+Actor narrator = Actor("narrator")
+    .Invisible()
+    .WithScrollFactor(0)
+    .WithTextColor("lightblue")
+    .Add();
+
 Actor al = Actor("al")
     .Named("Al")
-    .FacingDirection(Direction.Back) // TODO!!
     .WithTextColor("Yellow")
     .InteractFromPosition(RelativePosition.InFront)
-    .InteractWhileFacing(Direction.Back)
+    .InteractInState(WellKnownState.FaceAwayFromCamera)
     .When(handlers =>
     {
         handlers.LookAt(() =>
         {
+            narrator.SayLine("I'm in the sky!!!!");
+
             SayLine("I guess it's an alien. Hard to see at this resolution.");
             SayLine("Hi, I'm selling these fine leather jackets.");
             SayLine("Look behind you, a three-headed monkey!");

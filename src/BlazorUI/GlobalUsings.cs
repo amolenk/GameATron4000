@@ -16,6 +16,6 @@ global using Amolenk.GameATron4000.Scripting.Model.Actions;
 global using Microsoft.AspNetCore.Components.Web;
 global using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 global using Microsoft.Extensions.Logging;
-global using Microsoft.JSInterop;
 global using QuikGraph;
 global using QuikGraph.Algorithms;
+global using System.Collections.ObjectModel;

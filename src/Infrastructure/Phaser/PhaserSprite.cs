@@ -140,25 +140,14 @@ public sealed class PhaserSprite : ISprite
 
     public void AddAnimation(
         string key,
-        string framePrefix,
-        int frameStart,
-        int frameEnd,
-        int frameZeroPad,
-        int frameRate,
-        int repeat,
-        int repeatDelay) =>
+        string atlasKey,
+        SpriteAnimationSpec spec) =>
         _jsRuntime.InvokeVoid(
             PhaserConstants.Functions.AddSpriteAnimation,
             Key,
             key,
-            "images", // TODO
-            framePrefix,
-            frameStart,
-            frameEnd,
-            frameZeroPad,
-            frameRate,
-            repeat,
-            repeatDelay);
+            atlasKey,
+            spec);
 
     public void PlayAnimation(string animationKey)
     {

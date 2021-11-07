@@ -80,10 +80,8 @@
 //     end
 // }
 
-var park = AddRoom(
-    "park",
-    new Point[]
-    {
+Room park = Room("park")
+    .WithWalkboxArea(
         new Point(935, 295),
         new Point(935, 318),
         new Point(710, 375),
@@ -98,8 +96,8 @@ var park = AddRoom(
         new Point(130, 315),
         new Point(366, 338),
         new Point(470, 355),
-        new Point(804, 316)
-    });
+        new Point(804, 316))
+    .Add();
 //     scale = {
 //         min = 70,
 //         max = 100,

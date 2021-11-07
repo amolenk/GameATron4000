@@ -1,6 +1,5 @@
 ﻿@inject IMediator _mediator
 @inject IJSRuntime _jsRuntime
-@inject ILoggerFactory _loggerFactory
 
 <div id="phaser">
 </div>
@@ -8,16 +7,18 @@
 @code {
 
     private IGraphics _graphics = null!;
+    private GameManifest _manifest = null!;
 
-    private string _protagonistId = string.Empty;
-
-    private RoomGraphics? _roomGraphics;
-    private Dictionary<string, ActorGraphics> _actorGraphicsById = new();
+    private RoomSprite? _roomSprite;
+    private ActorSpriteCollection _actorSprites = new();
+    private GameObjectSpriteCollection _objectSprites = new();
     private Walkbox? _walkbox;
 
     private (Task Task, CancellationTokenSource Cts)? _talkState;
     private (Task Task, CancellationTokenSource Cts)? _walkState;
 
+    private string _protagonistId = string.Empty;
+    private bool _playerInputEnabled = true;
     private bool _inDebugMode = false;
 
     [JSInvokable]
@@ -39,12 +40,12 @@
 
     protected override void OnInitialized()
     {
-        _mediator.Subscribe<GameManifestLoaded>(OnGameManifestLoaded);
-        _mediator.Subscribe<LineSpoken>(OnLineSpoken);
-        _mediator.Subscribe<ProtagonistChanged>(OnProtagonistChanged);
-        _mediator.Subscribe<RoomEntered>(OnRoomEntered);
-
-        Console.WriteLine("Subscribed!");
+        _mediator.Subscribe<GameManifestLoaded>(OnGameManifestLoadedAsync);
+        _mediator.Subscribe<PlayerActionStarted>(OnPlayerActionStartedAsync);
+        _mediator.Subscribe<PlayerActionCompleted>(OnPlayerActionCompletedAsync);
+        _mediator.Subscribe<ProtagonistChanged>(OnProtagonistChangedAsync);
+        _mediator.Subscribe<EnterRoomActionExecuted>(OnEnterRoomActionExecutedAsync);
+        _mediator.Subscribe<SayLineActionExecuted>(OnSayLineActionExecutedAsync);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -58,27 +59,118 @@
         base.OnAfterRender(firstRender);
     } 
 
-    private async Task OnGameManifestLoaded(GameManifestLoaded @event)
+    private async Task OnGameManifestLoadedAsync(GameManifestLoaded @event)
     {
         var phaser = new PhaserHost(
             @event.Manifest,
             800,
             450,
             (IJSInProcessRuntime)_jsRuntime,
-            _loggerFactory,
             OnDraw);
 
         _graphics = await phaser.StartAsync("phaser");
+        _manifest = @event.Manifest;
     }
 
-    private async Task OnLineSpoken(LineSpoken @event)
+    private Task OnPlayerActionStartedAsync(PlayerActionStarted @event)
     {
-        if (_actorGraphicsById.TryGetValue(
+        _playerInputEnabled = false;
+        return Task.CompletedTask;
+    }
+
+    private Task OnPlayerActionCompletedAsync(PlayerActionCompleted @event)
+    {
+        _playerInputEnabled = true;
+        return Task.CompletedTask;
+    }
+
+    public Task OnProtagonistChangedAsync(ProtagonistChanged @event)
+    {
+        _protagonistId = @event.Protagonist.Id;
+        return Task.CompletedTask;
+    }
+
+    public Task OnEnterRoomActionExecutedAsync(EnterRoomActionExecuted @event)
+    {
+        try
+        {
+            _graphics.Pause();
+
+            // If graphics for a room were already loaded, dispose.
+            if (_roomSprite is not null)
+            {
+                _roomSprite.Dispose();
+                _roomSprite = null;
+
+                _actorSprites.ClearAndDisposeItems();
+                _objectSprites.ClearAndDisposeItems();
+            }
+
+            // Create graphics to draw the room.
+            _roomSprite = new RoomSprite(
+                @event.Room,
+                OnRoomPointerDownAsync,
+                _manifest.Spec.Sprites[@event.Room.Id],
+                _graphics);
+
+            // Update camera bounds to size of room.
+            _graphics.SetCameraBounds(
+                new Size(_roomSprite.Sprite.Size.Width, _graphics.Height));
+
+            // Add sprites for game objects.48CC1A
+            foreach (var gameObject in @event.Room.Objects)
+            {
+                if (gameObject is Actor actor)
+                {
+                    var actorSprite = new ActorSprite(
+                        actor,
+                        _manifest.Spec.Sprites[actor.Id],
+                        _graphics,
+                        OnGameObjectPointerDownAsync,
+                        OnGameObjectPointerOutAsync,
+                        OnGameObjectPointerOverAsync);
+
+                    _actorSprites.Add(actorSprite);
+
+                    // When the protagonist actor is added to the room, follow it
+                    // with the camera.
+                    if (actor.Id == _protagonistId)
+                    {
+                        _graphics.StartCameraFollow(actorSprite.Sprite);
+                    } 
+                }
+                else
+                {
+                    var objectSprite = new GameObjectSprite(
+                        gameObject,
+                        _manifest.Spec.Sprites[gameObject.Id],
+                        _graphics,
+                        onPointerDown: OnGameObjectPointerDownAsync,
+                        onPointerOut: OnGameObjectPointerOutAsync,
+                        onPointerOver: OnGameObjectPointerOverAsync);
+
+                    _objectSprites.Add(objectSprite);
+                }
+            }
+
+            _walkbox = new Walkbox(@event.Room.WalkboxArea);
+        }
+        finally
+        {
+            _graphics.Resume();
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private async Task OnSayLineActionExecutedAsync(SayLineActionExecuted @event)
+    {
+        if (_actorSprites.TryGetValue(
             @event.Actor.Id,
-            out ActorGraphics actorGraphics))
+            out ActorSprite actorSprite))
         {
             var cts = new CancellationTokenSource();
-            var task = actorGraphics.SpeakAsync(@event.Line, cts.Token);
+            var task = actorSprite.SayLineAsync(@event.Line, cts.Token);
 
             _talkState = (task, cts);
 
@@ -86,107 +178,57 @@
         }
     }
 
-    public Task OnProtagonistChanged(ProtagonistChanged @event)
-    {
-        _protagonistId = @event.Protagonist.Id;
-        return Task.CompletedTask;
-    }
-
-    public async Task OnRoomEntered(RoomEntered @event)
-    {
-        try
-        {
-            //    await graphics!.SetRenderLockAsync(true);
-
-            //            //                    if (this.room != null) {
-            //            //                        this.room.kill();
-            //            //                    }
-
-            _walkbox = new Walkbox(@event.Room.Walkbox);
-
-            _roomGraphics = RoomGraphics.Create(@event.Room, OnRoomPointerDownAsync, _graphics);
-
-            foreach (var actor in @event.Room.Actors)
-            {
-                var actorGraphics = ActorGraphics.Create(
-                    actor,
-                    OnGameObjectPointerDownAsync,
-                    OnGameObjectPointerOutAsync,
-                    OnGameObjectPointerOverAsync,
-                    _graphics);
-
-
-                _actorGraphicsById.Add(actor.Id, actorGraphics);
-
-                // When the protagonist actor is added to the room, follow it
-                // with the camera.
-                if (actor.Id == _protagonistId)
-                {
-                    _graphics.StartCameraFollow(actorGraphics.Sprite);
-                }
-            }
-
-            // TODO Add objects/items
-
-
-            // Update world bounds to size of room.
-            // TODO Actually SetCameraBounds
-            _graphics.SetWorldBounds(
-                new Size(_roomGraphics.Sprite.Size.Width, _graphics.Height));
-
-
-
-
-
-            
-
-            //    this.narrator = new Narrator(game, layers);
-            //    this.narrator.create();
-
-        }
-        finally
-        {
-            //    await graphics!.SetRenderLockAsync(false);
-        }
-    }   
-
     private void OnDraw(Point pointerPosition)
     {
         if (_inDebugMode &&
             _walkbox is not null &&
-            _actorGraphicsById.TryGetValue(
+            _actorSprites.TryGetValue(
                 _protagonistId,
-                out ActorGraphics? actorGraphics))
+                out ActorSprite? actorSprite))
         {
             _walkbox.Draw(
-                actorGraphics.Sprite.Position,
+                actorSprite.Sprite.Position,
                 pointerPosition,
                 GetWalkboxExcludedAreas(_protagonistId),
                 _graphics);
         }
     }
 
-    private Task OnRoomPointerDownAsync(Point pointerPosition) =>
-        MoveActor(_protagonistId, pointerPosition);
+    private async Task OnRoomPointerDownAsync(Point pointerPosition)
+    {
+        if (_playerInputEnabled)
+        {
+            await MoveActor(_protagonistId, pointerPosition);
+        }
+    }
 
-    private Task OnGameObjectPointerDownAsync(GameObject gameObject, Point mousePosition) =>
+    private Task OnGameObjectPointerDownAsync(
+        GameObject gameObject,
+        Point mousePosition) =>
         _mediator.PublishAsync(new GameObjectPointerDown(gameObject));
 
-    private Task OnGameObjectPointerOutAsync(GameObject gameObject, Point mousePosition) =>
+    private Task OnGameObjectPointerOutAsync(
+        GameObject gameObject,
+        Point mousePosition) =>
         _mediator.PublishAsync(new GameObjectPointerOut(gameObject));
 
-    private Task OnGameObjectPointerOverAsync(GameObject gameObject, Point mousePosition) =>
+    private Task OnGameObjectPointerOverAsync(
+        GameObject gameObject,
+        Point mousePosition) =>
         _mediator.PublishAsync(new GameObjectPointerOver(gameObject));
 
 
-    private async Task MoveActor(string actorId, Point to, Direction faceDirection = Direction.Front)
+    private async Task MoveActor(
+        string actorId,
+        Point to,
+        Direction faceDirection = Direction.Front)
     {
-        if (_walkbox is not null && _actorGraphicsById.TryGetValue(
+        if (_walkbox is not null && _actorSprites.TryGetValue(
             actorId,
-            out ActorGraphics? actorGraphics))
+            out ActorSprite? actorSprite))
         {
             var path = _walkbox.FindShortestPath(
-                actorGraphics.Sprite.Position,
+                actorSprite.Sprite.Position,
                 to,
                 GetWalkboxExcludedAreas(actorId));
 
@@ -197,7 +239,7 @@
             }
 
             var cts = new CancellationTokenSource();
-            var task = actorGraphics.WalkAsync(path, faceDirection, cts.Token);
+            var task = actorSprite.WalkAsync(path, faceDirection, cts.Token);
 
             _walkState = (task, cts);
 
@@ -208,17 +250,19 @@
     // Exclude the areas around the other actors to make sure the given
     // actor doesn't bump into them.
     private IEnumerable<Polygon> GetWalkboxExcludedAreas(string actorId) =>
-        _actorGraphicsById
-            .Where(entry => entry.Key != actorId &&
-                entry.Value.Actor.IsVisible)
-            .Select(entry =>
+        _actorSprites
+            .Where(actorSprite => actorSprite.GameObject.Id != actorId &&
+                actorSprite.GameObject.IsVisible)
+            .Select(actorSprite =>
             {
-                var position = entry.Value.Sprite.Position;
+                var position = actorSprite.Sprite.Position;
 
-                return new Polygon(
+                return new Polygon(new Point[]
+                {
                     new Point(position.X - 50, position.Y - 20),
                     new Point(position.X + 50, position.Y - 20),
                     new Point(position.X + 50, position.Y + 20),
-                    new Point(position.X - 50, position.Y + 20));
+                    new Point(position.X - 50, position.Y + 20)
+                });
             });
 }

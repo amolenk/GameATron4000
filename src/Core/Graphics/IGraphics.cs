@@ -26,7 +26,11 @@ public interface IGraphics
 
     Point GetCameraPosition();
 
-    void SetWorldBounds(Size size);
+    void SetCameraBounds(Size size);
 
     void StartCameraFollow(ISprite sprite);
+
+    void Pause();
+
+    void Resume();
 }

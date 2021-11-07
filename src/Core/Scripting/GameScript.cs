@@ -44,7 +44,7 @@ public class GameScript
         // TODO Verify that CurrentRoom and SelectedActor are both set.
 
         await _mediator.PublishAsync(new ProtagonistChanged(_game.Protagonist));
-        await _mediator.PublishAsync(new RoomEntered(_game.CurrentRoom));
+        await _mediator.PublishAsync(new EnterRoomActionExecuted(_game.CurrentRoom));
     }
 
     private async Task OnExecutePlayerAction(ExecutePlayerAction command)

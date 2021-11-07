@@ -4,7 +4,6 @@ public class PhaserGraphics : IGraphics
 {
     private IJSRuntime _jsRuntime;
     private IJSInProcessRuntime _jsInProcessRuntime;
-    private ILoggerFactory _loggerFactory;
 
     public int Width { get; }
 
@@ -13,12 +12,10 @@ public class PhaserGraphics : IGraphics
     public PhaserGraphics(
         int width,
         int height,
-        IJSRuntime jsRuntime,
-        ILoggerFactory loggerFactory)
+        IJSRuntime jsRuntime)
     {
         _jsRuntime = jsRuntime;
         _jsInProcessRuntime = (IJSInProcessRuntime)jsRuntime;
-        _loggerFactory = loggerFactory;
 
         Width = width;
         Height = height;
@@ -89,8 +86,16 @@ public class PhaserGraphics : IGraphics
             "startCameraFollow",
             sprite.Key);
 
-    public void SetWorldBounds(Size size) =>
+    public void SetCameraBounds(Size size) =>
         _jsInProcessRuntime.InvokeVoid(
-            PhaserConstants.Functions.SetWorldBounds,
+            PhaserConstants.Functions.SetCameraBounds,
             size);
+
+    public void Pause() =>
+        _jsInProcessRuntime.InvokeVoid(
+            PhaserConstants.Functions.Pause);
+
+    public void Resume() =>
+        _jsInProcessRuntime.InvokeVoid(
+            PhaserConstants.Functions.Resume);
 }

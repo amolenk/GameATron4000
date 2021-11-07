@@ -2,7 +2,9 @@
 
 public class GameSpec
 {
-    public ImagesSpec Images { get; set; } = new();
+    public AtlassesSpec Atlasses { get; set; } = new();
+
+    public SpritesSpec Sprites { get; set; } = new();
 
     public string[] Scripts { get; set; } = Array.Empty<string>();
 }

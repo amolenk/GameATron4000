@@ -18,13 +18,8 @@ public interface ISprite : IDisposable
 
     void AddAnimation(
         string key,
-        string framePrefix,
-        int frameStart,
-        int frameEnd,
-        int frameZeroPad,
-        int frameRate,
-        int repeat = -1,
-        int repeatDelay = 0);
+        string atlasKey,
+        SpriteAnimationSpec animation);
 
     void PlayAnimation(string key);
 

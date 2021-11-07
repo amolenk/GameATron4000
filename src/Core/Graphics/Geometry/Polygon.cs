@@ -20,10 +20,6 @@ public class Polygon
         }
     }
 
-    public Polygon(params Point[] vertices) : this(vertices.AsEnumerable())
-    {
-    }
-
     public Polygon(IEnumerable<Point> vertices)
     {
         _vertices = vertices.ToList();

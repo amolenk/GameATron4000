@@ -40,12 +40,24 @@ public class Walkbox
         walkTo = SnapToWalkbox(walkTo, excludedAreas);
 
         // Draw walkbox polygons
+        // graphics.DrawLines(
+        //     new[] { _area }
+        //         .Concat(excludedAreas)
+        //         .SelectMany(area => area.Edges),
+        //     2,
+        //     0xFFFFFF);
+
+        // Draw walkbox polygons
         graphics.DrawLines(
-            new[] { _area }
-                .Concat(excludedAreas)
-                .SelectMany(area => area.Edges),
+            _area.Edges,
             2,
             0xFFFFFF);
+
+        // Draw excluded areas
+        graphics.DrawLines(
+            excludedAreas.SelectMany(area => area.Edges),
+            2,
+            0xFF0000);
 
         // Draw walk graph
         var graph = CreateWalkGraph(walkFrom, walkTo, excludedAreas);

@@ -5,7 +5,9 @@ public static class PhaserConstants
     public static class Functions
     {
         public const string StartPhaser = "startPhaser";
-        public const string SetWorldBounds = "setWorldBounds";
+        public const string Pause = "pause";
+        public const string Resume = "resume";
+        public const string SetCameraBounds = "setCameraBounds";
 
         public const string LoadAtlas = "loadAtlas";
         

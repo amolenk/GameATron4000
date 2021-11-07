@@ -3,9 +3,9 @@ OnGameStart(() =>
     SetProtagonist(guy);
 
     // TODO Temp while Room.BeforeEnter does not work yet
-    PutActor(guy, park, 600, 430);
-    PutActor(al, park, 400, 345);
-
+    PutObject(guy, park, 600, 430);
+    PutObject(al, park, 400, 345);
+    PutObject(narrator, park, 400, 50);
 
 //     -- inventory
 //     set_owner(groceries, selected_actor)
@@ -13,6 +13,7 @@ OnGameStart(() =>
 
 //     -- park
 //     put_object(newspaper, 410, 420, park)
+    PutObject(parkBench, park, 323, 408);
 //     put_object(park_bench, 323, 408, park)
 
 //     -- transportation

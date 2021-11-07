@@ -3,6 +3,14 @@ let spriteLookup = [];
 let textLookup = [];
 let graphics;
 
+function pause() {
+    scene.scene.pause();
+}
+
+function resume() {
+    scene.scene.resume('main');
+}
+
 function addImage(x, y, texture, frame) {
     scene.add.image(x, y, texture, frame);
 }
@@ -59,28 +67,18 @@ function destroySprite(spriteKey) {
     spriteLookup[spriteKey] = null;
 }
 
-function addSpriteAnimation(
-    spriteKey,
-    key,
-    atlasKey,
-    framePrefix,
-    frameStart,
-    frameEnd,
-    frameZeroPad,
-    frameRate,
-    repeat,
-    repeatDelay) {
+function addSpriteAnimation(spriteKey, animationKey, atlasKey, spec) {
     spriteLookup[spriteKey].anims.create({
-        key: key,
+        key: animationKey,
         frames: scene.anims.generateFrameNames(atlasKey, {
-            prefix: framePrefix,
-            start: frameStart,
-            end: frameEnd,
-            zeroPad: frameZeroPad
+            prefix: spec.framePrefix,
+            start: spec.frameStart,
+            end: spec.frameEnd,
+            zeroPad: spec.frameZeroPadding
         }),
-        frameRate: frameRate,
-        repeat: repeat,
-        repeatDelay: repeatDelay
+        frameRate: spec.frameRate,
+        repeat: spec.repeat,
+        repeatDelay: spec.repeatDelay
     });
 }
 
@@ -148,6 +146,11 @@ function addText(textKey, position, text, options) {
     textbox.y = position.y - (textbox.height / 2);
     textLookup[textKey] = textbox;
     textbox.setDepth(options.depth);
+
+    if (options.scrollFactor !== -1)
+    {
+        textbox.setScrollFactor(options.scrollFactor);
+    }
 }
 
 function destroyText(textKey) {
@@ -175,8 +178,7 @@ function loadAtlas(key, textureUrl, atlasUrl) {
     scene.load.atlas(key, textureUrl, atlasUrl);
 }
 
-// TODO Rename to setCameraBounds
-function setWorldBounds(size) {
+function setCameraBounds(size) {
     scene.cameras.main.setBounds(0, 0, size.width, 450); // TODO
 }
 
@@ -185,6 +187,7 @@ function startPhaser(container, width, height, dotNetSceneCallback) {
     this.dotNetSceneCallback = dotNetSceneCallback;
 
     var sceneConfig = {
+        key: 'main',
         preload: function () {
             scene = this;
             dotNetSceneCallback.invokeMethod('OnPreload');

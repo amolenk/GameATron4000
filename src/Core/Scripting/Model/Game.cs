@@ -2,7 +2,7 @@ namespace Amolenk.GameATron4000.Scripting.Model;
 
 public class Game
 {
-    private List<Actor> _actors;
+    private List<GameObject> _objects;
     private List<Room> _rooms;
     private ICollector<IEvent> _events;
     private Action? _onStart;
@@ -13,41 +13,40 @@ public class Game
 
     internal Game(ICollector<IEvent> events)
     {
-        _actors = new();
+        _objects = new();
         _rooms = new();
         _events = events;
     }
 
     public ActorBuilder Actor(string id) =>
-        new ActorBuilder(id, new Collector<Actor>(_actors), _events);
+        new ActorBuilder(id, _events, new Collector<GameObject>(_objects));
 
-    public Room AddRoom(string id, IEnumerable<Point> walkbox)
-    {
-        var room = new Room(id, new Polygon(walkbox));
-        _rooms.Add(room);
-        return room;
-    }
+    public GameObjectBuilder Object(string id) =>
+        new GameObjectBuilder(id, _events, new Collector<GameObject>(_objects));
+
+    public RoomBuilder Room(string id) =>
+        new RoomBuilder(id, new Collector<Room>(_rooms));
 
     public void EnterRoom(Room room)
     {
         CurrentRoom = room;
 
-        _events.Add(new RoomEntered(CurrentRoom));
+        _events.Add(new EnterRoomActionExecuted(CurrentRoom));
     }
 
     public void OnGameStart(Action onStart) => _onStart = onStart;
 
-    public void PutActor(Actor actor, Room room, int x, int y)
+    public void PutObject(GameObject gameObject, Room room, int x, int y)
     {
-        if (actor.Room != null)
+        if (gameObject.Room != null)
         {
-            actor.Room.RemoveActor(actor);
+            gameObject.Room.RemoveObject(gameObject);
         }
 
-        actor.Position = new Point(x, y);
-        actor.Room = room;
+        gameObject.Position = new Point(x, y);
+        gameObject.Room = room;
 
-        room.AddActor(actor);
+        room.AddObject(gameObject);
     }
 
     public void SayLine(string line) => Protagonist?.SayLine(line);
