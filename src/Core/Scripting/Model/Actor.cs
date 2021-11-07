@@ -12,6 +12,6 @@ public class Actor : GameObject
 
     public void SayLine(string line)
     {
-        Events!.Add(new SayLineActionExecuted(this, line));
+        EventQueue.Enqueue(new SayLineActionExecuted(this, line));
     }
 }

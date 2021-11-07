@@ -4,8 +4,6 @@ public abstract class GameObjectBuilder<TObject, TBuilder> : IGameObjectBuilder
     where TObject : GameObject
     where TBuilder : GameObjectBuilder<TObject, TBuilder>
 {
-    private readonly ICollector<GameObject> _gameObjects;
-
     public string Id { get; private set; }
     public string DisplayName { get; protected set; }
     public string State { get; protected set; }
@@ -14,15 +12,10 @@ public abstract class GameObjectBuilder<TObject, TBuilder> : IGameObjectBuilder
     public RelativePosition InteractPosition { get; protected set; }
     public string InteractState { get; protected set; }
     public ActionHandlers ActionHandlers { get; protected set; }
-    public ICollector<IEvent> Events { get; private set; }
+    public Game Game { get; private set; }
 
-    internal GameObjectBuilder(
-        string id,
-        ICollector<IEvent> events,
-        ICollector<GameObject> gameObjects)
+    internal GameObjectBuilder(string id, Game game)
     {
-        _gameObjects = gameObjects;
-
         Id = id;
         DisplayName = id;
         State = WellKnownState.Default;
@@ -31,7 +24,7 @@ public abstract class GameObjectBuilder<TObject, TBuilder> : IGameObjectBuilder
         InteractPosition = RelativePosition.None;
         InteractState = WellKnownState.Default;
         ActionHandlers = new();
-        Events = events;
+        Game = game;
     }
 
     public TBuilder Named(string displayName)
@@ -86,7 +79,8 @@ public abstract class GameObjectBuilder<TObject, TBuilder> : IGameObjectBuilder
     {
         var gameObject = Build();
 
-        _gameObjects.Add(gameObject);
+    // TODO Why?
+//        _gameObjects.Add(gameObject);
 
         return gameObject;
     }
@@ -96,11 +90,7 @@ public abstract class GameObjectBuilder<TObject, TBuilder> : IGameObjectBuilder
 
 public class GameObjectBuilder : GameObjectBuilder<GameObject, GameObjectBuilder>
 {
-    public GameObjectBuilder(
-        string id,
-        ICollector<IEvent> events,
-        ICollector<GameObject> gameObjects)
-        : base(id, events, gameObjects)
+    public GameObjectBuilder(string id, Game game) : base(id, game)
     {
     }
 

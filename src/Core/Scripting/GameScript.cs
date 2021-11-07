@@ -4,20 +4,18 @@
 public class GameScript
 {
     private readonly Game _game;
-    private readonly List<IEvent> _actionEvents;
-    private readonly IMediator _mediator;
+    private readonly ActionEventQueue _eventQueue;
 
     public GameScript(
         Game game,
-        List<IEvent> actionEvents,
+        ActionEventQueue eventQueue,
         IMediator mediator)
     {
         _game = game;
-        _actionEvents = actionEvents;
-        _mediator = mediator;
+        _eventQueue = eventQueue;
 
-        _mediator.Subscribe<StartGame>(OnStartGame);
-        _mediator.Subscribe<ExecutePlayerAction>(OnExecutePlayerAction);
+        mediator.Subscribe<StartGame>(OnStartGameAsync);
+        mediator.Subscribe<ExecutePlayerAction>(OnExecutePlayerActionAsync);
     }
 
     public static async Task<GameScript> LoadAsync(
@@ -28,42 +26,56 @@ public class GameScript
         // TODO Dispose ScriptRunner
         var scriptRunner = compiler.Compile<Game>(sources);
 
-        List<IEvent> playerActionEvents = new();
+        ActionEventQueue eventQueue = new(mediator);
 
-        var game = new Game(new Collector<IEvent>(playerActionEvents));
+        var game = new Game(eventQueue);
 
         await scriptRunner.RunAsync(game);
 
-        return new GameScript(game, playerActionEvents, mediator);
+        return new GameScript(game, eventQueue, mediator);
     }
 
-    private async Task OnStartGame(StartGame _)
+    private Task OnStartGameAsync(StartGame _)
     {
+        // Disable event queue while setting up the game. No action events
+        // should be sent to the UI yet.
+        _eventQueue.IgnoreNewEvents = true;
+
+        // Runs the OnGameStart callback in the game script.
         _game.Start();
 
-        // TODO Verify that CurrentRoom and SelectedActor are both set.
+        _eventQueue.IgnoreNewEvents = false;
 
-        await _mediator.PublishAsync(new ProtagonistChanged(_game.Protagonist));
-        await _mediator.PublishAsync(new EnterRoomActionExecuted(_game.CurrentRoom));
+        // We do need to make sure that the startup script has at least set
+        // a protagonist and room.
+        if (_game.Protagonist is null)
+        {
+            throw new InvalidOperationException(
+                "Startup script must set a protagonist.");
+        }
+        if (_game.CurrentRoom is null)
+        {
+            throw new InvalidOperationException(
+                "Startup script must enter a room.");
+        }
+
+        _eventQueue.Enqueue(new ProtagonistChanged(_game.Protagonist));
+        _eventQueue.Enqueue(new EnterRoomActionExecuted(_game.CurrentRoom));
+
+        return _eventQueue.FlushAsync();
     }
 
-    private async Task OnExecutePlayerAction(ExecutePlayerAction command)
+    private Task OnExecutePlayerActionAsync(ExecutePlayerAction command)
     {
         var action = command.Action;
 
-        await _mediator.PublishAsync(new PlayerActionStarted(action));
+        _eventQueue.Enqueue(new PlayerActionStarted(action));
 
-        _actionEvents.Clear();
 
         // TODO Walk to subject
 
         // TODO TryExec
         action.Execute(action.Subject!.ActionHandlers);
-
-        foreach (var @event in _actionEvents)
-        {
-            await _mediator.PublishAsync(@event);
-        }
 
         // var handler = subject.CommandHandlers[verb];
         // if (handler != null)
@@ -76,6 +88,8 @@ public class GameScript
         //     _game.SayLine("[STANDARD RESPONSE]");
         // }
 
-        await _mediator.PublishAsync(new PlayerActionCompleted(action));
+        _eventQueue.Enqueue(new PlayerActionCompleted(action));
+
+        return _eventQueue.FlushAsync();
     }
 }

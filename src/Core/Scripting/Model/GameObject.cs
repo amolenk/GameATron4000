@@ -12,9 +12,11 @@ public class GameObject
     public bool IsVisible => State != WellKnownState.Invisible;
     public Point Position { get; internal set; } = new Point(0, 0);
     public Room? Room { get; internal set; }
-    // TODO NULL???
-    internal ActionHandlers? ActionHandlers { get; private set; }
-    protected ICollector<IEvent>? Events { get; private set; }
+    internal ActionHandlers ActionHandlers { get; private set; }
+
+    // TODO
+    protected Game Game { get; private set; }
+    protected ActionEventQueue EventQueue => Game.EventQueue;
 
     internal GameObject(IGameObjectBuilder builder)
     {
@@ -26,6 +28,7 @@ public class GameObject
         InteractPosition = builder.InteractPosition;
         InteractState = builder.InteractState;
         ActionHandlers = builder.ActionHandlers;
-        Events = builder.Events;
+        Game = builder.Game;
     }
+
 }

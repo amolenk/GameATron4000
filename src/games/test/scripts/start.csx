@@ -2,18 +2,13 @@ OnGameStart(() =>
 {
     SetProtagonist(guy);
 
-    // TODO Temp while Room.BeforeEnter does not work yet
-    PutObject(guy, park, 600, 430);
-    PutObject(al, park, 400, 345);
-    PutObject(narrator, park, 400, 50);
-
 //     -- inventory
 //     set_owner(groceries, selected_actor)
 //     set_owner(grocerylist, selected_actor)
 
 //     -- park
 //     put_object(newspaper, 410, 420, park)
-    PutObject(parkBench, park, 323, 408);
+    park.Put(parkBench, 323, 408);
 //     put_object(park_bench, 323, 408, park)
 
 //     -- transportation
@@ -48,5 +43,5 @@ OnGameStart(() =>
 //     put_object(saucages, 1225, 296, bridge)
 //     put_object(todolist, 660, 250, bridge)
 
-    EnterRoom(park);
+    park.Enter();
 });
