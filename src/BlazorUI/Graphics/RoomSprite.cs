@@ -8,15 +8,17 @@ public class RoomSprite : IDisposable
     public RoomSprite(
         Room room,
         Func<Point, Task> onPointerDown,
-        SpriteSpec spriteSpec,
+        SpritesSpec spritesSpec,
         IGraphics graphics)
     {
         Room = room;
 
+        var spriteInfo = spritesSpec.GetSpriteInfo(room.Id);
+
         // Add the room background.
         Sprite = graphics.AddSprite(
-            spriteSpec.AtlasKey,
-            spriteSpec.Frames[WellKnownState.Default],
+            spriteInfo.AtlasKey,
+            spriteInfo.FrameName,
             new Point(0, 0),
             options =>
             {

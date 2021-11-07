@@ -1,69 +1,47 @@
 metadata:
   name: Test
-# TODO Do some stuff by convention?
 spec:
   atlasses:
-    all:
+    default:
       textureUrl: assets/sprites.png
       atlasUrl: assets/sprites.json
   sprites:
     al:
-      atlasKey: all
-      frames:
-        front: actors/al/front
-        back: actors/al/back
       animations:
         talk:
-          framePrefix: actors/al/talk/
+          framePrefix: al/talk/
           frameStart: 1
           frameEnd: 4
           frameZeroPadding: 4
           frameRate: 9
         walkLeft:
-          framePrefix: actors/al/walk/left/
+          framePrefix: al/walk/left/
           frameStart: 1
           frameEnd: 6
           frameZeroPadding: 4
           frameRate: 9
         walkRight:
-          framePrefix: actors/al/walk/right/
+          framePrefix: al/walk/right/
           frameStart: 1
           frameEnd: 6
           frameZeroPadding: 4
           frameRate: 9
-    narrator:
-      atlasKey: all
-      frames:
-        invisible: ./transparent
-    park:
-      atlasKey: all
-      frames:
-        default: rooms/park
-    park_bench:
-      atlasKey: all
-      frames:
-        default: objects/park_bench
-        inventory: <url_to_image>
     guy:
-      atlasKey: all
-      frames:
-        front: actors/guy/front
-        back: actors/guy/back
       animations:
         talk:
-          framePrefix: actors/guy/talk/
+          framePrefix: guy/talk/
           frameStart: 1
           frameEnd: 6
           frameZeroPadding: 4
           frameRate: 9
         walkLeft:
-          framePrefix: actors/guy/walk/left/
+          framePrefix: guy/walk/left/
           frameStart: 1
           frameEnd: 6
           frameZeroPadding: 4
           frameRate: 9
         walkRight:
-          framePrefix: actors/guy/walk/right/
+          framePrefix: guy/walk/right/
           frameStart: 1
           frameEnd: 6
           frameZeroPadding: 4

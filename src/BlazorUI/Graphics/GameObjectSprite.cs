@@ -3,7 +3,7 @@
 public abstract class GameObjectSprite<TObject> : IDisposable
     where TObject : GameObject
 {
-    private readonly SpriteSpec _spriteSpec;
+    private readonly SpritesSpec _spritesSpec;
 
     public TObject GameObject { get; }
     public ISprite Sprite { get; }
@@ -11,13 +11,13 @@ public abstract class GameObjectSprite<TObject> : IDisposable
 
     protected GameObjectSprite(
         TObject gameObject,
-        SpriteSpec spriteSpec,
+        SpritesSpec spritesSpec,
         IGraphics graphics,
         Func<GameObject, Point, Task>? onPointerDown,
         Func<GameObject, Point, Task>? onPointerOut,
         Func<GameObject, Point, Task>? onPointerOver)
     {
-        _spriteSpec = spriteSpec;
+        _spritesSpec = spritesSpec;
 
         GameObject = gameObject;
         Graphics = graphics;
@@ -35,7 +35,11 @@ public abstract class GameObjectSprite<TObject> : IDisposable
 
     protected void ResetSpriteFrame()
     {
-        Sprite.SetFrame(_spriteSpec.Frames[GameObject.State]);
+        var spriteInfo = _spritesSpec.GetSpriteInfo(
+            GameObject.Id,
+            GameObject.State);
+
+        Sprite.SetFrame(spriteInfo.FrameName);
     }
 
     private ISprite CreateSprite(
@@ -43,9 +47,13 @@ public abstract class GameObjectSprite<TObject> : IDisposable
         Func<GameObject, Point, Task>? onPointerOut,
         Func<GameObject, Point, Task>? onPointerOver)
     {
+        var spriteInfo = _spritesSpec.GetSpriteInfo(
+            GameObject.Id,
+            GameObject.State);
+
         var sprite = Graphics.AddSprite(
-            _spriteSpec.AtlasKey,
-            _spriteSpec.Frames[GameObject.State],
+            spriteInfo.AtlasKey,
+            spriteInfo.FrameName,
             GameObject.Position,
             options =>
             {
@@ -75,12 +83,15 @@ public abstract class GameObjectSprite<TObject> : IDisposable
             });
 
         // Load animations.
-        foreach (var animationSpec in _spriteSpec.Animations)
+        if (_spritesSpec.TryGetValue(GameObject.Id, out SpriteSpec spriteSpec))
         {
-            sprite.AddAnimation(
-                animationSpec.Key,
-                _spriteSpec.AtlasKey,
-                animationSpec.Value);
+            foreach (var animationSpec in spriteSpec.Animations)
+            {
+                sprite.AddAnimation(
+                    animationSpec.Key,
+                    spriteSpec.AtlasKey,
+                    animationSpec.Value);
+            }
         }
 
         return sprite;
@@ -91,14 +102,14 @@ public class GameObjectSprite : GameObjectSprite<GameObject>
 {
     public GameObjectSprite(
         GameObject gameObject,
-        SpriteSpec spriteSpec,
+        SpritesSpec spritesSpec,
         IGraphics graphics,
         Func<GameObject, Point, Task>? onPointerDown = null,
         Func<GameObject, Point, Task>? onPointerOut = null,
         Func<GameObject, Point, Task>? onPointerOver = null)
         : base(
             gameObject,
-            spriteSpec,
+            spritesSpec,
             graphics,
             onPointerDown,
             onPointerOut,

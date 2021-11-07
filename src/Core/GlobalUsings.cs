@@ -1,12 +1,12 @@
 ﻿global using Amolenk.GameATron4000.Graphics;
 global using Amolenk.GameATron4000.Graphics.Geometry;
 global using Amolenk.GameATron4000.Model;
+global using Amolenk.GameATron4000.Model.Actions;
+global using Amolenk.GameATron4000.Model.Builders;
+global using Amolenk.GameATron4000.Model.Manifest;
 global using Amolenk.GameATron4000.Mediator;
 global using Amolenk.GameATron4000.Messages.Events;
 global using Amolenk.GameATron4000.Messages.Commands;
-global using Amolenk.GameATron4000.Scripting.Model;
-global using Amolenk.GameATron4000.Scripting.Model.Actions;
 global using System.Collections.Immutable;
-global using System.Diagnostics.CodeAnalysis;
 global using System.Runtime.Serialization;
 global using System.Text;

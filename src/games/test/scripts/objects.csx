@@ -454,11 +454,8 @@
 //     }
 // }
 
-// newspaper = {
-//     id = "newspaper",
-//     type = "object",
+GameObject newspaper = Object("newspaper")
 //     classes = { class_use_with },
-//     name = "newspaper",
 //     verbs = {
 //         give_to = function(obj, actor)
 //             say_line("I think I'll keep it for now.")
@@ -476,6 +473,20 @@
 //         end
 //     }
 // }
+    // .InteractFromPosition(RelativePosition.InFront)
+    // .InteractInState(WellKnownState.FaceAwayFromCamera)
+    .When.LookAt(() =>
+    {
+            // if (newspaper.OwnedBy(Protagonist))
+            // {
+            //     SayLine("It's yesterday's paper.");
+            // }
+            // else
+            // {
+                SayLine("It looks like an old newspaper.");
+            // }
+    })
+    .Build();
 
 // newspaper_headline = {
 //     id = "newspaper_headline",
@@ -505,13 +516,7 @@
 
 GameObject parkBench = Object("park_bench")
     .Untouchable()
-    .Add();
-
-// park_bench = {
-//     id = "park_bench",
-//     type = "object",
-//     classes = { class_untouchable }
-// }
+    .Build();
 
 // podcast_booth = {
 //     id = "podcast_booth",

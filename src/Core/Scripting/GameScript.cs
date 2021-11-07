@@ -4,11 +4,11 @@
 public class GameScript
 {
     private readonly Game _game;
-    private readonly ActionEventQueue _eventQueue;
+    private readonly EventQueue _eventQueue;
 
     public GameScript(
         Game game,
-        ActionEventQueue eventQueue,
+        EventQueue eventQueue,
         IMediator mediator)
     {
         _game = game;
@@ -26,7 +26,7 @@ public class GameScript
         // TODO Dispose ScriptRunner
         var scriptRunner = compiler.Compile<Game>(sources);
 
-        ActionEventQueue eventQueue = new(mediator);
+        EventQueue eventQueue = new(mediator);
 
         var game = new Game(eventQueue);
 
@@ -68,14 +68,16 @@ public class GameScript
     private Task OnExecutePlayerActionAsync(ExecutePlayerAction command)
     {
         var action = command.Action;
+        var subject = action.Subject!;
 
         _eventQueue.Enqueue(new PlayerActionStarted(action));
 
-
-        // TODO Walk to subject
+        // TODO Also check if subject isn't in inventory
+        // Move the protagonist to the subject.
+        _game.Protagonist!.MoveTo(subject);
 
         // TODO TryExec
-        action.Execute(action.Subject!.ActionHandlers);
+        action.Execute(subject.Handlers);
 
         // var handler = subject.CommandHandlers[verb];
         // if (handler != null)

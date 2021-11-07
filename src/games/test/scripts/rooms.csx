@@ -97,14 +97,11 @@ Room park = Room("park")
         new Point(366, 338),
         new Point(470, 355),
         new Point(804, 316))
-    .When(handlers =>
+    .When.BeforeEnter(() =>
     {
-        handlers.BeforeEnter(() =>
-        {
-            park.Put(guy, 600, 430);
-        });
+        park.Place(guy, 600, 430);
     })
-    .Add();
+    .Build();
 //     scale = {
 //         min = 70,
 //         max = 100,

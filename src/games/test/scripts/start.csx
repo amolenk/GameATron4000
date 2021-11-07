@@ -6,10 +6,9 @@ OnGameStart(() =>
 //     set_owner(groceries, selected_actor)
 //     set_owner(grocerylist, selected_actor)
 
-//     -- park
-//     put_object(newspaper, 410, 420, park)
-    park.Put(parkBench, 323, 408);
-//     put_object(park_bench, 323, 408, park)
+    // park
+    park.Place(newspaper, 410, 420);
+    park.Place(parkBench, 323, 408);
 
 //     -- transportation
 //     put_object(beam_button, 73, 281, terminal)

@@ -46,6 +46,7 @@
         _mediator.Subscribe<ProtagonistChanged>(OnProtagonistChangedAsync);
         _mediator.Subscribe<EnterRoomActionExecuted>(OnEnterRoomActionExecutedAsync);
         _mediator.Subscribe<SayLineActionExecuted>(OnSayLineActionExecutedAsync);
+        _mediator.Subscribe<ActorMoved>(OnActorMovedAsync);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -110,21 +111,21 @@
             _roomSprite = new RoomSprite(
                 @event.Room,
                 OnRoomPointerDownAsync,
-                _manifest.Spec.Sprites[@event.Room.Id],
+                _manifest.Spec.Sprites,
                 _graphics);
 
             // Update camera bounds to size of room.
             _graphics.SetCameraBounds(
                 new Size(_roomSprite.Sprite.Size.Width, _graphics.Height));
 
-            // Add sprites for game objects.48CC1A
+            // Add sprites for game objects.
             foreach (var gameObject in @event.Room.Objects)
             {
                 if (gameObject is Actor actor)
                 {
                     var actorSprite = new ActorSprite(
                         actor,
-                        _manifest.Spec.Sprites[actor.Id],
+                        _manifest.Spec.Sprites,
                         _graphics,
                         OnGameObjectPointerDownAsync,
                         OnGameObjectPointerOutAsync,
@@ -143,7 +144,7 @@
                 {
                     var objectSprite = new GameObjectSprite(
                         gameObject,
-                        _manifest.Spec.Sprites[gameObject.Id],
+                        _manifest.Spec.Sprites,
                         _graphics,
                         onPointerDown: OnGameObjectPointerDownAsync,
                         onPointerOut: OnGameObjectPointerOutAsync,
@@ -177,6 +178,9 @@
             await task;
         }
     }
+
+    private Task OnActorMovedAsync(ActorMoved @event) =>
+        MoveActor(@event.Actor.Id, @event.Position);
 
     private void OnDraw(Point pointerPosition)
     {
@@ -220,8 +224,7 @@
 
     private async Task MoveActor(
         string actorId,
-        Point to,
-        Direction faceDirection = Direction.Front)
+        Point to)
     {
         if (_walkbox is not null && _actorSprites.TryGetValue(
             actorId,
@@ -239,7 +242,7 @@
             }
 
             var cts = new CancellationTokenSource();
-            var task = actorSprite.WalkAsync(path, faceDirection, cts.Token);
+            var task = actorSprite.WalkAsync(path, cts.Token);
 
             _walkState = (task, cts);
 

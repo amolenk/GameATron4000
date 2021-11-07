@@ -40,7 +40,8 @@ public class CSharpScriptCompiler : IScriptCompiler
             {
                 "Amolenk.GameATron4000.Graphics",
                 "Amolenk.GameATron4000.Graphics.Geometry",
-                "Amolenk.GameATron4000.Scripting.Model"
+                "Amolenk.GameATron4000.Model",
+                "Amolenk.GameATron4000.Model.Builders",
             });
 
         var compilation = CSharpCompilation.CreateScriptCompilation(

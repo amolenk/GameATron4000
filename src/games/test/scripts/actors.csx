@@ -9,28 +9,25 @@ Actor narrator = Actor("narrator")
     .Invisible()
     .WithScrollFactor(0)
     .WithTextColor("lightblue")
-    .Add();
+    .Build();
 
 Actor al = Actor("al")
     .Named("Al")
     .WithTextColor("Yellow")
     .InteractFromPosition(RelativePosition.InFront)
     .InteractInState(WellKnownState.FaceAwayFromCamera)
-    .When(handlers =>
+    .When.LookAt(() =>
     {
-        handlers.LookAt(() =>
-        {
-            narrator.SayLine("I'm in the sky!!!!");
+        narrator.SayLine("I'm in the sky!!!!");
 
-            SayLine("I guess it's an alien. Hard to see at this resolution.");
-            SayLine("Hi, I'm selling these fine leather jackets.");
-            SayLine("Look behind you, a three-headed monkey!");
-            SayLine("Doh!");
+        SayLine("I guess it's an alien. Hard to see at this resolution.");
+        SayLine("Hi, I'm selling these fine leather jackets.");
+        SayLine("Look behind you, a three-headed monkey!");
+        SayLine("Doh!");
 
-            al.SayLine("Hi there!");
+        al.SayLine("Hi there!");
 
-            // handlers.HandlePush();
-        });
+        // handlers.HandlePush();
     })
 //     verbs = {
 //         look_at = function(actor)
@@ -45,11 +42,11 @@ Actor al = Actor("al")
 //         end
 //     }
 // }
-    .Add();
+    .Build();
 
 var guy = Actor("guy")
     .Untouchable()
-    .Add();
+    .Build();
 
 // ian = {
 //     id = "ian",

@@ -1,13 +1,12 @@
 ﻿global using Amolenk.GameATron4000.Graphics;
 global using Amolenk.GameATron4000.Graphics.Geometry;
 global using Amolenk.GameATron4000.Mediator;
-global using Amolenk.GameATron4000.Model;
+global using Amolenk.GameATron4000.Model.Manifest;
 global using Amolenk.GameATron4000.Scripting;
 global using Microsoft.CodeAnalysis;
 global using Microsoft.CodeAnalysis.CSharp;
 global using Microsoft.Extensions.Logging;
 global using Microsoft.JSInterop;
-global using System.Collections;
 global using System.Reflection;
 global using System.Runtime.Loader;
 global using YamlDotNet.Serialization;

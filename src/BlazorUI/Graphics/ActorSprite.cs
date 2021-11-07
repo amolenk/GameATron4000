@@ -10,14 +10,14 @@ public class ActorSprite : GameObjectSprite<Actor>
 
     public ActorSprite(
         Actor gameObject,
-        SpriteSpec spriteSpec,
+        SpritesSpec spritesSpec,
         IGraphics graphics,
         Func<GameObject, Point, Task>? onPointerDown = null,
         Func<GameObject, Point, Task>? onPointerOut = null,
         Func<GameObject, Point, Task>? onPointerOver = null)
         : base(
             gameObject,
-            spriteSpec,
+            spritesSpec,
             graphics,
             onPointerDown,
             onPointerOut,
@@ -93,7 +93,6 @@ public class ActorSprite : GameObjectSprite<Actor>
 
     public async Task WalkAsync(
         IEnumerable<Point> path,
-        Direction faceDirection,
         CancellationToken cancellationToken)
     {
         foreach (var target in path)
