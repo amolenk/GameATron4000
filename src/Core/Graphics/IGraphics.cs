@@ -30,7 +30,5 @@ public interface IGraphics
 
     void StartCameraFollow(ISprite sprite);
 
-    void Pause();
-
-    void Resume();
+    IDisposable Pause();
 }

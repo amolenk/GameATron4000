@@ -91,11 +91,11 @@ public class PhaserGraphics : IGraphics
             PhaserConstants.Functions.SetCameraBounds,
             size);
 
-    public void Pause() =>
+    public IDisposable Pause()
+    {
         _jsInProcessRuntime.InvokeVoid(
             PhaserConstants.Functions.Pause);
 
-    public void Resume() =>
-        _jsInProcessRuntime.InvokeVoid(
-            PhaserConstants.Functions.Resume);
+        return new ScenePaused(_jsInProcessRuntime);
+    }
 }

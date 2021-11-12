@@ -2,9 +2,9 @@ namespace Amolenk.GameATron4000.Model.Builders;
 
 public interface IGameObjectHandlersBuilder
 {
-     Action? HandleGive { get; }
+     Action<Actor>? HandleGive { get; }
      Action? HandlePickUp { get; }
-     Action? HandleUse { get; }
+     Action<GameObject?>? HandleUse { get; }
      Action? HandleOpen { get; }
      Action? HandleLookAt { get; }
      Action? HandlePush { get; }

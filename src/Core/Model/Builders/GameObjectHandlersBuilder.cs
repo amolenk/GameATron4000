@@ -4,9 +4,9 @@ public class GameObjectHandlersBuilder<TParent> : IGameObjectHandlersBuilder
 {
     private readonly TParent _parentBuilder;
 
-    public Action? HandleGive { get; private set; }
+    public Action<Actor>? HandleGive { get; private set; }
     public Action? HandlePickUp { get; private set; }
-    public Action? HandleUse { get; private set; }
+    public Action<GameObject?>? HandleUse { get; private set; }
     public Action? HandleOpen { get; private set; }
     public Action? HandleLookAt { get; private set; }
     public Action? HandlePush { get; private set; }
@@ -20,7 +20,7 @@ public class GameObjectHandlersBuilder<TParent> : IGameObjectHandlersBuilder
         _parentBuilder = parentBuilder;
     }
 
-    public TParent Give(Action action)
+    public TParent Give(Action<Actor> action)
     {
         HandleGive = action;
         return _parentBuilder;
@@ -32,7 +32,7 @@ public class GameObjectHandlersBuilder<TParent> : IGameObjectHandlersBuilder
         return _parentBuilder;
     }
 
-    public TParent Use(Action action)
+    public TParent Use(Action<GameObject> action)
     {
         HandleUse = action;
         return _parentBuilder;

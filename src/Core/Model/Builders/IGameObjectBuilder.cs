@@ -4,11 +4,13 @@ public interface IGameObjectBuilder
 {
     string Id { get; }
     string DisplayName { get; }
-    string State { get; }
     bool IsTouchable { get; }
-    int ScrollFactor { get; }
+    bool UseWith { get; }
+    string FrameName { get; }
+    string InteractFrameName { get; }
     RelativePosition InteractPosition { get; }
-    string InteractState { get; }
-    IGameObjectHandlersBuilder When { get; }
+    GameObjectCondition Condition { get; }
+    int ScrollFactor { get; }
+    IGameObjectHandlersBuilder HandlersBuilder { get; }
     Game Game { get; }
 }

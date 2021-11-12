@@ -5,6 +5,8 @@ public class EventQueue
     private readonly Queue<IEvent> _events;
     private readonly IMediator _mediator;
 
+    public int Count => _events.Count;
+
     public bool IgnoreNewEvents { get; set; }
 
     public EventQueue(IMediator mediator)

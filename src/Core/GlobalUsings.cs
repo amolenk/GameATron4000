@@ -7,6 +7,8 @@ global using Amolenk.GameATron4000.Model.Manifest;
 global using Amolenk.GameATron4000.Mediator;
 global using Amolenk.GameATron4000.Messages.Events;
 global using Amolenk.GameATron4000.Messages.Commands;
+global using QuikGraph;
+global using QuikGraph.Algorithms;
 global using System.Collections.Immutable;
 global using System.Runtime.Serialization;
 global using System.Text;

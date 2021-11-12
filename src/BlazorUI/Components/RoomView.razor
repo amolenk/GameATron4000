@@ -1,5 +1,6 @@
 ﻿@inject IMediator _mediator
 @inject IJSRuntime _jsRuntime
+@inject ILogger<RoomView> _logger
 
 <div id="phaser">
 </div>
@@ -8,11 +9,8 @@
 
     private IGraphics _graphics = null!;
     private GameManifest _manifest = null!;
-
     private RoomSprite? _roomSprite;
-    private ActorSpriteCollection _actorSprites = new();
     private GameObjectSpriteCollection _objectSprites = new();
-    private Walkbox? _walkbox;
 
     private (Task Task, CancellationTokenSource Cts)? _talkState;
     private (Task Task, CancellationTokenSource Cts)? _walkState;
@@ -44,9 +42,12 @@
         _mediator.Subscribe<PlayerActionStarted>(OnPlayerActionStartedAsync);
         _mediator.Subscribe<PlayerActionCompleted>(OnPlayerActionCompletedAsync);
         _mediator.Subscribe<ProtagonistChanged>(OnProtagonistChangedAsync);
-        _mediator.Subscribe<EnterRoomActionExecuted>(OnEnterRoomActionExecutedAsync);
-        _mediator.Subscribe<SayLineActionExecuted>(OnSayLineActionExecutedAsync);
+        _mediator.Subscribe<RoomEntered>(OnRoomEnteredAsync);
+        _mediator.Subscribe<LineSpoken>(OnLineSpokenAsync);
         _mediator.Subscribe<ActorMoved>(OnActorMovedAsync);
+        _mediator.Subscribe<GameObjectPlacedInRoom>(OnGameObjectPlacedInRoomAsync);
+        _mediator.Subscribe<GameObjectRemovedFromRoom>(OnGameObjectRemovedFromRoomAsync);
+        _mediator.Subscribe<DelayRequested>(OnDelayRequestedAsync);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -91,84 +92,45 @@
         return Task.CompletedTask;
     }
 
-    public Task OnEnterRoomActionExecutedAsync(EnterRoomActionExecuted @event)
+    private Task OnDelayRequestedAsync(DelayRequested @event) =>
+        Task.Delay(@event.Delay);
+
+    public Task OnRoomEnteredAsync(RoomEntered @event)
     {
-        try
+        using var pauseGraphics = _graphics.Pause();
+
+        // If graphics for a room were already loaded, dispose.
+        if (_roomSprite is not null)
         {
-            _graphics.Pause();
+            _roomSprite.Dispose();
+            _roomSprite = null;
 
-            // If graphics for a room were already loaded, dispose.
-            if (_roomSprite is not null)
-            {
-                _roomSprite.Dispose();
-                _roomSprite = null;
-
-                _actorSprites.ClearAndDisposeItems();
-                _objectSprites.ClearAndDisposeItems();
-            }
-
-            // Create graphics to draw the room.
-            _roomSprite = new RoomSprite(
-                @event.Room,
-                OnRoomPointerDownAsync,
-                _manifest.Spec.Sprites,
-                _graphics);
-
-            // Update camera bounds to size of room.
-            _graphics.SetCameraBounds(
-                new Size(_roomSprite.Sprite.Size.Width, _graphics.Height));
-
-            // Add sprites for game objects.
-            foreach (var gameObject in @event.Room.Objects)
-            {
-                if (gameObject is Actor actor)
-                {
-                    var actorSprite = new ActorSprite(
-                        actor,
-                        _manifest.Spec.Sprites,
-                        _graphics,
-                        OnGameObjectPointerDownAsync,
-                        OnGameObjectPointerOutAsync,
-                        OnGameObjectPointerOverAsync);
-
-                    _actorSprites.Add(actorSprite);
-
-                    // When the protagonist actor is added to the room, follow it
-                    // with the camera.
-                    if (actor.Id == _protagonistId)
-                    {
-                        _graphics.StartCameraFollow(actorSprite.Sprite);
-                    } 
-                }
-                else
-                {
-                    var objectSprite = new GameObjectSprite(
-                        gameObject,
-                        _manifest.Spec.Sprites,
-                        _graphics,
-                        onPointerDown: OnGameObjectPointerDownAsync,
-                        onPointerOut: OnGameObjectPointerOutAsync,
-                        onPointerOver: OnGameObjectPointerOverAsync);
-
-                    _objectSprites.Add(objectSprite);
-                }
-            }
-
-            _walkbox = new Walkbox(@event.Room.WalkboxArea);
-        }
-        finally
-        {
-            _graphics.Resume();
+            _objectSprites.ClearAndDisposeItems();
         }
 
+        // Create graphics to draw the room.
+        _roomSprite = new RoomSprite(
+            @event.Room,
+            OnRoomPointerDownAsync,
+            _manifest.Spec.Sprites,
+            _graphics);
+
+        // Update camera bounds to size of room.
+        _graphics.SetCameraBounds(
+            new Size(_roomSprite.Sprite.Size.Width, _graphics.Height));
+
+        // Add sprites for game objects.
+        foreach (var gameObject in @event.VisibleObjects)
+        {
+            AddGameObjectSprite(gameObject);
+        }
+ 
         return Task.CompletedTask;
     }
 
-    private async Task OnSayLineActionExecutedAsync(SayLineActionExecuted @event)
+    private async Task OnLineSpokenAsync(LineSpoken @event)
     {
-        if (_actorSprites.TryGetValue(
-            @event.Actor.Id,
-            out ActorSprite actorSprite))
+        if (TryGetActorSprite(@event.Actor.Id, out ActorSprite actorSprite))
         {
             var cts = new CancellationTokenSource();
             var task = actorSprite.SayLineAsync(@event.Line, cts.Token);
@@ -182,15 +144,91 @@
     private Task OnActorMovedAsync(ActorMoved @event) =>
         MoveActor(@event.Actor.Id, @event.Position);
 
+    private Task OnGameObjectPlacedInRoomAsync(GameObjectPlacedInRoom @event)
+    {
+        if (_roomSprite?.Room == @event.Room)
+        {
+            AddGameObjectSprite(@event.GameObject);
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private Task OnGameObjectRemovedFromRoomAsync(GameObjectRemovedFromRoom @event)
+    {
+        if (_roomSprite?.Room == @event.Room)
+        {
+            RemoveGameObjectSprite(@event.GameObject);
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private void AddGameObjectSprite(GameObject gameObject)
+    {
+        _logger.LogDebug($"Adding sprite for object '{gameObject.Id}' at {gameObject.Position}");
+
+        if (gameObject is Actor actor)
+        {
+            var actorSprite = new ActorSprite(
+                actor,
+                _manifest.Spec.Sprites,
+                _graphics,
+                OnGameObjectPointerDownAsync,
+                OnGameObjectPointerOutAsync,
+                OnGameObjectPointerOverAsync);
+
+            _objectSprites.Add(actorSprite);
+
+            // When the protagonist actor is added to the room, follow it
+            // with the camera.
+            if (actor.Id == _protagonistId)
+            {
+                _graphics.StartCameraFollow(actorSprite.Sprite);
+            } 
+        }
+        else
+        {
+            var objectSprite = new GameObjectSprite(
+                gameObject,
+                _manifest.Spec.Sprites,
+                _graphics,
+                onPointerDown: OnGameObjectPointerDownAsync,
+                onPointerOut: OnGameObjectPointerOutAsync,
+                onPointerOver: OnGameObjectPointerOverAsync);
+
+            _objectSprites.Add(objectSprite);
+        }
+    }
+
+    private void RemoveGameObjectsSprites(IEnumerable<GameObject> gameObjects)
+    {
+        foreach (var gameObject in gameObjects)
+        {
+            RemoveGameObjectSprite(gameObject);
+        }
+    }
+
+    private void RemoveGameObjectSprite(GameObject gameObject)
+    {
+        if (_objectSprites.TryGetValue(
+                gameObject.Id,
+                out GameObjectSprite objectSprite))
+        {
+            _logger.LogDebug($"Removing sprite for object '{gameObject.Id}'");
+
+            objectSprite.Dispose();
+            _objectSprites.Remove(objectSprite);
+        }
+    }
+
     private void OnDraw(Point pointerPosition)
     {
         if (_inDebugMode &&
-            _walkbox is not null &&
-            _actorSprites.TryGetValue(
-                _protagonistId,
-                out ActorSprite? actorSprite))
+            _roomSprite is not null &&
+            TryGetActorSprite(_protagonistId, out ActorSprite? actorSprite))
         {
-            _walkbox.Draw(
+            _roomSprite.Room.Walkbox.Draw(
                 actorSprite.Sprite.Position,
                 pointerPosition,
                 GetWalkboxExcludedAreas(_protagonistId),
@@ -226,11 +264,11 @@
         string actorId,
         Point to)
     {
-        if (_walkbox is not null && _actorSprites.TryGetValue(
+        if (_roomSprite is not null && TryGetActorSprite(
             actorId,
             out ActorSprite? actorSprite))
         {
-            var path = _walkbox.FindShortestPath(
+            var path = _roomSprite.Room.Walkbox.FindShortestPath(
                 actorSprite.Sprite.Position,
                 to,
                 GetWalkboxExcludedAreas(actorId));
@@ -250,15 +288,40 @@
         }
     }
 
+    @* private async Task MoveSpriteToModelPosition(ActorSprite actorSprite)
+    {
+        if (_walkbox is not null)
+        {
+            var path = _walkbox.FindShortestPath(
+                actorSprite.Sprite.Position,
+                actorSprite.GameObject.Position,
+                GetWalkboxExcludedAreas(actorSprite.GameObject.Id));
+
+            if (_walkState.HasValue)
+            {
+                _walkState.Value.Cts.Cancel();
+                await _walkState.Value.Task;
+            }
+
+            var cts = new CancellationTokenSource();
+            var task = actorSprite.WalkAsync(path, cts.Token);
+
+            _walkState = (task, cts);
+
+            await task;
+        }
+    } *@
+
     // Exclude the areas around the other actors to make sure the given
     // actor doesn't bump into them.
     private IEnumerable<Polygon> GetWalkboxExcludedAreas(string actorId) =>
-        _actorSprites
-            .Where(actorSprite => actorSprite.GameObject.Id != actorId &&
-                actorSprite.GameObject.IsVisible)
-            .Select(actorSprite =>
+        _objectSprites
+            .Where(objectSprite => objectSprite is ActorSprite &&
+                objectSprite.GameObject.Id != actorId)
+            // TODO And actor takes space... IsTransparent???
+            .Select(objectSprite =>
             {
-                var position = actorSprite.Sprite.Position;
+                var position = objectSprite.Sprite.Position;
 
                 return new Polygon(new Point[]
                 {
@@ -268,4 +331,21 @@
                     new Point(position.X - 50, position.Y + 20)
                 });
             });
+
+    private bool TryGetActorSprite(
+        string id,
+        [MaybeNullWhen(false)] out ActorSprite actorSprite)
+    {
+        if (_objectSprites.TryGetValue(id, out GameObjectSprite objectSprite))
+        {
+            if (objectSprite is ActorSprite foundActorSprite)
+            {
+                actorSprite = foundActorSprite;
+                return true;
+            }
+        }
+
+        actorSprite = null;
+        return false;
+    }
 }

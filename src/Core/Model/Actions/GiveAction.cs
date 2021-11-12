@@ -1,60 +1,53 @@
-// namespace Amolenk.GameATron4000.Scripting.Model;
+namespace Amolenk.GameATron4000.Model.Actions;
 
-// public class GiveCommand : Command
-// {
-// 	private readonly Item? _item;
-// 	private readonly Actor? _actor;
+public class GiveAction : IAction
+{
+    private GameObject? _inventoryItem;
+    private Actor? _actor;
 
-// 	public override bool IsComplete => _item != null && _actor != null;
+    public GiveAction()
+    {
+    }
 
-//     public GiveCommand() : this(null, null)
-//     {
-//     }
+    public bool Add(GameObject gameObject)
+    {
+        if (_inventoryItem is null)
+        {
+            if (!(gameObject is Actor))
+            {
+                _inventoryItem = gameObject;
+            }
+            return false;
+        }
 
-//     public GiveCommand(Item? item) : this(item, null)
-//     {
-//     }
+        if (gameObject is Actor actor)
+        {
+            _actor = actor;
+            return true;
+        }
 
-//     public GiveCommand(Item? item, Actor? actor)
-//     {
-//         _item = item;
-//         _actor = actor;
-//     }
+        return false;
+    }
 
-// 	public override bool TrySetObject(
-//         GameObject obj,
-//         [MaybeNullWhen(false)] out Command command)
-// 	{
-//         if (_item is null && obj is Item item) 
-//         {
-//             // TODO Check that item is in inventory
-//             command = new GiveCommand(item);
-//             return true;
-//         }
+    public GameObject? GetInteractObject() => _actor;
 
-//         if (_item is not null && obj is Actor actor)
-//         {
-//             command = new GiveCommand(_item, actor);
-//             return true;
-//         }
-
-//         return base.TrySetObject(obj, out command);
-// 	}
-
-//     public override string ToString()
-// 	{
-// 		var stringBuilder = new StringBuilder("Give");
+    public string GetDisplayText(GameObject? hoverObject)
+    {
+		var stringBuilder = new StringBuilder("Give");
 		
-// 		if (_item != null)
-// 		{
-// 			stringBuilder.Append($" {_item} to");
-// 		}
+        if (_inventoryItem is not null)
+        {
+            stringBuilder.Append($" {_inventoryItem.DisplayName} to");
+        }
 
-// 		if (_actor != null)
-// 		{
-// 			stringBuilder.Append($" {_actor}");
-// 		}
+		if (hoverObject is not null)
+		{
+			stringBuilder.Append($" {hoverObject.DisplayName}");
+		}
 
-// 		return stringBuilder.ToString();
-// 	}
-// }
+		return stringBuilder.ToString();
+    }
+
+    public void Execute() =>
+        _inventoryItem!.Handlers.HandleGive?.Invoke(_actor!);
+}

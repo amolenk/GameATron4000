@@ -42,6 +42,8 @@ public class CSharpScriptCompiler : IScriptCompiler
                 "Amolenk.GameATron4000.Graphics.Geometry",
                 "Amolenk.GameATron4000.Model",
                 "Amolenk.GameATron4000.Model.Builders",
+                "System",
+                "System.Linq"
             });
 
         var compilation = CSharpCompilation.CreateScriptCompilation(
@@ -65,11 +67,14 @@ public class CSharpScriptCompiler : IScriptCompiler
 
     private static Task<MetadataReference[]> LoadMetadataReferencesAsync(
         HttpClient client) =>
-        Task.WhenAll(AssemblyLoadContext.Default.Assemblies
-            .Where(assembly => !assembly.IsDynamic)
-            .Select(assembly => LoadMetadataReferenceAsync(
+        Task.WhenAll(GetMetadataAssemblies().Select(
+            assembly => LoadMetadataReferenceAsync(
                 assembly.GetName().Name!,
                 client)));
+
+    private static IEnumerable<Assembly> GetMetadataAssemblies() =>
+        AssemblyLoadContext.Default.Assemblies
+            .Where(assembly => !assembly.IsDynamic);
 
     private static async Task<MetadataReference> LoadMetadataReferenceAsync(
         string assemblyName, HttpClient client)

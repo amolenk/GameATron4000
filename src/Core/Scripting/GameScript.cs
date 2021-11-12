@@ -48,7 +48,7 @@ public class GameScript
 
         // We do need to make sure that the startup script has at least set
         // a protagonist and room.
-        if (_game.Protagonist is null)
+        if (_game.State.Protagonist is null)
         {
             throw new InvalidOperationException(
                 "Startup script must set a protagonist.");
@@ -59,8 +59,12 @@ public class GameScript
                 "Startup script must enter a room.");
         }
 
-        _eventQueue.Enqueue(new ProtagonistChanged(_game.Protagonist));
-        _eventQueue.Enqueue(new EnterRoomActionExecuted(_game.CurrentRoom));
+        _eventQueue.Enqueue(new ProtagonistChanged(
+            _game.State.Protagonist));
+
+        _eventQueue.Enqueue(new RoomEntered(
+            _game.CurrentRoom,
+            _game.CurrentRoom.GetVisibleObjects().ToList()));
 
         return _eventQueue.FlushAsync();
     }
@@ -68,16 +72,19 @@ public class GameScript
     private Task OnExecutePlayerActionAsync(ExecutePlayerAction command)
     {
         var action = command.Action;
-        var subject = action.Subject!;
 
         _eventQueue.Enqueue(new PlayerActionStarted(action));
 
         // TODO Also check if subject isn't in inventory
         // Move the protagonist to the subject.
-        _game.Protagonist!.MoveTo(subject);
+        var interactWithObject = action.GetInteractObject();
+        if (interactWithObject is not null)
+        {
+            _game.State.Protagonist!.MoveTo(interactWithObject);
+        }
 
         // TODO TryExec
-        action.Execute(subject.Handlers);
+        action.Execute();
 
         // var handler = subject.CommandHandlers[verb];
         // if (handler != null)

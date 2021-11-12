@@ -108,9 +108,6 @@ Room park = Room("park")
 //         start_pos = 270,
 //         end_pos = 400
 //     },
-//     before_enter = function(room)
-//         put_actor(guy, 600, 430)
-//     end
 // }
 
 // terminal = {

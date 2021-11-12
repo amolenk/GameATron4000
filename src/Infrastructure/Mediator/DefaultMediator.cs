@@ -3,14 +3,20 @@ namespace Amolenk.GameATron4000.Infrastructure.Mediator;
 public class DefaultMediator : GameATron4000.Mediator.IMediator
 {
     private readonly Dictionary<Type, List<Func<object, Task>>> _handlersByType;
+    private readonly ILogger<DefaultMediator> _logger;
 
-    public DefaultMediator()
+    public DefaultMediator(ILogger<DefaultMediator> logger)
     {
         _handlersByType = new();
+        _logger = logger;
     }
 
     public async Task PublishAsync<TEvent>(TEvent @event) where TEvent : IEvent
     {
+        var eventType = @event.GetType();
+
+        _logger.LogDebug($"{@event.GetType().Name} published.");
+
         if (_handlersByType.TryGetValue(
             @event.GetType(),
             out List<Func<object, Task>> handlers))

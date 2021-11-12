@@ -1,4 +1,4 @@
-﻿namespace Amolenk.GameATron4000.BlazorUI.Graphics;
+﻿namespace Amolenk.GameATron4000.Model;
 
 public class Walkbox
 {
@@ -28,6 +28,28 @@ public class Walkbox
 
         return ComputeShortestPath(walkFrom, walkTo, graph)
             .Select(edge => edge.Target);
+    }
+
+    public Point SnapToWalkbox(
+        Point point,
+        IEnumerable<Polygon> excludedAreas = null!)
+    {
+        excludedAreas ??= Enumerable.Empty<Polygon>();
+
+        if (_area.Contains(point))
+        {
+            foreach (var excludedArea in excludedAreas)
+            {
+                if (excludedArea.Contains(point))
+                {
+                    return excludedArea.FindClosestPoint(point) ?? point;
+                }
+            }
+
+            return point;
+        }
+
+        return _area.FindClosestPoint(point) ?? point;
     }
 
     public void Draw(
@@ -134,24 +156,6 @@ public class Walkbox
         }
 
         return Enumerable.Empty<Edge<Point>>();
-    }
-
-    private Point SnapToWalkbox(Point point, IEnumerable<Polygon> excludedAreas)
-    {
-        if (_area.Contains(point))
-        {
-            foreach (var excludedArea in excludedAreas)
-            {
-                if (excludedArea.Contains(point))
-                {
-                    return excludedArea.FindClosestPoint(point) ?? point;
-                }
-            }
-
-            return point;
-        }
-
-        return _area.FindClosestPoint(point) ?? point;
     }
 
     private void AddLineOfSightEdges(

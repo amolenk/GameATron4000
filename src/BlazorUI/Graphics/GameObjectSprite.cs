@@ -1,16 +1,15 @@
 ﻿namespace Amolenk.GameATron4000.BlazorUI.Graphics;
 
-public abstract class GameObjectSprite<TObject> : IDisposable
-    where TObject : GameObject
+public class GameObjectSprite : IDisposable
 {
     private readonly SpritesSpec _spritesSpec;
 
-    public TObject GameObject { get; }
+    public GameObject GameObject { get; }
     public ISprite Sprite { get; }
     protected IGraphics Graphics { get; private set; }
 
-    protected GameObjectSprite(
-        TObject gameObject,
+    public GameObjectSprite(
+        GameObject gameObject,
         SpritesSpec spritesSpec,
         IGraphics graphics,
         Func<GameObject, Point, Task>? onPointerDown,
@@ -33,11 +32,20 @@ public abstract class GameObjectSprite<TObject> : IDisposable
         Sprite.Dispose();
     }
 
-    protected void ResetSpriteFrame()
+    // public void SetSpriteFrame(string frameName)
+    // {
+    //     var spriteInfo = _spritesSpec.GetSpriteInfo(
+    //         GameObject.Id,
+    //         GameObject.State);
+
+    //     Sprite.SetFrame(spriteInfo.FrameName);
+    // }
+
+    public void ResetSpriteFrame()
     {
         var spriteInfo = _spritesSpec.GetSpriteInfo(
             GameObject.Id,
-            GameObject.State);
+            GameObject.Frame);
 
         Sprite.SetFrame(spriteInfo.FrameName);
     }
@@ -49,7 +57,7 @@ public abstract class GameObjectSprite<TObject> : IDisposable
     {
         var spriteInfo = _spritesSpec.GetSpriteInfo(
             GameObject.Id,
-            GameObject.State);
+            GameObject.Frame);
 
         var sprite = Graphics.AddSprite(
             spriteInfo.AtlasKey,
@@ -59,6 +67,7 @@ public abstract class GameObjectSprite<TObject> : IDisposable
             {
                 options.Depth = GameObject.Position.Y;
                 options.Origin = new Point(0.5, 1);
+                options.ScrollFactor = GameObject.ScrollFactor;
 
                 if (GameObject.IsTouchable)
                 {
@@ -98,22 +107,23 @@ public abstract class GameObjectSprite<TObject> : IDisposable
     }
 }
 
-public class GameObjectSprite : GameObjectSprite<GameObject>
-{
-    public GameObjectSprite(
-        GameObject gameObject,
-        SpritesSpec spritesSpec,
-        IGraphics graphics,
-        Func<GameObject, Point, Task>? onPointerDown = null,
-        Func<GameObject, Point, Task>? onPointerOut = null,
-        Func<GameObject, Point, Task>? onPointerOver = null)
-        : base(
-            gameObject,
-            spritesSpec,
-            graphics,
-            onPointerDown,
-            onPointerOut,
-            onPointerOver)
-    {
-    }
-}
+// TODO
+// public class GameObjectSprite : GameObjectSprite<GameObject>
+// {
+//     public GameObjectSprite(
+//         GameObject gameObject,
+//         SpritesSpec spritesSpec,
+//         IGraphics graphics,
+//         Func<GameObject, Point, Task>? onPointerDown = null,
+//         Func<GameObject, Point, Task>? onPointerOut = null,
+//         Func<GameObject, Point, Task>? onPointerOver = null)
+//         : base(
+//             gameObject,
+//             spritesSpec,
+//             graphics,
+//             onPointerDown,
+//             onPointerOut,
+//             onPointerOver)
+//     {
+//     }
+// }

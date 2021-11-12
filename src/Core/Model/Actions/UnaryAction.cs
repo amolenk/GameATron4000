@@ -2,32 +2,35 @@ namespace Amolenk.GameATron4000.Model.Actions;
 
 public abstract class UnaryAction : IAction
 {
-    public Verb Verb { get; }
-    public GameObject Subject { get; private set; }
+    private readonly Verb _verb;
+    private GameObject? _subject;
 
-    public UnaryAction(Verb verb)
+    protected UnaryAction(Verb verb)
     {
-        Verb = verb;
-        Subject = null!;
+        _verb = verb;
     }
 
     public bool Add(GameObject gameObject)
     {
-        Subject = gameObject;
+        _subject = gameObject;
         return true;
     }
 
+    public GameObject? GetInteractObject() => _subject;
+
     public string GetDisplayText(GameObject? gameObject)
     {
-		var stringBuilder = new StringBuilder(Verb.Text);
+		var stringBuilder = new StringBuilder(_verb.Text);
 		
 		if (gameObject is not null)
 		{
-			stringBuilder.Append($" {gameObject.Id}");
+			stringBuilder.Append($" {gameObject.DisplayName}");
 		}
 
 		return stringBuilder.ToString();
     }
+
+    public void Execute() => Execute(_subject!.Handlers);
 
     public abstract void Execute(GameObjectHandlers handlers);
 }

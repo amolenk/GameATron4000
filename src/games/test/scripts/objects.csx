@@ -39,11 +39,9 @@
 //     z_offset = 100
 // }
 
-// beam_park = {
-//     id = "beam_park",
-//     type = "object",
-//     classes = { class_untouchable }
-// }
+GameObject parkBeam = Object(nameof(parkBeam))
+    .Untouchable()
+    .Build();
 
 // beam_terminal = {
 //     id = "beam_terminal",
@@ -369,10 +367,9 @@
 //     }
 // }
 
-// groceries = {
-//     id = "groceries",
-//     type = "object",
-//     name = "groceries",
+GameObject groceries = Object("groceries")
+    .Untouchable()
+    .Build();
 //     classes = { class_untouchable, class_use_with },
 //     verbs = {
 //         give_to = function(obj, actor)
@@ -401,10 +398,9 @@
 //     z_offset = 30
 // }
 
-// grocerylist = {
-//     id = "grocerylist",
-//     type = "object",
-//     name = "grocery list",
+GameObject grocerylist = Object("grocerylist")
+    .Named("grocery list")
+    .Build();
 //     classes = { class_use_with },
 //     verbs = {
 //         give_to = function(obj, actor)
@@ -455,44 +451,32 @@
 // }
 
 GameObject newspaper = Object("newspaper")
-//     classes = { class_use_with },
-//     verbs = {
-//         give_to = function(obj, actor)
-//             say_line("I think I'll keep it for now.")
-//         end,
-//         look_at = function(obj)
-//             if owned_by(obj, selected_actor) then
-//                 say_line("It's yesterday's paper.")
-//             else
-//                 say_line("It looks like an old newspaper.")
-//             end
-//         end,
-//         pick_up = function(obj)
-//             set_owner(obj, selected_actor)
-//             cutscene_beam_up()
-//         end
-//     }
-// }
-    // .InteractFromPosition(RelativePosition.InFront)
-    // .InteractInState(WellKnownState.FaceAwayFromCamera)
+    .When.Give(_ =>
+    {
+        SayLine("I think I'll keep it for now.");
+    })
     .When.LookAt(() =>
     {
-            // if (newspaper.OwnedBy(Protagonist))
-            // {
-            //     SayLine("It's yesterday's paper.");
-            // }
-            // else
-            // {
-                SayLine("It looks like an old newspaper.");
-            // }
+        if (newspaper.Owner == Protagonist)
+        {
+            SayLine("It's yesterday's paper.");
+        }
+        else
+        {
+            SayLine("It looks like an old newspaper.");
+        }
+    })
+    .When.PickUp(() =>
+    {
+        newspaper.SetOwner(Protagonist);
+        CutScene_BeamUp();
     })
     .Build();
 
-// newspaper_headline = {
-//     id = "newspaper_headline",
-//     type = "object",
-//     classes = { class_fixed_to_camera, class_untouchable }
-// }
+GameObject newspaperHeadline = Object(nameof(newspaperHeadline))
+    .Untouchable()
+    .FixedToCamera()
+    .Build();
 
 // onair = {
 //     id = "onair",

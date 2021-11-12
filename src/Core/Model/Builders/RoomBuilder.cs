@@ -4,6 +4,7 @@ public class RoomBuilder
 {
     public string Id { get; private set; }
     public Polygon? WalkboxArea { get; private set; }
+    
     public RoomHandlersBuilder When { get; private set; }
     internal Game Game { get; private set; }
 

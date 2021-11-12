@@ -3,12 +3,11 @@
 public class Room
 {
     private readonly Game _game;
-    private readonly List<GameObject> _objects;
 
     public string Id { get; }
-    public Polygon WalkboxArea { get; }
-    public IReadOnlyList<GameObject> Objects => _objects.AsReadOnly();
+    public Walkbox Walkbox { get; }
     internal RoomHandlers Handlers { get; private set; }
+    protected RoomState State { get; }
 
     internal Room(RoomBuilder builder)
     {
@@ -20,10 +19,10 @@ public class Room
         }
 
         _game = builder.Game;
-        _objects = new List<GameObject>();
-
+    
         Id = builder.Id;
-        WalkboxArea = builder.WalkboxArea;
+        Walkbox = new(builder.WalkboxArea);
+        State = new();
         Handlers = new(builder.When);
     }
 
@@ -34,19 +33,22 @@ public class Room
             // Do not enqueue events while calling the BeforeEnter handler.
             // Any changes happening in the handler should not be made visible
             // in the UI yet.
+            var originalIgnoreEvents = _game.EventQueue.IgnoreNewEvents;
             _game.EventQueue.IgnoreNewEvents = true;
 
             Handlers.HandleBeforeEnter();
 
-            _game.EventQueue.IgnoreNewEvents = false;
+            _game.EventQueue.IgnoreNewEvents = originalIgnoreEvents;
         }
 
-        _game.EventQueue.Enqueue(new EnterRoomActionExecuted(this));
+        _game.EventQueue.Enqueue(new RoomEntered(
+            this,
+            GetVisibleObjects().ToList()));
 
         _game.NotifyRoomEntered(this);
     }
 
-    public void Place(GameObject gameObject, int x, int y)
+    public void Place(GameObject gameObject, double x, double y)
     {
         // If the object is currently in another room, remove it.
         if (gameObject.Room is not null)
@@ -57,28 +59,27 @@ public class Room
         // owner.
         else if (gameObject.Owner is not null)
         {
-            _game.EventQueue.Enqueue(new InventoryItemRemoved(
-                gameObject.Owner, gameObject));
-
-            gameObject.Owner = null;
+            gameObject.ClearOwner();
         }
 
-        // Add the object to this room.
-        gameObject.Position = new Point(x, y);
-        gameObject.Room = this;
-        _objects.Add(gameObject);
+        // Update state.
+        State.Objects.Add(gameObject);
+        gameObject.NotifyPlacedInRoom(this, new Point(x, y));
 
-        _game.EventQueue.Enqueue(new ObjectPlacedInRoom(gameObject, this));
+        _game.EventQueue.Enqueue(new GameObjectPlacedInRoom(
+            gameObject,
+            this));
     }
 
     public void Remove(GameObject gameObject)
     {
-        if (_objects.Remove(gameObject))
+        if (State.Objects.Contains(gameObject))
         {
-            gameObject.Room = null;
+            State.Objects.Remove(gameObject);
 
-            _game.EventQueue.Enqueue(new ObjectRemovedFromRoom(
-                gameObject, this));
+            _game.EventQueue.Enqueue(new GameObjectRemovedFromRoom(
+                gameObject,
+                this));
         }
     }
 
@@ -92,4 +93,7 @@ public class Room
     }
 
     public override int GetHashCode() => Id.GetHashCode();
+
+    internal IEnumerable<GameObject> GetVisibleObjects() =>
+        State.Objects.Where(gameObject => gameObject.IsVisible);
 }

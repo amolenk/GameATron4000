@@ -46,8 +46,18 @@ spec:
           frameEnd: 6
           frameZeroPadding: 4
           frameRate: 9
+    narrator:
+      frames:
+        default: transparent
+    newspaperHeadline:
+      frames:
+        default: newspaper_headline
+    parkBeam:
+      frames:
+        default: beam_park
   scripts:
   - scripts/actors.csx
   - scripts/objects.csx
   - scripts/rooms.csx
   - scripts/start.csx
+  - scripts/cutscenes.csx

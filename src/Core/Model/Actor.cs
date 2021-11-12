@@ -12,9 +12,15 @@ public class Actor : GameObject
 
     public void MoveTo(Point position)
     {
-        Position = position;
+        if (State.Room is not null)
+        {
+            // TODO Also pass ExcludedAreas.
+            position = State.Room.Walkbox.SnapToWalkbox(position);
+        }
 
-        Game.EventQueue.Enqueue(new ActorMoved(this, position));
+        State.Position = position;
+
+        EventQueue.Enqueue(new ActorMoved(this, position));
     }
 
     public void MoveTo(GameObject gameObject)
@@ -37,6 +43,6 @@ public class Actor : GameObject
 
     public void SayLine(string line)
     {
-        Game.EventQueue.Enqueue(new SayLineActionExecuted(this, line));
+        EventQueue.Enqueue(new LineSpoken(this, line));
     }
 }

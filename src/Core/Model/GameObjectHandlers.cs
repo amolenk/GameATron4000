@@ -2,9 +2,9 @@ namespace Amolenk.GameATron4000.Model.Actions;
 
 public class GameObjectHandlers
 {
-    public Action? HandleGive { get; private set; }
+    public Action<Actor>? HandleGive { get; private set; }
     public Action? HandlePickUp { get; private set; }
-    public Action? HandleUse { get; private set; }
+    public Action<GameObject?>? HandleUse { get; private set; }
     public Action? HandleOpen { get; private set; }
     public Action? HandleLookAt { get; private set; }
     public Action? HandlePush { get; private set; }

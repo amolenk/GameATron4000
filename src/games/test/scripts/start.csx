@@ -2,13 +2,19 @@ OnGameStart(() =>
 {
     SetProtagonist(guy);
 
-//     -- inventory
-//     set_owner(groceries, selected_actor)
-//     set_owner(grocerylist, selected_actor)
+    // TODO id casing
+
+    park.Place(narrator, 450, 150);
+
+    // Inventory
+    groceries.SetOwner(guy);
+    grocerylist.SetOwner(guy);
 
     // park
     park.Place(newspaper, 410, 420);
     park.Place(parkBench, 323, 408);
+
+
 
 //     -- transportation
 //     put_object(beam_button, 73, 281, terminal)

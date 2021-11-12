@@ -22,7 +22,6 @@
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="3.11.0" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Configuration" Version="5.0.0" />
-    <PackageReference Include="QuikGraph" Version="2.3.0"/>
     <PackageReference Include="YamlDotNet" Version="11.2.1" />
   </ItemGroup>
 

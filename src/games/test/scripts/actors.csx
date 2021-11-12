@@ -6,16 +6,16 @@
 // }
 
 Actor narrator = Actor("narrator")
-    .Invisible()
-    .WithScrollFactor(0)
+    .Untouchable()
+    .WithFrame("default")
+    .FixedToCamera()
     .WithTextColor("lightblue")
     .Build();
 
 Actor al = Actor("al")
     .Named("Al")
     .WithTextColor("Yellow")
-    .InteractFromPosition(RelativePosition.InFront)
-    .InteractInState(WellKnownState.FaceAwayFromCamera)
+    .WithActorInteraction(RelativePosition.InFront, WellKnownFrame.FaceAwayFromCamera)
     .When.LookAt(() =>
     {
         narrator.SayLine("I'm in the sky!!!!");

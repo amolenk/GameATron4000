@@ -64,7 +64,8 @@ public sealed class PhaserSprite : ISprite
             options.Depth,
             onPointerDownRef,
             onPointerOutRef,
-            onPointerOverRef);
+            onPointerOverRef,
+            options.ScrollFactor);
 
 
         return new PhaserSprite(

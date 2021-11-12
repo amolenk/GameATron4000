@@ -3,27 +3,32 @@ namespace Amolenk.GameATron4000.Model.Builders;
 public class ActorBuilder : IGameObjectBuilder
 {
     public string Id { get; private set; }
-    public string DisplayName { get; protected set; }
-    public string State { get; protected set; }
-    public bool IsTouchable { get; protected set; }
-    public int ScrollFactor { get; protected set; }
-    public RelativePosition InteractPosition { get; protected set; }
-    public string InteractState { get; protected set; }
+    public string DisplayName { get; private set; }
+    public bool IsTouchable { get; private set; }
+    public bool UseWith { get; private set; }
+    public string FrameName { get; private set; }
+    public string InteractFrameName { get; private set; }
+    public RelativePosition InteractPosition { get; private set; }
+    public GameObjectCondition? Condition { get; private set; }
+    public int ScrollFactor { get; private set; }
     public string TextColor { get; private set; }
-    public GameObjectHandlersBuilder<ActorBuilder> When { get; protected set; }
+    public GameObjectHandlersBuilder<ActorBuilder> When { get; private set; }
     public Game Game { get; private set; }
+    public GameObjectState State { get; private set; }
 
-    IGameObjectHandlersBuilder IGameObjectBuilder.When => When;
+    IGameObjectHandlersBuilder IGameObjectBuilder.HandlersBuilder => When;
 
     internal ActorBuilder(string id, Game game)
     {
         Id = id;
         DisplayName = id;
-        State = WellKnownState.FaceCamera;
         IsTouchable = true;
-        ScrollFactor = -1;
+        UseWith = false;
+        FrameName = WellKnownFrame.FaceCamera;
+        InteractFrameName = WellKnownFrame.FaceCamera;
         InteractPosition = RelativePosition.Center;
-        InteractState = WellKnownState.Default;
+        ScrollFactor = -1;
+        TextColor = "white";
         When = new(this);
         Game = game;
     }
@@ -34,39 +39,42 @@ public class ActorBuilder : IGameObjectBuilder
         return this;
     }
 
-    public ActorBuilder InState(string state)
-    {
-        State = state;
-        return this;
-    }
-
     public ActorBuilder Untouchable()
     {
         IsTouchable = false;
         return this;
     }
 
-    public ActorBuilder Invisible()
+    public ActorBuilder CanBeUsedWithOtherObjects()
     {
-        State = WellKnownState.Invisible;
+        UseWith = true;
         return this;
     }
 
-    public ActorBuilder WithScrollFactor(int scrollFactor)
+    public ActorBuilder WithFrame(string frameName)
     {
-        ScrollFactor = scrollFactor;
+        FrameName = frameName;
         return this;
     }
 
-    public ActorBuilder InteractFromPosition(RelativePosition position)
+    public ActorBuilder WithActorInteraction(
+        RelativePosition position,
+        string frameName)
     {
+        InteractFrameName = frameName;
         InteractPosition = position;
         return this;
     }
 
-    public ActorBuilder InteractInState(string state)
+    public ActorBuilder DependsOn(GameObject other, string frameName)
     {
-        InteractState = state;
+        Condition = new GameObjectCondition(other, frameName);
+        return this;
+    }
+
+    public ActorBuilder FixedToCamera()
+    {
+        ScrollFactor = 0;
         return this;
     }
 

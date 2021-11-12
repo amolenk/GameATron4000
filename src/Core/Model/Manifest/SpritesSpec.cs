@@ -6,7 +6,7 @@ public class SpritesSpec : Dictionary<string, SpriteSpec>
 
     public (string AtlasKey, string FrameName) GetSpriteInfo(
         string key,
-        string state = WellKnownState.Default)
+        string frameName = WellKnownFrame.Default)
     {
         var atlasKey = "default";
 
@@ -14,22 +14,19 @@ public class SpritesSpec : Dictionary<string, SpriteSpec>
         {
             atlasKey = spriteSpec.AtlasKey;
 
-            if (spriteSpec.Frames.TryGetValue(state, out string frameName))
+            if (spriteSpec.Frames.TryGetValue(
+                frameName,
+                out string actualFrameName))
             {
-                return (atlasKey, frameName);
+                return (atlasKey, actualFrameName);
             }
         }
 
-        if (state == WellKnownState.Default)
+        if (frameName == WellKnownFrame.Default)
         {
             return (atlasKey, key);
         }
 
-        if (state == WellKnownState.Invisible)
-        {
-            return (atlasKey, DEFAULT_INVISIBLE_FRAME);
-        }
-
-        return (atlasKey, $"{key}/{state}");
+        return (atlasKey, $"{key}/{frameName}");
     }
 }

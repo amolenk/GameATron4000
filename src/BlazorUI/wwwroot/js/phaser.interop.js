@@ -30,10 +30,15 @@ function getPointerPosition() {
 }
 
 function addSprite(spriteKey, textureKey, frameKey, position, origin, depth,
-    onPointerDown, onPointerOut, onPointerOver) {
+    onPointerDown, onPointerOut, onPointerOver, scrollFactor) {
     const sprite = scene.add.sprite(position.x, position.y, textureKey, frameKey);
     sprite.setOrigin(origin.x, origin.y);
     sprite.setDepth(depth);
+
+    if (scrollFactor !== -1)
+    {
+        sprite.setScrollFactor(scrollFactor);
+    }
 
     if (onPointerDown || onPointerOut || onPointerOver) {
         sprite.setInteractive({ pixelPerfect: true });

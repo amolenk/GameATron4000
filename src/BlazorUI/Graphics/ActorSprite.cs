@@ -1,12 +1,14 @@
 ﻿namespace Amolenk.GameATron4000.BlazorUI.Graphics;
 
-public class ActorSprite : GameObjectSprite<Actor>
+public class ActorSprite : GameObjectSprite
 {
     private const int WALK_SPEED_FACTOR = 4;
     private const int MIN_WORD_WRAP_WIDTH = 400;
 
     private const int DELAY_PER_CHAR = 75;
     private const int MIN_TEXT_DELAY = 1500;
+
+    public Actor Actor => (Actor)GameObject;
 
     public ActorSprite(
         Actor gameObject,
@@ -30,7 +32,8 @@ public class ActorSprite : GameObjectSprite<Actor>
         var cameraPosition = Graphics.GetCameraPosition();
         var textPosition = Sprite.Position.Offset(
             0,
-            GameObject.IsVisible ? -Sprite.Size.Height - 20 : 0);
+            -Sprite.Size.Height - 20);
+            //TODO GameObject.IsVisible ? -Sprite.Size.Height - 20 : 0);
 
         var marginLeft = textPosition.X - cameraPosition.X;
         var marginRight = Graphics.Width - marginLeft;
@@ -58,7 +61,7 @@ public class ActorSprite : GameObjectSprite<Actor>
             }
         }
 
-        var animate = (GameObject.State == WellKnownState.FaceCamera);
+        var animate = (GameObject.Frame == WellKnownFrame.FaceCamera);
         if (animate)
         {
             Sprite.PlayAnimation(WellKnownAnimation.Talk);
@@ -70,9 +73,9 @@ public class ActorSprite : GameObjectSprite<Actor>
             options =>
             {
                 options.Depth = Graphics.Height + 1; // Text must be top-most.
-                options.FillColor = GameObject.TextColor;
+                options.FillColor = Actor.TextColor;
                 options.Origin = new Point(0.5, 0.5);
-                options.ScrollFactor = GameObject.ScrollFactor;
+                options.ScrollFactor = Actor.ScrollFactor;
                 options.WordWrapWidth = wordWrapWidth;
             });
 
