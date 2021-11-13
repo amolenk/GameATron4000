@@ -1,6 +1,6 @@
 namespace Amolenk.GameATron4000.Model;
 
-public static class WellKnownFrame
+public static class WellKnownStatus
 {
     public const string Default = "default";
 

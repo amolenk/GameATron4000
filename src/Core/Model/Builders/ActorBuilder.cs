@@ -6,7 +6,7 @@ public class ActorBuilder : GameObjectBuilder<Actor, ActorBuilder>
 
     internal ActorBuilder(string id, Game game) : base(id, game)
     {
-        _frame = WellKnownFrame.FaceCamera;
+        _status = WellKnownStatus.FaceCamera;
         _textColor = "white";
     }
 
@@ -21,10 +21,10 @@ public class ActorBuilder : GameObjectBuilder<Actor, ActorBuilder>
         _id,
         BuildActionHandlers(),
         _displayName,
-        _frame,
-        _interactFrame,
         _interactPosition,
+        _interactStatus,
         _isTouchable,
         _scrollFactor,
+        _status,
         _textColor);
 }

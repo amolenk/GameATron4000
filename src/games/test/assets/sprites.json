@@ -1540,7 +1540,7 @@
 			},
 			"trimmed": false
 		},
-		"beam_button/off": {
+		"beamButton/off": {
 			"frame": {
 				"h": 19,
 				"w": 16,
@@ -1560,7 +1560,7 @@
 			},
 			"trimmed": false
 		},
-		"beam_button/on": {
+		"beamButton/on": {
 			"frame": {
 				"h": 19,
 				"w": 16,
@@ -1580,7 +1580,7 @@
 			},
 			"trimmed": false
 		},
-		"beam_glow": {
+		"beamGlow": {
 			"frame": {
 				"h": 450,
 				"w": 884,
@@ -1600,7 +1600,7 @@
 			},
 			"trimmed": false
 		},
-		"beam_park": {
+		"beamPark": {
 			"frame": {
 				"h": 450,
 				"w": 100,
@@ -1620,7 +1620,7 @@
 			},
 			"trimmed": false
 		},
-		"beam_terminal": {
+		"beamTerminal": {
 			"frame": {
 				"h": 342,
 				"w": 160,
@@ -2000,7 +2000,7 @@
 			},
 			"trimmed": false
 		},
-		"door_terminal/closed": {
+		"terminalDoor/closed": {
 			"frame": {
 				"h": 168,
 				"w": 52,
@@ -2020,7 +2020,7 @@
 			},
 			"trimmed": false
 		},
-		"door_terminal/open": {
+		"terminalDoor/open": {
 			"frame": {
 				"h": 168,
 				"w": 52,

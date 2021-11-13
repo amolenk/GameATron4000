@@ -10,6 +10,8 @@ public class Game
 
     public Room? CurrentRoom => _state.CurrentRoom;
 
+    public Room? PreviousRoom => _state.PreviousRoom;
+
     internal EventQueue EventQueue { get; private set; }
 
     internal Game(EventQueue eventQueue)
@@ -61,10 +63,10 @@ public class Game
     {
         if (room != _state.CurrentRoom)
         {
-            room.Enter();
-
             _state.PreviousRoom = _state.CurrentRoom;
             _state.CurrentRoom = room;
+
+            room.Enter();
         }
     }
 

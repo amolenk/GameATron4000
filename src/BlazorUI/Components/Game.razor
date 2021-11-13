@@ -1,6 +1,7 @@
 ﻿@inject IGameManifestRepository _gameManifestRepository
 @inject ILogger<Game> _logger
 @inject IMediator _mediator
+@inject IJSRuntime _jsRuntime
 
 <GameScriptView />
 <RoomView />
@@ -10,13 +11,40 @@
 
 @code {
 
+    private bool _inDebugMode = false;
+
     [Parameter]
     public int DiskNumber { get; set; }
+
+    [JSInvokable]
+    public async Task<bool> OnKeyDownAsync(string key)
+    {
+        switch (key)
+        {
+            case "d":
+                _inDebugMode = !_inDebugMode;
+                await _mediator.PublishAsync(new DebugModeChanged(_inDebugMode));
+                return true;
+            case "r":
+                await _mediator.SendAsync(new ReloadGameScript());
+                return true;
+            case ".":
+            case " ":
+                await _mediator.SendAsync(new SkipWait());
+                return true;
+        }
+
+        return false;
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
+            await _jsRuntime.InvokeVoidAsync(
+                "window.CaptureKeyDown",
+                DotNetObjectReference.Create(this));
+
             _logger.LogDebug("Loading game manifest...");
 
             var manifest = await _gameManifestRepository.TryLoadGameManifest(DiskNumber);

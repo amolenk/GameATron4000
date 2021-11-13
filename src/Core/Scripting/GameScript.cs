@@ -1,6 +1,5 @@
 ﻿namespace Amolenk.GameATron4000.Scripting;
 
-// TODO Make disposable and unsubscribe in Dispose
 public class GameScript
 {
     private readonly Game _game;
@@ -13,9 +12,6 @@ public class GameScript
     {
         _game = game;
         _eventQueue = eventQueue;
-
-        mediator.Subscribe<StartGame>(OnStartGameAsync);
-        mediator.Subscribe<ExecutePlayerAction>(OnExecutePlayerActionAsync);
     }
 
     public static async Task<GameScript> LoadAsync(
@@ -35,7 +31,7 @@ public class GameScript
         return new GameScript(game, eventQueue, mediator);
     }
 
-    private Task OnStartGameAsync(StartGame _)
+    public Task StartGameAsync()
     {
         // Disable event queue while setting up the game. No action events
         // should be sent to the UI yet.
@@ -72,10 +68,8 @@ public class GameScript
         return _eventQueue.FlushAsync();
     }
 
-    private Task OnExecutePlayerActionAsync(ExecutePlayerAction command)
+    public Task ExecutePlayerActionAsync(IAction action)
     {
-        var action = command.Action;
-
         _eventQueue.Enqueue(new PlayerActionStarted(action));
 
         // TODO Also check if subject isn't in inventory

@@ -15,9 +15,9 @@ public class ItemBuilder : GameObjectBuilder<Item, ItemBuilder>
         return this;
     }
 
-    public ItemBuilder DependsOn(Item item, string frame)
+    public ItemBuilder DependsOn(Item item, string status)
     {
-        _dependency = new ItemDependency(item, frame);
+        _dependency = new ItemDependency(item, status);
         return this;
     }
 
@@ -27,10 +27,10 @@ public class ItemBuilder : GameObjectBuilder<Item, ItemBuilder>
         BuildActionHandlers(),
         _dependency,
         _displayName,
-        _frame,
-        _interactFrame,
         _interactPosition,
+        _interactStatus,
         _isTouchable,
         _scrollFactor,
+        _status,
         _canBeUsedWithOtherObject);
 }

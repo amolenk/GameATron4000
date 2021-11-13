@@ -19,22 +19,6 @@
     private bool _playerInputEnabled = true;
     private bool _inDebugMode = false;
 
-    [JSInvokable]
-    public bool OnKeyDown(string key)
-    {
-        switch (key)
-        {
-            case "d":
-                _inDebugMode = !_inDebugMode;
-                return true;
-            case ".":
-            case " ":
-                _talkState?.Cts.Cancel();
-                return true;
-        }
-
-        return false;
-    }
 
     protected override void OnInitialized()
     {
@@ -48,18 +32,22 @@
         _mediator.Subscribe<GameObjectPlacedInRoom>(OnGameObjectPlacedInRoomAsync);
         _mediator.Subscribe<GameObjectRemovedFromRoom>(OnGameObjectRemovedFromRoomAsync);
         _mediator.Subscribe<DelayRequested>(OnDelayRequestedAsync);
+        _mediator.Subscribe<GameObjectStatusChanged>(OnGameObjectStatusChangedAsync);
+        _mediator.Subscribe<DebugModeChanged>(OnDebugModeChangedAsync);
+        _mediator.Subscribe<SkipWait>(OnSkipWaitAsync);
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    private Task OnDebugModeChangedAsync(DebugModeChanged @event)
     {
-        if (firstRender)
-        {
-            await _jsRuntime.InvokeVoidAsync(
-                "window.CaptureKeyDown",
-                DotNetObjectReference.Create(this));
-        }
-        base.OnAfterRender(firstRender);
-    } 
+        _inDebugMode = @event.DebugEnabled;
+        return Task.CompletedTask;
+    }
+
+    private Task OnSkipWaitAsync(SkipWait command)
+    {
+        _talkState?.Cts.Cancel();
+        return Task.CompletedTask;
+    }
 
     private async Task OnGameManifestLoadedAsync(GameManifestLoaded @event)
     {
@@ -125,6 +113,30 @@
             AddGameObjectSprite(gameObject);
         }
  
+        return Task.CompletedTask;
+    }
+
+    private Task OnGameObjectStatusChangedAsync(GameObjectStatusChanged @event)
+    {
+        using var pauseGraphics = _graphics.Pause();
+
+        if (_objectSprites.TryGetValue(
+            @event.GameObject.Id, out GameObjectSprite objectSprite))
+        {
+            // TODO Refresh is better name than Reset
+            objectSprite.ResetSpriteFrame();
+        }
+
+        foreach (var objectToShow in @event.ObjectsToShow)
+        {
+            AddGameObjectSprite(objectToShow);
+        }
+
+        foreach (var objectsToHide in @event.ObjectsToHide)
+        {
+            RemoveGameObjectSprite(objectsToHide);
+        }
+
         return Task.CompletedTask;
     }
 

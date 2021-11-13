@@ -45,7 +45,7 @@ public class GameObjectSprite : IDisposable
     {
         var spriteInfo = _spritesSpec.GetSpriteInfo(
             GameObject.Id,
-            GameObject.Frame);
+            GameObject.Status);
 
         Sprite.SetFrame(spriteInfo.FrameName);
     }
@@ -57,7 +57,7 @@ public class GameObjectSprite : IDisposable
     {
         var spriteInfo = _spritesSpec.GetSpriteInfo(
             GameObject.Id,
-            GameObject.Frame);
+            GameObject.Status);
 
         var sprite = Graphics.AddSprite(
             spriteInfo.AtlasKey,

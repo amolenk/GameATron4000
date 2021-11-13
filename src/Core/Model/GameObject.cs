@@ -2,21 +2,21 @@
 
 public abstract class GameObject
 {
-    private const string STATE_FRAME = "frame";
     private const string STATE_POSITION = "position";
+    private const string STATE_STATUS = "status";
 
     public string Id { get; }
     public string DisplayName { get; }
-    public string InteractFrameName { get; }
     public RelativePosition InteractPosition { get; }
+    public string InteractStatus { get; }
     public bool IsTouchable { get; }
     public int ScrollFactor { get; }
     public bool IsVisible => GetVisibility();
 
-    public string Frame => StateManager.Get<string>(STATE_FRAME)!;
     public Point Position => StateManager.Get<Point>(STATE_POSITION)!;
+    public string Status => StateManager.Get<string>(STATE_STATUS)!;
 
-    internal ActionHandlers ActionHandlers { get; }
+    public ActionHandlers ActionHandlers { get; }
 
     protected Game Game;
     protected StateManager StateManager { get; }
@@ -26,30 +26,30 @@ public abstract class GameObject
         string id,
         ActionHandlers actionHandlers,
         string displayName,
-        string frame,
-        string interactFrameName,
         RelativePosition interactPosition,
+        string interactStatus,
         bool isTouchable,
-        int scrollFactor)
+        int scrollFactor,
+        string status)
     {
         Game = game;
         Id = id;
         ActionHandlers = actionHandlers;
         DisplayName = displayName;
-        InteractFrameName = interactFrameName;
         InteractPosition = interactPosition;
+        InteractStatus = interactStatus;
         IsTouchable = isTouchable;
         ScrollFactor = scrollFactor;
 
         StateManager = new StateManager();
-        StateManager.Set(STATE_FRAME, frame);
         StateManager.Set(STATE_POSITION, new Point(-1, -1));
+        StateManager.Set(STATE_STATUS, status);
     }
 
-    public void SetFrame(string frame)
+    public void ChangeStatus(string status)
     {
         // Don't need to do anything if the frame stays the same.
-        if (StateManager.Get<string>(nameof(Frame)) == frame)
+        if (StateManager.Get<string>(STATE_STATUS) == status)
         {
             return;
         }
@@ -59,7 +59,7 @@ public abstract class GameObject
             .GetVisibleObjects().ToList();
 
         // Change the state, this may impact visibility of other objects.
-        StateManager.Set(STATE_FRAME, frame);
+        StateManager.Set(STATE_STATUS, status);
 
         // Get the list of visible objects after we change the state.
         var visibleObjectsAfter = Game.CurrentRoom?
@@ -72,9 +72,9 @@ public abstract class GameObject
         var objectsToShow = visibleObjectsAfter?.Except(visibleObjectsBefore!)
             ?? Enumerable.Empty<GameObject>();
 
-        Game.EventQueue.Enqueue(new GameObjectFrameChanged(
+        Game.EventQueue.Enqueue(new GameObjectStatusChanged(
             this,
-            frame,
+            status,
             objectsToHide,
             objectsToShow));
     }

@@ -1,13 +1,19 @@
 Actor narrator = AddActor("narrator", builder => builder
     .Untouchable()
-    .WithFrame("default")
     .FixedToCamera()
-    .WithTextColor("lightblue"));
+    .WithTextColor("lightblue")
+    .WithStatus("transparent"));
+
+Actor shipComputer = AddActor(nameof(shipComputer), builder => builder
+    .Untouchable()
+    .FixedToCamera()
+    .WithTextColor("red")
+    .WithStatus("transparent"));
 
 Actor al = AddActor("al", builder => builder
     .Named("Al")
     .WithTextColor("Yellow")
-    .WithActorInteraction(RelativePosition.InFront, WellKnownFrame.FaceAwayFromCamera)
+    .WithActorInteraction(RelativePosition.InFront, WellKnownStatus.FaceAwayFromCamera)
     .When.LookAt(() =>
     {
         narrator.SayLine("I'm in the sky!!!!");

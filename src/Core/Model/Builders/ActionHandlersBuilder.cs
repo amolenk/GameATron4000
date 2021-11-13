@@ -13,7 +13,7 @@ public class ActionHandlersBuilder<TParentBuilder>
     public Action? HandleClose { get; private set; }
     public Action? HandleTalkTo { get; private set; }
     public Action? HandlePull { get; private set; }
-
+    public Action? HandleWalkTo { get; private set; }
 
     internal ActionHandlersBuilder(TParentBuilder parentBuilder)
     {
@@ -71,6 +71,12 @@ public class ActionHandlersBuilder<TParentBuilder>
     public TParentBuilder Pull(Action action)
     {
         HandlePull = action;
+        return _parentBuilder;
+    }
+
+    public TParentBuilder WalkTo(Action action)
+    {
+        HandleWalkTo = action;
         return _parentBuilder;
     }
 }

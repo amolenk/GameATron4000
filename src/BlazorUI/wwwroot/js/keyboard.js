@@ -1,12 +1,11 @@
 
 window.CaptureKeyDown = (callbackRef) =>
 {
-    window.addEventListener("keydown", function (event) {
+    window.addEventListener("keydown", async event => {
         if (event.defaultPrevented) {
           return; // Should do nothing if the default action has been cancelled
         }
-      
-        var handled = callbackRef.invokeMethod('OnKeyDown', event.key);
+        var handled = await callbackRef.invokeMethodAsync('OnKeyDownAsync', event.key);
         if (handled) {
           // Suppress "double action" if event handled
           event.preventDefault();

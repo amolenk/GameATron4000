@@ -7,13 +7,13 @@ public abstract class GameObjectBuilder<TObject, TBuilder>
     private readonly TBuilder _builderInstance;
 
     protected string _id;
-    protected string _displayName;
-    protected string _frame;
     protected Game _game;
-    protected string _interactFrame;
+    protected string _displayName;
     protected RelativePosition _interactPosition;
+    protected string _interactStatus;
     protected bool _isTouchable;
     protected int _scrollFactor;
+    protected string _status;
 
     public ActionHandlersBuilder<GameObjectBuilder<TObject, TBuilder>> When
     { 
@@ -25,13 +25,13 @@ public abstract class GameObjectBuilder<TObject, TBuilder>
         _builderInstance = (TBuilder)this;
 
         _id = id;
-        _displayName = id;
-        _frame = WellKnownFrame.Default;
         _game = game;
-        _interactFrame = WellKnownFrame.Default;
+        _displayName = id;
         _interactPosition = RelativePosition.Center;
+        _interactStatus = WellKnownStatus.Default;
         _isTouchable = true;
         _scrollFactor = -1;
+        _status = WellKnownStatus.Default;
 
         When = new(this);
     }
@@ -55,17 +55,25 @@ public abstract class GameObjectBuilder<TObject, TBuilder>
     }
 
     public TBuilder WithActorInteraction(
-        RelativePosition position,
-        string frame)
+        RelativePosition? position = null,
+        string? status = null)
     {
-        _interactPosition = position;
-        _interactFrame = frame;
+        if (position.HasValue)
+        {
+            _interactPosition = position.Value;
+        }
+
+        if (status is not null)
+        {
+            _interactStatus = status;
+        }
+
         return _builderInstance;
     }
 
-    public TBuilder WithFrame(string frame)
+    public TBuilder WithStatus(string status)
     {
-        _frame = frame;
+        _status = status;
         return _builderInstance;
     }
 

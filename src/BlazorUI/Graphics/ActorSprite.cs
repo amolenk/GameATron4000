@@ -61,7 +61,7 @@ public class ActorSprite : GameObjectSprite
             }
         }
 
-        var animate = (GameObject.Frame == WellKnownFrame.FaceCamera);
+        var animate = (GameObject.Status == WellKnownStatus.FaceCamera);
         if (animate)
         {
             Sprite.PlayAnimation(WellKnownAnimation.Talk);

@@ -4,20 +4,18 @@ OnGameStart(() =>
 
     // TODO id casing
 
-    park.Place(narrator, 450, 150);
-
     // Inventory
     guy.AddToInventory(groceries);
     guy.AddToInventory(grocerylist);
 
     // park
+    park.Place(narrator, 450, 150);
     park.Place(newspaper, 410, 420);
     park.Place(parkBench, 323, 408);
 
-
-
-//     -- transportation
-//     put_object(beam_button, 73, 281, terminal)
+    // terminal
+    terminal.Place(shipComputer, 450, 150);
+    terminal.Place(beamButton, 73, 281);
 //     put_object(beam_glow, 442, 450, terminal)
 //     put_object(beam_terminal, 442, 403, terminal)
 //     put_object(cooker_in_crate, 280, 450, terminal)
@@ -25,9 +23,9 @@ OnGameStart(() =>
 //     put_object(crate_right, 256, 450, terminal)
 //     put_object(crate_right_front, 256, 450, terminal)
 //     put_object(crate_top, 204, 390, terminal)
-//     put_object(door_terminal, 774, 332, terminal)
+    terminal.Place(terminalDoor, 774, 332);
 
-//     -- bridge
+     // bridge
 //     put_actor(al, 990, 375, bridge)
 //     put_actor(ian, 250, 420, bridge)
 //     put_actor(carl, 305, 361, bridge)

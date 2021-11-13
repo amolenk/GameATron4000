@@ -14,32 +14,32 @@ public class Actor : GameObject
         string id,
         ActionHandlers actionHandlers,
         string displayName,
-        string frame,
-        string interactFrameName,
         RelativePosition interactPosition,
+        string interactStatus,
         bool isTouchable,
         int scrollFactor,
+        string status,
         string textColor)
         : base(
             game,
             id,
             actionHandlers,
             displayName,
-            frame,
-            interactFrameName,
             interactPosition,
+            interactStatus,
             isTouchable,
-            scrollFactor)
+            scrollFactor,
+            status)
     {
         TextColor = textColor;
 
         StateManager.Set(STATE_INVENTORY, new List<Item>());
     }
 
-    public void FaceCamera() => SetFrame(WellKnownFrame.FaceCamera);
+    public void FaceCamera() => ChangeStatus(WellKnownStatus.FaceCamera);
 
     public void FaceAwayFromCamera() =>
-        SetFrame(WellKnownFrame.FaceAwayFromCamera);
+        ChangeStatus(WellKnownStatus.FaceAwayFromCamera);
 
     public void AddToInventory(Item item)
     {

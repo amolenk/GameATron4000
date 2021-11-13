@@ -12,22 +12,22 @@ public class Item : GameObject
         ActionHandlers actionHandlers,
         ItemDependency? dependency,
         string displayName,
-        string frame,
-        string interactFrameName,
         RelativePosition interactPosition,
+        string interactStatus,
         bool isTouchable,
         int scrollFactor,
+        string status,
         bool canBeUsedWithOtherObject)
         : base(
             game,
             id,
             actionHandlers,
             displayName,
-            frame,
-            interactFrameName,
             interactPosition,
+            interactStatus,
             isTouchable,
-            scrollFactor)
+            scrollFactor,
+            status)
     {
         _dependency = dependency;
 
@@ -38,7 +38,7 @@ public class Item : GameObject
     {
         if (_dependency is not null)
         {
-            return _dependency.Item.Frame == _dependency.Frame;
+            return _dependency.Item.Status == _dependency.Status;
         }
 
         return base.GetVisibility();

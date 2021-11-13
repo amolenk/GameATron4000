@@ -22,15 +22,30 @@
 
     protected override void OnInitialized()
     {
-        _mediator.Subscribe<GameManifestLoaded>(OnGameManifestLoaded);
+        _mediator.Subscribe<GameManifestLoaded>(OnGameManifestLoadedAsync);
+        _mediator.Subscribe<ReloadGameScript>(OnReloadGameScriptAsync);
+        _mediator.Subscribe<StartGame>(OnStartGameAsync);
+        _mediator.Subscribe<ExecutePlayerAction>(OnExecutePlayerActionAsync);
+
     }
 
-    private async Task OnGameManifestLoaded(GameManifestLoaded @event)
+    private Task OnStartGameAsync(StartGame _) => _script.StartGameAsync();
+
+    private Task OnExecutePlayerActionAsync(ExecutePlayerAction command) =>
+        _script.ExecutePlayerActionAsync(command.Action);
+
+    private async Task OnGameManifestLoadedAsync(GameManifestLoaded @event)
     {
         _compiler = await CSharpScriptCompiler.CreateAsync(_client);
         _manifest = @event.Manifest;
 
         await TryLoadGameScriptAsync();
+    }
+
+    private async Task OnReloadGameScriptAsync(ReloadGameScript _)
+    {
+        await TryLoadGameScriptAsync();
+        await _script.StartGameAsync();
     }
 
     private async Task<bool> TryLoadGameScriptAsync()

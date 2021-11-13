@@ -48,13 +48,10 @@ spec:
           frameRate: 9
     narrator:
       frames:
-        default: transparent
-    newspaperHeadline:
+        transparent: transparent
+    shipComputer:
       frames:
-        default: newspaper_headline
-    parkBeam:
-      frames:
-        default: beam_park
+        transparent: transparent
   scripts:
   - scripts/actors.csx
   - scripts/items.csx

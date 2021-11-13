@@ -1,35 +1,32 @@
-// alarm = {
-//     id = "alarm",
-//     type = "object",
-//     classes = { class_untouchable }
-// }
+Item alarm = AddItem(nameof(alarm), builder => builder
+    .Untouchable());
 
-// beam_button = {
-//     id = "beam_button",
-//     type = "object",
-//     name = "big button",
-//     state = "on",
-//     use_dir = face_back,
-//     use_pos = pos_infront,
-//     verbs = {
-//         look_at = function(obj)
-//             say_line("That's a big button!")
-//         end,
-//         push = function(obj)
-//             obj.verbs.use(obj)
-//         end,
-//         use = function(obj)
-//             if obj.state == "on" then
-//                 say_line("* DEACTIVATING BEAM SECURITY PROTOCOL *", narrator)
-//                 change_state(obj, "off")
-//             else
-//                 say_line("* ACTIVATING BEAM SECURITY PROTOCOL *", narrator)
-//                 change_state(obj, "on")
-//                 change_state(door_terminal, "closed")
-//             end
-//         end
-//     }
-// }
+
+
+Item beamButton = AddItem(nameof(beamButton), builder => builder
+    .Named("big button")
+    .WithActorInteraction(RelativePosition.InFront, WellKnownStatus.FaceAwayFromCamera)
+    .WithStatus("on")
+    .When.LookAt(() =>
+    {
+        SayLine("Now that's a big button!");
+    })
+    .When.Push(() => beamButton.ActionHandlers.HandleUse(null))
+    .When.Use(_ =>
+    {
+        if (beamButton.Status == "on")
+        {
+            shipComputer.SayLine("* DEACTIVATING BEAM SECURITY PROTOCOL *");
+            beamButton.ChangeStatus("off");
+        }
+        else
+        {
+            shipComputer.SayLine("* ACTIVATING BEAM SECURITY PROTOCOL *");
+            beamButton.ChangeStatus("on");
+            terminalDoor.ChangeStatus("closed");
+        }
+    }));
+
 
 // beam_glow = {
 //     id = "beam_glow",
@@ -39,7 +36,7 @@
 //     z_offset = 100
 // }
 
-Item parkBeam = AddItem(nameof(parkBeam), builder => builder
+Item beamPark = AddItem(nameof(beamPark), builder => builder
     .Untouchable());
 
 // beam_terminal = {
@@ -299,39 +296,41 @@ Item parkBeam = AddItem(nameof(parkBeam), builder => builder
 //     }
 // }
 
-// door_terminal = {
-//     id = "door_terminal",
-//     type = "object",
-//     name = "door",
-//     state = "closed",
-//     use_dir = face_back,
-//     verbs = {
-//         close = function(obj)
-//             if obj.state == "closed" then
-//                 say_line("It's already closed!")
-//             else
-//                 change_state(obj, "closed")
-//             end
-//         end,
-//         look_at = function(obj)
-//             say_line("It looks like a fancy high-tech door.");
-//         end,
-//         open = function(obj)
-//             if obj.state == "open" then
-//                 say_line("It's already open!")
-//             elseif beam_button.state == "on" then
-//                 say_line("It won't budge!");
-//             else
-//                 change_state(obj, "open")
-//             end
-//         end,
-//         walk_to = function(obj)
-//             if (obj.state == "open") then
-//                 change_room(bridge)
-//             end
-//         end
-//     }
-// }
+Item terminalDoor = AddItem(nameof(terminalDoor), builder => builder
+    .Named("door")
+    .WithStatus("closed")
+    .WithActorInteraction(status: WellKnownStatus.FaceAwayFromCamera)
+    .When.LookAt(() => SayLine("It looks like a fancy high-tech door."))
+    .When.Open(() =>
+    {
+        if (terminalDoor.Status == "open")
+        {
+            SayLine("It's already open!");
+        }
+        else if (beamButton.Status == "on")
+        {
+            SayLine("It won't budge!");
+        }
+        else
+        {
+            terminalDoor.ChangeStatus("open");
+        }
+    })
+    .When.Close(() =>
+    {
+        if (terminalDoor.Status == "closed")
+        {
+            SayLine("It's already closed!");
+        }
+        else
+        {
+            terminalDoor.ChangeStatus("closed");
+        }
+    })
+    .When.WalkTo(() =>
+    {
+        ChangeRoom(bridge);
+    }));
 
 // fridge = {
 //     id = "fridge",
