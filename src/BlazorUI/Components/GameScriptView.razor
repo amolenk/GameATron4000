@@ -3,13 +3,22 @@
 @inject ILogger<GameScriptView> _logger
 @inject IGameManifestRepository _gameManifestRepository
 
-<div>[SCRIPT]</div>
+@if (_errors is not null)
+{
+    <ul>
+    @foreach (var error in _errors)
+    {
+        <li>@(error.Path)(@error.Line,@error.Character): @error.Message</li>
+    }
+    </ul>
+}
 
 @code {
 
     private IScriptCompiler _compiler = null!;
     private GameManifest _manifest = null!;
     private GameScript _script = null!;
+    private ImmutableArray<ScriptError>? _errors;
 
     protected override void OnInitialized()
     {
@@ -18,8 +27,6 @@
 
     private async Task OnGameManifestLoaded(GameManifestLoaded @event)
     {
-        Console.WriteLine("Handle GameScriptView.GameManifestLoadedEvent!");
-
         _compiler = await CSharpScriptCompiler.CreateAsync(_client);
         _manifest = @event.Manifest;
 
@@ -30,22 +37,13 @@
     {
         try
         {
-            _logger.LogDebug("Loading game script...");
-
             _script = await LoadGameScriptAsync();
-
-            _logger.LogDebug("Game script loaded.");
-
             return true;
         }
         catch (ScriptException ex)
         {
-            _logger.LogCritical(ex, "Failed to load game script.");
-
-            foreach (var error in ex.Errors)
-            {
-                _logger.LogError($"{error.Path}({error.Line},{error.Character}): {error.Message}");
-            }
+            _errors = ex.Errors;
+            StateHasChanged();
         }
         catch (Exception ex)
         {

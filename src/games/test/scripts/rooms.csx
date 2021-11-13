@@ -80,7 +80,7 @@
 //     end
 // }
 
-Room park = Room("park")
+Room park = AddRoom("park", room => room
     .WithWalkboxArea(
         new Point(935, 295),
         new Point(935, 318),
@@ -100,8 +100,7 @@ Room park = Room("park")
     .When.BeforeEnter(() =>
     {
         park.Place(guy, 600, 430);
-    })
-    .Build();
+    }));
 //     scale = {
 //         min = 70,
 //         max = 100,

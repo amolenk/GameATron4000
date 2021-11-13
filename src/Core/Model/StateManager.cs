@@ -2,16 +2,16 @@ namespace Amolenk.GameATron4000.Model;
 
 public class StateManager
 {
-    private readonly Dictionary<string, object> _dynamicState;
+    private readonly Dictionary<string, object> _state;
     
     public StateManager()
     {
-        _dynamicState = new();
+        _state = new();
     }
 
     public T? Get<T>(string key)
     {
-        if (_dynamicState.TryGetValue(key, out object value))
+        if (_state.TryGetValue(key, out object value))
         {
             return (value is T typedValue) ? typedValue : default(T);
         }
@@ -19,15 +19,27 @@ public class StateManager
         return default(T);
     }
 
+    public bool TryGetValue<T>(string key, [MaybeNullWhen(false)] out T value)
+    {
+        if (_state.TryGetValue(key, out object state))
+        {
+            value = (T)state;
+            return true;
+        }
+
+        value = default(T);
+        return false;
+    }
+
     public void Set<T>(string key, T value)
     {
         if (value == null || value.Equals(default(T)))
         {
-            _dynamicState.Remove(key);
+            _state.Remove(key);
         }
         else
         {
-            _dynamicState[key] = value;
+            _state[key] = value;
         }
     }
 }

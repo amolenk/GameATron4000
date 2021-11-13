@@ -1,18 +1,10 @@
-
-// -- Dummy object to hold unused inventory items.
-// nobody = {
-//     id = "nobody",
-//     type = "actor"
-// }
-
-Actor narrator = Actor("narrator")
+Actor narrator = AddActor("narrator", builder => builder
     .Untouchable()
     .WithFrame("default")
     .FixedToCamera()
-    .WithTextColor("lightblue")
-    .Build();
+    .WithTextColor("lightblue"));
 
-Actor al = Actor("al")
+Actor al = AddActor("al", builder => builder
     .Named("Al")
     .WithTextColor("Yellow")
     .WithActorInteraction(RelativePosition.InFront, WellKnownFrame.FaceAwayFromCamera)
@@ -26,9 +18,7 @@ Actor al = Actor("al")
         SayLine("Doh!");
 
         al.SayLine("Hi there!");
-
-        // handlers.HandlePush();
-    })
+    }));
 //     verbs = {
 //         look_at = function(actor)
 //             say_line("I guess it's an alien. Hard to see at this resolution.")
@@ -42,11 +32,9 @@ Actor al = Actor("al")
 //         end
 //     }
 // }
-    .Build();
 
-var guy = Actor("guy")
-    .Untouchable()
-    .Build();
+Actor guy = AddActor("guy", builder => builder
+    .Untouchable());
 
 // ian = {
 //     id = "ian",

@@ -2,7 +2,7 @@
 
 public record GameObjectFrameChanged(
     GameObject GameObject,
-    string FrameName,
+    string Frame,
     IEnumerable<GameObject> ObjectsToHide,
     IEnumerable<GameObject> ObjectsToShow)
     : IEvent;

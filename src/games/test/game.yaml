@@ -57,7 +57,7 @@ spec:
         default: beam_park
   scripts:
   - scripts/actors.csx
-  - scripts/objects.csx
+  - scripts/items.csx
   - scripts/rooms.csx
   - scripts/start.csx
   - scripts/cutscenes.csx

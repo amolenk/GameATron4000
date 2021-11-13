@@ -17,5 +17,5 @@ public class RoomHandlersBuilder
         return _roomBuilder;
     }
 
-    public void Build() => new RoomHandlers(this);
+    public void Build() => new RoomHandlers(HandleBeforeEnter);
 }

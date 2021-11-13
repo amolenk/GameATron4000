@@ -1,108 +1,68 @@
 ﻿namespace Amolenk.GameATron4000.Model;
 
-public class GameObject
+public abstract class GameObject
 {
-    private readonly Game _game;
-    private readonly GameObjectCondition _condition;
+    private const string STATE_FRAME = "frame";
+    private const string STATE_POSITION = "position";
 
     public string Id { get; }
     public string DisplayName { get; }
-    public bool IsTouchable { get; }
-    public bool UseWith { get; }
     public string InteractFrameName { get; }
     public RelativePosition InteractPosition { get; }
+    public bool IsTouchable { get; }
     public int ScrollFactor { get; }
+    public bool IsVisible => GetVisibility();
 
-    public bool IsVisible => _condition?.IsTrue ?? true;
-    public string Frame => State.Frame;
-    public Point Position => State.Position;
-    public Room? Room => State.Room;
-    public Actor? Owner => State.Owner;
+    public string Frame => StateManager.Get<string>(STATE_FRAME)!;
+    public Point Position => StateManager.Get<Point>(STATE_POSITION)!;
 
-    internal GameObjectHandlers Handlers { get; }
+    internal ActionHandlers ActionHandlers { get; }
 
-    protected EventQueue EventQueue { get; }
-    protected GameObjectState State { get; }
+    protected Game Game;
+    protected StateManager StateManager { get; }
 
-    internal GameObject(IGameObjectBuilder builder)
+    protected GameObject(
+        Game game,
+        string id,
+        ActionHandlers actionHandlers,
+        string displayName,
+        string frame,
+        string interactFrameName,
+        RelativePosition interactPosition,
+        bool isTouchable,
+        int scrollFactor)
     {
-        _game = builder.Game;
-        _condition = builder.Condition;
+        Game = game;
+        Id = id;
+        ActionHandlers = actionHandlers;
+        DisplayName = displayName;
+        InteractFrameName = interactFrameName;
+        InteractPosition = interactPosition;
+        IsTouchable = isTouchable;
+        ScrollFactor = scrollFactor;
 
-        Id = builder.Id;
-        DisplayName = builder.DisplayName;
-        IsTouchable = builder.IsTouchable;
-        UseWith = builder.UseWith;
-        InteractFrameName = builder.InteractFrameName;
-        InteractPosition = builder.InteractPosition;
-        ScrollFactor = builder.ScrollFactor;
-        Handlers = new(builder.HandlersBuilder);
-        EventQueue = builder.Game.EventQueue;
-
-        State = new()
-        {
-            Frame = builder.FrameName
-        };
+        StateManager = new StateManager();
+        StateManager.Set(STATE_FRAME, frame);
+        StateManager.Set(STATE_POSITION, new Point(-1, -1));
     }
 
-    public void SetOwner(Actor newOwner)
-    {
-        // Don't need to do anything if the owner stays the same.
-        if (State.Owner == newOwner)
-        {
-            return;
-        }
-
-        // If the object is currently placed in a room, remove it.
-        if (State.Room is not null)
-        {
-            State.Room.Remove(this);
-        }
-
-        // If the object is currently owned by somebody else, take it away.
-        if (State.Owner is not null)
-        {
-            ClearOwner();
-        }
-
-        // Set the new owner.
-        State.Owner = newOwner;
-
-        EventQueue.Enqueue(new GameObjectAddedToInventory(
-            this,
-            newOwner));
-    }
-
-    public void ClearOwner()
-    {
-        if (State.Owner is not null)
-        {
-            var previousOwner = State.Owner;
-            State.Owner = null;
-
-            EventQueue.Enqueue(new GameObjectRemovedFromInventory(
-                this,
-                previousOwner));
-        }
-    }
-
-    public void SetFrame(string frameName)
+    public void SetFrame(string frame)
     {
         // Don't need to do anything if the frame stays the same.
-        if (State.Frame == frameName)
+        if (StateManager.Get<string>(nameof(Frame)) == frame)
         {
             return;
         }
 
         // Get the list of visible objects before we change the state.
-        var visibleObjectsBefore = _game.CurrentRoom?
+        var visibleObjectsBefore = Game.CurrentRoom?
             .GetVisibleObjects().ToList();
 
         // Change the state, this may impact visibility of other objects.
-        State.Frame = frameName;
+        StateManager.Set(STATE_FRAME, frame);
 
         // Get the list of visible objects after we change the state.
-        var visibleObjectsAfter = _game.CurrentRoom?
+        var visibleObjectsAfter = Game.CurrentRoom?
             .GetVisibleObjects().ToList();
 
         // Make lists of the objects that must be hidden/shown in the room.
@@ -112,9 +72,9 @@ public class GameObject
         var objectsToShow = visibleObjectsAfter?.Except(visibleObjectsBefore!)
             ?? Enumerable.Empty<GameObject>();
 
-        EventQueue.Enqueue(new GameObjectFrameChanged(
+        Game.EventQueue.Enqueue(new GameObjectFrameChanged(
             this,
-            frameName,
+            frame,
             objectsToHide,
             objectsToShow));
     }
@@ -130,9 +90,8 @@ public class GameObject
 
     public override int GetHashCode() => Id.GetHashCode();
 
-    internal void NotifyPlacedInRoom(Room room, Point position)
-    {
-        State.Room = room;
-        State.Position = position;
-    }
+    internal void SetPosition(Point position) =>
+        StateManager.Set(STATE_POSITION, position);
+
+    protected virtual bool GetVisibility() => true;
 }

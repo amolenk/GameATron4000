@@ -39,9 +39,8 @@
 //     z_offset = 100
 // }
 
-GameObject parkBeam = Object(nameof(parkBeam))
-    .Untouchable()
-    .Build();
+Item parkBeam = AddItem(nameof(parkBeam), builder => builder
+    .Untouchable());
 
 // beam_terminal = {
 //     id = "beam_terminal",
@@ -367,9 +366,8 @@ GameObject parkBeam = Object(nameof(parkBeam))
 //     }
 // }
 
-GameObject groceries = Object("groceries")
-    .Untouchable()
-    .Build();
+Item groceries = AddItem("groceries", builder => builder
+    .Untouchable());
 //     classes = { class_untouchable, class_use_with },
 //     verbs = {
 //         give_to = function(obj, actor)
@@ -398,9 +396,8 @@ GameObject groceries = Object("groceries")
 //     z_offset = 30
 // }
 
-GameObject grocerylist = Object("grocerylist")
-    .Named("grocery list")
-    .Build();
+Item grocerylist = AddItem("grocerylist", builder => builder
+    .Named("grocery list"));
 //     classes = { class_use_with },
 //     verbs = {
 //         give_to = function(obj, actor)
@@ -450,14 +447,14 @@ GameObject grocerylist = Object("grocerylist")
 //     }
 // }
 
-GameObject newspaper = Object("newspaper")
+Item newspaper = AddItem("newspaper", builder => builder
     .When.Give(_ =>
     {
         SayLine("I think I'll keep it for now.");
     })
     .When.LookAt(() =>
     {
-        if (newspaper.Owner == Protagonist)
+        if (guy.Has(newspaper))
         {
             SayLine("It's yesterday's paper.");
         }
@@ -468,15 +465,13 @@ GameObject newspaper = Object("newspaper")
     })
     .When.PickUp(() =>
     {
-        newspaper.SetOwner(Protagonist);
+        guy.AddToInventory(newspaper);
         CutScene_BeamUp();
-    })
-    .Build();
+    }));
 
-GameObject newspaperHeadline = Object(nameof(newspaperHeadline))
+Item newspaperHeadline = AddItem(nameof(newspaperHeadline), builder => builder
     .Untouchable()
-    .FixedToCamera()
-    .Build();
+    .FixedToCamera());
 
 // onair = {
 //     id = "onair",
@@ -498,9 +493,8 @@ GameObject newspaperHeadline = Object(nameof(newspaperHeadline))
 // }
 
 
-GameObject parkBench = Object("park_bench")
-    .Untouchable()
-    .Build();
+Item parkBench = AddItem("park_bench", builder => builder
+    .Untouchable());
 
 // podcast_booth = {
 //     id = "podcast_booth",

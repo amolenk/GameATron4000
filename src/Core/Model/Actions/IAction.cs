@@ -4,9 +4,9 @@ public interface IAction
 {
     bool Add(GameObject gameObject);
 
-    GameObject? GetInteractObject();
+    GameObject? GetObjectToWalkTo();
 
-    string GetDisplayText(GameObject? hoverObject);
+    string GetDisplayText(GameObject? overObject = null);
 
-    void Execute();
+    void TryExecute();
 }

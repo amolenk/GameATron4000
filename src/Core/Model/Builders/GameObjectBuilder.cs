@@ -1,79 +1,84 @@
 namespace Amolenk.GameATron4000.Model.Builders;
 
-public class GameObjectBuilder : IGameObjectBuilder
+public abstract class GameObjectBuilder<TObject, TBuilder>
+    where TObject : GameObject
+    where TBuilder : GameObjectBuilder<TObject, TBuilder>
 {
-    public string Id { get; private set; }
-    public string DisplayName { get; private set; }
-    public bool IsTouchable { get; private set; }
-    public bool UseWith { get; private set; }
-    public string FrameName { get; private set; }
-    public string InteractFrameName { get; private set; }
-    public RelativePosition InteractPosition { get; private set; }
-    public GameObjectCondition? Condition { get; private set; }
-    public int ScrollFactor { get; private set; }
-    public GameObjectHandlersBuilder<GameObjectBuilder> When { get; private set; }
-    public Game Game { get; private set; }
+    private readonly TBuilder _builderInstance;
 
-    IGameObjectHandlersBuilder IGameObjectBuilder.HandlersBuilder => When;
+    protected string _id;
+    protected string _displayName;
+    protected string _frame;
+    protected Game _game;
+    protected string _interactFrame;
+    protected RelativePosition _interactPosition;
+    protected bool _isTouchable;
+    protected int _scrollFactor;
 
-    internal GameObjectBuilder(string id, Game game)
+    public ActionHandlersBuilder<GameObjectBuilder<TObject, TBuilder>> When
+    { 
+        get;
+    }
+
+    protected GameObjectBuilder(string id, Game game)
     {
-        Id = id;
-        DisplayName = id;
-        IsTouchable = true;
-        UseWith = false;
-        FrameName = WellKnownFrame.Default;
-        InteractFrameName = WellKnownFrame.Default;
-        InteractPosition = RelativePosition.Center;
-        ScrollFactor = -1;
+        _builderInstance = (TBuilder)this;
+
+        _id = id;
+        _displayName = id;
+        _frame = WellKnownFrame.Default;
+        _game = game;
+        _interactFrame = WellKnownFrame.Default;
+        _interactPosition = RelativePosition.Center;
+        _isTouchable = true;
+        _scrollFactor = -1;
+
         When = new(this);
-        Game = game;
     }
 
-    public GameObjectBuilder Named(string displayName)
+    public TBuilder FixedToCamera()
     {
-        DisplayName = displayName;
-        return this;
+        _scrollFactor = 0;
+        return _builderInstance;
     }
 
-    public GameObjectBuilder Untouchable()
+    public TBuilder Named(string displayName)
     {
-        IsTouchable = false;
-        return this;
+        _displayName = displayName;
+        return _builderInstance;
     }
 
-    public GameObjectBuilder CanBeUsedWithOtherObjects()
+    public TBuilder Untouchable()
     {
-        UseWith = true;
-        return this;
+        _isTouchable = false;
+        return _builderInstance;
     }
 
-    public GameObjectBuilder WithFrameName(string frameName)
-    {
-        FrameName = frameName;
-        return this;
-    }
-
-    public GameObjectBuilder WithActorInteraction(
+    public TBuilder WithActorInteraction(
         RelativePosition position,
-        string frameName)
+        string frame)
     {
-        InteractFrameName = frameName;
-        InteractPosition = position;
-        return this;
+        _interactPosition = position;
+        _interactFrame = frame;
+        return _builderInstance;
     }
 
-    public GameObjectBuilder DependsOn(GameObject other, string frameName)
+    public TBuilder WithFrame(string frame)
     {
-        Condition = new GameObjectCondition(other, frameName);
-        return this;
+        _frame = frame;
+        return _builderInstance;
     }
 
-    public GameObjectBuilder FixedToCamera()
-    {
-        ScrollFactor = 0;
-        return this;
-    }
+    public abstract TObject Build();
 
-    public GameObject Build() => new GameObject(this);
+    protected ActionHandlers BuildActionHandlers() => new ActionHandlers(
+        When.HandleGive,
+        When.HandlePickUp,
+        When.HandleUse,
+        When.HandleOpen,
+        When.HandleLookAt,
+        When.HandlePush,
+        When.HandleClose,
+        When.HandleTalkTo,
+        When.HandlePull);
 }

@@ -2,5 +2,5 @@
 
 public record ProtagonistChanged(
     Actor Protagonist,
-    List<GameObject> InventoryItems)
+    IEnumerable<Item> InventoryItems)
     : IEvent;

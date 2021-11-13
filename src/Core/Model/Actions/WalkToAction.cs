@@ -2,11 +2,11 @@ namespace Amolenk.GameATron4000.Model.Actions;
 
 public class WalkToAction : UnaryAction
 {
-    public WalkToAction() : base(Verb.WalkTo)
+    public WalkToAction(Game game) : base(game, Verb.WalkTo)
     {
     }
 
-    public override void Execute(GameObjectHandlers handlers)
+    public override void TryExecute(ActionHandlers actionHandlers)
     {
         // No handlers for WalkTo command.
     }

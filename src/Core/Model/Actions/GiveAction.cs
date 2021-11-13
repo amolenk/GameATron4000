@@ -2,20 +2,23 @@ namespace Amolenk.GameATron4000.Model.Actions;
 
 public class GiveAction : IAction
 {
-    private GameObject? _inventoryItem;
+    private readonly Game _game;
+    private Item? _item;
     private Actor? _actor;
 
-    public GiveAction()
+    public GiveAction(Game game)
     {
+        _game = game;
     }
 
     public bool Add(GameObject gameObject)
     {
-        if (_inventoryItem is null)
+        if (_item is null)
         {
-            if (!(gameObject is Actor))
+            if (gameObject is Item item &&
+                _game.TryGetOwnerForItem(item, out _))
             {
-                _inventoryItem = gameObject;
+                _item = item;
             }
             return false;
         }
@@ -29,25 +32,31 @@ public class GiveAction : IAction
         return false;
     }
 
-    public GameObject? GetInteractObject() => _actor;
+    public GameObject? GetObjectToWalkTo() => _actor;
 
-    public string GetDisplayText(GameObject? hoverObject)
+    public string GetDisplayText(GameObject? overObject)
     {
 		var stringBuilder = new StringBuilder("Give");
 		
-        if (_inventoryItem is not null)
+        if (_item is not null)
         {
-            stringBuilder.Append($" {_inventoryItem.DisplayName} to");
+            stringBuilder.Append($" {_item.DisplayName} to");
         }
 
-		if (hoverObject is not null)
+		if (overObject is not null)
 		{
-			stringBuilder.Append($" {hoverObject.DisplayName}");
+			stringBuilder.Append($" {overObject.DisplayName}");
 		}
 
 		return stringBuilder.ToString();
     }
 
-    public void Execute() =>
-        _inventoryItem!.Handlers.HandleGive?.Invoke(_actor!);
+    public void TryExecute()
+    {
+        if (_item is { ActionHandlers.HandleGive: not null} &&
+            _actor is not null)
+        {
+            _item.ActionHandlers.HandleGive(_actor);
+        }
+    }
 }

@@ -2,82 +2,92 @@ namespace Amolenk.GameATron4000.Model.Actions;
 
 public class UseAction : IAction
 {
-    private GameObject? _gameObject1;
-    private GameObject? _gameObject2;
+    private readonly Game _game;
+    private Item? _item;
+    private GameObject? _with;
 
-    public UseAction()
+    public UseAction(Game game)
     {
+        _game = game;
     }
 
     public bool Add(GameObject gameObject)
     {
-        if (_gameObject1 is not null && IsUseWith())
+        // If an item is already set, only accept the object if the set item can
+        // be used in combination with another item.
+        if (_item is { CanBeUsedWithOtherObject: true } && _item != gameObject)
         {
-            if (!(gameObject is Actor) &&
-                gameObject != _gameObject1)
-            {
-                _gameObject2 = gameObject;
-                return true;
-            }
+            _with = gameObject;
+            return true;
         }
-        else
+        // If an item is not already set, set the object if it's an item.
+        else if (gameObject is Item item)
         {
-            if (!(gameObject is Actor))
-            {
-                _gameObject1 = gameObject;
-                return !IsUseWith();
-            }
+            _item = item;
+            return !item.CanBeUsedWithOtherObject;
         }
 
         return false;
     }
 
-    public GameObject? GetInteractObject()
+    public GameObject? GetObjectToWalkTo()
     {
-        if (_gameObject1!.Owner is null)
+        // If a 'with' object is set, walk to it if it isn't owned by any actor.
+        if (_with is Actor ||
+            (_with is Item item && !_game.TryGetOwnerForItem(item, out Actor _)))
         {
-            return _gameObject1;
+            return _with;
         }
-        if (_gameObject2!.Owner is null)
+
+        // If an item is set, also check if it isn't in some actor's inventory.
+        if (_item is Item && !_game.TryGetOwnerForItem(_item, out Actor _))
         {
-            return _gameObject2;
+            return _item;
         }
+
         return null;
     }
 
-    public string GetDisplayText(GameObject? hoverObject)
+    public string GetDisplayText(GameObject? overObject)
     {
 		var stringBuilder = new StringBuilder("Use");
 		
-        // Ignore the current room object that the mouse is over if it's the same as
-        // the first subject (if any).
-        if (hoverObject == _gameObject1)
+        // Ignore the current room object that the mouse is over if it's the
+        // same as the set item.
+        if (overObject == _item)
         {
-            hoverObject = null;
+            overObject = null;
         }
 
-        if (_gameObject1 is not null)
+        if (_item is not null)
         {
-            stringBuilder.Append($" {_gameObject1.DisplayName}");
+            stringBuilder.Append($" {_item.DisplayName}");
 
-            if (IsUseWith())
+            if (_item.CanBeUsedWithOtherObject)
             {
                 stringBuilder.Append($" with");
             }
         }
 
-        if (hoverObject is not null)
+        if (overObject is not null)
         {
-            stringBuilder.Append($" {hoverObject.DisplayName}");
+            stringBuilder.Append($" {overObject.DisplayName}");
         }
 
 		return stringBuilder.ToString();
     }
 
-    public void Execute() =>
-        _gameObject1!.Handlers.HandleUse?.Invoke(_gameObject2);
+    public void TryExecute()
+    {
+        if (_item is { ActionHandlers.HandleUse: not null} &&
+            (!_item.CanBeUsedWithOtherObject || _with is not null))
+        {
+            _item.ActionHandlers.HandleUse(_with);
+        }
+    }
     
     private bool IsUseWith() =>
-        _gameObject1 is GameObject { Owner: not null } &&
-            _gameObject1.UseWith;
+        _item is Item item &&
+        _game.TryGetOwnerForItem(item, out Actor _) &&
+        _item.CanBeUsedWithOtherObject;
 }

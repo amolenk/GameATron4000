@@ -1,0 +1,46 @@
+﻿@inject IMediator _mediator;
+
+@if (_playerInputEnabled)
+{
+    <p>
+        <span @onclick="@(() => OnVerbClickAsync(Verb.Give))">Give</span>
+        <span @onclick="@(() => OnVerbClickAsync(Verb.PickUp))">Pick up</span>
+        <span @onclick="@(() => OnVerbClickAsync(Verb.Use))">Use</span>
+        <span @onclick="@(() => OnVerbClickAsync(Verb.Open))">Open</span>
+        <span @onclick="@(() => OnVerbClickAsync(Verb.LookAt))">Look at</span>
+        <span @onclick="@(() => OnVerbClickAsync(Verb.Push))">Push</span>
+        <span @onclick="@(() => OnVerbClickAsync(Verb.Close))">Close</span>
+        <span @onclick="@(() => OnVerbClickAsync(Verb.TalkTo))">Talk to</span>
+        <span @onclick="@(() => OnVerbClickAsync(Verb.Pull))">Pull</span>
+    </p>
+}
+
+@code {
+
+    private bool _playerInputEnabled = true;
+
+    protected override void OnInitialized()
+    {
+        _mediator.Subscribe<PlayerActionStarted>(OnPlayerCommandStarted);
+        _mediator.Subscribe<PlayerActionCompleted>(OnPlayerActionCompleted);
+    }
+
+    private Task OnPlayerCommandStarted(PlayerActionStarted @event)
+    {
+        _playerInputEnabled = false;
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private Task OnPlayerActionCompleted(PlayerActionCompleted @event)
+    {
+        _playerInputEnabled = true;
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private async Task OnVerbClickAsync(Verb verb)
+    {
+        await _mediator.PublishAsync(new VerbSelected(verb));
+    }
+}

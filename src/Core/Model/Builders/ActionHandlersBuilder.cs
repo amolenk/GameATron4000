@@ -1,8 +1,8 @@
 namespace Amolenk.GameATron4000.Model.Builders;
 
-public class GameObjectHandlersBuilder<TParent> : IGameObjectHandlersBuilder
+public class ActionHandlersBuilder<TParentBuilder>
 {
-    private readonly TParent _parentBuilder;
+    private readonly TParentBuilder _parentBuilder;
 
     public Action<Actor>? HandleGive { get; private set; }
     public Action? HandlePickUp { get; private set; }
@@ -15,64 +15,62 @@ public class GameObjectHandlersBuilder<TParent> : IGameObjectHandlersBuilder
     public Action? HandlePull { get; private set; }
 
 
-    internal GameObjectHandlersBuilder(TParent parentBuilder)
+    internal ActionHandlersBuilder(TParentBuilder parentBuilder)
     {
         _parentBuilder = parentBuilder;
     }
 
-    public TParent Give(Action<Actor> action)
+    public TParentBuilder Give(Action<Actor> action)
     {
         HandleGive = action;
         return _parentBuilder;
     }
 
-    public TParent PickUp(Action action)
+    public TParentBuilder PickUp(Action action)
     {
         HandlePickUp = action;
         return _parentBuilder;
     }
 
-    public TParent Use(Action<GameObject> action)
+    public TParentBuilder Use(Action<GameObject?> action)
     {
         HandleUse = action;
         return _parentBuilder;
     }
 
-    public TParent Open(Action action)
+    public TParentBuilder Open(Action action)
     {
         HandleOpen = action;
         return _parentBuilder;
     }
 
-    public TParent LookAt(Action action)
+    public TParentBuilder LookAt(Action action)
     {
         HandleLookAt = action;
         return _parentBuilder;
     }
 
-    public TParent Push(Action action)
+    public TParentBuilder Push(Action action)
     {
         HandlePush = action;
         return _parentBuilder;
     }
 
-    public TParent Close(Action action)
+    public TParentBuilder Close(Action action)
     {
         HandleClose = action;
         return _parentBuilder;
     }
 
-    public TParent TalkTo(Action action)
+    public TParentBuilder TalkTo(Action action)
     {
         HandleTalkTo = action;
         return _parentBuilder;
     }
 
-    public TParent Pull(Action action)
+    public TParentBuilder Pull(Action action)
     {
         HandlePull = action;
         return _parentBuilder;
     }
-
-    public void Build() => new GameObjectHandlers(this);
 }

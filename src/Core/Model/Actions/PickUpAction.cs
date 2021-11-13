@@ -2,10 +2,10 @@ namespace Amolenk.GameATron4000.Model.Actions;
 
 public class PickUpAction : UnaryAction
 {
-    public PickUpAction() : base(Verb.PickUp)
+    public PickUpAction(Game game) : base(game, Verb.PickUp)
     {
     }
 
-    public override void Execute(GameObjectHandlers handlers) =>
-        handlers.HandlePickUp?.Invoke();
+    public override void TryExecute(ActionHandlers actionHandlers) =>
+        actionHandlers.HandlePickUp?.Invoke();
 }

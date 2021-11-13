@@ -4,8 +4,8 @@ public class RoomHandlers
 {
     public Action? HandleBeforeEnter { get; private set; }
 
-    public RoomHandlers(RoomHandlersBuilder builder)
+    public RoomHandlers(Action? handleBeforeEnter)
     {
-        HandleBeforeEnter = builder.HandleBeforeEnter;
+        HandleBeforeEnter = handleBeforeEnter;
     }
 }

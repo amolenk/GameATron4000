@@ -7,8 +7,8 @@ OnGameStart(() =>
     park.Place(narrator, 450, 150);
 
     // Inventory
-    groceries.SetOwner(guy);
-    grocerylist.SetOwner(guy);
+    guy.AddToInventory(groceries);
+    guy.AddToInventory(grocerylist);
 
     // park
     park.Place(newspaper, 410, 420);
@@ -48,5 +48,5 @@ OnGameStart(() =>
 //     put_object(saucages, 1225, 296, bridge)
 //     put_object(todolist, 660, 250, bridge)
 
-    park.Enter();
+    ChangeRoom(park);
 });

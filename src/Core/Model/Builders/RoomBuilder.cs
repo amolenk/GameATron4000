@@ -21,5 +21,19 @@ public class RoomBuilder
         return this;
     }
 
-    public Room Build() => new Room(this);
+    internal Room Build()
+    {
+        if (WalkboxArea is null)
+        {
+            throw new InvalidOperationException(
+                "Walkbox area must be set for a room.");
+        }
+
+        return new Room(
+            Id,
+            Game,
+            new Walkbox(WalkboxArea),
+            new RoomHandlers(
+                When.HandleBeforeEnter));
+    }
 }

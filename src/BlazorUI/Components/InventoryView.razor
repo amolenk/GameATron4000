@@ -1,0 +1,70 @@
+﻿@inject IMediator _mediator;
+
+@if (_playerInputEnabled)
+{
+    <p>
+        @foreach (var item in _items)
+        {
+            <span
+                @onpointerover="@(() => OnItemPointerOverAsync(item))"
+                @onpointerout="@(() => OnItemPointerOutAsync(item))"
+                @onclick="@(() => OnItemClickAsync(item))">
+                @(item.DisplayName)&nbsp;
+            </span>
+        }
+    </p>
+}
+
+@code {
+
+    private bool _playerInputEnabled = true;
+    private Actor? _protagonist;
+    private List<Item> _items = new();
+
+    protected override void OnInitialized()
+    {
+        _mediator.Subscribe<ProtagonistChanged>(OnProtagonistChangedAsync);
+        _mediator.Subscribe<ItemAddedToInventory>(OnItemAddedToInventoryAsync);
+        _mediator.Subscribe<ItemRemovedFromInventory>(OnItemRemovedFromInventoryAsync);
+    }
+
+    private Task OnProtagonistChangedAsync(ProtagonistChanged @event)
+    {
+        _protagonist = @event.Protagonist;
+        _items = @event.InventoryItems.ToList();
+
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private Task OnItemAddedToInventoryAsync(ItemAddedToInventory @event)
+    {
+        if (_protagonist == @event.NewOwner)
+        {
+            _items.Add(@event.Item);
+        }
+
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private Task OnItemRemovedFromInventoryAsync(ItemRemovedFromInventory @event)
+    {
+        if (_protagonist == @event.PreviousOwner)
+        {
+            _items.Remove(@event.Item);
+        }
+
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private Task OnItemPointerOverAsync(Item item) =>
+        _mediator.PublishAsync(new GameObjectPointerOver(item));
+
+    private Task OnItemPointerOutAsync(Item item) =>
+        _mediator.PublishAsync(new GameObjectPointerOut(item));
+
+    private Task OnItemClickAsync(Item item) =>
+        _mediator.PublishAsync(new GameObjectPointerDown(item));
+}

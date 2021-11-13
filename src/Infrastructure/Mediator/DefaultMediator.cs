@@ -15,8 +15,6 @@ public class DefaultMediator : GameATron4000.Mediator.IMediator
     {
         var eventType = @event.GetType();
 
-        _logger.LogDebug($"{@event.GetType().Name} published.");
-
         if (_handlersByType.TryGetValue(
             @event.GetType(),
             out List<Func<object, Task>> handlers))

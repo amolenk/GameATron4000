@@ -1,4 +1,4 @@
-namespace Amolenk.GameATron4000.Model;
+namespace Amolenk.GameATron4000.Model.State;
 
 public class RoomState : StateManager
 {
