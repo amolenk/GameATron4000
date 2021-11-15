@@ -16,6 +16,7 @@ public class Item : GameObject
         string interactStatus,
         bool isTouchable,
         int scrollFactor,
+        int depthOffset,
         string status,
         bool canBeUsedWithOtherObject)
         : base(
@@ -27,6 +28,7 @@ public class Item : GameObject
             interactStatus,
             isTouchable,
             scrollFactor,
+            depthOffset,
             status)
     {
         _dependency = dependency;
@@ -55,7 +57,7 @@ public class Item : GameObject
     {
         if (_dependency is not null)
         {
-            return _dependency.Item.Status == _dependency.Status;
+            return _dependency.Item?.Status == _dependency.Status;
         }
 
         return base.GetVisibility();

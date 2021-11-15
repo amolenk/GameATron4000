@@ -5,6 +5,7 @@ public class RoomHandlersBuilder
     private readonly RoomBuilder _roomBuilder;
 
     public Action? HandleBeforeEnter { get; private set; }
+    public Action? HandleAfterEnter { get; private set; }
 
     internal RoomHandlersBuilder(RoomBuilder roomBuilder)
     {
@@ -17,5 +18,13 @@ public class RoomHandlersBuilder
         return _roomBuilder;
     }
 
-    public void Build() => new RoomHandlers(HandleBeforeEnter);
+    public RoomBuilder AfterEnter(Action action)
+    {
+        HandleAfterEnter = action;
+        return _roomBuilder;
+    }
+
+    public void Build() => new RoomHandlers(
+        HandleBeforeEnter,
+        HandleAfterEnter);
 }

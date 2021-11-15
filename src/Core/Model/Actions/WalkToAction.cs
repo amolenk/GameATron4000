@@ -6,8 +6,6 @@ public class WalkToAction : UnaryAction
     {
     }
 
-    public override void TryExecute(ActionHandlers actionHandlers)
-    {
-        // No handlers for WalkTo command.
-    }
+    public override void TryExecute(ActionHandlers actionHandlers) =>
+        actionHandlers.HandleWalkTo?.Invoke();
 }

@@ -15,6 +15,7 @@ public class Actor : GameObject
         string interactStatus,
         bool isTouchable,
         int scrollFactor,
+        int depthOffset,
         string status,
         string textColor)
         : base(
@@ -26,6 +27,7 @@ public class Actor : GameObject
             interactStatus,
             isTouchable,
             scrollFactor,
+            depthOffset,
             status)
     {
         _inventory = new();
@@ -77,7 +79,10 @@ public class Actor : GameObject
 
     public bool Has(Item item) => _inventory.Contains(item);
 
-    public void MoveTo(Point position)
+    public void MoveTo(double x, double y, string endInStatus = WellKnownStatus.FaceCamera)
+        => MoveTo(new Point(x, y), endInStatus);
+
+    public void MoveTo(Point position, string endInStatus = WellKnownStatus.FaceCamera)
     {
         if (Game.TryGetRoomForObject(this, out Room room))
         {
@@ -90,7 +95,7 @@ public class Actor : GameObject
         Game.EventQueue.Enqueue(new ActorMoved(this, position));
     }
 
-    public void MoveTo(IGameObject gameObject)
+    public void MoveTo(IGameObject gameObject, string endInStatus)
     {
         if (gameObject.InteractPosition != RelativePosition.None)
         {
@@ -104,7 +109,7 @@ public class Actor : GameObject
                 dY = -20;
             }
 
-            MoveTo(gameObject.Position.Offset(0, dY));
+            MoveTo(gameObject.Position.Offset(0, dY), endInStatus);
         }
     }
 

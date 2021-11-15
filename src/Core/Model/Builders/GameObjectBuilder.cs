@@ -13,6 +13,7 @@ public abstract class GameObjectBuilder<TObject, TBuilder>
     protected string _interactStatus;
     protected bool _isTouchable;
     protected int _scrollFactor;
+    protected int _depthOffset;
     protected string _status;
 
     public ActionHandlersBuilder<GameObjectBuilder<TObject, TBuilder>> When
@@ -31,6 +32,7 @@ public abstract class GameObjectBuilder<TObject, TBuilder>
         _interactStatus = WellKnownStatus.Default;
         _isTouchable = true;
         _scrollFactor = -1;
+        _depthOffset = 0;
         _status = WellKnownStatus.Default;
 
         When = new(this);
@@ -71,6 +73,12 @@ public abstract class GameObjectBuilder<TObject, TBuilder>
         return _builderInstance;
     }
 
+    public TBuilder WithDepthOffset(int offset)
+    {
+        _depthOffset = offset;
+        return _builderInstance;
+    }
+
     public TBuilder WithStatus(string status)
     {
         _status = status;
@@ -88,5 +96,6 @@ public abstract class GameObjectBuilder<TObject, TBuilder>
         When.HandlePush,
         When.HandleClose,
         When.HandleTalkTo,
-        When.HandlePull);
+        When.HandlePull,
+        When.HandleWalkTo);
 }

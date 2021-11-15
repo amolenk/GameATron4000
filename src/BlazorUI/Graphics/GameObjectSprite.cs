@@ -65,7 +65,7 @@ public class GameObjectSprite : IDisposable
             GameObject.Position,
             options =>
             {
-                options.Depth = GameObject.Position.Y;
+                options.Depth = GameObject.Position.Y + GameObject.DepthOffset;
                 options.Origin = new Point(0.5, 1);
                 options.ScrollFactor = GameObject.ScrollFactor;
 

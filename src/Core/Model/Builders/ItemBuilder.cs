@@ -31,6 +31,7 @@ public class ItemBuilder : GameObjectBuilder<Item, ItemBuilder>
         _interactStatus,
         _isTouchable,
         _scrollFactor,
+        _depthOffset,
         _status,
         _canBeUsedWithOtherObject);
 }

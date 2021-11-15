@@ -9,6 +9,7 @@ public interface IGameObject
     string InteractStatus { get; }
     bool IsTouchable { get; }
     int ScrollFactor { get; }
+    int DepthOffset { get; }
     bool IsVisible { get; }
 
     Point Position { get; }

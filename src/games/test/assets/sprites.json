@@ -1660,7 +1660,7 @@
 			},
 			"trimmed": false
 		},
-		"cheese_grater": {
+		"cheeseGrater": {
 			"frame": {
 				"h": 28,
 				"w": 12,
@@ -1680,7 +1680,7 @@
 			},
 			"trimmed": false
 		},
-		"claw_hammer": {
+		"clawHammer": {
 			"frame": {
 				"h": 12,
 				"w": 30,
@@ -1840,7 +1840,7 @@
 			},
 			"trimmed": false
 		},
-		"cooker_in_crate": {
+		"cookerInCrate": {
 			"frame": {
 				"h": 51,
 				"w": 46,
@@ -1860,7 +1860,7 @@
 			},
 			"trimmed": false
 		},
-		"countertop": {
+		"counterTop": {
 			"frame": {
 				"h": 12,
 				"w": 225,
@@ -1880,7 +1880,7 @@
 			},
 			"trimmed": false
 		},
-		"crate_left": {
+		"crateLeft": {
 			"frame": {
 				"h": 83,
 				"w": 96,
@@ -1900,7 +1900,7 @@
 			},
 			"trimmed": false
 		},
-		"crate_right/closed": {
+		"crateRight/closed": {
 			"frame": {
 				"h": 77,
 				"w": 121,
@@ -1920,7 +1920,7 @@
 			},
 			"trimmed": false
 		},
-		"crate_right/open": {
+		"crateRight/open": {
 			"frame": {
 				"h": 77,
 				"w": 121,
@@ -1940,7 +1940,7 @@
 			},
 			"trimmed": false
 		},
-		"crate_right_front": {
+		"crateRightFront": {
 			"frame": {
 				"h": 77,
 				"w": 121,
@@ -1960,7 +1960,7 @@
 			},
 			"trimmed": false
 		},
-		"crate_top": {
+		"crateTop": {
 			"frame": {
 				"h": 93,
 				"w": 104,
@@ -1980,7 +1980,7 @@
 			},
 			"trimmed": false
 		},
-		"door_bridge": {
+		"bridgeDoor": {
 			"frame": {
 				"h": 190,
 				"w": 44,
@@ -2100,7 +2100,7 @@
 			},
 			"trimmed": false
 		},
-		"grocerylist": {
+		"groceryList": {
 			"frame": {
 				"h": 26,
 				"w": 24,
@@ -2140,7 +2140,7 @@
 			},
 			"trimmed": false
 		},
-		"newspaper_headline": {
+		"newspaperHeadline": {
 			"frame": {
 				"h": 600,
 				"w": 800,
@@ -2160,7 +2160,7 @@
 			},
 			"trimmed": false
 		},
-		"onair/off": {
+		"onAir/off": {
 			"frame": {
 				"h": 86,
 				"w": 85,
@@ -2180,7 +2180,7 @@
 			},
 			"trimmed": false
 		},
-		"onair/on": {
+		"onAir/on": {
 			"frame": {
 				"h": 86,
 				"w": 85,
@@ -2200,7 +2200,7 @@
 			},
 			"trimmed": false
 		},
-		"outlet_booth": {
+		"outletBooth": {
 			"frame": {
 				"h": 9,
 				"w": 12,
@@ -2220,7 +2220,7 @@
 			},
 			"trimmed": false
 		},
-		"outlet_kitchen": {
+		"outletKitchen": {
 			"frame": {
 				"h": 12,
 				"w": 12,
@@ -2240,7 +2240,7 @@
 			},
 			"trimmed": false
 		},
-		"park_bench": {
+		"parkBench": {
 			"frame": {
 				"h": 97,
 				"w": 161,
@@ -2260,7 +2260,7 @@
 			},
 			"trimmed": false
 		},
-		"podcast_booth": {
+		"podcastBooth": {
 			"frame": {
 				"h": 192,
 				"w": 231,
@@ -2280,7 +2280,7 @@
 			},
 			"trimmed": false
 		},
-		"power_cord/booth": {
+		"powerCord/booth": {
 			"frame": {
 				"h": 45,
 				"w": 84,
@@ -2300,7 +2300,7 @@
 			},
 			"trimmed": false
 		},
-		"power_cord/kitchen": {
+		"powerCord/kitchen": {
 			"frame": {
 				"h": 96,
 				"w": 75,
@@ -2340,7 +2340,7 @@
 			},
 			"trimmed": false
 		},
-		"todolist": {
+		"todoList": {
 			"frame": {
 				"h": 22,
 				"w": 22,

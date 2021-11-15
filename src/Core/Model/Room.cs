@@ -24,7 +24,10 @@ public class Room
         Handlers = handlers;
     }
 
-    public void Place(IGameObject gameObject, double x, double y)
+    public void Place(IGameObject gameObject, double x, double y) =>
+        Place(gameObject, new Point(x, y));
+
+    public void Place(IGameObject gameObject, Point position)
     {
         // If the object is currently in another room, remove it.
         if (_game.TryGetRoomForObject(gameObject, out Room room))
@@ -40,7 +43,7 @@ public class Room
         }
 
         // Update state.
-        gameObject.UpdatePosition(new Point(x, y));
+        gameObject.UpdatePosition(position);
         _objects.Add(gameObject);
 
         _game.EventQueue.Enqueue(new GameObjectPlacedInRoom(
@@ -92,6 +95,8 @@ public class Room
         _game.EventQueue.Enqueue(new RoomEntered(
             this,
             GetVisibleObjects().ToList()));
+        
+        Handlers.HandleAfterEnter?.Invoke();
     }
 
     internal IEnumerable<IGameObject> GetVisibleObjects() =>

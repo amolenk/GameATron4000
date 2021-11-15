@@ -85,7 +85,8 @@ public class GameScript
         var objectToWalkTo = action.GetObjectToWalkTo();
         if (objectToWalkTo is not null)
         {
-            _game.Protagonist!.MoveTo(objectToWalkTo);
+            // TODO Check config for endstate
+            _game.Protagonist!.MoveTo(objectToWalkTo, WellKnownStatus.FaceCamera);
         }
 
         action.TryExecute();

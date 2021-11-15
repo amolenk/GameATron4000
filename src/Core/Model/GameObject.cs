@@ -8,6 +8,7 @@ public abstract class GameObject : IGameObject
     public string InteractStatus { get; }
     public bool IsTouchable { get; }
     public int ScrollFactor { get; }
+    public int DepthOffset { get; }
     public bool IsVisible => GetVisibility();
 
     public Point Position { get; protected set; }
@@ -26,6 +27,7 @@ public abstract class GameObject : IGameObject
         string interactStatus,
         bool isTouchable,
         int scrollFactor,
+        int depthOffset,
         string status)
     {
         Game = game;
@@ -36,6 +38,7 @@ public abstract class GameObject : IGameObject
         InteractStatus = interactStatus;
         IsTouchable = isTouchable;
         ScrollFactor = scrollFactor;
+        DepthOffset = depthOffset;
         Position = new Point(-1, -1);
         Status = status;
     }

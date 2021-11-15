@@ -34,6 +34,7 @@ public class RoomBuilder
             Game,
             new Walkbox(WalkboxArea),
             new RoomHandlers(
-                When.HandleBeforeEnter));
+                When.HandleBeforeEnter,
+                When.HandleAfterEnter));
     }
 }

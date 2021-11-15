@@ -6,7 +6,7 @@ OnGameStart(() =>
 
     // Inventory
     guy.AddToInventory(groceries);
-    guy.AddToInventory(grocerylist);
+    guy.AddToInventory(groceryList);
 
     // park
     park.Place(narrator, 450, 150);
@@ -16,13 +16,13 @@ OnGameStart(() =>
     // terminal
     terminal.Place(shipComputer, 450, 150);
     terminal.Place(beamButton, 73, 281);
-//     put_object(beam_glow, 442, 450, terminal)
-//     put_object(beam_terminal, 442, 403, terminal)
-//     put_object(cooker_in_crate, 280, 450, terminal)
-//     put_object(crate_left, 148, 450, terminal)
-//     put_object(crate_right, 256, 450, terminal)
-//     put_object(crate_right_front, 256, 450, terminal)
-//     put_object(crate_top, 204, 390, terminal)
+    terminal.Place(beamGlow, 442, 450);
+    terminal.Place(beamTerminal, 442, 403);
+    terminal.Place(cookerInCrate, 280, 450);
+    terminal.Place(crateLeft, 148, 450);
+    terminal.Place(crateRight, 256, 450);
+    terminal.Place(crateRightFront, 256, 450);
+    terminal.Place(crateTop, 204, 390);
     terminal.Place(terminalDoor, 774, 332);
 
      // bridge

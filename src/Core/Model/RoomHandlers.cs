@@ -4,8 +4,13 @@ public class RoomHandlers
 {
     public Action? HandleBeforeEnter { get; private set; }
 
-    public RoomHandlers(Action? handleBeforeEnter)
+    public Action? HandleAfterEnter { get; private set; }
+
+    public RoomHandlers(
+        Action? handleBeforeEnter,
+        Action? handleAfterEnter)
     {
         HandleBeforeEnter = handleBeforeEnter;
+        HandleAfterEnter = handleAfterEnter;
     }
 }

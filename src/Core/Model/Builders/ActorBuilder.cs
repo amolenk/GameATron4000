@@ -25,6 +25,7 @@ public class ActorBuilder : GameObjectBuilder<Actor, ActorBuilder>
         _interactStatus,
         _isTouchable,
         _scrollFactor,
+        _depthOffset,
         _status,
         _textColor);
 }

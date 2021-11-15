@@ -11,6 +11,7 @@ public class ActionHandlers
     public Action? HandleClose { get; private set; }
     public Action? HandleTalkTo { get; private set; }
     public Action? HandlePull { get; private set; }
+    public Action? HandleWalkTo { get; private set; }
 
     public ActionHandlers(
         Action<Actor>? handleGive,
@@ -21,7 +22,8 @@ public class ActionHandlers
         Action? handlePush,
         Action? handleClose,
         Action? handleTalkTo,
-        Action? handlePull)
+        Action? handlePull,
+        Action? handleWalkTo)
     {
         HandleGive = handleGive;
         HandlePickUp = handlePickUp;
@@ -32,5 +34,6 @@ public class ActionHandlers
         HandleClose = handleClose;
         HandleTalkTo = handleTalkTo;
         HandlePull = handlePull;
+        HandleWalkTo = handleWalkTo;
     }
 }

@@ -78,6 +78,7 @@ public class Game
     public void Delay(int value) =>
         EventQueue.Enqueue(new DelayRequested(TimeSpan.FromMilliseconds(value)));
 
+    // TODO Remove
     public void SayLine(string line) => Protagonist?.SayLine(line);
 
     public void SetProtagonist(Actor actor)
@@ -98,6 +99,11 @@ public class Game
     public void ClearFlag(string flag) => _flags.Remove(flag);
 
     public bool IsFlagSet(string flag) => _flags.Contains(flag);
+
+    public void StartDialogue(string dialogueName)
+    {
+        SayLine($"[TODO: {dialogueName}]");
+    }
 
     internal bool TryGetItem(
         string id, 
