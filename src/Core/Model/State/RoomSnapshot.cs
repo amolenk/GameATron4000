@@ -19,6 +19,8 @@ public record RoomSnapshot : ISnapshot<RoomSnapshot>
         return null;
     }
 
-    private bool HasObjectsChanged(List<string> baseline) =>
-        Objects.Count != baseline.Count || !Objects.All(baseline.Contains);
+    private bool HasObjectsChanged(List<string>? baseline) =>
+        baseline != null &&
+        Objects != null &&
+        (Objects.Count != baseline.Count || !Objects.All(baseline.Contains));
 }

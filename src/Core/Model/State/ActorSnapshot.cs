@@ -7,7 +7,7 @@ public record ActorSnapshot : GameObjectSnapshot, ISnapshot<ActorSnapshot>
     public ActorSnapshot(
         Point? position,
         string? status,
-        List<string> inventory)
+        List<string>? inventory)
         : base(position, status)
     {
         Inventory = inventory;
@@ -28,6 +28,8 @@ public record ActorSnapshot : GameObjectSnapshot, ISnapshot<ActorSnapshot>
         return null;
     }
 
-    private bool HasInventoryChanges(List<string> baseline) =>
-        Inventory.Count != baseline.Count || !Inventory.All(baseline.Contains);
+    private bool HasInventoryChanges(List<string>? baseline) =>
+        baseline is not null &&
+        Inventory is not null &&
+        (Inventory.Count != baseline.Count || !Inventory.All(baseline.Contains));
 }

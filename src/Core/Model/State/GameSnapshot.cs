@@ -5,6 +5,7 @@ public record GameSnapshot : ISnapshot<GameSnapshot>
     public Dictionary<string, ItemSnapshot> Items { get; }
     public Dictionary<string, ActorSnapshot> Actors { get; }
     public Dictionary<string, RoomSnapshot> Rooms { get; }
+    public List<string>? Flags { get; }
     public string? Protagonist { get; }
     public string? CurrentRoom { get; }
     public string? PreviousRoom { get; }
@@ -13,6 +14,7 @@ public record GameSnapshot : ISnapshot<GameSnapshot>
         Dictionary<string, ItemSnapshot> items,
         Dictionary<string, ActorSnapshot> actors,
         Dictionary<string, RoomSnapshot> rooms,
+        List<string>? flags,
         string? protagonist,
         string? currentRoom,
         string? previousRoom)
@@ -20,6 +22,7 @@ public record GameSnapshot : ISnapshot<GameSnapshot>
         Items = items;
         Actors = actors;
         Rooms = rooms;
+        Flags = flags;
         Protagonist = protagonist;
         CurrentRoom = currentRoom;
         PreviousRoom = previousRoom;
@@ -30,6 +33,7 @@ public record GameSnapshot : ISnapshot<GameSnapshot>
         var items = GetChanges(Items, baseline.Items);
         var actors = GetChanges(Actors, baseline.Actors);
         var rooms = GetChanges(Rooms, baseline.Rooms);
+        var flags = HasFlagsChanges(baseline.Flags) ? Flags : null!;
 
         var protagonist = Protagonist != baseline.Protagonist
             ? Protagonist : null;
@@ -44,6 +48,7 @@ public record GameSnapshot : ISnapshot<GameSnapshot>
             items,
             actors,
             rooms,
+            flags,
             protagonist,
             currentRoom,
             previousRoom);
@@ -73,4 +78,9 @@ public record GameSnapshot : ISnapshot<GameSnapshot>
         }
         return result;
     }
+
+    private bool HasFlagsChanges(List<string>? baseline) =>
+        baseline is not null &&
+        Flags is not null &&
+        (Flags.Count != baseline.Count || !Flags.All(baseline.Contains));
 }

@@ -5,6 +5,7 @@ public class Game
     private readonly List<Item> _items;
     private readonly List<Actor> _actors;
     private readonly List<Room> _rooms;
+    private readonly List<string> _flags;
     private Action? _onStart;
 
     public Actor? Protagonist { get; private set; }
@@ -18,6 +19,7 @@ public class Game
         _items = new();
         _actors = new();
         _rooms = new();
+        _flags = new();
 
         EventQueue = eventQueue;
     }
@@ -85,6 +87,18 @@ public class Game
         EventQueue.Enqueue(new ProtagonistChanged(actor, new List<Item>()));
     }
 
+    public void SetFlag(string flag)
+    {
+        if (!_flags.Contains(flag))
+        {
+            _flags.Add(flag);
+        }
+    }
+
+    public void ClearFlag(string flag) => _flags.Remove(flag);
+
+    public bool IsFlagSet(string flag) => _flags.Contains(flag);
+
     internal bool TryGetItem(
         string id, 
         [MaybeNullWhen(false)] out Item item)
@@ -141,6 +155,7 @@ public class Game
             items,
             actors,
             rooms,
+            new List<string>(_flags),
             protagonist,
             currentRoom,
             previousRoom);
