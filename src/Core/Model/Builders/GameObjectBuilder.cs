@@ -1,7 +1,7 @@
 namespace Amolenk.GameATron4000.Model.Builders;
 
 public abstract class GameObjectBuilder<TObject, TBuilder>
-    where TObject : GameObject
+    where TObject : IGameObject
     where TBuilder : GameObjectBuilder<TObject, TBuilder>
 {
     private readonly TBuilder _builderInstance;

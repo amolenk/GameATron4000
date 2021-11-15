@@ -2,21 +2,22 @@ namespace Amolenk.GameATron4000.Model;
 
 public class Game
 {
-    // TODO
-    private readonly GlobalState _state;
+    private readonly List<Item> _items;
+    private readonly List<Actor> _actors;
+    private readonly List<Room> _rooms;
     private Action? _onStart;
 
-    public Actor? Protagonist => _state.Protagonist;
-
-    public Room? CurrentRoom => _state.CurrentRoom;
-
-    public Room? PreviousRoom => _state.PreviousRoom;
+    public Actor? Protagonist { get; private set; }
+    public Room? CurrentRoom { get; private set; }
+    public Room? PreviousRoom { get; private set; }
 
     internal EventQueue EventQueue { get; private set; }
 
     internal Game(EventQueue eventQueue)
     {
-        _state = new();
+        _items = new();
+        _actors = new();
+        _rooms = new();
 
         EventQueue = eventQueue;
     }
@@ -28,7 +29,7 @@ public class Game
 
         var item = builder.Build();
 
-        _state.Items.Add(item);
+        _items.Add(item);
 
         return item;
     }
@@ -40,7 +41,7 @@ public class Game
 
         var actor = builder.Build();
 
-        _state.Actors.Add(actor);
+        _actors.Add(actor);
 
         return actor;
     }
@@ -52,7 +53,7 @@ public class Game
 
         var room = builder.Build();
 
-        _state.Rooms.Add(room);
+        _rooms.Add(room);
 
         return room;
     }
@@ -61,10 +62,10 @@ public class Game
 
     public void ChangeRoom(Room room)
     {
-        if (room != _state.CurrentRoom)
+        if (room != CurrentRoom)
         {
-            _state.PreviousRoom = _state.CurrentRoom;
-            _state.CurrentRoom = room;
+            PreviousRoom = CurrentRoom;
+            CurrentRoom = room;
 
             room.Enter();
         }
@@ -79,18 +80,32 @@ public class Game
 
     public void SetProtagonist(Actor actor)
     {
-        _state.Protagonist = actor;
+        Protagonist = actor;
 
         EventQueue.Enqueue(new ProtagonistChanged(actor, new List<Item>()));
     }
 
+    internal bool TryGetItem(
+        string id, 
+        [MaybeNullWhen(false)] out Item item)
+    {
+        item = _items.FirstOrDefault(item => item.Id == id);
+        return item is not null;
+    }
+
+    internal bool TryGetActor(
+        string id, 
+        [MaybeNullWhen(false)] out Actor actor)
+    {
+        actor = _actors.FirstOrDefault(item => item.Id == id);
+        return actor is not null;
+    }
+
     internal bool TryGetRoomForObject(
-        GameObject gameObject,
+        IGameObject gameObject,
         [MaybeNullWhen(false)] out Room room)
     {
-        room = _state.Rooms.FirstOrDefault(
-            room => room.Objects.Contains(gameObject));
-        
+        room = _rooms.FirstOrDefault(room => room.ContainsObject(gameObject));
         return room is not null;
     }
 
@@ -98,14 +113,90 @@ public class Game
         Item item,
         [MaybeNullWhen(false)] out Actor actor)
     {
-        actor = _state.Actors.FirstOrDefault(
-            actor => actor.Inventory.Contains(item));
-        
+        actor = _actors.FirstOrDefault(actor => actor.Has(item));
         return actor is not null;
     }
 
     internal void Start() => _onStart?.Invoke();
 
+    internal GameSnapshot Save()
+    {
+        var items = _items.ToDictionary(
+            item => item.Id,
+            item => item.Save());
 
+        var actors = _actors.ToDictionary(
+            actor => actor.Id,
+            actor => actor.Save());
 
+        var rooms = _rooms.ToDictionary(
+            room => room.Id,
+            room => room.Save());
+
+        var protagonist = Protagonist?.Id;
+        var currentRoom = CurrentRoom?.Id;
+        var previousRoom = PreviousRoom?.Id;
+
+        return new GameSnapshot(
+            items,
+            actors,
+            rooms,
+            protagonist,
+            currentRoom,
+            previousRoom);
+    }
+
+    internal void Restore(GameSnapshot snapshot)
+    {
+        foreach (var entry in snapshot.Items)
+        {
+            var item = _items.FirstOrDefault(item => item.Id == entry.Key);
+            item?.Restore(entry.Value);
+        }
+
+        foreach (var entry in snapshot.Actors)
+        {
+            var actor = _actors.FirstOrDefault(actor => actor.Id == entry.Key);
+            actor?.Restore(entry.Value);
+        }
+
+        foreach (var entry in snapshot.Rooms)
+        {
+            var room = _rooms.FirstOrDefault(room => room.Id == entry.Key);
+            room?.Restore(entry.Value);
+        }
+
+        if (snapshot.Protagonist is not null)
+        {
+            var protagonist = _actors.FirstOrDefault(
+                actor => actor.Id == snapshot.Protagonist);
+            
+            if (protagonist is not null)
+            {
+                Protagonist = protagonist;
+            }
+        }
+
+        if (snapshot.CurrentRoom is not null)
+        {
+            var currentRoom = _rooms.FirstOrDefault(
+                room => room.Id == snapshot.CurrentRoom);
+            
+            if (currentRoom is not null)
+            {
+                CurrentRoom = currentRoom;
+            }
+        }
+
+        if (snapshot.PreviousRoom is not null)
+        {
+            var previousRoom = _rooms.FirstOrDefault(
+                room => room.Id == snapshot.CurrentRoom);
+            
+            if (previousRoom is not null)
+            {
+                PreviousRoom = previousRoom;
+            }
+        }
+    }
 }

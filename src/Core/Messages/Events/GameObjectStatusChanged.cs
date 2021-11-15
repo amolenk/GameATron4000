@@ -1,8 +1,8 @@
 ﻿namespace Amolenk.GameATron4000.Messages.Events;
 
 public record GameObjectStatusChanged(
-    GameObject GameObject,
+    IGameObject GameObject,
     string Status,
-    IEnumerable<GameObject> ObjectsToHide,
-    IEnumerable<GameObject> ObjectsToShow)
+    IEnumerable<IGameObject> ObjectsToHide,
+    IEnumerable<IGameObject> ObjectsToShow)
     : IEvent;

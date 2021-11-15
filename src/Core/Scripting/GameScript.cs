@@ -4,6 +4,7 @@ public class GameScript
 {
     private readonly Game _game;
     private readonly EventQueue _eventQueue;
+    private GameSnapshot _initialState;
 
     public GameScript(
         Game game,
@@ -31,7 +32,7 @@ public class GameScript
         return new GameScript(game, eventQueue, mediator);
     }
 
-    public Task StartGameAsync()
+    public Task StartGameAsync(GameSnapshot? snapshot = null)
     {
         // Disable event queue while setting up the game. No action events
         // should be sent to the UI yet.
@@ -55,11 +56,18 @@ public class GameScript
                 "Startup script must enter a room.");
         }
 
+        _initialState = _game.Save();
+
+        if (snapshot is not null)
+        {
+            _game.Restore(snapshot);
+        }
+
         _eventQueue.Enqueue(new GameStarted(_game));
 
         _eventQueue.Enqueue(new ProtagonistChanged(
             _game.Protagonist,
-            _game.Protagonist.Inventory));
+            _game.Protagonist.GetInventoryItems()));
 
         _eventQueue.Enqueue(new RoomEntered(
             _game.CurrentRoom,
@@ -96,5 +104,11 @@ public class GameScript
         _eventQueue.Enqueue(new PlayerActionCompleted(action));
 
         return _eventQueue.FlushAsync();
+    }
+
+    public GameSnapshot SaveGame() => _game.Save().GetChanges(_initialState);
+
+    public void RestoreGame(GameSnapshot snapshot)
+    {
     }
 }

@@ -176,7 +176,7 @@
         return Task.CompletedTask;
     }
 
-    private void AddGameObjectSprite(GameObject gameObject)
+    private void AddGameObjectSprite(IGameObject gameObject)
     {
         _logger.LogDebug($"Adding sprite for object '{gameObject.Id}' at {gameObject.Position}");
 
@@ -213,7 +213,7 @@
         }
     }
 
-    private void RemoveGameObjectsSprites(IEnumerable<GameObject> gameObjects)
+    private void RemoveGameObjectsSprites(IEnumerable<IGameObject> gameObjects)
     {
         foreach (var gameObject in gameObjects)
         {
@@ -221,7 +221,7 @@
         }
     }
 
-    private void RemoveGameObjectSprite(GameObject gameObject)
+    private void RemoveGameObjectSprite(IGameObject gameObject)
     {
         if (_objectSprites.TryGetValue(
                 gameObject.Id,
@@ -257,17 +257,17 @@
     }
 
     private Task OnGameObjectPointerDownAsync(
-        GameObject gameObject,
+        IGameObject gameObject,
         Point mousePosition) =>
         _mediator.PublishAsync(new GameObjectPointerDown(gameObject));
 
     private Task OnGameObjectPointerOutAsync(
-        GameObject gameObject,
+        IGameObject gameObject,
         Point mousePosition) =>
         _mediator.PublishAsync(new GameObjectPointerOut(gameObject));
 
     private Task OnGameObjectPointerOverAsync(
-        GameObject gameObject,
+        IGameObject gameObject,
         Point mousePosition) =>
         _mediator.PublishAsync(new GameObjectPointerOver(gameObject));
 

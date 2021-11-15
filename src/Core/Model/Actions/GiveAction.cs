@@ -11,7 +11,7 @@ public class GiveAction : IAction
         _game = game;
     }
 
-    public bool Add(GameObject gameObject)
+    public bool Add(IGameObject gameObject)
     {
         if (_item is null)
         {
@@ -32,9 +32,9 @@ public class GiveAction : IAction
         return false;
     }
 
-    public GameObject? GetObjectToWalkTo() => _actor;
+    public IGameObject? GetObjectToWalkTo() => _actor;
 
-    public string GetDisplayText(GameObject? overObject)
+    public string GetDisplayText(IGameObject? overObject)
     {
 		var stringBuilder = new StringBuilder("Give");
 		

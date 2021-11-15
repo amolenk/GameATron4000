@@ -3,26 +3,28 @@
 public class Room
 {
     private readonly Game _game;
-    private RoomState _state { get; }
+    private readonly List<IGameObject> _objects;
 
     public string Id { get; }
     public Walkbox Walkbox { get; }
-    public IEnumerable<GameObject> Objects => _state.Objects;
+
     internal RoomHandlers Handlers { get; private set; }
 
-    internal Room(string id, Game game, Walkbox walkbox, RoomHandlers handlers)
+    internal Room(
+        string id,
+        Game game,
+        Walkbox walkbox,
+        RoomHandlers handlers)
     {
         _game = game;
-        _state = new();
+        _objects = new();
 
         Id = id;
         Walkbox = walkbox;
         Handlers = handlers;
     }
 
-    
-
-    public void Place(GameObject gameObject, double x, double y)
+    public void Place(IGameObject gameObject, double x, double y)
     {
         // If the object is currently in another room, remove it.
         if (_game.TryGetRoomForObject(gameObject, out Room room))
@@ -38,19 +40,19 @@ public class Room
         }
 
         // Update state.
-        gameObject.SetPosition(new Point(x, y));
-        _state.Objects.Add(gameObject);
+        gameObject.UpdatePosition(new Point(x, y));
+        _objects.Add(gameObject);
 
         _game.EventQueue.Enqueue(new GameObjectPlacedInRoom(
             gameObject,
             this));
     }
 
-    public void Remove(GameObject gameObject)
+    public void Remove(IGameObject gameObject)
     {
-        if (Objects.Contains(gameObject))
+        if (_objects.Contains(gameObject))
         {
-            _state.Objects.Remove(gameObject);
+            _objects.Remove(gameObject);
 
             _game.EventQueue.Enqueue(new GameObjectRemovedFromRoom(
                 gameObject,
@@ -68,6 +70,9 @@ public class Room
     }
 
     public override int GetHashCode() => Id.GetHashCode();
+
+    internal bool ContainsObject(IGameObject gameObject) =>
+        _objects.Contains(gameObject);
 
     internal void Enter()
     {
@@ -89,6 +94,29 @@ public class Room
             GetVisibleObjects().ToList()));
     }
 
-    internal IEnumerable<GameObject> GetVisibleObjects() =>
-        Objects.Where(gameObject => gameObject.IsVisible);
+    internal IEnumerable<IGameObject> GetVisibleObjects() =>
+        _objects.Where(gameObject => gameObject.IsVisible);
+
+    internal RoomSnapshot Save() => new RoomSnapshot(
+        _objects.Select(gameObject => gameObject.Id).ToList());
+
+    internal void Restore(RoomSnapshot snapshot)
+    {
+        if (snapshot.Objects is not null)
+        {
+            _objects.Clear();
+
+            foreach (var id in snapshot.Objects)
+            {
+                if (_game.TryGetItem(id, out Item item))
+                {
+                    _objects.Add(item);
+                }
+                else if (_game.TryGetActor(id, out Actor actor))
+                {
+                    _objects.Add(actor);
+                }
+            }
+        }
+    }
 }

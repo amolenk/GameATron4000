@@ -19,3 +19,4 @@ global using Microsoft.Extensions.Logging;
 global using System.Collections.Immutable;
 global using System.Collections.ObjectModel;
 global using System.Diagnostics.CodeAnalysis;
+global using System.Text.Json;

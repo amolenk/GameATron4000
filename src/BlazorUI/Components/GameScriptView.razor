@@ -44,8 +44,20 @@
 
     private async Task OnReloadGameScriptAsync(ReloadGameScript _)
     {
+        var saveGame = _script.SaveGame();
+
+        var options = new JsonSerializerOptions
+        {
+            IgnoreNullValues = true,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        };
+
+        // TODO Remove
+        var data = JsonSerializer.Serialize(saveGame, options);
+        Console.WriteLine(data);
+
         await TryLoadGameScriptAsync();
-        await _script.StartGameAsync();
+        await _script.StartGameAsync(saveGame);
     }
 
     private async Task<bool> TryLoadGameScriptAsync()

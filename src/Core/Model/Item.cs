@@ -34,6 +34,23 @@ public class Item : GameObject
         CanBeUsedWithOtherObject = canBeUsedWithOtherObject;
     }
 
+    internal ItemSnapshot Save() => new ItemSnapshot(
+        new Point(Position.X, Position.Y),
+        Status);
+
+    internal void Restore(ItemSnapshot snapshot)
+    {
+        if (snapshot.Position is not null)
+        {
+            Position = snapshot.Position;
+        }
+
+        if (snapshot.Status is not null)
+        {
+            Status = snapshot.Status;
+        }
+    }
+
     protected override bool GetVisibility()
     {
         if (_dependency is not null)

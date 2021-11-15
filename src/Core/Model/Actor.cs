@@ -2,12 +2,9 @@
 
 public class Actor : GameObject
 {
-    private const string STATE_INVENTORY = "inventory";
+    private readonly List<Item> _inventory;
 
     public string TextColor { get; }
-
-    public IEnumerable<Item> Inventory =>
-        StateManager.Get<List<Item>>(STATE_INVENTORY)!;
 
     internal Actor(
         Game game,
@@ -31,9 +28,9 @@ public class Actor : GameObject
             scrollFactor,
             status)
     {
-        TextColor = textColor;
+        _inventory = new();
 
-        StateManager.Set(STATE_INVENTORY, new List<Item>());
+        TextColor = textColor;
     }
 
     public void FaceCamera() => ChangeStatus(WellKnownStatus.FaceCamera);
@@ -43,10 +40,8 @@ public class Actor : GameObject
 
     public void AddToInventory(Item item)
     {
-        var inventory = StateManager.Get<List<Item>>(STATE_INVENTORY)!;
-
         // No need to do anything if this actor already has the item.
-        if (inventory.Contains(item))
+        if (_inventory.Contains(item))
         {
             return;
         }
@@ -64,25 +59,23 @@ public class Actor : GameObject
         }
 
         // Update state.
-        inventory.Add(item);
+        _inventory.Add(item);
 
         Game.EventQueue.Enqueue(new ItemAddedToInventory(item, this));
     }
 
     public void RemoveFromInventory(Item item)
     {
-        var inventory = StateManager.Get<List<Item>>(STATE_INVENTORY)!;
-
-        if (inventory.Contains(item))
+        if (_inventory.Contains(item))
         {
-            inventory.Remove(item);
+            _inventory.Remove(item);
 
             Game.EventQueue.Enqueue(
                 new ItemRemovedFromInventory(item, this));
         }
     }
 
-    public bool Has(Item item) => Inventory.Contains(item);
+    public bool Has(Item item) => _inventory.Contains(item);
 
     public void MoveTo(Point position)
     {
@@ -92,12 +85,12 @@ public class Actor : GameObject
             position = room.Walkbox.SnapToWalkbox(position);
         }
 
-        SetPosition(position);
+        UpdatePosition(position);
 
         Game.EventQueue.Enqueue(new ActorMoved(this, position));
     }
 
-    public void MoveTo(GameObject gameObject)
+    public void MoveTo(IGameObject gameObject)
     {
         if (gameObject.InteractPosition != RelativePosition.None)
         {
@@ -118,5 +111,38 @@ public class Actor : GameObject
     public void SayLine(string line)
     {
         Game.EventQueue.Enqueue(new LineSpoken(this, line));
+    }
+
+    internal IReadOnlyList<Item> GetInventoryItems() => _inventory.AsReadOnly();
+
+    internal ActorSnapshot Save() => new ActorSnapshot(
+        new Point(Position.X, Position.Y),
+        Status,
+        _inventory.Select(item => item.Id).ToList());
+
+    internal void Restore(ActorSnapshot snapshot)
+    {
+        if (snapshot.Position is not null)
+        {
+            Position = snapshot.Position;
+        }
+
+        if (snapshot.Status is not null)
+        {
+            Status = snapshot.Status;
+        }
+
+        if (snapshot.Inventory is not null)
+        {
+            _inventory.Clear();
+
+            foreach (var id in snapshot.Inventory)
+            {
+                if (Game.TryGetItem(id, out Item item))
+                {
+                    _inventory.Add(item);
+                }
+            }
+        }
     }
 }

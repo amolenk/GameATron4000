@@ -5,7 +5,7 @@ public abstract class UnaryAction : IAction
 {
     private readonly Game _game;
     private readonly Verb _verb;
-    private GameObject? _gameObject;
+    private IGameObject? _gameObject;
 
     protected UnaryAction(Game game, Verb verb)
     {
@@ -13,13 +13,13 @@ public abstract class UnaryAction : IAction
         _verb = verb;
     }
 
-    public bool Add(GameObject gameObject)
+    public bool Add(IGameObject gameObject)
     {
         _gameObject = gameObject;
         return true;
     }
 
-    public GameObject? GetObjectToWalkTo()
+    public IGameObject? GetObjectToWalkTo()
     {
         if (_gameObject is Actor || (_gameObject is Item item &&
             !_game.TryGetOwnerForItem(item, out Actor _)))
@@ -30,7 +30,7 @@ public abstract class UnaryAction : IAction
         return null;
     }
 
-    public string GetDisplayText(GameObject? gameObject)
+    public string GetDisplayText(IGameObject? gameObject)
     {
 		var stringBuilder = new StringBuilder(_verb.Text);
 		

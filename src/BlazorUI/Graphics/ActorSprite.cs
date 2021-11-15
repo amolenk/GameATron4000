@@ -14,9 +14,9 @@ public class ActorSprite : GameObjectSprite
         Actor gameObject,
         SpritesSpec spritesSpec,
         IGraphics graphics,
-        Func<GameObject, Point, Task>? onPointerDown = null,
-        Func<GameObject, Point, Task>? onPointerOut = null,
-        Func<GameObject, Point, Task>? onPointerOver = null)
+        Func <IGameObject, Point, Task>? onPointerDown = null,
+        Func <IGameObject, Point, Task>? onPointerOut = null,
+        Func <IGameObject, Point, Task>? onPointerOver = null)
         : base(
             gameObject,
             spritesSpec,
@@ -117,7 +117,11 @@ public class ActorSprite : GameObjectSprite
             await Sprite.MoveAsync(
                 target,
                 duration,
-                () => Sprite.SetDepth(Sprite.Position.Y),
+                () =>
+                {
+                    Actor.UpdatePosition(Sprite.Position);
+                    Sprite.SetDepth(Sprite.Position.Y);
+                },
                 cancellationToken);
         }
 

@@ -4,14 +4,14 @@ public class UseAction : IAction
 {
     private readonly Game _game;
     private Item? _item;
-    private GameObject? _with;
+    private IGameObject? _with;
 
     public UseAction(Game game)
     {
         _game = game;
     }
 
-    public bool Add(GameObject gameObject)
+    public bool Add(IGameObject gameObject)
     {
         // If an item is already set, only accept the object if the set item can
         // be used in combination with another item.
@@ -30,7 +30,7 @@ public class UseAction : IAction
         return false;
     }
 
-    public GameObject? GetObjectToWalkTo()
+    public IGameObject? GetObjectToWalkTo()
     {
         // If a 'with' object is set, walk to it if it isn't owned by any actor.
         if (_with is Actor ||
@@ -48,7 +48,7 @@ public class UseAction : IAction
         return null;
     }
 
-    public string GetDisplayText(GameObject? overObject)
+    public string GetDisplayText(IGameObject? overObject)
     {
 		var stringBuilder = new StringBuilder("Use");
 		
