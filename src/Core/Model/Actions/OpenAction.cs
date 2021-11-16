@@ -6,6 +6,6 @@ public class OpenAction : UnaryAction
     {
     }
 
-    public override void TryExecute(ActionHandlers actionHandlers) =>
-        actionHandlers.HandleOpen?.Invoke();
+    public override Action? GetHandler(ActionHandlers actionHandlers) =>
+        actionHandlers.HandleOpen;
 }

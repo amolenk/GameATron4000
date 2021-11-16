@@ -82,25 +82,17 @@ public class GameScript
 
         // TODO Also check if subject isn't in inventory
         // Move the protagonist to the subject.
-        var objectToWalkTo = action.GetObjectToWalkTo();
-        if (objectToWalkTo is not null)
+        var objectToMoveTo = action.GetObjectToWalkTo();
+        if (objectToMoveTo is not null &&
+            objectToMoveTo.InteractPosition != RelativePosition.None)
         {
-            // TODO Check config for endstate
-            _game.Protagonist!.MoveTo(objectToWalkTo, WellKnownStatus.FaceCamera);
+            _game.Protagonist!.MoveTo(objectToMoveTo);
         }
 
-        action.TryExecute();
-
-        // var handler = subject.CommandHandlers[verb];
-        // if (handler != null)
-        // {
-        //     handler.Invoke()
-        // }
-        // else
-        // {
-        //     // TODO
-        //     _game.SayLine("[STANDARD RESPONSE]");
-        // }
+        if (!action.TryExecute())
+        {
+            _game.Protagonist.SayLine(_game.GetCannedResponse());
+        }
 
         _eventQueue.Enqueue(new PlayerActionCompleted(action));
 
@@ -108,8 +100,4 @@ public class GameScript
     }
 
     public GameSnapshot SaveGame() => _game.Save().GetChanges(_initialState);
-
-    public void RestoreGame(GameSnapshot snapshot)
-    {
-    }
 }

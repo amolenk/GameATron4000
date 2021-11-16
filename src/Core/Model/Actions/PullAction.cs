@@ -6,6 +6,6 @@ public class PullAction : UnaryAction
     {
     }
 
-    public override void TryExecute(ActionHandlers actionHandlers) =>
-        actionHandlers.HandlePull?.Invoke();
+    public override Action? GetHandler(ActionHandlers actionHandlers) =>
+        actionHandlers.HandlePull;
 }

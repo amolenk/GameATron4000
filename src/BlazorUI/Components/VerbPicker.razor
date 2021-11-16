@@ -17,12 +17,21 @@
 
 @code {
 
-    private bool _playerInputEnabled = true;
+    private bool _playerInputEnabled;
 
     protected override void OnInitialized()
     {
+        _mediator.Subscribe<GameStarted>(OnGameStartedAsync);
         _mediator.Subscribe<PlayerActionStarted>(OnPlayerCommandStarted);
         _mediator.Subscribe<PlayerActionCompleted>(OnPlayerActionCompleted);
+    }
+
+    private Task OnGameStartedAsync(GameStarted @event)
+    {
+        _playerInputEnabled = true;
+
+        StateHasChanged();
+        return Task.CompletedTask;
     }
 
     private Task OnPlayerCommandStarted(PlayerActionStarted @event)

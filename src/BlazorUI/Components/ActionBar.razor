@@ -1,7 +1,10 @@
 ﻿@inject IMediator _mediator
 
 <div style="text-align: center">
-    <p>@_actionText</p>
+    @if (_playerInputEnabled)
+    {
+        <p>@_actionText</p>
+    }
 </div>
 
 @code {
@@ -9,6 +12,7 @@
     private ActionFactory _actionFactory = null!;
     private IAction _action = null!;
     private string _actionText = string.Empty;
+    private bool _playerInputEnabled;
 
     protected override void OnInitialized()
     {
@@ -17,6 +21,8 @@
         _mediator.Subscribe<GameObjectPointerDown>(OnGameObjectPointerDownAsync);
         _mediator.Subscribe<GameObjectPointerOut>(OnGameObjectPointerOutAsync);
         _mediator.Subscribe<GameObjectPointerOver>(OnGameObjectPointerOverAsync);
+        _mediator.Subscribe<PlayerActionStarted>(OnPlayerCommandStarted);
+        _mediator.Subscribe<PlayerActionCompleted>(OnPlayerActionCompleted);
     }
 
     private Task OnGameStartedAsync(GameStarted @event)
@@ -24,6 +30,7 @@
         _actionFactory = new ActionFactory(@event.Game);
         _action = _actionFactory.Create(Verb.WalkTo);
         _actionText = _action.GetDisplayText();
+        _playerInputEnabled = true;
 
         StateHasChanged();
         return Task.CompletedTask;
@@ -59,10 +66,6 @@
         if (_action.Add(@event.GameObject))
         {
             await _mediator.SendAsync(new ExecutePlayerAction(_action));
-
-            _action = _actionFactory.Create(Verb.WalkTo);
-            _actionText = _action.GetDisplayText();
-
         }
         else
         {
@@ -70,5 +73,23 @@
         }
 
         StateHasChanged();
+    }
+
+    private Task OnPlayerCommandStarted(PlayerActionStarted @event)
+    {
+        _playerInputEnabled = false;
+
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private Task OnPlayerActionCompleted(PlayerActionCompleted @event)
+    {
+        _action = _actionFactory.Create(Verb.WalkTo);
+        _actionText = _action.GetDisplayText();
+        _playerInputEnabled = true;
+
+        StateHasChanged();
+        return Task.CompletedTask;
     }
 }

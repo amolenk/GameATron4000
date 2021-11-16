@@ -154,7 +154,7 @@
     }
 
     private Task OnActorMovedAsync(ActorMoved @event) =>
-        MoveActor(@event.Actor.Id, @event.Position);
+        MoveActor(@event.Actor.Id, @event.Position, @event.Status);
 
     private Task OnGameObjectPlacedInRoomAsync(GameObjectPlacedInRoom @event)
     {
@@ -178,7 +178,7 @@
 
     private void AddGameObjectSprite(IGameObject gameObject)
     {
-        _logger.LogDebug($"Adding sprite for object '{gameObject.Id}' at {gameObject.Position}");
+        _logger.LogDebug($"Adding sprite for object '{gameObject.Id}({gameObject.Status})' at {gameObject.Position}");
 
         if (gameObject is Actor actor)
         {
@@ -256,10 +256,15 @@
         }
     }
 
-    private Task OnGameObjectPointerDownAsync(
+    private async Task OnGameObjectPointerDownAsync(
         IGameObject gameObject,
-        Point mousePosition) =>
-        _mediator.PublishAsync(new GameObjectPointerDown(gameObject));
+        Point mousePosition)
+    {
+        if (_playerInputEnabled)
+        {
+            await _mediator.PublishAsync(new GameObjectPointerDown(gameObject));
+        }
+    }
 
     private Task OnGameObjectPointerOutAsync(
         IGameObject gameObject,
@@ -274,7 +279,8 @@
 
     private async Task MoveActor(
         string actorId,
-        Point to)
+        Point to,
+        string status = WellKnownStatus.FaceCamera)
     {
         if (_roomSprite is not null && TryGetActorSprite(
             actorId,
@@ -297,32 +303,11 @@
             _walkState = (task, cts);
 
             await task;
+
+            actorSprite.Actor.UpdateStatus(status);
+            actorSprite.ResetSpriteFrame();
         }
     }
-
-    @* private async Task MoveSpriteToModelPosition(ActorSprite actorSprite)
-    {
-        if (_walkbox is not null)
-        {
-            var path = _walkbox.FindShortestPath(
-                actorSprite.Sprite.Position,
-                actorSprite.GameObject.Position,
-                GetWalkboxExcludedAreas(actorSprite.GameObject.Id));
-
-            if (_walkState.HasValue)
-            {
-                _walkState.Value.Cts.Cancel();
-                await _walkState.Value.Task;
-            }
-
-            var cts = new CancellationTokenSource();
-            var task = actorSprite.WalkAsync(path, cts.Token);
-
-            _walkState = (task, cts);
-
-            await task;
-        }
-    } *@
 
     // Exclude the areas around the other actors to make sure the given
     // actor doesn't bump into them.

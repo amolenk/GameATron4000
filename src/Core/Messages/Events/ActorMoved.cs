@@ -2,5 +2,6 @@
 
 public record ActorMoved(
     Actor Actor,
-    Point Position)
+    Point Position,
+    string Status)
     : IEvent;

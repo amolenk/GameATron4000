@@ -6,6 +6,8 @@ public class Game
     private readonly List<Actor> _actors;
     private readonly List<Room> _rooms;
     private readonly List<string> _flags;
+    private readonly List<string> _cannedResponses;
+    private readonly Random _random;
     private Action? _onStart;
 
     public Actor? Protagonist { get; private set; }
@@ -20,6 +22,8 @@ public class Game
         _actors = new();
         _rooms = new();
         _flags = new();
+        _cannedResponses = new();
+        _random = new();
 
         EventQueue = eventQueue;
     }
@@ -60,6 +64,11 @@ public class Game
         return room;
     }
 
+    public void AddCannedResponse(string response)
+    {
+        _cannedResponses.Add(response);
+    }
+
     //int Random(int min, int max);
 
     public void ChangeRoom(Room room)
@@ -77,6 +86,15 @@ public class Game
 
     public void Delay(int value) =>
         EventQueue.Enqueue(new DelayRequested(TimeSpan.FromMilliseconds(value)));
+
+    public string GetCannedResponse()
+    {
+        if (_cannedResponses.Count > 0)
+        {
+            return _cannedResponses[_random.Next(0, _cannedResponses.Count)];
+        }
+        return "...";
+    }
 
     // TODO Remove
     public void SayLine(string line) => Protagonist?.SayLine(line);
@@ -185,6 +203,12 @@ public class Game
         {
             var room = _rooms.FirstOrDefault(room => room.Id == entry.Key);
             room?.Restore(entry.Value);
+        }
+
+        if (snapshot.Flags is not null)
+        {
+            _flags.Clear();
+            _flags.AddRange(snapshot.Flags);
         }
 
         if (snapshot.Protagonist is not null)

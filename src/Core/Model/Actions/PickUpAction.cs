@@ -6,6 +6,6 @@ public class PickUpAction : UnaryAction
     {
     }
 
-    public override void TryExecute(ActionHandlers actionHandlers) =>
-        actionHandlers.HandlePickUp?.Invoke();
+    public override Action? GetHandler(ActionHandlers actionHandlers) =>
+        actionHandlers.HandlePickUp;
 }

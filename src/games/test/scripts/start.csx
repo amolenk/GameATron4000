@@ -1,5 +1,11 @@
 OnGameStart(() =>
 {
+    AddCannedResponse("I can't do that.");
+    AddCannedResponse("Why?");
+    AddCannedResponse("Hmm, better not.");
+    AddCannedResponse("I don't think that will work.");
+    AddCannedResponse("That will probably crash the game!");
+
     SetProtagonist(guy);
 
     // TODO id casing
@@ -26,25 +32,25 @@ OnGameStart(() =>
     terminal.Place(terminalDoor, 774, 332);
 
      // bridge
-//     put_actor(al, 990, 375, bridge)
-//     put_actor(ian, 250, 420, bridge)
-//     put_actor(carl, 305, 361, bridge)
-//     put_actor(richard, 185, 361, bridge)
-//     face_dir(face_back, ian)
+    bridge.Place(al, 990, 375);
+    bridge.Place(ian, 250, 420);
+    bridge.Place(carl, 305, 361);
+    bridge.Place(richard, 185, 361);
+    ian.FaceAwayFromCamera();
 
-//     put_object(bottle, 1360, 288, bridge)
-//     put_object(cheese_grater, 1390, 328, bridge)
-//     put_object(countertop, 1460, 331, bridge)
-//     put_object(door_bridge, 22, 444, bridge)
-//     put_object(claw_hammer, 245, 350, bridge)
-//     put_object(fridge, 1291, 330, bridge)
-//     put_object(onair, 246, 262, bridge)
-//     put_object(outlet_booth, 429, 356, bridge)
-//     put_object(outlet_kitchen, 1562, 399, bridge)
-//     put_object(podcast_booth, 246, 410, bridge)
-//     put_object(power_cord, 390, 392, bridge)
-//     put_object(saucages, 1225, 296, bridge)
-//     put_object(todolist, 660, 250, bridge)
+    bridge.Place(bottle, 1360, 288);
+    bridge.Place(cheeseGrater, 1390, 328);
+    bridge.Place(counterTop, 1460, 331);
+    bridge.Place(bridgeDoor, 22, 444);
+    bridge.Place(clawHammer, 245, 350);
+    bridge.Place(fridge, 1291, 330);
+    bridge.Place(onAir, 246, 262);
+    bridge.Place(outletBooth, 429, 356);
+    bridge.Place(outletKitchen, 1562, 399);
+    bridge.Place(podcastBooth, 246, 410);
+    bridge.Place(powerCord, 390, 392);
+    bridge.Place(saucages, 1225, 296);
+    bridge.Place(todoList, 660, 250);
 
     ChangeRoom(park);
 });

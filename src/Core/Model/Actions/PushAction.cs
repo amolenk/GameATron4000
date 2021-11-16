@@ -6,6 +6,6 @@ public class PushAction : UnaryAction
     {
     }
 
-    public override void TryExecute(ActionHandlers actionHandlers) =>
-        actionHandlers.HandlePush?.Invoke();
+    public override Action? GetHandler(ActionHandlers actionHandlers) =>
+        actionHandlers.HandlePush;
 }

@@ -6,6 +6,6 @@ public class CloseAction : UnaryAction
     {
     }
 
-    public override void TryExecute(ActionHandlers actionHandlers) =>
-        actionHandlers.HandleClose?.Invoke();
+    public override Action? GetHandler(ActionHandlers actionHandlers) =>
+        actionHandlers.HandleClose;
 }

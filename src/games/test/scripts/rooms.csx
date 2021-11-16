@@ -59,6 +59,7 @@ Room bridge = AddRoom(nameof(bridge), room => room
     .When.BeforeEnter(() =>
     {
         bridge.Place(guy, 65, 440);
+        guy.FaceCamera();
     })
     .When.AfterEnter(() =>
     {

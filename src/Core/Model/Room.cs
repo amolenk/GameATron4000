@@ -37,9 +37,9 @@ public class Room
         // Otherwise, if the object is currently owned by an actor, clear the
         // owner.
         else if (gameObject is Item item &&
-            _game.TryGetOwnerForItem(item, out Actor actor))
+            _game.TryGetOwnerForItem(item, out Actor owner))
         {
-            actor.RemoveFromInventory(item);
+            owner.RemoveFromInventory(item);
         }
 
         // Update state.
@@ -81,6 +81,8 @@ public class Room
     {
         if (Handlers.HandleBeforeEnter is not null)
         {
+            Console.WriteLine("BEFORE ENTER ROOM: " + Id);
+
             // Do not enqueue events while calling the BeforeEnter handler.
             // Any changes happening in the handler should not be made visible
             // in the UI yet.

@@ -42,13 +42,19 @@ public abstract class UnaryAction : IAction
 		return stringBuilder.ToString();
     }
 
-    public void TryExecute()
+    public bool TryExecute()
     {
         if (_gameObject is not null)
         {
-            TryExecute(_gameObject.ActionHandlers);
+            var handler = GetHandler(_gameObject.ActionHandlers);
+            if (handler is not null)
+            {
+                handler();
+                return true;
+            }
         }
+        return false;
     }
 
-    public abstract void TryExecute(ActionHandlers actionHandlers);
+    public abstract Action? GetHandler(ActionHandlers actionHandlers);
 }

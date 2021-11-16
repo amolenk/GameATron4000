@@ -90,12 +90,10 @@ public class Actor : GameObject
             position = room.Walkbox.SnapToWalkbox(position);
         }
 
-        UpdatePosition(position);
-
-        Game.EventQueue.Enqueue(new ActorMoved(this, position));
+        Game.EventQueue.Enqueue(new ActorMoved(this, position, endInStatus));
     }
 
-    public void MoveTo(IGameObject gameObject, string endInStatus)
+    public void MoveTo(IGameObject gameObject)
     {
         if (gameObject.InteractPosition != RelativePosition.None)
         {
@@ -109,7 +107,7 @@ public class Actor : GameObject
                 dY = -20;
             }
 
-            MoveTo(gameObject.Position.Offset(0, dY), endInStatus);
+            MoveTo(gameObject.Position.Offset(0, dY), gameObject.InteractStatus);
         }
     }
 

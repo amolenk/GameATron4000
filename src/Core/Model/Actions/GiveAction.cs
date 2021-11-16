@@ -51,12 +51,14 @@ public class GiveAction : IAction
 		return stringBuilder.ToString();
     }
 
-    public void TryExecute()
+    public bool TryExecute()
     {
         if (_item is { ActionHandlers.HandleGive: not null} &&
             _actor is not null)
         {
             _item.ActionHandlers.HandleGive(_actor);
+            return true;
         }
+        return false;
     }
 }

@@ -4,9 +4,10 @@ public interface IAction
 {
     bool Add(IGameObject gameObject);
 
+    // TODO ...ToMoveTo  
     IGameObject? GetObjectToWalkTo();
 
     string GetDisplayText(IGameObject? overObject = null);
 
-    void TryExecute();
+    bool TryExecute();
 }

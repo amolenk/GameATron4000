@@ -119,7 +119,7 @@ public class ActorSprite : GameObjectSprite
                 duration,
                 () =>
                 {
-                    Actor.UpdatePosition(Sprite.Position);
+                    //Actor.UpdatePosition(Sprite.Position);
                     Sprite.SetDepth(Sprite.Position.Y);
                 },
                 cancellationToken);

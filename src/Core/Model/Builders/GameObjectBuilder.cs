@@ -29,7 +29,7 @@ public abstract class GameObjectBuilder<TObject, TBuilder>
         _game = game;
         _displayName = id;
         _interactPosition = RelativePosition.Center;
-        _interactStatus = WellKnownStatus.Default;
+        _interactStatus = WellKnownStatus.FaceCamera;
         _isTouchable = true;
         _scrollFactor = -1;
         _depthOffset = 0;

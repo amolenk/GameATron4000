@@ -1,4 +1,4 @@
-Item counterTop;
+Item counterTop; // TODO Powercord seems to work fine out of order
 
 // TODO Use nameof() everywhere
 
@@ -8,7 +8,7 @@ Item alarm = AddItem(nameof(alarm), builder => builder
 Item beamButton = AddItem(nameof(beamButton), builder => builder
     .Named("big button")
     .WithActorInteraction(RelativePosition.InFront, WellKnownStatus.FaceAwayFromCamera)
-    .WithStatus("on")
+    .WithStatus("off") // TODO
     .When.LookAt(() =>
     {
         SayLine("Now that's a big button!");
@@ -87,7 +87,7 @@ Item bottle = AddItem(nameof(bottle), builder => builder
 
 Item bridgeDoor = AddItem(nameof(bridgeDoor), builder => builder
     .Named("door")
-    .WithDepthOffset(-1000)
+    .WithDepthOffset(-10)
     .When.LookAt(() =>
     {
         SayLine("It's the doorway to the terminal.");
@@ -463,10 +463,12 @@ Item powerCord = AddItem("powerCord", builder => builder
     .Named("power cord")
     .CanBeUsedWithOtherObject()
     .WithActorInteraction(RelativePosition.Center, WellKnownStatus.FaceAwayFromCamera)
+    .WithDepthOffset(-35)
     .WithStatus("booth")
     .When.LookAt(() =>
     {
         SayLine("Looks like the podcast booth gets it electricity from the ship.");
+        guy.FaceCamera();
         SayLine("I wonder how the aliens feel about that.");
     })
     .When.Give(_ =>

@@ -77,13 +77,15 @@ public class UseAction : IAction
 		return stringBuilder.ToString();
     }
 
-    public void TryExecute()
+    public bool TryExecute()
     {
         if (_item is { ActionHandlers.HandleUse: not null} &&
             (!_item.CanBeUsedWithOtherObject || _with is not null))
         {
             _item.ActionHandlers.HandleUse(_with);
+            return true;
         }
+        return false;
     }
     
     private bool IsUseWith() =>

@@ -26,6 +26,14 @@ spec:
           frameEnd: 6
           frameZeroPadding: 4
           frameRate: 9
+    carl:
+      animations:
+        talk:
+          framePrefix: carl/talk/
+          frameStart: 1
+          frameEnd: 4
+          frameZeroPadding: 4
+          frameRate: 9
     guy:
       animations:
         talk:
@@ -44,6 +52,34 @@ spec:
           framePrefix: guy/walk/right/
           frameStart: 1
           frameEnd: 6
+          frameZeroPadding: 4
+          frameRate: 9
+    ian:
+      animations:
+        talk:
+          framePrefix: ian/talk/
+          frameStart: 1
+          frameEnd: 4
+          frameZeroPadding: 4
+          frameRate: 9
+        walkLeft:
+          framePrefix: ian/walk/left/
+          frameStart: 1
+          frameEnd: 6
+          frameZeroPadding: 4
+          frameRate: 9
+        walkRight:
+          framePrefix: ian/walk/right/
+          frameStart: 1
+          frameEnd: 6
+          frameZeroPadding: 4
+          frameRate: 9
+    richard:
+      animations:
+        talk:
+          framePrefix: richard/talk/
+          frameStart: 1
+          frameEnd: 4
           frameZeroPadding: 4
           frameRate: 9
     narrator:

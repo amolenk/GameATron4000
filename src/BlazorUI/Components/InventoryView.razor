@@ -17,15 +17,26 @@
 
 @code {
 
-    private bool _playerInputEnabled = true;
+    private bool _playerInputEnabled;
     private Actor? _protagonist;
     private List<Item> _items = new();
 
     protected override void OnInitialized()
     {
         _mediator.Subscribe<ProtagonistChanged>(OnProtagonistChangedAsync);
+        _mediator.Subscribe<GameStarted>(OnGameStartedAsync);
         _mediator.Subscribe<ItemAddedToInventory>(OnItemAddedToInventoryAsync);
         _mediator.Subscribe<ItemRemovedFromInventory>(OnItemRemovedFromInventoryAsync);
+        _mediator.Subscribe<PlayerActionStarted>(OnPlayerCommandStarted);
+        _mediator.Subscribe<PlayerActionCompleted>(OnPlayerActionCompleted);
+    }
+
+    private Task OnGameStartedAsync(GameStarted @event)
+    {
+        _playerInputEnabled = true;
+
+        StateHasChanged();
+        return Task.CompletedTask;
     }
 
     private Task OnProtagonistChangedAsync(ProtagonistChanged @event)
@@ -55,6 +66,20 @@
             _items.Remove(@event.Item);
         }
 
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private Task OnPlayerCommandStarted(PlayerActionStarted @event)
+    {
+        _playerInputEnabled = false;
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private Task OnPlayerActionCompleted(PlayerActionCompleted @event)
+    {
+        _playerInputEnabled = true;
         StateHasChanged();
         return Task.CompletedTask;
     }

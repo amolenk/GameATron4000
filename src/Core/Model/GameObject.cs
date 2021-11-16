@@ -78,6 +78,8 @@ public abstract class GameObject : IGameObject
 
     public void UpdatePosition(Point position) => Position = position;
 
+    public void UpdateStatus(string status) => Status = status;
+
     public override bool Equals(object? obj)
     {
         if (obj is IGameObject gameObject)
