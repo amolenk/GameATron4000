@@ -4,7 +4,7 @@ public class ActionHandlers
 {
     public Action<Actor>? HandleGive { get; private set; }
     public Action? HandlePickUp { get; private set; }
-    public Action<IGameObject?>? HandleUse { get; private set; }
+    public Action<GameObject?>? HandleUse { get; private set; }
     public Action? HandleOpen { get; private set; }
     public Action? HandleLookAt { get; private set; }
     public Action? HandlePush { get; private set; }
@@ -16,7 +16,7 @@ public class ActionHandlers
     public ActionHandlers(
         Action<Actor>? handleGive,
         Action? handlePickUp,
-        Action<IGameObject?>? handleUse,
+        Action<GameObject?>? handleUse,
         Action? handleOpen,
         Action? handleLookAt,
         Action? handlePush,

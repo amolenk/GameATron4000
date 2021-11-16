@@ -3,7 +3,7 @@
 public class Room
 {
     private readonly Game _game;
-    private readonly List<IGameObject> _objects;
+    private readonly List<GameObject> _objects;
 
     public string Id { get; }
     public Walkbox Walkbox { get; }
@@ -24,10 +24,10 @@ public class Room
         Handlers = handlers;
     }
 
-    public void Place(IGameObject gameObject, double x, double y) =>
+    public void Place(GameObject gameObject, double x, double y) =>
         Place(gameObject, new Point(x, y));
 
-    public void Place(IGameObject gameObject, Point position)
+    public void Place(GameObject gameObject, Point position)
     {
         // If the object is currently in another room, remove it.
         if (_game.TryGetRoomForObject(gameObject, out Room room))
@@ -51,7 +51,7 @@ public class Room
             this));
     }
 
-    public void Remove(IGameObject gameObject)
+    public void Remove(GameObject gameObject)
     {
         if (_objects.Contains(gameObject))
         {
@@ -74,7 +74,7 @@ public class Room
 
     public override int GetHashCode() => Id.GetHashCode();
 
-    internal bool ContainsObject(IGameObject gameObject) =>
+    internal bool ContainsObject(GameObject gameObject) =>
         _objects.Contains(gameObject);
 
     internal void Enter()
@@ -101,7 +101,7 @@ public class Room
         Handlers.HandleAfterEnter?.Invoke();
     }
 
-    internal IEnumerable<IGameObject> GetVisibleObjects() =>
+    internal IEnumerable<GameObject> GetVisibleObjects() =>
         _objects.Where(gameObject => gameObject.IsVisible);
 
     internal RoomSnapshot Save() => new RoomSnapshot(

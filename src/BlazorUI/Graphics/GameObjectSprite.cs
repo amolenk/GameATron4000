@@ -4,17 +4,17 @@ public class GameObjectSprite : IDisposable
 {
     private readonly SpritesSpec _spritesSpec;
 
-    public IGameObject GameObject { get; }
+    public GameObject GameObject { get; }
     public ISprite Sprite { get; }
     protected IGraphics Graphics { get; private set; }
 
     public GameObjectSprite(
-        IGameObject gameObject,
+        GameObject gameObject,
         SpritesSpec spritesSpec,
         IGraphics graphics,
-        Func <IGameObject, Point, Task>? onPointerDown,
-        Func <IGameObject, Point, Task>? onPointerOut,
-        Func <IGameObject, Point, Task>? onPointerOver)
+        Func <GameObject, Point, Task>? onPointerDown,
+        Func <GameObject, Point, Task>? onPointerOut,
+        Func <GameObject, Point, Task>? onPointerOver)
     {
         _spritesSpec = spritesSpec;
 
@@ -51,9 +51,9 @@ public class GameObjectSprite : IDisposable
     }
 
     private ISprite CreateSprite(
-        Func <IGameObject, Point, Task>? onPointerDown,
-        Func <IGameObject, Point, Task>? onPointerOut,
-        Func <IGameObject, Point, Task>? onPointerOver)
+        Func <GameObject, Point, Task>? onPointerDown,
+        Func <GameObject, Point, Task>? onPointerOut,
+        Func <GameObject, Point, Task>? onPointerOver)
     {
         var spriteInfo = _spritesSpec.GetSpriteInfo(
             GameObject.Id,
@@ -108,15 +108,15 @@ public class GameObjectSprite : IDisposable
 }
 
 // TODO
-// public class GameObjectSprite : GameObjectSprite <IGameObject>
+// public class GameObjectSprite : GameObjectSprite <GameObject>
 // {
 //     public GameObjectSprite(
 //         GameObject gameObject,
 //         SpritesSpec spritesSpec,
 //         IGraphics graphics,
-//         Func <IGameObject, Point, Task>? onPointerDown = null,
-//         Func <IGameObject, Point, Task>? onPointerOut = null,
-//         Func <IGameObject, Point, Task>? onPointerOver = null)
+//         Func <GameObject, Point, Task>? onPointerDown = null,
+//         Func <GameObject, Point, Task>? onPointerOut = null,
+//         Func <GameObject, Point, Task>? onPointerOver = null)
 //         : base(
 //             gameObject,
 //             spritesSpec,

@@ -176,7 +176,7 @@
         return Task.CompletedTask;
     }
 
-    private void AddGameObjectSprite(IGameObject gameObject)
+    private void AddGameObjectSprite(GameObject gameObject)
     {
         _logger.LogDebug($"Adding sprite for object '{gameObject.Id}({gameObject.Status})' at {gameObject.Position}");
 
@@ -213,7 +213,7 @@
         }
     }
 
-    private void RemoveGameObjectsSprites(IEnumerable<IGameObject> gameObjects)
+    private void RemoveGameObjectsSprites(IEnumerable<GameObject> gameObjects)
     {
         foreach (var gameObject in gameObjects)
         {
@@ -221,7 +221,7 @@
         }
     }
 
-    private void RemoveGameObjectSprite(IGameObject gameObject)
+    private void RemoveGameObjectSprite(GameObject gameObject)
     {
         if (_objectSprites.TryGetValue(
                 gameObject.Id,
@@ -257,7 +257,7 @@
     }
 
     private async Task OnGameObjectPointerDownAsync(
-        IGameObject gameObject,
+        GameObject gameObject,
         Point mousePosition)
     {
         if (_playerInputEnabled)
@@ -267,12 +267,12 @@
     }
 
     private Task OnGameObjectPointerOutAsync(
-        IGameObject gameObject,
+        GameObject gameObject,
         Point mousePosition) =>
         _mediator.PublishAsync(new GameObjectPointerOut(gameObject));
 
     private Task OnGameObjectPointerOverAsync(
-        IGameObject gameObject,
+        GameObject gameObject,
         Point mousePosition) =>
         _mediator.PublishAsync(new GameObjectPointerOver(gameObject));
 
@@ -304,7 +304,8 @@
 
             await task;
 
-            actorSprite.Actor.UpdateStatus(status);
+            // TODO Set final frame after walk?
+            @* actorSprite.Actor.UpdateStatus(status); *@
             actorSprite.ResetSpriteFrame();
         }
     }

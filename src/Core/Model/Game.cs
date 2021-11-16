@@ -140,7 +140,7 @@ public class Game
     }
 
     internal bool TryGetRoomForObject(
-        IGameObject gameObject,
+        GameObject gameObject,
         [MaybeNullWhen(false)] out Room room)
     {
         room = _rooms.FirstOrDefault(room => room.ContainsObject(gameObject));

@@ -2,12 +2,12 @@ namespace Amolenk.GameATron4000.Model.Actions;
 
 public interface IAction
 {
-    bool Add(IGameObject gameObject);
+    bool Add(GameObject gameObject);
 
     // TODO ...ToMoveTo  
-    IGameObject? GetObjectToWalkTo();
+    GameObject? GetObjectToWalkTo();
 
-    string GetDisplayText(IGameObject? overObject = null);
+    string GetDisplayText(GameObject? overObject = null);
 
     bool TryExecute();
 }

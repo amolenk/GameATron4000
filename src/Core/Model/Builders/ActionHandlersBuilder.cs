@@ -6,7 +6,7 @@ public class ActionHandlersBuilder<TParentBuilder>
 
     public Action<Actor>? HandleGive { get; private set; }
     public Action? HandlePickUp { get; private set; }
-    public Action<IGameObject?>? HandleUse { get; private set; }
+    public Action<GameObject?>? HandleUse { get; private set; }
     public Action? HandleOpen { get; private set; }
     public Action? HandleLookAt { get; private set; }
     public Action? HandlePush { get; private set; }
@@ -32,7 +32,7 @@ public class ActionHandlersBuilder<TParentBuilder>
         return _parentBuilder;
     }
 
-    public TParentBuilder Use(Action<IGameObject?> action)
+    public TParentBuilder Use(Action<GameObject?> action)
     {
         HandleUse = action;
         return _parentBuilder;

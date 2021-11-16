@@ -1,6 +1,6 @@
 ﻿namespace Amolenk.GameATron4000.Model;
 
-public abstract class GameObject : IGameObject
+public abstract class GameObject
 {
     public string Id { get; }
     public string DisplayName { get; }
@@ -64,10 +64,10 @@ public abstract class GameObject : IGameObject
 
         // Make lists of the objects that must be hidden/shown in the room.
         var objectsToHide = visibleObjectsBefore?.Except(visibleObjectsAfter!)
-            ?? Enumerable.Empty<IGameObject>();
+            ?? Enumerable.Empty<GameObject>();
 
         var objectsToShow = visibleObjectsAfter?.Except(visibleObjectsBefore!)
-            ?? Enumerable.Empty<IGameObject>();
+            ?? Enumerable.Empty<GameObject>();
 
         Game.EventQueue.Enqueue(new GameObjectStatusChanged(
             this,
@@ -76,13 +76,13 @@ public abstract class GameObject : IGameObject
             objectsToShow));
     }
 
-    public void UpdatePosition(Point position) => Position = position;
+    internal void UpdatePosition(Point position) => Position = position;
 
-    public void UpdateStatus(string status) => Status = status;
+    internal void UpdateStatus(string status) => Status = status;
 
     public override bool Equals(object? obj)
     {
-        if (obj is IGameObject gameObject)
+        if (obj is GameObject gameObject)
         {
             return Id.Equals(gameObject.Id);
         }
