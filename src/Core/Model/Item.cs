@@ -6,6 +6,18 @@ public class Item : GameObject
 
     public bool CanBeUsedWithOtherObject { get; }
 
+    public bool IsVisible
+    {
+        get
+        {
+            if (_dependency is not null)
+            {
+                return _dependency.Item?.Status == _dependency.Status;
+            }
+            return true;
+        }
+    }
+
     public Item(
         Game game,
         string id,
@@ -51,15 +63,5 @@ public class Item : GameObject
         {
             Status = snapshot.Status;
         }
-    }
-
-    protected override bool GetVisibility()
-    {
-        if (_dependency is not null)
-        {
-            return _dependency.Item?.Status == _dependency.Status;
-        }
-
-        return base.GetVisibility();
     }
 }

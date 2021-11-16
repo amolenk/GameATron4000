@@ -6,6 +6,8 @@ public class GiveAction : IAction
     private Item? _item;
     private Actor? _actor;
 
+    public bool DisableUIWhileExecuting => true;
+
     public GiveAction(Game game)
     {
         _game = game;
@@ -32,7 +34,7 @@ public class GiveAction : IAction
         return false;
     }
 
-    public GameObject? GetObjectToWalkTo() => _actor;
+    public GameObject? GetObjectToMoveTo() => _actor;
 
     public string GetDisplayText(GameObject? overObject)
     {

@@ -6,6 +6,8 @@ public class UseAction : IAction
     private Item? _item;
     private GameObject? _with;
 
+    public bool DisableUIWhileExecuting => true;
+
     public UseAction(Game game)
     {
         _game = game;
@@ -30,7 +32,7 @@ public class UseAction : IAction
         return false;
     }
 
-    public GameObject? GetObjectToWalkTo()
+    public GameObject? GetObjectToMoveTo()
     {
         // If a 'with' object is set, walk to it if it isn't owned by any actor.
         if (_with is Actor ||

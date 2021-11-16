@@ -7,6 +7,8 @@ public abstract class UnaryAction : IAction
     private readonly Verb _verb;
     private GameObject? _gameObject;
 
+    public bool DisableUIWhileExecuting => true;
+
     protected UnaryAction(Game game, Verb verb)
     {
         _game = game;
@@ -19,7 +21,7 @@ public abstract class UnaryAction : IAction
         return true;
     }
 
-    public GameObject? GetObjectToWalkTo()
+    public GameObject? GetObjectToMoveTo()
     {
         if (_gameObject is Actor || (_gameObject is Item item &&
             !_game.TryGetOwnerForItem(item, out Actor _)))

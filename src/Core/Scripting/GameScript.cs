@@ -80,9 +80,8 @@ public class GameScript
     {
         _eventQueue.Enqueue(new PlayerActionStarted(action));
 
-        // TODO Also check if subject isn't in inventory
         // Move the protagonist to the subject.
-        var objectToMoveTo = action.GetObjectToWalkTo();
+        var objectToMoveTo = action.GetObjectToMoveTo();
         if (objectToMoveTo is not null &&
             objectToMoveTo.InteractPosition != RelativePosition.None)
         {

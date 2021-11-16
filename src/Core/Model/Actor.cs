@@ -90,7 +90,8 @@ public class Actor : GameObject
             position = room.Walkbox.SnapToWalkbox(position);
         }
 
-        ChangeStatus(endInStatus);
+        UpdatePosition(position);
+        UpdateStatus(endInStatus);
 
         Game.EventQueue.Enqueue(new ActorMoved(this, position, endInStatus));
     }

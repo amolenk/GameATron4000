@@ -77,7 +77,7 @@
 
     private Task OnPlayerCommandStarted(PlayerActionStarted @event)
     {
-        _playerInputEnabled = false;
+        _playerInputEnabled = !@event.Action.DisableUIWhileExecuting;
 
         StateHasChanged();
         return Task.CompletedTask;

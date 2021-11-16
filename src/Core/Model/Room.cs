@@ -81,8 +81,6 @@ public class Room
     {
         if (Handlers.HandleBeforeEnter is not null)
         {
-            Console.WriteLine("BEFORE ENTER ROOM: " + Id);
-
             // Do not enqueue events while calling the BeforeEnter handler.
             // Any changes happening in the handler should not be made visible
             // in the UI yet.
@@ -102,7 +100,8 @@ public class Room
     }
 
     internal IEnumerable<GameObject> GetVisibleObjects() =>
-        _objects.Where(gameObject => gameObject.IsVisible);
+        _objects.Where(gameObject => gameObject is Actor
+            || gameObject is Item { IsVisible: true });
 
     internal RoomSnapshot Save() => new RoomSnapshot(
         _objects.Select(gameObject => gameObject.Id).ToList());

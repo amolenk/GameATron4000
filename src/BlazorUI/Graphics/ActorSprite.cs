@@ -1,6 +1,6 @@
 ﻿namespace Amolenk.GameATron4000.BlazorUI.Graphics;
 
-public class ActorSprite : GameObjectSprite
+public class ActorSprite : ObjectSprite<Actor>
 {
     private const int WALK_SPEED_FACTOR = 4;
     private const int MIN_WORD_WRAP_WIDTH = 400;
@@ -8,17 +8,15 @@ public class ActorSprite : GameObjectSprite
     private const int DELAY_PER_CHAR = 75;
     private const int MIN_TEXT_DELAY = 1500;
 
-    public Actor Actor => (Actor)GameObject;
-
     public ActorSprite(
-        Actor gameObject,
+        Actor actor,
         SpritesSpec spritesSpec,
         IGraphics graphics,
-        Func <GameObject, Point, Task>? onPointerDown = null,
-        Func <GameObject, Point, Task>? onPointerOut = null,
-        Func <GameObject, Point, Task>? onPointerOver = null)
+        Func<Actor, Point, Task>? onPointerDown = null,
+        Func<Actor, Point, Task>? onPointerOut = null,
+        Func<Actor, Point, Task>? onPointerOver = null)
         : base(
-            gameObject,
+            actor,
             spritesSpec,
             graphics,
             onPointerDown,
@@ -61,7 +59,7 @@ public class ActorSprite : GameObjectSprite
             }
         }
 
-        var animate = (GameObject.Status == WellKnownStatus.FaceCamera);
+        var animate = (Model.Status == WellKnownStatus.FaceCamera);
         if (animate)
         {
             Sprite.PlayAnimation(WellKnownAnimation.Talk);
@@ -73,9 +71,9 @@ public class ActorSprite : GameObjectSprite
             options =>
             {
                 options.Depth = Graphics.Height + 1; // Text must be top-most.
-                options.FillColor = Actor.TextColor;
+                options.FillColor = Model.TextColor;
                 options.Origin = new Point(0.5, 0.5);
-                options.ScrollFactor = Actor.ScrollFactor;
+                options.ScrollFactor = Model.ScrollFactor;
                 options.WordWrapWidth = wordWrapWidth;
             });
 
@@ -90,7 +88,7 @@ public class ActorSprite : GameObjectSprite
         if (animate)
         {
             Sprite.StopAnimation();
-            ResetSpriteFrame();
+            RefreshSpriteFrame();
         }
     }
 
@@ -119,7 +117,6 @@ public class ActorSprite : GameObjectSprite
                 duration,
                 () =>
                 {
-                    //Actor.UpdatePosition(Sprite.Position);
                     Sprite.SetDepth(Sprite.Position.Y);
                 },
                 cancellationToken);
@@ -133,7 +130,7 @@ public class ActorSprite : GameObjectSprite
             Sprite.StopAnimation();
             // TODO
             //Actor.State = WellKnownState.FaceCamera.ToString();
-            ResetSpriteFrame();
+            RefreshSpriteFrame();
         }
     }
 }

@@ -20,7 +20,7 @@ public class ActionFactory
         if (verb == Verb.Close) return new CloseAction(_game);
         if (verb == Verb.TalkTo) return new TalkToAction(_game);
         if (verb == Verb.Pull) return new PullAction(_game);
-        if (verb == Verb.WalkTo) return new WalkToAction(_game);
+        if (verb == Verb.WalkTo) return new WalkToObjectAction(_game);
 
         throw new ArgumentException(
             $"Cannot create action for unsupported verb '{verb}'.",

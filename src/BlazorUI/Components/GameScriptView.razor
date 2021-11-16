@@ -26,7 +26,6 @@
         _mediator.Subscribe<ReloadGameScript>(OnReloadGameScriptAsync);
         _mediator.Subscribe<StartGame>(OnStartGameAsync);
         _mediator.Subscribe<ExecutePlayerAction>(OnExecutePlayerActionAsync);
-
     }
 
     private Task OnStartGameAsync(StartGame _) => _script.StartGameAsync();

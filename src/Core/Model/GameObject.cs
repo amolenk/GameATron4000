@@ -9,7 +9,6 @@ public abstract class GameObject
     public bool IsTouchable { get; }
     public int ScrollFactor { get; }
     public int DepthOffset { get; }
-    public bool IsVisible => GetVisibility();
 
     public Point Position { get; protected set; }
     public string Status { get; protected set; }
@@ -63,11 +62,13 @@ public abstract class GameObject
             .GetVisibleObjects().ToList();
 
         // Make lists of the objects that must be hidden/shown in the room.
+        // Only items can have dependencies that change visibility, so we can
+        // safely cast the changed objects to Item.
         var objectsToHide = visibleObjectsBefore?.Except(visibleObjectsAfter!)
-            ?? Enumerable.Empty<GameObject>();
+            ?? Enumerable.Empty<Item>();
 
         var objectsToShow = visibleObjectsAfter?.Except(visibleObjectsBefore!)
-            ?? Enumerable.Empty<GameObject>();
+            ?? Enumerable.Empty<Item>();
 
         Game.EventQueue.Enqueue(new GameObjectStatusChanged(
             this,
@@ -90,6 +91,4 @@ public abstract class GameObject
     }
 
     public override int GetHashCode() => Id.GetHashCode();
-
-    protected virtual bool GetVisibility() => true;
 }
