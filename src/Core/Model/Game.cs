@@ -103,7 +103,7 @@ public class Game
     {
         Protagonist = actor;
 
-        EventQueue.Enqueue(new ProtagonistChanged(actor, new List<Item>()));
+        EventQueue.Enqueue(new ProtagonistChanged(actor));
     }
 
     public void SetFlag(string flag)
@@ -155,9 +155,14 @@ public class Game
         return actor is not null;
     }
 
-    internal void Start() => _onStart?.Invoke();
+    internal void Start()
+    {
+        _onStart?.Invoke();
 
-    internal GameSnapshot Save()
+        EventQueue.Enqueue(new GameStarted(this));
+    } 
+
+    internal GameState Save()
     {
         var items = _items.ToDictionary(
             item => item.Id,
@@ -175,7 +180,7 @@ public class Game
         var currentRoom = CurrentRoom?.Id;
         var previousRoom = PreviousRoom?.Id;
 
-        return new GameSnapshot(
+        return new GameState(
             items,
             actors,
             rooms,
@@ -185,36 +190,36 @@ public class Game
             previousRoom);
     }
 
-    internal void Restore(GameSnapshot snapshot)
+    internal void Restore(GameState gameState)
     {
-        foreach (var entry in snapshot.Items)
+        foreach (var entry in gameState.Items)
         {
             var item = _items.FirstOrDefault(item => item.Id == entry.Key);
             item?.Restore(entry.Value);
         }
 
-        foreach (var entry in snapshot.Actors)
+        foreach (var entry in gameState.Actors)
         {
             var actor = _actors.FirstOrDefault(actor => actor.Id == entry.Key);
             actor?.Restore(entry.Value);
         }
 
-        foreach (var entry in snapshot.Rooms)
+        foreach (var entry in gameState.Rooms)
         {
             var room = _rooms.FirstOrDefault(room => room.Id == entry.Key);
             room?.Restore(entry.Value);
         }
 
-        if (snapshot.Flags is not null)
+        if (gameState.Flags is not null)
         {
             _flags.Clear();
-            _flags.AddRange(snapshot.Flags);
+            _flags.AddRange(gameState.Flags);
         }
 
-        if (snapshot.Protagonist is not null)
+        if (gameState.Protagonist is not null)
         {
             var protagonist = _actors.FirstOrDefault(
-                actor => actor.Id == snapshot.Protagonist);
+                actor => actor.Id == gameState.Protagonist);
             
             if (protagonist is not null)
             {
@@ -222,10 +227,10 @@ public class Game
             }
         }
 
-        if (snapshot.CurrentRoom is not null)
+        if (gameState.CurrentRoom is not null)
         {
             var currentRoom = _rooms.FirstOrDefault(
-                room => room.Id == snapshot.CurrentRoom);
+                room => room.Id == gameState.CurrentRoom);
             
             if (currentRoom is not null)
             {
@@ -233,10 +238,10 @@ public class Game
             }
         }
 
-        if (snapshot.PreviousRoom is not null)
+        if (gameState.PreviousRoom is not null)
         {
             var previousRoom = _rooms.FirstOrDefault(
-                room => room.Id == snapshot.CurrentRoom);
+                room => room.Id == gameState.CurrentRoom);
             
             if (previousRoom is not null)
             {

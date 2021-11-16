@@ -1,19 +1,19 @@
 namespace Amolenk.GameATron4000.Model.State;
 
-public record RoomSnapshot : ISnapshot<RoomSnapshot>
+public record RoomState : IState<RoomState>
 {
     public List<string>? Objects { get; }
 
-    public RoomSnapshot(List<string>? objects)
+    public RoomState(List<string>? objects)
     {
         Objects = objects;
     }
 
-    public RoomSnapshot? GetChanges(RoomSnapshot baseline)
+    public RoomState? GetChanges(RoomState baseline)
     {
         if (HasObjectsChanged(baseline.Objects))
         {
-            return new RoomSnapshot(Objects);
+            return new RoomState(Objects);
         }
 
         return null;

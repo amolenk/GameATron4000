@@ -85,6 +85,11 @@
 
     public Task OnRoomEnteredAsync(RoomEntered @event)
     {
+        foreach (var bla in @event.VisibleObjects)
+        {
+            Console.WriteLine($"{bla.GameObject.Id} - {bla.GameObject.Position} - {bla.Position}");
+        }
+
         using var pauseGraphics = _graphics.Pause();
 
         // If graphics for a room were already loaded, dispose.
@@ -123,7 +128,7 @@
         if (_objectSprites.TryGetValue(
             @event.GameObject.Id, out IObjectSprite objectSprite))
         {
-            objectSprite.RefreshSpriteFrame();
+            objectSprite.UpdateSpriteFrameForStatus(@event.Status);
         }
 
         foreach (var objectToShow in @event.ObjectsToShow)
@@ -146,7 +151,7 @@
             out ActorSprite actorSprite))
         {
             var cts = new CancellationTokenSource();
-            var task = actorSprite.SayLineAsync(@event.Line, cts.Token);
+            var task = actorSprite.SayLineAsync(@event.Line, @event.Status, cts.Token);
 
             _talkState = (task, cts);
 
@@ -167,7 +172,10 @@
                 GetWalkboxExcludedAreas(@event.Actor.Id));
 
             var cts = new CancellationTokenSource();
-            var task = actorSprite.WalkAsync(path, cts.Token);
+            var task = actorSprite.WalkAsync(
+                path,
+                @event.EndInStatus,
+                cts.Token);
 
             _walkState = (task, cts);
 
@@ -185,7 +193,8 @@
         return Task.CompletedTask;
     }
 
-    private Task OnGameObjectRemovedFromRoomAsync(GameObjectRemovedFromRoom @event)
+    private Task OnGameObjectRemovedFromRoomAsync(
+        GameObjectRemovedFromRoom @event)
     {
         if (_roomSprite?.Room == @event.Room)
         {
@@ -195,12 +204,14 @@
         return Task.CompletedTask;
     }
 
-    private void AddGameObjectSprite(GameObject gameObject)
+    private void AddGameObjectSprite(GameObjectSnapshot objectSnapshot)
     {
-        if (gameObject is Actor actor)
+        if (objectSnapshot.GameObject is Actor actor)
         {
             var actorSprite = new ActorSprite(
                 actor,
+                objectSnapshot.Position,
+                objectSnapshot.Status,
                 _manifest.Spec.Sprites,
                 _graphics,
                 OnGameObjectPointerDownAsync,
@@ -219,7 +230,9 @@
         else
         {
             var itemSprite = new ItemSprite(
-                (Item)gameObject,
+                (Item)objectSnapshot.GameObject,
+                objectSnapshot.Position,
+                objectSnapshot.Status,
                 _manifest.Spec.Sprites,
                 _graphics,
                 OnGameObjectPointerDownAsync,

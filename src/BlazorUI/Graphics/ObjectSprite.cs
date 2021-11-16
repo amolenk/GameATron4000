@@ -12,6 +12,8 @@ public abstract class ObjectSprite<TObject> : IObjectSprite
 
     protected ObjectSprite(
         TObject gameObject,
+        Point position,
+        string status,
         SpritesSpec spritesSpec,
         IGraphics graphics,
         Func<TObject, Point, Task>? onPointerDown,
@@ -24,6 +26,8 @@ public abstract class ObjectSprite<TObject> : IObjectSprite
         Graphics = graphics;
 
         Sprite = CreateSprite(
+            position,
+            status,
             onPointerDown,
             onPointerOut,
             onPointerOver);
@@ -34,31 +38,33 @@ public abstract class ObjectSprite<TObject> : IObjectSprite
         Sprite.Dispose();
     }
 
-    public void RefreshSpriteFrame()
+    public void UpdateSpriteFrameForStatus(string status)
     {
         var spriteInfo = _spritesSpec.GetSpriteInfo(
             Model.Id,
-            Model.Status);
+            status);
 
         Sprite.SetFrame(spriteInfo.FrameName);
     }
 
     private ISprite CreateSprite(
+        Point position,
+        string status,
         Func<TObject, Point, Task>? onPointerDown,
         Func<TObject, Point, Task>? onPointerOut,
         Func<TObject, Point, Task>? onPointerOver)
     {
         var spriteInfo = _spritesSpec.GetSpriteInfo(
             Model.Id,
-            Model.Status);
+            status);
 
         var sprite = Graphics.AddSprite(
             spriteInfo.AtlasKey,
             spriteInfo.FrameName,
-            Model.Position,
+            position,
             options =>
             {
-                options.Depth = Model.Position.Y + Model.DepthOffset;
+                options.Depth = position.Y + Model.DepthOffset;
                 options.Origin = new Point(0.5, 1);
                 options.ScrollFactor = Model.ScrollFactor;
 

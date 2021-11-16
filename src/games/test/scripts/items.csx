@@ -87,7 +87,7 @@ Item bottle = AddItem(nameof(bottle), builder => builder
 
 Item bridgeDoor = AddItem(nameof(bridgeDoor), builder => builder
     .Named("door")
-    .WithDepthOffset(-10)
+    .WithDepthOffset(-100)
     .When.LookAt(() =>
     {
         SayLine("It's the doorway to the terminal.");
@@ -645,35 +645,38 @@ Item todoList = AddItem(nameof(todoList), builder => builder
     })
     .When.PickUp(() =>
     {
-        // TODO Not needed!!!
-//        if (!guy.Has(todoList))
-
-        var ianPosition = new Point(ian.Position.X, ian.Position.Y);
-        var todoListPosition = new Point(todoList.Position.X, todoList.Position.Y);
-
-        bridge.Remove(todoList);
-        guy.FaceCamera();
-        SayLine("Got it!");
-
-        if (IsFlagSet("alarm"))
+        if (!guy.Has(todoList))
         {
-            ian.MoveTo(860, 430, WellKnownStatus.FaceAwayFromCamera);
+            Delay(250);
+
+            var ianPosition = new Point(ian.Position.X, ian.Position.Y);
+            var todoListPosition = new Point(todoList.Position.X, todoList.Position.Y);
+
+            bridge.Remove(todoList);
+            guy.FaceCamera();
+            SayLine("Got it!");
+
+            if (IsFlagSet("alarm"))
+            {
+                ian.MoveTo(860, 430, WellKnownStatus.FaceAwayFromCamera);
+            }
+            else
+            {
+                ian.MoveTo(750, 325, WellKnownStatus.FaceCamera);
+            }
+
+            ian.SayLine("Hey, put that back!");
+            ian.SayLine("We need that to finish the mission!");
+
+            guy.FaceAwayFromCamera();
+            Delay(250);
+            bridge.Place(todoList, todoListPosition.X, todoListPosition.Y);
+            Delay(250);
+
+            ian.MoveTo(ianPosition.X, ianPosition.Y);
+            ian.FaceAwayFromCamera();
+
+            guy.FaceCamera();
+            SayLine("I guess I have to think of something sneakier!");
         }
-        else
-        {
-            ian.MoveTo(750, 325, WellKnownStatus.FaceCamera);
-        }
-
-        ian.SayLine("Hey, put that back!");
-        ian.SayLine("We need that to finish the mission!");
-
-        ian.MoveTo(ianPosition.X, ianPosition.Y);
-        ian.FaceAwayFromCamera();
-        Delay(500);
-
-        bridge.Place(todoList, todoListPosition.X, todoListPosition.Y);
-
-        guy.FaceCamera();
-        SayLine("I guess I have to think of something sneakier!");
-
     }));

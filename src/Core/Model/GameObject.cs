@@ -73,8 +73,8 @@ public abstract class GameObject
         Game.EventQueue.Enqueue(new GameObjectStatusChanged(
             this,
             status,
-            objectsToHide,
-            objectsToShow));
+            objectsToHide.ToList(),
+            objectsToShow.Select(obj => new GameObjectSnapshot(obj)).ToList()));
     }
 
     internal void UpdatePosition(Point position) => Position = position;

@@ -48,20 +48,18 @@ public class Item : GameObject
         CanBeUsedWithOtherObject = canBeUsedWithOtherObject;
     }
 
-    internal ItemSnapshot Save() => new ItemSnapshot(
-        new Point(Position.X, Position.Y),
-        Status);
+    internal ItemState Save() => new ItemState(Position, Status);
 
-    internal void Restore(ItemSnapshot snapshot)
+    internal void Restore(ItemState state)
     {
-        if (snapshot.Position is not null)
+        if (state.Position.HasValue)
         {
-            Position = snapshot.Position;
+            Position = state.Position.Value;
         }
 
-        if (snapshot.Status is not null)
+        if (state.Status is not null)
         {
-            Status = snapshot.Status;
+            Status = state.Status;
         }
     }
 }

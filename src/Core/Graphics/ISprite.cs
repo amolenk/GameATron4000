@@ -6,6 +6,8 @@ public interface ISprite : IDisposable
     Point Position { get; }
     Size Size { get; }
 
+    string Frame { get; }
+
     Task MoveAsync(
         Point target,
         double duration,

@@ -6,8 +6,6 @@ OnGameStart(() =>
     AddCannedResponse("I don't think that will work.");
     AddCannedResponse("That will probably crash the game!");
 
-    SetProtagonist(guy);
-
     // TODO id casing
 
     // Inventory
@@ -51,6 +49,8 @@ OnGameStart(() =>
     bridge.Place(powerCord, 390, 392);
     bridge.Place(saucages, 1225, 296);
     bridge.Place(todoList, 660, 250);
+
+    SetProtagonist(guy);
 
     ChangeRoom(park);
 });

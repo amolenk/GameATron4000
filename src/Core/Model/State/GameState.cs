@@ -1,19 +1,19 @@
 namespace Amolenk.GameATron4000.Model.State;
 
-public record GameSnapshot : ISnapshot<GameSnapshot>
+public record GameState : IState<GameState>
 {
-    public Dictionary<string, ItemSnapshot> Items { get; }
-    public Dictionary<string, ActorSnapshot> Actors { get; }
-    public Dictionary<string, RoomSnapshot> Rooms { get; }
+    public Dictionary<string, ItemState> Items { get; }
+    public Dictionary<string, ActorState> Actors { get; }
+    public Dictionary<string, RoomState> Rooms { get; }
     public List<string>? Flags { get; }
     public string? Protagonist { get; }
     public string? CurrentRoom { get; }
     public string? PreviousRoom { get; }
 
-    public GameSnapshot(
-        Dictionary<string, ItemSnapshot> items,
-        Dictionary<string, ActorSnapshot> actors,
-        Dictionary<string, RoomSnapshot> rooms,
+    public GameState(
+        Dictionary<string, ItemState> items,
+        Dictionary<string, ActorState> actors,
+        Dictionary<string, RoomState> rooms,
         List<string>? flags,
         string? protagonist,
         string? currentRoom,
@@ -28,7 +28,7 @@ public record GameSnapshot : ISnapshot<GameSnapshot>
         PreviousRoom = previousRoom;
     }
 
-    public GameSnapshot GetChanges(GameSnapshot baseline)
+    public GameState GetChanges(GameState baseline)
     {
         var items = GetChanges(Items, baseline.Items);
         var actors = GetChanges(Actors, baseline.Actors);
@@ -44,7 +44,7 @@ public record GameSnapshot : ISnapshot<GameSnapshot>
         var previousRoom = PreviousRoom != baseline.PreviousRoom
             ? PreviousRoom : null;
 
-        return new GameSnapshot(
+        return new GameState(
             items,
             actors,
             rooms,
@@ -57,7 +57,7 @@ public record GameSnapshot : ISnapshot<GameSnapshot>
     private Dictionary<string, T> GetChanges<T>(
         Dictionary<string, T> first,
         Dictionary<string, T> second)
-        where T : ISnapshot<T>
+        where T : IState<T>
     {
         Dictionary<string, T> result = new();
 

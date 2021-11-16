@@ -6,5 +6,5 @@ public interface IObjectSprite : IDisposable
 
     public ISprite Sprite { get; }
 
-    public void RefreshSpriteFrame();
+    public void UpdateSpriteFrameForStatus(string status);
 }

@@ -4,7 +4,7 @@ public class GameScript
 {
     private readonly Game _game;
     private readonly EventQueue _eventQueue;
-    private GameSnapshot _initialState;
+    private GameState _initialState;
 
     public GameScript(
         Game game,
@@ -32,16 +32,18 @@ public class GameScript
         return new GameScript(game, eventQueue, mediator);
     }
 
-    public Task StartGameAsync(GameSnapshot? snapshot = null)
+    public Task StartGameAsync()
     {
-        // Disable event queue while setting up the game. No action events
-        // should be sent to the UI yet.
-        _eventQueue.IgnoreNewEvents = true;
+
+        // Filter event queue while setting up the game. Only ProtagonistChanged
+        // and RoomEntered should be sent to the UI when the game starts.
+        //_eventQueue.SetFilter(e => e is ProtagonistChanged || e is RoomEntered);
 
         // Runs the OnGameStart callback in the game script.
         _game.Start();
 
-        _eventQueue.IgnoreNewEvents = false;
+        // From this point on, allow all events to go to the UI.
+        _eventQueue.AllowAll();
 
         // We do need to make sure that the startup script has at least set
         // a protagonist and room.
@@ -56,22 +58,38 @@ public class GameScript
                 "Startup script must enter a room.");
         }
 
+        // Save the initial state so we've got something to compare to when
+        // saving the game.
         _initialState = _game.Save();
 
-        if (snapshot is not null)
-        {
-            _game.Restore(snapshot);
-        }
+        return _eventQueue.FlushAsync();
+    }
 
+    public Task RestoreGameAsync(GameState gameState)
+    {
         _eventQueue.Enqueue(new GameStarted(_game));
 
-        _eventQueue.Enqueue(new ProtagonistChanged(
-            _game.Protagonist,
-            _game.Protagonist.GetInventoryItems()));
+        // When restoring a game, no events should go to the UI directly. The
+        // player may be in a completely different room than at the start of
+        // the game.
+        _eventQueue.IgnoreAll();
 
-        _eventQueue.Enqueue(new RoomEntered(
-            _game.CurrentRoom,
-            _game.CurrentRoom.GetVisibleObjects().ToList()));
+        // Runs the OnGameStart callback in the game script.
+        _game.Start();
+
+        // From this point on, allow all events to go to the UI.
+        _eventQueue.AllowAll();
+
+        // Save the initial state so we've got something to compare to when
+        // saving the game.
+        _initialState = _game.Save();
+
+        // Restore the save game state.
+        _game.Restore(gameState);
+
+        // Let the UI know who/where the protagonist is.
+        _eventQueue.Enqueue(new ProtagonistChanged(_game.Protagonist));
+        _eventQueue.Enqueue(new RoomEntered(_game.CurrentRoom));
 
         return _eventQueue.FlushAsync();
     }
@@ -98,5 +116,5 @@ public class GameScript
         return _eventQueue.FlushAsync();
     }
 
-    public GameSnapshot SaveGame() => _game.Save().GetChanges(_initialState);
+    public GameState SaveGame() => _game.Save().GetChanges(_initialState);
 }

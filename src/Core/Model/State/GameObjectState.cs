@@ -1,12 +1,12 @@
 namespace Amolenk.GameATron4000.Model.State;
 
-public abstract record GameObjectSnapshot
+public abstract record GameObjectState
 {
     public Point? Position { get; }
 
     public string? Status { get; }
 
-    protected GameObjectSnapshot(Point? position, string? status)
+    protected GameObjectState(Point? position, string? status)
     {
         Position = position;
         Status = status;

@@ -60,6 +60,9 @@ public class Actor : GameObject
             actor.RemoveFromInventory(item);
         }
 
+        // TODO
+        Console.WriteLine("Added: " + item.DisplayName);
+
         // Update state.
         _inventory.Add(item);
 
@@ -82,7 +85,9 @@ public class Actor : GameObject
     public void MoveTo(double x, double y, string endInStatus = WellKnownStatus.FaceCamera)
         => MoveTo(new Point(x, y), endInStatus);
 
-    public void MoveTo(Point position, string endInStatus = WellKnownStatus.FaceCamera)
+    public void MoveTo(
+        Point position,
+        string endInStatus = WellKnownStatus.FaceCamera)
     {
         if (Game.TryGetRoomForObject(this, out Room room))
         {
@@ -116,33 +121,33 @@ public class Actor : GameObject
 
     public void SayLine(string line)
     {
-        Game.EventQueue.Enqueue(new LineSpoken(this, line));
+        Game.EventQueue.Enqueue(new LineSpoken(this, line, Status));
     }
 
     internal IReadOnlyList<Item> GetInventoryItems() => _inventory.AsReadOnly();
 
-    internal ActorSnapshot Save() => new ActorSnapshot(
-        new Point(Position.X, Position.Y),
+    internal ActorState Save() => new ActorState(
+        Position,
         Status,
         _inventory.Select(item => item.Id).ToList());
 
-    internal void Restore(ActorSnapshot snapshot)
+    internal void Restore(ActorState state)
     {
-        if (snapshot.Position is not null)
+        if (state.Position.HasValue)
         {
-            Position = snapshot.Position;
+            Position = state.Position.Value;
         }
 
-        if (snapshot.Status is not null)
+        if (state.Status is not null)
         {
-            Status = snapshot.Status;
+            Status = state.Status;
         }
 
-        if (snapshot.Inventory is not null)
+        if (state.Inventory is not null)
         {
             _inventory.Clear();
 
-            foreach (var id in snapshot.Inventory)
+            foreach (var id in state.Inventory)
             {
                 if (Game.TryGetItem(id, out Item item))
                 {

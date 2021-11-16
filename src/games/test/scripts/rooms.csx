@@ -71,6 +71,7 @@ Room bridge = AddRoom(nameof(bridge), room => room
             ian.SayLine("NO!");
 
             ian.MoveTo(455, 430);
+            //ian.FaceCamera();
             ian.SayLine("Jeez, these earthlings are nosy!");
             ian.MoveTo(810, 300, WellKnownStatus.FaceAwayFromCamera);
 
@@ -142,7 +143,7 @@ Room terminal = AddRoom(nameof(terminal), builder => builder
         if (PreviousRoom == park)
         {
 //            Delay(1000);
-            SayLine("GET ME OUT OF HERE!");
+//            SayLine("GET ME OUT OF HERE!");
         }
     }));
 //     scale = {

@@ -1,10 +1,10 @@
 namespace Amolenk.GameATron4000.Model.State;
 
-public record ActorSnapshot : GameObjectSnapshot, ISnapshot<ActorSnapshot>
+public record ActorState : GameObjectState, IState<ActorState>
 {
     public List<string>? Inventory { get; }
 
-    public ActorSnapshot(
+    public ActorState(
         Point? position,
         string? status,
         List<string>? inventory)
@@ -13,7 +13,7 @@ public record ActorSnapshot : GameObjectSnapshot, ISnapshot<ActorSnapshot>
         Inventory = inventory;
     }
 
-    public ActorSnapshot? GetChanges(ActorSnapshot baseline)
+    public ActorState? GetChanges(ActorState baseline)
     {
         var position = Position != baseline.Position ? Position : null;
         var status = Status != baseline.Status ? Status : null;
@@ -22,7 +22,7 @@ public record ActorSnapshot : GameObjectSnapshot, ISnapshot<ActorSnapshot>
 
         if (position is not null || status is not null || inventory is not null)
         {
-            return new ActorSnapshot(position, status, inventory);
+            return new ActorState(position, status, inventory);
         }
 
         return null;

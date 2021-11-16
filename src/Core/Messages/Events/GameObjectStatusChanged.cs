@@ -4,5 +4,5 @@ public record GameObjectStatusChanged(
     GameObject GameObject,
     string Status,
     IEnumerable<GameObject> ObjectsToHide,
-    IEnumerable<GameObject> ObjectsToShow)
+    IEnumerable<GameObjectSnapshot> ObjectsToShow)
     : IEvent;

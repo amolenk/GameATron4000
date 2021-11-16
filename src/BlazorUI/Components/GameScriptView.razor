@@ -56,7 +56,7 @@
         Console.WriteLine(data);
 
         await TryLoadGameScriptAsync();
-        await _script.StartGameAsync(saveGame);
+        await _script.RestoreGameAsync(saveGame);
     }
 
     private async Task<bool> TryLoadGameScriptAsync()

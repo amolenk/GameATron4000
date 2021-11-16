@@ -8,12 +8,14 @@ public sealed class PhaserSprite : ISprite
     public string Key { get; private set; }
     public Point Position { get; private set; }
     public Size Size { get; private set; }
-    public string? PlayingAnimation { get; private set; }
+    public string Frame { get; private set; }
+    // public string? PlayingAnimation { get; private set; }
 
     private PhaserSprite(
         string key,
         Point position,
         Size size,
+        string frameKey,
         IEnumerable<IDisposable> disposables,
         IJSInProcessRuntime jsRuntime)
     {
@@ -23,6 +25,7 @@ public sealed class PhaserSprite : ISprite
         Key = key;
         Position = position;
         Size = size;
+        Frame = frameKey;
     }
 
     public static ISprite Create(
@@ -72,6 +75,7 @@ public sealed class PhaserSprite : ISprite
             spriteKey,
             position,
             size,
+            frameKey,
             dotNetObjectRefs,
             jsRuntime);
     }
@@ -133,11 +137,15 @@ public sealed class PhaserSprite : ISprite
             Key,
             depth);
 
-    public void SetFrame(string frameName) =>
+    public void SetFrame(string frame)
+    {
         ((IJSInProcessRuntime)_jsRuntime).InvokeVoid(
             PhaserConstants.Functions.SetSpriteFrame,
             Key,
-            frameName);
+            frame);
+
+        Frame = frame;
+    }
 
     public void AddAnimation(
         string key,
@@ -152,14 +160,15 @@ public sealed class PhaserSprite : ISprite
 
     public void PlayAnimation(string animationKey)
     {
-        if (PlayingAnimation != animationKey)
+        if (Frame != animationKey)
         {
             _jsRuntime.InvokeVoid(
                 PhaserConstants.Functions.PlaySpriteAnimation,
                 Key,
                 animationKey);
 
-            PlayingAnimation = animationKey;
+            Frame = animationKey;
+//            PlayingAnimation = animationKey;
         }
     }
 
@@ -169,7 +178,7 @@ public sealed class PhaserSprite : ISprite
             PhaserConstants.Functions.StopSpriteAnimation,
             Key);
 
-        PlayingAnimation = null;
+//        PlayingAnimation = null;
     }
 
     public void Dispose()

@@ -47,7 +47,7 @@ public class Room
         _objects.Add(gameObject);
 
         _game.EventQueue.Enqueue(new GameObjectPlacedInRoom(
-            gameObject,
+            new GameObjectSnapshot(gameObject),
             this));
     }
 
@@ -84,17 +84,15 @@ public class Room
             // Do not enqueue events while calling the BeforeEnter handler.
             // Any changes happening in the handler should not be made visible
             // in the UI yet.
-            var originalIgnoreEvents = _game.EventQueue.IgnoreNewEvents;
-            _game.EventQueue.IgnoreNewEvents = true;
+            var originalFilter = _game.EventQueue.Filter;
+            _game.EventQueue.IgnoreAll();
 
             Handlers.HandleBeforeEnter();
 
-            _game.EventQueue.IgnoreNewEvents = originalIgnoreEvents;
+            _game.EventQueue.SetFilter(originalFilter);
         }
 
-        _game.EventQueue.Enqueue(new RoomEntered(
-            this,
-            GetVisibleObjects().ToList()));
+        _game.EventQueue.Enqueue(new RoomEntered(this));
         
         Handlers.HandleAfterEnter?.Invoke();
     }
@@ -103,16 +101,16 @@ public class Room
         _objects.Where(gameObject => gameObject is Actor
             || gameObject is Item { IsVisible: true });
 
-    internal RoomSnapshot Save() => new RoomSnapshot(
+    internal RoomState Save() => new RoomState(
         _objects.Select(gameObject => gameObject.Id).ToList());
 
-    internal void Restore(RoomSnapshot snapshot)
+    internal void Restore(RoomState state)
     {
-        if (snapshot.Objects is not null)
+        if (state.Objects is not null)
         {
             _objects.Clear();
 
-            foreach (var id in snapshot.Objects)
+            foreach (var id in state.Objects)
             {
                 if (_game.TryGetItem(id, out Item item))
                 {

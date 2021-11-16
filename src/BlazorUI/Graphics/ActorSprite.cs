@@ -10,6 +10,8 @@ public class ActorSprite : ObjectSprite<Actor>
 
     public ActorSprite(
         Actor actor,
+        Point position,
+        string status,
         SpritesSpec spritesSpec,
         IGraphics graphics,
         Func<Actor, Point, Task>? onPointerDown = null,
@@ -17,6 +19,8 @@ public class ActorSprite : ObjectSprite<Actor>
         Func<Actor, Point, Task>? onPointerOver = null)
         : base(
             actor,
+            position,
+            status,
             spritesSpec,
             graphics,
             onPointerDown,
@@ -25,7 +29,7 @@ public class ActorSprite : ObjectSprite<Actor>
     {
     }
 
-    public async Task SayLineAsync(string line, CancellationToken cancellationToken)
+    public async Task SayLineAsync(string line, string actorStatus, CancellationToken cancellationToken)
     {
         var cameraPosition = Graphics.GetCameraPosition();
         var textPosition = Sprite.Position.Offset(
@@ -59,7 +63,9 @@ public class ActorSprite : ObjectSprite<Actor>
             }
         }
 
-        var animate = (Model.Status == WellKnownStatus.FaceCamera);
+        var frameBeforeAnimation = Sprite.Frame;
+
+        var animate = (actorStatus == WellKnownStatus.FaceCamera);
         if (animate)
         {
             Sprite.PlayAnimation(WellKnownAnimation.Talk);
@@ -88,12 +94,13 @@ public class ActorSprite : ObjectSprite<Actor>
         if (animate)
         {
             Sprite.StopAnimation();
-            RefreshSpriteFrame();
+            Sprite.SetFrame(frameBeforeAnimation);
         }
     }
 
     public async Task WalkAsync(
         IEnumerable<Point> path,
+        string endInStatus,
         CancellationToken cancellationToken)
     {
         foreach (var target in path)
@@ -128,9 +135,7 @@ public class ActorSprite : ObjectSprite<Actor>
         if (!cancellationToken.IsCancellationRequested)
         {
             Sprite.StopAnimation();
-            // TODO
-            //Actor.State = WellKnownState.FaceCamera.ToString();
-            RefreshSpriteFrame();
+            UpdateSpriteFrameForStatus(endInStatus);
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace Amolenk.GameATron4000.Graphics.Geometry;
 
-public record Point(double X, double Y)
+public record struct Point(double X, double Y)
 {
     public Point Offset(double dX, double dY) => new Point(X + dX, Y + dY);
 
