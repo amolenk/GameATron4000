@@ -111,7 +111,22 @@ public class GameScript
             _game.Protagonist.SayLine(_game.GetCannedResponse());
         }
 
-        _eventQueue.Enqueue(new PlayerActionCompleted(action));
+        if (!_game.DialogueTreeActive)
+        {
+            _eventQueue.Enqueue(new PlayerActionCompleted());
+        }
+
+        return _eventQueue.FlushAsync();
+    }
+
+    public Task ContinueDialogue(DialogueOption option)
+    {
+        _game.ContinueDialogue(option);
+
+        if (!_game.DialogueTreeActive)
+        {
+            _eventQueue.Enqueue(new PlayerActionCompleted());
+        }
 
         return _eventQueue.FlushAsync();
     }

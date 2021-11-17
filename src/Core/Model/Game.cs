@@ -9,10 +9,12 @@ public class Game
     private readonly List<string> _cannedResponses;
     private readonly Random _random;
     private Action? _onStart;
+    private DialogueTree? _activeDialogueTree;
 
     public Actor? Protagonist { get; private set; }
     public Room? CurrentRoom { get; private set; }
     public Room? PreviousRoom { get; private set; }
+    public bool DialogueTreeActive => _activeDialogueTree is not null;
 
     internal EventQueue EventQueue { get; private set; }
 
@@ -64,12 +66,20 @@ public class Game
         return room;
     }
 
+    public DialogueTree AddDialogueTree(
+        string id,
+        Action<DialogueTreeBuilder> configure)
+    {
+        DialogueTreeBuilder builder = new(id);
+        configure(builder);
+
+        return builder.Build();
+    }
+
     public void AddCannedResponse(string response)
     {
         _cannedResponses.Add(response);
     }
-
-    //int Random(int min, int max);
 
     public void ChangeRoom(Room room)
     {
@@ -118,9 +128,47 @@ public class Game
 
     public bool IsFlagSet(string flag) => _flags.Contains(flag);
 
-    public void StartDialogue(string dialogueName)
+    public void StartDialogue(DialogueTree dialogueTree)
     {
-        SayLine($"[TODO: {dialogueName}]");
+        if (_activeDialogueTree is null)
+        {
+            var options = dialogueTree.Start().ToList();
+            if (options.Any())
+            {
+                _activeDialogueTree = dialogueTree;
+                EventQueue.Enqueue(new DialogueOptionsAvailable(options));
+            }
+            else
+            {
+                _activeDialogueTree = null;
+            }
+        }
+        else
+        {
+            throw new InvalidOperationException(
+                $"Cannot start a new dialogue while dialogue tree {_activeDialogueTree.Id} is still active.");
+        }
+    }
+
+    internal void ContinueDialogue(DialogueOption option)
+    {
+        if (_activeDialogueTree is not null)
+        {
+            var options = _activeDialogueTree.Continue(option.Topic).ToList();
+            if (options.Any())
+            {
+                EventQueue.Enqueue(new DialogueOptionsAvailable(options));
+            }
+            else
+            {
+                _activeDialogueTree = null;
+            }
+        }
+        else
+        {
+            throw new InvalidOperationException(
+                $"Cannot continue dialogue; no active dialogue tree found.");
+        }
     }
 
     internal bool TryGetItem(

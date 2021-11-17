@@ -26,12 +26,16 @@
         _mediator.Subscribe<ReloadGameScript>(OnReloadGameScriptAsync);
         _mediator.Subscribe<StartGame>(OnStartGameAsync);
         _mediator.Subscribe<ExecutePlayerAction>(OnExecutePlayerActionAsync);
+        _mediator.Subscribe<ContinueDialogue>(OnContinueDialogueAsync);
     }
 
     private Task OnStartGameAsync(StartGame _) => _script.StartGameAsync();
 
     private Task OnExecutePlayerActionAsync(ExecutePlayerAction command) =>
         _script.ExecutePlayerActionAsync(command.Action);
+
+    private Task OnContinueDialogueAsync(ContinueDialogue command) =>
+        _script.ContinueDialogue(command.Option);
 
     private async Task OnGameManifestLoadedAsync(GameManifestLoaded @event)
     {

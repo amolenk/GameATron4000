@@ -61,23 +61,24 @@ Room bridge = AddRoom(nameof(bridge), room => room
         bridge.Place(guy, 65, 440);
         guy.FaceCamera();
     })
-    .When.AfterEnter(() =>
-    {
-        if (!IsFlagSet("visitedBridge"))
-        {
-            Delay(1000);
-            ian.SayLine("No, you can't have access to the reactor core!");
-            carl.SayLine("Can we at least have a look at the warp drive?");
-            ian.SayLine("NO!");
+    // .When.AfterEnter(() =>
+    // {
+    //     if (!IsFlagSet("visitedBridge"))
+    //     {
+    //         Delay(1000);
+    //         ian.SayLine("No, you can't have access to the reactor core!");
+    //         carl.SayLine("Can we at least have a look at the warp drive?");
+    //         ian.SayLine("NO!");
 
-            ian.MoveTo(455, 430);
-            //ian.FaceCamera();
-            ian.SayLine("Jeez, these earthlings are nosy!");
-            ian.MoveTo(810, 300, WellKnownStatus.FaceAwayFromCamera);
+    //         ian.MoveTo(455, 430);
+    //         //ian.FaceCamera();
+    //         ian.SayLine("Jeez, these earthlings are nosy!");
+    //         ian.MoveTo(810, 300, WellKnownStatus.FaceAwayFromCamera);
 
-            SetFlag("visitedBridge");
-        }
-    }));
+    //         SetFlag("visitedBridge");
+    //     }
+    // })
+    );
 //     scale = {
 //         min = 40,
 //         max = 100,

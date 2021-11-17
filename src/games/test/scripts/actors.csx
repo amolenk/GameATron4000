@@ -28,7 +28,7 @@ Actor al = AddActor("al", builder => builder
         }
         else
         {
-            StartDialogue("meetAl");
+            //StartDialogue("meetAl");
         }
     }));
 
@@ -60,7 +60,7 @@ Actor ian = AddActor("ian", builder => builder
         }
         else
         {
-            StartDialogue("meetIan");
+            //StartDialogue("meetIan");
         }
     }));
 
@@ -71,7 +71,7 @@ Actor richard = AddActor("richard", builder => builder
     .When.TalkTo(() =>
     {
         guy.MoveTo(340, 430, WellKnownStatus.FaceAwayFromCamera);
-        StartDialogue("talkToRichard");
+        StartDialogue(knockKnockDialogue);
     })
     .When.WalkTo(() =>
     {

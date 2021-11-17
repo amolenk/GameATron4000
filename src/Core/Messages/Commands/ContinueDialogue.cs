@@ -1,0 +1,3 @@
+﻿namespace Amolenk.GameATron4000.Messages.Commands;
+
+public record ContinueDialogue(DialogueOption Option) : ICommand;

@@ -129,7 +129,7 @@ Item clawHammer = AddItem(nameof(clawHammer), builder => builder
     {
         if (gameObject == podcastBooth)
         {
-            StartDialogue("knockKnock");
+            //StartDialogue("knockKnock");
         }
         else if (gameObject == crateLeft || gameObject == crateTop)
         {
