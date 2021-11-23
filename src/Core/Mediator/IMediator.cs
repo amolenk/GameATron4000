@@ -6,5 +6,5 @@ public interface IMediator
 
     Task PublishAsync<TEvent>(TEvent @event) where TEvent : IEvent;
 
-    void Subscribe<T>(Func<T, Task> handler);
+    void Subscribe<TMessage>(Func<TMessage, Task> handler) where TMessage : IMessage;
 }

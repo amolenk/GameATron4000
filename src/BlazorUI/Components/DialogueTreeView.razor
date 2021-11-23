@@ -1,6 +1,4 @@
-﻿@inject IMediator _mediator;
-
-@if (_options is not null)
+﻿@if (_options is not null)
 {
     <ul>
         @foreach (var option in _options)
@@ -14,9 +12,12 @@
 
     private List<DialogueOption>? _options;
 
+    [CascadingParameter]
+    public IMediator Mediator { get; set; } = null!;
+
     protected override void OnInitialized()
     {
-        _mediator.Subscribe<DialogueOptionsAvailable>(OnDialogueOptionsAvailableAsync);
+        Mediator.Subscribe<DialogueOptionsAvailable>(OnDialogueOptionsAvailableAsync);
     }
 
     private Task OnDialogueOptionsAvailableAsync(DialogueOptionsAvailable @event)
@@ -31,7 +32,7 @@
     {
         _options = null;
 
-        await _mediator.SendAsync(new ContinueDialogue(option));
+        await Mediator.SendAsync(new ContinueDialogue(option));
 
         StateHasChanged();
     }

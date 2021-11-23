@@ -21,17 +21,6 @@ public class PhaserGraphics : IGraphics
         Height = height;
     }
 
-    public ValueTask AddImageAsync(
-        int x,
-        int y,
-        string key) =>
-        _jsRuntime.InvokeVoidAsync(
-            PhaserConstants.Functions.AddImage,
-            x,
-            y,
-            "images",
-            key);
-
     public ISprite AddSprite(
         string textureKey,
         string frameKey,

@@ -21,17 +21,17 @@ public class PhaserHost
         _height = height;
         _jsRuntime = jsRuntime;
         _onDraw = onDraw;
-        _startTaskCompletionSource = new TaskCompletionSource<IGraphics>();
+        _startTaskCompletionSource = new();
     }
 
     public async Task<IGraphics> StartAsync(string containerElementId)
     {
-        await _jsRuntime.InvokeVoidAsync(
+        _jsRuntime.InvokeVoid(
             PhaserConstants.Functions.StartPhaser,
             containerElementId,
             _width,
             _height,
-            DotNetObjectReference.Create(this));
+            DotNetObjectReference.Create(this)); // TODO Dispose
 
         return await _startTaskCompletionSource.Task;
     }

@@ -3,12 +3,10 @@ namespace Amolenk.GameATron4000.Infrastructure.Mediator;
 public class DefaultMediator : GameATron4000.Mediator.IMediator
 {
     private readonly Dictionary<Type, List<Func<object, Task>>> _handlersByType;
-    private readonly ILogger<DefaultMediator> _logger;
 
-    public DefaultMediator(ILogger<DefaultMediator> logger)
+    public DefaultMediator()
     {
         _handlersByType = new();
-        _logger = logger;
     }
 
     public async Task PublishAsync<TEvent>(TEvent @event) where TEvent : IEvent
@@ -43,18 +41,17 @@ public class DefaultMediator : GameATron4000.Mediator.IMediator
         }
     }
 
-    public void Subscribe<T>(Func<T, Task> handler)
+    public void Subscribe<TMessage>(Func<TMessage, Task> handler)
+        where TMessage : IMessage
     {
         List<Func<object, Task>> handlers;
 
-        if (!_handlersByType.TryGetValue(typeof(T), out handlers))
+        if (!_handlersByType.TryGetValue(typeof(TMessage), out handlers))
         {
             handlers = new();
-            _handlersByType.Add(typeof(T), handlers);
+            _handlersByType.Add(typeof(TMessage), handlers);
         }
 
-        handlers.Add(message => handler((T)message));
+        handlers.Add(message => handler((TMessage)message));
     }
-
-    // TODO Add reset functionality.
 }

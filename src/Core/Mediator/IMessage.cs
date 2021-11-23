@@ -1,5 +1,5 @@
 namespace Amolenk.GameATron4000.Mediator;
 
-public interface IEvent : IMessage
+public interface IMessage
 {
 }

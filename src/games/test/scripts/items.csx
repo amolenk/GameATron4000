@@ -163,7 +163,7 @@ Item cheeseGrater = AddItem(nameof(cheeseGrater), builder => builder
             SayLine("Sure!");
             guy.AddToInventory(clawHammer);
             bridge.Place(cheeseGrater, 245, 350);
-//            SetFlag("tradedHammer");
+            SetFlag("tradedHammer");
             guy.FaceCamera();
         }
         else
@@ -173,8 +173,16 @@ Item cheeseGrater = AddItem(nameof(cheeseGrater), builder => builder
     })
     .When.PickUp(() =>
     {
-//        if (IsFlagSet("tradedHammer"))
-        carl.SayLine("Hey, we need that for the show!");
+        if (IsFlagSet("tradedHammer"))
+        {
+            carl.SayLine("Hey, we need that for the show!");
+        }
+        else
+        {
+            guy.AddToInventory(cheeseGrater);
+            Delay(500);
+            guy.FaceCamera();
+        }
     }));
 
 Item cooker = AddItem(nameof(cooker), builder => builder

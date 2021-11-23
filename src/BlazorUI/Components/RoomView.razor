@@ -1,5 +1,4 @@
-﻿@inject IMediator _mediator
-@inject IJSRuntime _jsRuntime
+﻿@inject IJSRuntime _jsRuntime
 @inject ILogger<RoomView> _logger
 
 <div id="phaser">
@@ -19,22 +18,24 @@
     private bool _playerInputEnabled = true;
     private bool _inDebugMode = false;
 
+    [CascadingParameter]
+    public IMediator Mediator { get; set; } = null!;
 
     protected override void OnInitialized()
     {
-        _mediator.Subscribe<GameManifestLoaded>(OnGameManifestLoadedAsync);
-        _mediator.Subscribe<PlayerActionStarted>(OnPlayerActionStartedAsync);
-        _mediator.Subscribe<PlayerActionCompleted>(OnPlayerActionCompletedAsync);
-        _mediator.Subscribe<ProtagonistChanged>(OnProtagonistChangedAsync);
-        _mediator.Subscribe<RoomEntered>(OnRoomEnteredAsync);
-        _mediator.Subscribe<LineSpoken>(OnLineSpokenAsync);
-        _mediator.Subscribe<ActorMoved>(OnActorMovedAsync);
-        _mediator.Subscribe<GameObjectPlacedInRoom>(OnGameObjectPlacedInRoomAsync);
-        _mediator.Subscribe<GameObjectRemovedFromRoom>(OnGameObjectRemovedFromRoomAsync);
-        _mediator.Subscribe<DelayRequested>(OnDelayRequestedAsync);
-        _mediator.Subscribe<GameObjectStatusChanged>(OnGameObjectStatusChangedAsync);
-        _mediator.Subscribe<DebugModeChanged>(OnDebugModeChangedAsync);
-        _mediator.Subscribe<SkipWait>(OnSkipWaitAsync);
+        Mediator.Subscribe<GameManifestLoaded>(OnGameManifestLoadedAsync);
+        Mediator.Subscribe<PlayerActionStarted>(OnPlayerActionStartedAsync);
+        Mediator.Subscribe<PlayerActionCompleted>(OnPlayerActionCompletedAsync);
+        Mediator.Subscribe<ProtagonistChanged>(OnProtagonistChangedAsync);
+        Mediator.Subscribe<RoomEntered>(OnRoomEnteredAsync);
+        Mediator.Subscribe<LineSpoken>(OnLineSpokenAsync);
+        Mediator.Subscribe<ActorMoved>(OnActorMovedAsync);
+        Mediator.Subscribe<GameObjectPlacedInRoom>(OnGameObjectPlacedInRoomAsync);
+        Mediator.Subscribe<GameObjectRemovedFromRoom>(OnGameObjectRemovedFromRoomAsync);
+        Mediator.Subscribe<DelayRequested>(OnDelayRequestedAsync);
+        Mediator.Subscribe<GameObjectStatusChanged>(OnGameObjectStatusChangedAsync);
+        Mediator.Subscribe<DebugModeChanged>(OnDebugModeChangedAsync);
+        Mediator.Subscribe<SkipWait>(OnSkipWaitAsync);
     }
 
     private Task OnDebugModeChangedAsync(DebugModeChanged @event)
@@ -85,11 +86,6 @@
 
     public Task OnRoomEnteredAsync(RoomEntered @event)
     {
-        foreach (var bla in @event.VisibleObjects)
-        {
-            Console.WriteLine($"{bla.GameObject.Id} - {bla.GameObject.Position} - {bla.Position}");
-        }
-
         using var pauseGraphics = _graphics.Pause();
 
         // If graphics for a room were already loaded, dispose.
@@ -172,6 +168,7 @@
                 GetWalkboxExcludedAreas(@event.Actor.Id));
 
             var cts = new CancellationTokenSource();
+            
             var task = actorSprite.WalkAsync(
                 path,
                 @event.EndInStatus,
@@ -292,7 +289,7 @@
                 await _walkState.Value.Task;
             }
 
-            await _mediator.SendAsync(new ExecutePlayerAction(
+            await Mediator.SendAsync(new ExecutePlayerAction(
                 new WalkToPositionAction(protagonist.Model, pointerPosition)));
         }
     }
@@ -303,19 +300,19 @@
     {
         if (_playerInputEnabled)
         {
-            await _mediator.PublishAsync(new GameObjectPointerDown(gameObject));
+            await Mediator.PublishAsync(new GameObjectPointerDown(gameObject));
         }
     }
 
     private Task OnGameObjectPointerOutAsync(
         GameObject gameObject,
         Point mousePosition) =>
-        _mediator.PublishAsync(new GameObjectPointerOut(gameObject));
+        Mediator.PublishAsync(new GameObjectPointerOut(gameObject));
 
     private Task OnGameObjectPointerOverAsync(
         GameObject gameObject,
         Point mousePosition) =>
-        _mediator.PublishAsync(new GameObjectPointerOver(gameObject));
+        Mediator.PublishAsync(new GameObjectPointerOver(gameObject));
 
 
     

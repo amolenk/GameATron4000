@@ -52,5 +52,5 @@ OnGameStart(() =>
 
     SetProtagonist(guy);
 
-    ChangeRoom(bridge);
+    ChangeRoom(park);
 });

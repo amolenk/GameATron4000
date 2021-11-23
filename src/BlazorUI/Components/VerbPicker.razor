@@ -1,6 +1,4 @@
-﻿@inject IMediator _mediator;
-
-@if (_playerInputEnabled)
+﻿@if (_uiVisible)
 {
     <p>
         <span @onclick="@(() => OnVerbClickAsync(Verb.Give))">Give</span>
@@ -17,18 +15,21 @@
 
 @code {
 
-    private bool _playerInputEnabled;
+    private bool _uiVisible;
+
+    [CascadingParameter]
+    public IMediator Mediator { get; set; } = null!;
 
     protected override void OnInitialized()
     {
-        _mediator.Subscribe<GameStarted>(OnGameStartedAsync);
-        _mediator.Subscribe<PlayerActionStarted>(OnPlayerCommandStarted);
-        _mediator.Subscribe<PlayerActionCompleted>(OnPlayerActionCompleted);
+        Mediator.Subscribe<GameStarted>(OnGameStartedAsync);
+        Mediator.Subscribe<PlayerActionStarted>(OnPlayerCommandStarted);
+        Mediator.Subscribe<PlayerActionCompleted>(OnPlayerActionCompleted);
     }
 
     private Task OnGameStartedAsync(GameStarted @event)
     {
-        _playerInputEnabled = true;
+        _uiVisible = true;
 
         StateHasChanged();
         return Task.CompletedTask;
@@ -36,20 +37,22 @@
 
     private Task OnPlayerCommandStarted(PlayerActionStarted @event)
     {
-        _playerInputEnabled = !@event.Action.DisableUIWhileExecuting;
+        _uiVisible = !@event.Action.DisableUIWhileExecuting;
+
         StateHasChanged();
         return Task.CompletedTask;
     }
 
     private Task OnPlayerActionCompleted(PlayerActionCompleted @event)
     {
-        _playerInputEnabled = true;
+        _uiVisible = true;
+
         StateHasChanged();
         return Task.CompletedTask;
     }
 
     private async Task OnVerbClickAsync(Verb verb)
     {
-        await _mediator.PublishAsync(new VerbSelected(verb));
+        await Mediator.PublishAsync(new VerbSelected(verb));
     }
 }

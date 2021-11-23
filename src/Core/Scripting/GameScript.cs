@@ -8,8 +8,7 @@ public class GameScript
 
     public GameScript(
         Game game,
-        EventQueue eventQueue,
-        IMediator mediator)
+        EventQueue eventQueue)
     {
         _game = game;
         _eventQueue = eventQueue;
@@ -29,7 +28,7 @@ public class GameScript
 
         await scriptRunner.RunAsync(game);
 
-        return new GameScript(game, eventQueue, mediator);
+        return new GameScript(game, eventQueue);
     }
 
     public Task StartGameAsync()

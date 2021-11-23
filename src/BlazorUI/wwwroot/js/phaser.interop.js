@@ -29,6 +29,7 @@ function getPointerPosition() {
     }
 }
 
+// TODO options
 function addSprite(spriteKey, textureKey, frameKey, position, origin, depth,
     onPointerDown, onPointerOut, onPointerOver, scrollFactor) {
     const sprite = scene.add.sprite(position.x, position.y, textureKey, frameKey);
@@ -54,6 +55,7 @@ function addSprite(spriteKey, textureKey, frameKey, position, origin, depth,
         }
         if (onPointerOver) {
             sprite.on('pointerover', async function () {
+                
                 await onPointerOver.invokeMethodAsync('Invoke', getPointerPosition());
             });
         }

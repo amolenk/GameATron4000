@@ -1,6 +1,4 @@
-﻿@inject IMediator _mediator
-
-<div style="text-align: center">
+﻿<div style="text-align: center">
     @if (_playerInputEnabled)
     {
         <p>@_actionText</p>
@@ -14,15 +12,18 @@
     private string _actionText = string.Empty;
     private bool _playerInputEnabled;
 
+    [CascadingParameter]
+    public IMediator Mediator { get; set; } = null!;
+
     protected override void OnInitialized()
     {
-        _mediator.Subscribe<GameStarted>(OnGameStartedAsync);
-        _mediator.Subscribe<VerbSelected>(OnVerbSelectedAsync);
-        _mediator.Subscribe<GameObjectPointerDown>(OnGameObjectPointerDownAsync);
-        _mediator.Subscribe<GameObjectPointerOut>(OnGameObjectPointerOutAsync);
-        _mediator.Subscribe<GameObjectPointerOver>(OnGameObjectPointerOverAsync);
-        _mediator.Subscribe<PlayerActionStarted>(OnPlayerCommandStarted);
-        _mediator.Subscribe<PlayerActionCompleted>(OnPlayerActionCompleted);
+        Mediator.Subscribe<GameStarted>(OnGameStartedAsync);
+        Mediator.Subscribe<VerbSelected>(OnVerbSelectedAsync);
+        Mediator.Subscribe<GameObjectPointerDown>(OnGameObjectPointerDownAsync);
+        Mediator.Subscribe<GameObjectPointerOut>(OnGameObjectPointerOutAsync);
+        Mediator.Subscribe<GameObjectPointerOver>(OnGameObjectPointerOverAsync);
+        Mediator.Subscribe<PlayerActionStarted>(OnPlayerCommandStarted);
+        Mediator.Subscribe<PlayerActionCompleted>(OnPlayerActionCompleted);
     }
 
     private Task OnGameStartedAsync(GameStarted @event)
@@ -65,7 +66,7 @@
     {
         if (_action.Add(@event.GameObject))
         {
-            await _mediator.SendAsync(new ExecutePlayerAction(_action));
+            await Mediator.SendAsync(new ExecutePlayerAction(_action));
         }
         else
         {

@@ -1,0 +1,24 @@
+﻿@page "/"
+@*{DiskNumber:int}"*@
+@inject IMediator _mediator
+
+<div>
+    <CascadingValue Value="_mediator">
+        <GameView />
+        <GlobalHotKeys />
+    </CascadingValue>
+</div>
+
+@code
+{
+    [Parameter]
+    public int DiskNumber { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await _mediator.SendAsync(new StartGame(1/*DiskNumber*/));
+        }
+    }
+}

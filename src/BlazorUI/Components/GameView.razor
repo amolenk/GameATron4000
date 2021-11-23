@@ -1,0 +1,134 @@
+﻿@inject HttpClient _client
+@inject IGameManifestRepository _gameManifestRepository
+@inject ILogger<Game> _logger
+
+@if (_scriptErrors is null)
+{
+    <RoomView />
+    <ActionBar />
+    <VerbPicker />
+    <InventoryView />
+    <DialogueTreeView />
+}
+else
+{
+    <ul>
+    @foreach (var error in _scriptErrors)
+    {
+        <li>@(error.Path)(@error.Line,@error.Character): @error.Message</li>
+    }
+    </ul>
+}
+
+@code {
+
+    private GameScript? _script;
+    private GameManifest? _manifest;
+    private IScriptCompiler? _compiler; // TODO GameScriptFactory/Loader
+    private ImmutableArray<ScriptError>? _scriptErrors;
+
+    [CascadingParameter]
+    public IMediator Mediator { get; set; } = null!;
+
+    protected override void OnInitialized()
+    {
+        Mediator.Subscribe<StartGame>(OnStartGameAsync);
+        Mediator.Subscribe<ExecutePlayerAction>(OnExecutePlayerActionAsync);
+        Mediator.Subscribe<ContinueDialogue>(OnContinueDialogueAsync);
+        Mediator.Subscribe<RefreshGameScript>(OnRefreshGameScriptAsync);
+    }
+
+    private async Task OnStartGameAsync(StartGame command)
+    {
+        _manifest = await _gameManifestRepository.TryLoadGameManifest(
+            command.DiskNumber);
+        
+        if (_manifest is not null)
+        {
+            await Mediator.PublishAsync(new GameManifestLoaded(_manifest));
+
+            if (await TryLoadGameScriptAsync())
+            {
+                await _script!.StartGameAsync();
+            }
+        }
+    }
+
+    private async Task OnExecutePlayerActionAsync(ExecutePlayerAction command)
+    {
+        if (_script is not null)
+        {
+            await _script.ExecutePlayerActionAsync(command.Action);
+        }
+    }
+
+    private async Task OnContinueDialogueAsync(ContinueDialogue command)
+    {
+        if (_script is not null)
+        {
+            await _script.ContinueDialogue(command.Option);
+        }
+    }
+
+    private async Task OnRefreshGameScriptAsync(RefreshGameScript _)
+    {
+        if (_script is not null)
+        {
+            var saveGame = _script.SaveGame();
+
+            var options = new JsonSerializerOptions
+            {
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            };
+
+            // TODO Remove
+            var data = JsonSerializer.Serialize(saveGame, options);
+            Console.WriteLine(data);
+
+            await TryLoadGameScriptAsync();
+            await _script.RestoreGameAsync(saveGame);
+        }
+    }
+
+    private async Task<bool> TryLoadGameScriptAsync()
+    {
+        if (_compiler is null)
+        {
+            _compiler = await CSharpScriptCompiler.CreateAsync(_client);
+        }
+
+        try
+        {
+            _script = await LoadGameScriptAsync();
+            return true;
+        }
+        catch (ScriptException ex)
+        {
+            _scriptErrors = ex.Errors;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogCritical(ex, "Failed to load game script.");
+        }
+
+        return false;
+    }
+
+    private async Task<GameScript> LoadGameScriptAsync()
+    {
+        List<ScriptFile> sources = new();
+
+        foreach (var sourceUrl in _manifest!.Spec.Scripts)
+        {
+            // Add current time to prevent caching.
+            var content = await _client.GetStringAsync(
+                $"{_manifest.BasePath}{sourceUrl}?time={DateTime.Now}");
+
+            sources.Add(new ScriptFile(content, sourceUrl));
+        }
+
+        return await GameScript.LoadAsync(sources, _compiler!, Mediator);
+    }
+}

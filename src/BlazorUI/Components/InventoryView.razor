@@ -1,6 +1,4 @@
-﻿@inject IMediator _mediator;
-
-@if (_playerInputEnabled)
+﻿@if (_playerInputEnabled)
 {
     <p>
         @foreach (var item in _items)
@@ -21,14 +19,17 @@
     private Actor? _protagonist;
     private List<Item> _items = new();
 
+    [CascadingParameter]
+    public IMediator Mediator { get; set; } = null!;
+
     protected override void OnInitialized()
     {
-        _mediator.Subscribe<ProtagonistChanged>(OnProtagonistChangedAsync);
-        _mediator.Subscribe<GameStarted>(OnGameStartedAsync);
-        _mediator.Subscribe<ItemAddedToInventory>(OnItemAddedToInventoryAsync);
-        _mediator.Subscribe<ItemRemovedFromInventory>(OnItemRemovedFromInventoryAsync);
-        _mediator.Subscribe<PlayerActionStarted>(OnPlayerCommandStarted);
-        _mediator.Subscribe<PlayerActionCompleted>(OnPlayerActionCompleted);
+        Mediator.Subscribe<ProtagonistChanged>(OnProtagonistChangedAsync);
+        Mediator.Subscribe<GameStarted>(OnGameStartedAsync);
+        Mediator.Subscribe<ItemAddedToInventory>(OnItemAddedToInventoryAsync);
+        Mediator.Subscribe<ItemRemovedFromInventory>(OnItemRemovedFromInventoryAsync);
+        Mediator.Subscribe<PlayerActionStarted>(OnPlayerCommandStarted);
+        Mediator.Subscribe<PlayerActionCompleted>(OnPlayerActionCompleted);
     }
 
     private Task OnGameStartedAsync(GameStarted @event)
@@ -88,11 +89,11 @@
     }
 
     private Task OnItemPointerOverAsync(Item item) =>
-        _mediator.PublishAsync(new GameObjectPointerOver(item));
+        Mediator.PublishAsync(new GameObjectPointerOver(item));
 
     private Task OnItemPointerOutAsync(Item item) =>
-        _mediator.PublishAsync(new GameObjectPointerOut(item));
+        Mediator.PublishAsync(new GameObjectPointerOut(item));
 
     private Task OnItemClickAsync(Item item) =>
-        _mediator.PublishAsync(new GameObjectPointerDown(item));
+        Mediator.PublishAsync(new GameObjectPointerDown(item));
 }

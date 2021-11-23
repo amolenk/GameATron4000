@@ -6,11 +6,6 @@ public interface IGraphics
 
     int Height { get; }
 
-    ValueTask AddImageAsync(
-        int x,
-        int y,
-        string key);
-
     ISprite AddSprite(
         string textureKey,
         string frameKey,
