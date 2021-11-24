@@ -10,6 +10,9 @@ var baseAddress = new Uri(builder.HostEnvironment.BaseAddress);
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = baseAddress });
 
 builder.Services
+    .AddSingleton<IJSInProcessRuntime>(
+        sp => (IJSInProcessRuntime)sp.GetRequiredService<IJSRuntime>())
+    .AddSingleton<PhaserGraphicsFactory>()
     .AddTransient<IMediator, DefaultMediator>();
 
 builder.Services.AddHttpClient<IGameManifestRepository, LocalGameManifestRepository>(

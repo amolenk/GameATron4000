@@ -1,21 +1,22 @@
 ﻿namespace Amolenk.GameATron4000.Infrastructure.Phaser;
 
+// TODO Make disposable
 public class PhaserGraphics : IGraphics
 {
-    private IJSRuntime _jsRuntime;
-    private IJSInProcessRuntime _jsInProcessRuntime;
+    private readonly IEnumerable<IDisposable> _disposables;
+    private readonly IJSInProcessRuntime _jsInProcessRuntime;
 
     public int Width { get; }
-
     public int Height { get; }
 
     public PhaserGraphics(
         int width,
         int height,
-        IJSRuntime jsRuntime)
+        IEnumerable<IDisposable> disposables,
+        IJSInProcessRuntime jsInProcessRuntime)
     {
-        _jsRuntime = jsRuntime;
-        _jsInProcessRuntime = (IJSInProcessRuntime)jsRuntime;
+        _disposables = disposables;
+        _jsInProcessRuntime = jsInProcessRuntime;
 
         Width = width;
         Height = height;

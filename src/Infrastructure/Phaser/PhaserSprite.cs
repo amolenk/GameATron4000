@@ -9,7 +9,6 @@ public sealed class PhaserSprite : ISprite
     public Point Position { get; private set; }
     public Size Size { get; private set; }
     public string Frame { get; private set; }
-    // public string? PlayingAnimation { get; private set; }
 
     private PhaserSprite(
         string key,
@@ -36,25 +35,34 @@ public sealed class PhaserSprite : ISprite
         IJSInProcessRuntime jsRuntime)
     {
         var spriteKey = Guid.NewGuid().ToString();
-        var dotNetObjectRefs = new List<IDisposable>();
+        List<IDisposable> disposables = new();
 
-        DotNetObjectReference<PhaserFuncCallback<Point, Task>>? onPointerDownRef = null;
-        DotNetObjectReference<PhaserFuncCallback<Point, Task>>? onPointerOutRef = null;
-        DotNetObjectReference<PhaserFuncCallback<Point, Task>>? onPointerOverRef = null;
+        DotNetObjectReference<PhaserCallback<Point, Task>>? onPointerDownRef = null;
+        DotNetObjectReference<PhaserCallback<Point, Task>>? onPointerOutRef = null;
+        DotNetObjectReference<PhaserCallback<Point, Task>>? onPointerOverRef = null;
 
-        if (TryCreateDotNetObjectRef(options.OnPointerDown, out onPointerDownRef))
+        if (options.OnPointerDown is not null)
         {
-            dotNetObjectRefs.Add(onPointerDownRef!);
+            onPointerDownRef = DotNetObjectReference.Create(
+                new PhaserCallback<Point, Task>(options.OnPointerDown));
+
+            disposables.Add(onPointerDownRef);
         }
 
-        if (TryCreateDotNetObjectRef(options.OnPointerOut, out onPointerOutRef))
+        if (options.OnPointerOut is not null)
         {
-            dotNetObjectRefs.Add(onPointerOutRef!);
+            onPointerOutRef = DotNetObjectReference.Create(
+                new PhaserCallback<Point, Task>(options.OnPointerOut));
+
+            disposables.Add(onPointerOutRef);
         }
 
-        if (TryCreateDotNetObjectRef(options.OnPointerOver, out onPointerOverRef))
+        if (options.OnPointerOver is not null)
         {
-            dotNetObjectRefs.Add(onPointerOverRef!);
+            onPointerOverRef = DotNetObjectReference.Create(
+                new PhaserCallback<Point, Task>(options.OnPointerOver));
+
+            disposables.Add(onPointerOverRef);
         }
 
         var size = jsRuntime.Invoke<Size>(
@@ -70,13 +78,12 @@ public sealed class PhaserSprite : ISprite
             onPointerOverRef,
             options.ScrollFactor);
 
-
         return new PhaserSprite(
             spriteKey,
             position,
             size,
             frameKey,
-            dotNetObjectRefs,
+            disposables,
             jsRuntime);
     }
 
@@ -93,7 +100,7 @@ public sealed class PhaserSprite : ISprite
 
         // When the tween has updated the sprite, check if cancellation
         // is requested, and inform the caller of the new position.
-        var onUpdateHandler = new PhaserFuncCallback<Point, bool>(
+        var onUpdateHandler = new PhaserCallback<Point, bool>(
             pointerPosition =>
             {
                 Position = pointerPosition;
@@ -105,7 +112,7 @@ public sealed class PhaserSprite : ISprite
 
         // When the tween has completed, set the result on the
         // TaskCompletionSource to allow this method to run to completion.
-        var onCompleteHandler = new PhaserActionCallback<Point>(
+        var onCompleteHandler = new PhaserCallback<Point>(
             pointerPosition =>
             {
                 Position = pointerPosition;
@@ -168,7 +175,6 @@ public sealed class PhaserSprite : ISprite
                 animationKey);
 
             Frame = animationKey;
-//            PlayingAnimation = animationKey;
         }
     }
 
@@ -177,8 +183,6 @@ public sealed class PhaserSprite : ISprite
         _jsRuntime.InvokeVoid(
             PhaserConstants.Functions.StopSpriteAnimation,
             Key);
-
-//        PlayingAnimation = null;
     }
 
     public void Dispose()
@@ -191,20 +195,5 @@ public sealed class PhaserSprite : ISprite
         {
             disposable.Dispose();
         }
-    }
-
-    private static bool TryCreateDotNetObjectRef(
-        Func<Point, Task>? callback,
-        out DotNetObjectReference<PhaserFuncCallback<Point, Task>>? dotNetObjectRef)
-    {
-        if (callback is not null)
-        {
-            dotNetObjectRef = DotNetObjectReference.Create(
-                new PhaserFuncCallback<Point, Task>(callback));
-            return true;
-        }
-
-        dotNetObjectRef = null;
-        return false;
     }
 }

@@ -16,6 +16,7 @@ global using Amolenk.GameATron4000.Scripting;
 global using Microsoft.AspNetCore.Components.Web;
 global using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 global using Microsoft.Extensions.Logging;
+global using Microsoft.JSInterop;
 global using System.Collections.Immutable;
 global using System.Collections.ObjectModel;
 global using System.Diagnostics.CodeAnalysis;

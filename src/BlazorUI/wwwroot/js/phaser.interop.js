@@ -189,25 +189,25 @@ function setCameraBounds(size) {
     scene.cameras.main.setBounds(0, 0, size.width, 450); // TODO
 }
 
-function startPhaser(container, width, height, dotNetSceneCallback) {
+function startPhaser(container, width, height, onPreloadRef, onCreateRef, onUpdateRef) {
 
-    this.dotNetSceneCallback = dotNetSceneCallback;
+    //this.dotNetSceneCallback = dotNetSceneCallback;
 
     var sceneConfig = {
         key: 'main',
         preload: function () {
             scene = this;
-            dotNetSceneCallback.invokeMethod('OnPreload');
+            onPreloadRef.invokeMethod('Invoke');
         },
         create: function () {
             graphics = this.add.graphics();
             graphics.setDepth(1); // TODO
-            dotNetSceneCallback.invokeMethod('OnCreate');
+            onCreateRef.invokeMethod('Invoke');
         },
         update: function () {
             graphics.clear();
-            dotNetSceneCallback.invokeMethod(
-                'OnUpdate',
+            onUpdateRef.invokeMethod(
+                'Invoke',
                 {
                     x: Math.round(this.input.x + this.cameras.main.scrollX),
                     y: Math.round(this.input.y + this.cameras.main.scrollY)
