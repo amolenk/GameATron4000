@@ -24,7 +24,9 @@ public static class PhaserConstants
         public const string PlaySpriteAnimation = "playSpriteAnimation";
         public const string StopSpriteAnimation = "stopSpriteAnimation";
         public const string DestroySprite = "destroySprite";
-        
+
         public const string DrawLines = "drawLines";
+
+        public const string DestroyPhaser = "destroyPhaser";
     }
 }

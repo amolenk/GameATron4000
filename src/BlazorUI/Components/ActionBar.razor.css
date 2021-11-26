@@ -1,0 +1,13 @@
+#container {
+    display: table;
+    width: 100%;
+    height: 100%;
+}
+
+p {
+    display: table-cell;
+    font-size: 3vh;
+    margin: 0px;
+    text-align: center;
+    vertical-align: middle;
+}

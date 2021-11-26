@@ -18,7 +18,7 @@ public class Game
 
     internal EventQueue EventQueue { get; private set; }
 
-    internal Game(EventQueue eventQueue)
+    public Game(EventQueue eventQueue)
     {
         _items = new();
         _actors = new();
@@ -30,10 +30,13 @@ public class Game
         EventQueue = eventQueue;
     }
 
-    public Item AddItem(string id, Action<ItemBuilder> configure)
+    public Item AddItem(string id, Action<ItemBuilder>? configure = null)
     {
         ItemBuilder builder = new(id, this);
-        configure(builder);
+        if (configure is not null)
+        {
+            configure(builder);
+        }
 
         var item = builder.Build();
 
@@ -42,10 +45,13 @@ public class Game
         return item;
     }
 
-    public Actor AddActor(string id, Action<ActorBuilder> configure)
+    public Actor AddActor(string id, Action<ActorBuilder>? configure = null)
     {
         ActorBuilder builder = new(id, this);
-        configure(builder);
+        if (configure is not null)
+        {
+            configure(builder);
+        }
 
         var actor = builder.Build();
 
@@ -54,10 +60,13 @@ public class Game
         return actor;
     }
 
-    public Room AddRoom(string id, Action<RoomBuilder> configure)
+    public Room AddRoom(string id, Action<RoomBuilder>? configure = null)
     {
         RoomBuilder builder = new(id, this);
-        configure(builder);
+        if (configure is not null)
+        {
+            configure(builder);
+        }
 
         var room = builder.Build();
 

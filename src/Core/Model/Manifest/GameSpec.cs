@@ -7,4 +7,6 @@ public class GameSpec
     public SpritesSpec Sprites { get; set; } = new();
 
     public string[] Scripts { get; set; } = Array.Empty<string>();
+
+    public string InventorySpritesFolder { get; set; } = string.Empty;
 }

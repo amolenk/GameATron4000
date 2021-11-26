@@ -1,20 +1,23 @@
 ﻿@if (_playerInputEnabled)
 {
-    <p>
+    <div id="container">
         @foreach (var item in _items)
         {
-            <span
+            <img
+                class="item"
+                src="@GetImageUrl(item)"
                 @onpointerover="@(() => OnItemPointerOverAsync(item))"
                 @onpointerout="@(() => OnItemPointerOutAsync(item))"
-                @onclick="@(() => OnItemClickAsync(item))">
-                @(item.DisplayName)&nbsp;
-            </span>
+                @onclick="@(() => OnItemClickAsync(item))"
+                alt="@item.DisplayName"
+            />
         }
-    </p>
+    </div>
 }
 
 @code {
 
+    private GameManifest _manifest = null!;
     private bool _playerInputEnabled;
     private Actor? _protagonist;
     private List<Item> _items = new();
@@ -24,12 +27,19 @@
 
     protected override void OnInitialized()
     {
+        Mediator.Subscribe<GameManifestLoaded>(OnGameManifestLoadedAsync);
         Mediator.Subscribe<ProtagonistChanged>(OnProtagonistChangedAsync);
         Mediator.Subscribe<GameStarted>(OnGameStartedAsync);
         Mediator.Subscribe<ItemAddedToInventory>(OnItemAddedToInventoryAsync);
         Mediator.Subscribe<ItemRemovedFromInventory>(OnItemRemovedFromInventoryAsync);
         Mediator.Subscribe<PlayerActionStarted>(OnPlayerCommandStarted);
         Mediator.Subscribe<PlayerActionCompleted>(OnPlayerActionCompleted);
+    }
+
+    private Task OnGameManifestLoadedAsync(GameManifestLoaded @event)
+    {
+        _manifest = @event.Manifest;
+        return Task.CompletedTask;
     }
 
     private Task OnGameStartedAsync(GameStarted @event)
@@ -96,4 +106,7 @@
 
     private Task OnItemClickAsync(Item item) =>
         Mediator.PublishAsync(new GameObjectPointerDown(item));
+
+    private string GetImageUrl(Item item) =>
+        $"games/disk{_manifest.DiskNumber:000}/{_manifest.Spec.InventorySpritesFolder}/{item.Id}.png";
 }

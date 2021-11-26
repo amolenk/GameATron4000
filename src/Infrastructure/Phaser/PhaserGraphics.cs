@@ -1,6 +1,5 @@
 ﻿namespace Amolenk.GameATron4000.Infrastructure.Phaser;
 
-// TODO Make disposable
 public class PhaserGraphics : IGraphics
 {
     private readonly IEnumerable<IDisposable> _disposables;
@@ -88,4 +87,7 @@ public class PhaserGraphics : IGraphics
 
         return new ScenePaused(_jsInProcessRuntime);
     }
+
+    public void Dispose() =>
+        _jsInProcessRuntime.InvokeVoid(PhaserConstants.Functions.DestroyPhaser);
 }

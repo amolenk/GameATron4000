@@ -1,39 +1,40 @@
 ﻿namespace Amolenk.GameATron4000.Scripting;
 
-public class GameScript
+public class GameScript : IDisposable
 {
     private readonly Game _game;
     private readonly EventQueue _eventQueue;
+    private readonly AssemblyLoadContext _assemblyLoadContext;
     private GameState _initialState;
 
     public GameScript(
         Game game,
-        EventQueue eventQueue)
+        EventQueue eventQueue,
+        AssemblyLoadContext assemblyLoadContext)
     {
         _game = game;
         _eventQueue = eventQueue;
+        _assemblyLoadContext = assemblyLoadContext;
     }
 
-    public static async Task<GameScript> LoadAsync(
-        IEnumerable<ScriptFile> sources,
-        IScriptCompiler compiler,
-        IMediator mediator)
+    // public static async Task<GameScript> LoadAsync(
+    //     IEnumerable<ScriptFile> sources,
+    //     IScriptCompiler compiler)
+    // {
+    //     // TODO Dispose ScriptRunner
+    //     using var scriptRunner = compiler.Compile<Game>(sources);
+
+    //     EventQueue eventQueue = new();
+
+    //     var game = new Game(eventQueue);
+
+    //     await scriptRunner.RunAsync(game);
+
+    //     return new GameScript(game, eventQueue);
+    // }
+
+    public Task StartGameAsync(IMediator mediator)
     {
-        // TODO Dispose ScriptRunner
-        var scriptRunner = compiler.Compile<Game>(sources);
-
-        EventQueue eventQueue = new(mediator);
-
-        var game = new Game(eventQueue);
-
-        await scriptRunner.RunAsync(game);
-
-        return new GameScript(game, eventQueue);
-    }
-
-    public Task StartGameAsync()
-    {
-
         // Filter event queue while setting up the game. Only ProtagonistChanged
         // and RoomEntered should be sent to the UI when the game starts.
         //_eventQueue.SetFilter(e => e is ProtagonistChanged || e is RoomEntered);
@@ -61,10 +62,10 @@ public class GameScript
         // saving the game.
         _initialState = _game.Save();
 
-        return _eventQueue.FlushAsync();
+        return _eventQueue.FlushAsync(mediator);
     }
 
-    public Task RestoreGameAsync(GameState gameState)
+    public Task RestoreGameAsync(GameState gameState, IMediator mediator)
     {
         _eventQueue.Enqueue(new GameStarted(_game));
 
@@ -87,13 +88,13 @@ public class GameScript
         _game.Restore(gameState);
 
         // Let the UI know who/where the protagonist is.
-        _eventQueue.Enqueue(new ProtagonistChanged(_game.Protagonist));
-        _eventQueue.Enqueue(new RoomEntered(_game.CurrentRoom));
+        _eventQueue.Enqueue(new ProtagonistChanged(_game.Protagonist!));
+        _eventQueue.Enqueue(new RoomEntered(_game.CurrentRoom!));
 
-        return _eventQueue.FlushAsync();
+        return _eventQueue.FlushAsync(mediator);
     }
 
-    public Task ExecutePlayerActionAsync(IAction action)
+    public Task ExecutePlayerActionAsync(IAction action, IMediator mediator)
     {
         _eventQueue.Enqueue(new PlayerActionStarted(action));
 
@@ -107,7 +108,7 @@ public class GameScript
 
         if (!action.TryExecute())
         {
-            _game.Protagonist.SayLine(_game.GetCannedResponse());
+            _game.Protagonist!.SayLine(_game.GetCannedResponse());
         }
 
         if (!_game.DialogueTreeActive)
@@ -115,10 +116,10 @@ public class GameScript
             _eventQueue.Enqueue(new PlayerActionCompleted());
         }
 
-        return _eventQueue.FlushAsync();
+        return _eventQueue.FlushAsync(mediator);
     }
 
-    public Task ContinueDialogue(DialogueOption option)
+    public Task ContinueDialogue(DialogueOption option, IMediator mediator)
     {
         _game.ContinueDialogue(option);
 
@@ -127,8 +128,15 @@ public class GameScript
             _eventQueue.Enqueue(new PlayerActionCompleted());
         }
 
-        return _eventQueue.FlushAsync();
+        return _eventQueue.FlushAsync(mediator);
     }
 
-    public GameState SaveGame() => _game.Save().GetChanges(_initialState);
+    public GameState SaveGame() => _game.Save().GetChanges(_initialState!);
+
+    public void Dispose()
+    {
+        Console.WriteLine("Unloading assembly load context!!!");
+
+        _assemblyLoadContext.Unload();
+    }
 }

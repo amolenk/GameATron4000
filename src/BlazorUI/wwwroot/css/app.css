@@ -1,6 +1,10 @@
-﻿@import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
+﻿/* @import url('open-iconic/font/css/open-iconic-bootstrap.min.css'); */
 
 html, body {
+    background: black;
+    cursor: crosshair;
+    font-family: OneSize;
+    color: white;
     margin: 0;
     image-rendering: optimizeSpeed;              /* Older versions of FF */
     image-rendering: -moz-crisp-edges;           /* FF 6.0+ */
@@ -10,20 +14,19 @@ html, body {
     -ms-interpolation-mode: nearest-neighbor;    /* IE (non standard naming) */
     image-rendering: pixelated;                  /* Chrome 41 */
 }
-
+/* 
 #app {
     cursor: crosshair;
     color: white;
     background-color: black;
     width: 100%;
-    aspect-ratio: 4/3;
 }
 
 #phaser {
     background-color: black;
     width: 800px;
     height: 480px;
-}
+} */
 
 @font-face {
     font-family: 'Onesize';
@@ -53,10 +56,6 @@ html, body {
 @font-face {
     font-family: 'Monkey Island 1991 refined';
     src: url('../assets/MonkeyIsland-1991-refined.ttf') format('truetype');
-}
-
-p {
-    font: 18px 'Onesize';
 }
 
 /*----------------------------*/

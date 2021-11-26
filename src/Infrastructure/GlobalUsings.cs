@@ -1,6 +1,7 @@
 ﻿global using Amolenk.GameATron4000.Graphics;
 global using Amolenk.GameATron4000.Graphics.Geometry;
 global using Amolenk.GameATron4000.Mediator;
+global using Amolenk.GameATron4000.Model;
 global using Amolenk.GameATron4000.Model.Manifest;
 global using Amolenk.GameATron4000.Scripting;
 global using Microsoft.CodeAnalysis;

@@ -1,6 +1,6 @@
 ﻿namespace Amolenk.GameATron4000.Graphics;
 
-public interface IGraphics
+public interface IGraphics : IDisposable
 {
     int Width { get; }
 

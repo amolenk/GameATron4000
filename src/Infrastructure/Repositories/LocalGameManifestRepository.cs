@@ -55,6 +55,7 @@ public class LocalGameManifestRepository : IGameManifestRepository
 
                 var manifest = deserializer.Deserialize<GameManifest>(content);
                 manifest.BasePath = basePath;
+                manifest.DiskNumber = diskNumber;
 
                 return manifest;
             }

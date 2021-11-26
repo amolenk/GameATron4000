@@ -1,31 +1,41 @@
-﻿@inject HttpClient _client
+﻿@implements IDisposable
 @inject IGameManifestRepository _gameManifestRepository
-@inject ILogger<Game> _logger
+@inject IGameScriptLoader _gameScriptLoader;
 
-@if (_scriptErrors is null)
+@if (_gameScriptLoader.ScriptErrors.Any())
 {
-    <RoomView />
-    <ActionBar />
-    <VerbPicker />
-    <InventoryView />
-    <DialogueTreeView />
+    <p>Whoops! Failed to load game script:</p>
+    <ul class="errorList">
+    @foreach (var error in _gameScriptLoader.ScriptErrors)
+    {
+        <li class="errorMessage">
+            @(error.Path)(@error.Line,@error.Character): @error.Message
+        </li>
+    }
+    </ul>
 }
 else
 {
-    <ul>
-    @foreach (var error in _scriptErrors)
-    {
-        <li>@(error.Path)(@error.Line,@error.Character): @error.Message</li>
-    }
-    </ul>
+    <div id="room-view">
+        <RoomView />
+    </div>
+    <div id="action-bar">
+        <ActionBar />
+    </div>
+    <div id="ui-controls">
+        <div id="verb-picker">
+            <VerbPicker />
+        </div>
+        <div id="inventory-view">
+            <InventoryView />
+        </div>
+    </div>
 }
 
 @code {
 
-    private GameScript? _script;
     private GameManifest? _manifest;
-    private IScriptCompiler? _compiler; // TODO GameScriptFactory/Loader
-    private ImmutableArray<ScriptError>? _scriptErrors;
+    private GameScript? _script;
 
     [CascadingParameter]
     public IMediator Mediator { get; set; } = null!;
@@ -47,9 +57,15 @@ else
         {
             await Mediator.PublishAsync(new GameManifestLoaded(_manifest));
 
-            if (await TryLoadGameScriptAsync())
+            _script = await _gameScriptLoader.LoadFromManifestAsync(_manifest);
+            if (_script is not null)
             {
-                await _script!.StartGameAsync();
+                await _script.StartGameAsync(Mediator);
+            }
+            else
+            {
+                // Failed to load script, re-render to show errors.
+                StateHasChanged();
             }
         }
     }
@@ -58,7 +74,7 @@ else
     {
         if (_script is not null)
         {
-            await _script.ExecutePlayerActionAsync(command.Action);
+            await _script.ExecutePlayerActionAsync(command.Action, Mediator);
         }
     }
 
@@ -66,13 +82,13 @@ else
     {
         if (_script is not null)
         {
-            await _script.ContinueDialogue(command.Option);
+            await _script.ContinueDialogue(command.Option, Mediator);
         }
     }
 
     private async Task OnRefreshGameScriptAsync(RefreshGameScript _)
     {
-        if (_script is not null)
+        if (_manifest is not null && _script is not null)
         {
             var saveGame = _script.SaveGame();
 
@@ -86,49 +102,26 @@ else
             var data = JsonSerializer.Serialize(saveGame, options);
             Console.WriteLine(data);
 
-            await TryLoadGameScriptAsync();
-            await _script.RestoreGameAsync(saveGame);
+            _script = await _gameScriptLoader.LoadFromManifestAsync(_manifest);
+            if (_script is not null)
+            {
+                await _script.RestoreGameAsync(saveGame, Mediator);
+            }
+            else
+            {
+                // Failed to load script, re-render to show errors.
+                StateHasChanged();
+            }
         }
     }
 
-    private async Task<bool> TryLoadGameScriptAsync()
+    public void Dispose()
     {
-        if (_compiler is null)
+        if (_script is not null)
         {
-            _compiler = await CSharpScriptCompiler.CreateAsync(_client);
+            _script.Dispose();
         }
 
-        try
-        {
-            _script = await LoadGameScriptAsync();
-            return true;
-        }
-        catch (ScriptException ex)
-        {
-            _scriptErrors = ex.Errors;
-            StateHasChanged();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogCritical(ex, "Failed to load game script.");
-        }
-
-        return false;
-    }
-
-    private async Task<GameScript> LoadGameScriptAsync()
-    {
-        List<ScriptFile> sources = new();
-
-        foreach (var sourceUrl in _manifest!.Spec.Scripts)
-        {
-            // Add current time to prevent caching.
-            var content = await _client.GetStringAsync(
-                $"{_manifest.BasePath}{sourceUrl}?time={DateTime.Now}");
-
-            sources.Add(new ScriptFile(content, sourceUrl));
-        }
-
-        return await GameScript.LoadAsync(sources, _compiler!, Mediator);
+        _gameScriptLoader.ClearErrors();
     }
 }

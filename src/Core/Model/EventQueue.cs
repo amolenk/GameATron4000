@@ -3,15 +3,13 @@
 public class EventQueue
 {
     private readonly Queue<IEvent> _events;
-    private readonly IMediator _mediator;
 
     public Func<IEvent, bool> Filter { get; private set; }
     public int Count => _events.Count;
 
-    public EventQueue(IMediator mediator)
+    public EventQueue()
     {
         _events = new();
-        _mediator = mediator;
 
         AllowAll();
     }
@@ -30,11 +28,11 @@ public class EventQueue
 
     public void AllowAll() => SetFilter(_ => true);
 
-    public async Task FlushAsync()
+    public async Task FlushAsync(IMediator mediator)
     {
         foreach (var @event in _events)
         {
-            await _mediator.PublishAsync(@event);
+            await mediator.PublishAsync(@event);
         }
 
         _events.Clear();

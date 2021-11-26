@@ -1,16 +1,16 @@
 ﻿@if (_uiVisible)
 {
-    <p>
-        <span @onclick="@(() => OnVerbClickAsync(Verb.Give))">Give</span>
-        <span @onclick="@(() => OnVerbClickAsync(Verb.PickUp))">Pick up</span>
-        <span @onclick="@(() => OnVerbClickAsync(Verb.Use))">Use</span>
-        <span @onclick="@(() => OnVerbClickAsync(Verb.Open))">Open</span>
-        <span @onclick="@(() => OnVerbClickAsync(Verb.LookAt))">Look at</span>
-        <span @onclick="@(() => OnVerbClickAsync(Verb.Push))">Push</span>
-        <span @onclick="@(() => OnVerbClickAsync(Verb.Close))">Close</span>
-        <span @onclick="@(() => OnVerbClickAsync(Verb.TalkTo))">Talk to</span>
-        <span @onclick="@(() => OnVerbClickAsync(Verb.Pull))">Pull</span>
-    </p>
+    <div id="container">
+        <span class="verb" @onclick="@(() => OnVerbClickAsync(Verb.Give))">Give</span>
+        <span class="verb" @onclick="@(() => OnVerbClickAsync(Verb.PickUp))">Pick up</span>
+        <span class="verb" @onclick="@(() => OnVerbClickAsync(Verb.Use))">Use</span>
+        <span class="verb" @onclick="@(() => OnVerbClickAsync(Verb.Open))">Open</span>
+        <span class="verb" @onclick="@(() => OnVerbClickAsync(Verb.LookAt))">Look at</span>
+        <span class="verb" @onclick="@(() => OnVerbClickAsync(Verb.Push))">Push</span>
+        <span class="verb" @onclick="@(() => OnVerbClickAsync(Verb.Close))">Close</span>
+        <span class="verb" @onclick="@(() => OnVerbClickAsync(Verb.TalkTo))">Talk to</span>
+        <span class="verb" @onclick="@(() => OnVerbClickAsync(Verb.Pull))">Pull</span>
+    </div>
 }
 
 @code {

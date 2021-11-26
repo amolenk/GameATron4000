@@ -29,7 +29,6 @@ function getPointerPosition() {
     }
 }
 
-// TODO options
 function addSprite(spriteKey, textureKey, frameKey, position, origin, depth,
     onPointerDown, onPointerOut, onPointerOver, scrollFactor) {
     const sprite = scene.add.sprite(position.x, position.y, textureKey, frameKey);
@@ -191,8 +190,6 @@ function setCameraBounds(size) {
 
 function startPhaser(container, width, height, onPreloadRef, onCreateRef, onUpdateRef) {
 
-    //this.dotNetSceneCallback = dotNetSceneCallback;
-
     var sceneConfig = {
         key: 'main',
         preload: function () {
@@ -220,7 +217,7 @@ function startPhaser(container, width, height, onPreloadRef, onCreateRef, onUpda
         type: Phaser.AUTO,
         width: width,
         height: height,
-        backgroundColor: '#336023',
+        backgroundColor: 'black',
         parent: container,
         pixelArt: true,
         physics: {
@@ -235,4 +232,10 @@ function startPhaser(container, width, height, onPreloadRef, onCreateRef, onUpda
     };
 
     new Phaser.Game(gameConfig);
+}
+
+function destroyPhaser()
+{
+    scene.game.destroy();
+    scene = null;
 }

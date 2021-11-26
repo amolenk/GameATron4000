@@ -1,0 +1,31 @@
+#room-view {
+    height: 75%;
+}
+
+#action-bar {
+    height: 5%;
+}
+
+#ui-controls {
+    height: 20%;
+}
+
+#verb-picker {
+    float: left;
+    height: 100%;
+    width: 50%;
+}
+
+#inventory-view {
+    float: left;
+    height: 100%;
+    width: 50%;
+}
+
+.errorList {
+    background: white;
+}
+
+.errorMessage {
+    color: red;
+}

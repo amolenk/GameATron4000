@@ -1,0 +1,22 @@
+h1 {
+    font-family: 'Onesize';
+    color: yellow;
+    display: block;
+    text-align: center;
+    width: 100%;
+}
+
+ul {
+    padding-left: 0px;
+    text-align: center;
+    width: 100%;
+}
+
+li {
+    color: greenyellow;
+    list-style-type: none;
+}
+
+li:hover {
+    color: white;
+}

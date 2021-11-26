@@ -1,4 +1,5 @@
-﻿@inject PhaserGraphicsFactory _graphicsFactory
+﻿@implements IDisposable
+@inject PhaserGraphicsFactory _graphicsFactory
 
 <div id="phaser">
 </div>
@@ -8,9 +9,7 @@
     private IGraphics _graphics = null!;
     private GameManifest _manifest = null!;
 
-    private Room _room = null!;
-
-    private ISprite? _roomSprite;
+    private RoomSprite _roomSprite;
     private ObjectSpriteCollection _objectSprites = new();
 
     private (Task Task, CancellationTokenSource Cts)? _talkState;
@@ -64,29 +63,16 @@
             _objectSprites.ClearAndDisposeSprites();
         }
 
-        // Create graphics to draw the room.
-        @* _roomSprite = new RoomSprite(
+        // Add the room background.
+        _roomSprite = new RoomSprite(
             @event.Room,
             OnRoomPointerDownAsync,
             _manifest.Spec.Sprites,
-            _graphics); *@
-
-        var spriteInfo = _manifest.Spec.Sprites.GetSpriteInfo(@event.Room.Id);
-
-        // Add the room background.
-        _room = @event.Room;
-        _roomSprite = _graphics.AddSprite(
-            spriteInfo.AtlasKey,
-            spriteInfo.FrameName,
-            new Point(0, 0),
-            options =>
-            {
-                options.OnPointerDown = OnRoomPointerDownAsync;
-            });
+            _graphics);
 
         // Update camera bounds to size of room.
         _graphics.SetCameraBounds(
-            new Size(_roomSprite.Size.Width, _graphics.Height));
+            new Size(_roomSprite.Sprite.Size.Width, _graphics.Height));
 
         // Add sprites for game objects.
         foreach (var gameObject in @event.VisibleObjects)
@@ -175,7 +161,7 @@
                 @event.Actor.Id,
                 out ActorSprite? actorSprite))
         {
-            var path = _room.Walkbox.FindShortestPath(
+            var path = _roomSprite.Model.Walkbox.FindShortestPath(
                 actorSprite.Sprite.Position,
                 @event.Position,
                 GetWalkboxExcludedAreas(@event.Actor.Id));
@@ -195,7 +181,7 @@
 
     private Task OnGameObjectPlacedInRoomAsync(GameObjectPlacedInRoom @event)
     {
-        if (_room == @event.Room)
+        if (_roomSprite?.Model == @event.Room)
         {
             AddGameObjectSprite(@event.GameObject);
         }
@@ -206,7 +192,7 @@
     private Task OnGameObjectRemovedFromRoomAsync(
         GameObjectRemovedFromRoom @event)
     {
-        if (_room == @event.Room)
+        if (_roomSprite?.Model == @event.Room)
         {
             RemoveGameObjectSprite(@event.GameObject);
         }
@@ -280,7 +266,7 @@
                 _protagonistId,
                 out ActorSprite? actorSprite))
         {
-            _room.Walkbox.Draw(
+            _roomSprite.Model.Walkbox.Draw(
                 actorSprite.Sprite.Position,
                 pointerPosition,
                 GetWalkboxExcludedAreas(_protagonistId),
@@ -349,5 +335,11 @@
                 });
             });
 
-
+    public void Dispose()
+    {
+        if (_graphics is not null)
+        {
+            _graphics.Dispose();
+        }
+    }
 }

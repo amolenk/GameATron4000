@@ -1,4 +1,5 @@
 ﻿@inject IJSRuntime _jsRuntime
+@inject NavigationManager _navigationManager
 @code
 {
     private bool _inDebugMode = false;
@@ -17,6 +18,9 @@
                 return true;
             case "h":
                 await Mediator.SendAsync(new RefreshGameScript());
+                return true;
+            case "q":
+                _navigationManager.NavigateTo("/");
                 return true;
             case ".":
             case " ":

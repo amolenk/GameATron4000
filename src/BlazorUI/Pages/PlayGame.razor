@@ -1,13 +1,10 @@
-﻿@page "/"
-@*{DiskNumber:int}"*@
+﻿@page "/game/{DiskNumber:int}"
 @inject IMediator _mediator
 
-<div>
-    <CascadingValue Value="_mediator">
-        <GameView />
-        <GlobalHotKeys />
-    </CascadingValue>
-</div>
+<CascadingValue Value="_mediator">
+    <GameView />
+    <GlobalHotKeys />
+</CascadingValue>
 
 @code
 {
@@ -18,7 +15,7 @@
     {
         if (firstRender)
         {
-            await _mediator.SendAsync(new StartGame(1/*DiskNumber*/));
+            await _mediator.SendAsync(new StartGame(DiskNumber));
         }
     }
 }

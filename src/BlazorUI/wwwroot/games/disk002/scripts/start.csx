@@ -6,8 +6,6 @@ OnGameStart(() =>
     AddCannedResponse("I don't think that will work.");
     AddCannedResponse("That will probably crash the game!");
 
-    // TODO id casing
-
     // Inventory
     guy.AddToInventory(groceries);
     guy.AddToInventory(groceryList);

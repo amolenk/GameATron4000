@@ -95,3 +95,4 @@ spec:
   - scripts/start.csx
   - scripts/cutscenes.csx
   - scripts/dialogues/knock-knock.csx
+  inventorySpritesFolder: assets/inventory

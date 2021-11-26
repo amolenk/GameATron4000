@@ -419,7 +419,8 @@ Item groceryList = AddItem("groceryList", builder => builder
         }
     }));
 
-Item newspaper = AddItem("newspaper", builder => builder
+Item newspaper = AddItem(nameof(newspaper), builder => builder
+    .Named("old newspaper")
     .When.Give(_ =>
     {
         SayLine("I think I'll keep it for now.");
