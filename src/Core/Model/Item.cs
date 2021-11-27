@@ -12,6 +12,12 @@ public class Item : GameObject
         {
             if (_dependency is not null)
             {
+                Console.WriteLine("Has dependency for " + Id + ", result = "
+                    + (_dependency.Item is not null));
+
+                Console.WriteLine("Checking dependency for " + Id + ", result = "
+                    + (_dependency.Item?.Status == _dependency.Status));
+
                 return _dependency.Item?.Status == _dependency.Status;
             }
             return true;
