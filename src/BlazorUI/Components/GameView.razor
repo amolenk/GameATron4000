@@ -60,16 +60,7 @@ else
         {
             await Mediator.PublishAsync(new GameManifestLoaded(_manifest));
 
-            _script = await _gameScriptLoader.LoadFromManifestAsync(_manifest);
-            if (_script is not null)
-            {
-                await _script.StartGameAsync(Mediator);
-            }
-            else
-            {
-                // Failed to load script, re-render to show errors.
-                StateHasChanged();
-            }
+            await StartGameScriptAsync();
         }
     }
 
@@ -106,13 +97,13 @@ else
         if (_manifest is not null && _script is not null)
         {
             // There's no UI for loading games yet, always load from slot #1.
-            var state = await _saveGameRepository.LoadGameAsync(
+            var gameState = await _saveGameRepository.LoadGameAsync(
                 _manifest.Metadata.Id,
                 1);
 
-            if (state is not null)
+            if (gameState is not null)
             {
-                await _script.LoadGameAsync(state, Mediator);
+                await StartGameScriptAsync(gameState);
             }
         }
     }
@@ -121,18 +112,30 @@ else
     {
         if (_manifest is not null && _script is not null)
         {
-            var state = _script.SaveGame();
+            var gameState = _script.SaveGame();
 
-            _script = await _gameScriptLoader.LoadFromManifestAsync(_manifest);
-            if (_script is not null)
+            await StartGameScriptAsync(gameState);
+        }
+    }
+
+    private async Task StartGameScriptAsync(GameState? gameState = null)
+    {
+        _script = await _gameScriptLoader.LoadFromManifestAsync(_manifest);
+        if (_script is not null)
+        {
+            if (gameState is not null)
             {
-                await _script.LoadGameAsync(state, Mediator);
+                await _script.ContinueGameAsync(gameState, Mediator);
             }
             else
             {
-                // Failed to load script, re-render to show errors.
-                StateHasChanged();
+                await _script.StartGameAsync(Mediator);
             }
+        }
+        else
+        {
+            // Failed to load script, re-render to show errors.
+            StateHasChanged();
         }
     }
 

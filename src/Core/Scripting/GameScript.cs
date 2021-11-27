@@ -65,12 +65,12 @@ public class GameScript : IDisposable
         return _eventQueue.FlushAsync(mediator);
     }
 
-    public Task LoadGameAsync(GameState gameState, IMediator mediator)
+    public Task ContinueGameAsync(GameState gameState, IMediator mediator)
     {
         _eventQueue.Enqueue(new GameStarted(_game));
 
-        // When restoring a game, no events should go to the UI directly. The
-        // player may be in a completely different room than at the start of
+        // When continueing a saved game, no events should go to the UI directly.
+        // The player may be in a completely different room than at the start of
         // the game.
         _eventQueue.IgnoreAll();
 
