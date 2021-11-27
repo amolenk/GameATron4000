@@ -1,73 +1,4 @@
-Item counterTop; // TODO Powercord seems to work fine out of order
-Item fridge;
-// TODO Use nameof() everywhere
-
-
-Item saucages = AddItem("saucages", builder => builder
-    .Named("hot dogs")
-    .CanBeUsedWithOtherObject()
-    .DependsOn(fridge, "open")
-    .WithActorInteraction(RelativePosition.InFront, WellKnownStatus.FaceAwayFromCamera)
-    .WithDepthOffset(91)
-    .When.LookAt(() =>
-    {
-        SayLine("'100% premium mystery meat hot dogs!'");
-        SayLine("'Heat up in boiled water for 10 minutes!'");
-    })
-    .When.Give(to =>
-    {
-        if (to == al)
-        {
-            // TODO Use lemonhead dialogue
-            al.SayLine("No thanks, I've already got a package in the fridge.");
-            al.SayLine("I'm saving them to celebrate when the mission is done!");
-        }
-        else
-        {
-            SayLine("I think I'll keep them for now.");
-        }
-    })
-    .When.PickUp(() =>
-    {
-        guy.AddToInventory(saucages);
-    })
-    .When.Use(with =>
-    {
-        if (with == cooker)
-        {
-            if (!IsFlagSet("cookerBoiling"))
-            {
-                SayLine("According to the package, I should boil some water first.");
-            }
-            else
-            {
-                SayLine("Here goes nothing!");
-                guy.RemoveFromInventory(saucages);
-                cooker.ChangeStatus("full");
-                Delay(1500);
-
-                SayLine("I wonder if they're supposed to turn green...");
-                cooker.ChangeStatus("smoke");
-                SayLine("Yikes!");
-
-                guy.MoveTo(1310, 425, WellKnownStatus.FaceCamera);
-                SayLine("This can't be good!");
-
-                bridge.Place(alarm, 1449, 330);
-                shipComputer.SayLine("* WARNING: SMOKE DETECTED IN KITCHEN ZONE *");
-
-                al.MoveTo(1490, 425, WellKnownStatus.FaceAwayFromCamera);
-                al.SayLine("WHAT ARE YOU DOING TO MY HOT DOGS?");
-
-                ian.MoveTo(1395, 425, WellKnownStatus.FaceAwayFromCamera);
-                ian.SayLine("What's going on here?");
-                al.SayLine("MY HOT DOGS!");
-                ian.SayLine("I told you to wait until the mission was done!");
-
-                ClearFlag("alarm");
-            }
-        }
-    }));
+Item fridge = null;
 
 Item alarm = AddItem(nameof(alarm), builder => builder
     .Untouchable());
@@ -298,9 +229,10 @@ Item cookerInCrate = AddItem(nameof(cookerInCrate), builder => builder
         guy.AddToInventory(cooker);
     }));
 
-counterTop = AddItem(nameof(counterTop), builder => builder
+Item counterTop = AddItem(nameof(counterTop), builder => builder
+    .Named("counter top")
     .WithActorInteraction(RelativePosition.InFront, WellKnownStatus.FaceAwayFromCamera)
-    .WithDepthOffset(-1000)
+    .WithDepthOffset(-10)
     .When.LookAt(() =>
     {
         SayLine("It's a countertop, not much to add here.");
@@ -600,71 +532,71 @@ Item powerCord = AddItem("powerCord", builder => builder
         }
     }));
 
-// Item saucages = AddItem("saucages", builder => builder
-//     .Named("hot dogs")
-//     .CanBeUsedWithOtherObject()
-//     .DependsOn(fridge, "open")
-//     .WithActorInteraction(RelativePosition.InFront, WellKnownStatus.FaceAwayFromCamera)
-//     .WithDepthOffset(91)
-//     .When.LookAt(() =>
-//     {
-//         SayLine("'100% premium mystery meat hot dogs!'");
-//         SayLine("'Heat up in boiled water for 10 minutes!'");
-//     })
-//     .When.Give(to =>
-//     {
-//         if (to == al)
-//         {
-//             // TODO Use lemonhead dialogue
-//             al.SayLine("No thanks, I've already got a package in the fridge.");
-//             al.SayLine("I'm saving them to celebrate when the mission is done!");
-//         }
-//         else
-//         {
-//             SayLine("I think I'll keep them for now.");
-//         }
-//     })
-//     .When.PickUp(() =>
-//     {
-//         guy.AddToInventory(saucages);
-//     })
-//     .When.Use(with =>
-//     {
-//         if (with == cooker)
-//         {
-//             if (!IsFlagSet("cookerBoiling"))
-//             {
-//                 SayLine("According to the package, I should boil some water first.");
-//             }
-//             else
-//             {
-//                 SayLine("Here goes nothing!");
-//                 guy.RemoveFromInventory(saucages);
-//                 cooker.ChangeStatus("full");
-//                 Delay(1500);
+Item saucages = AddItem("saucages", builder => builder
+    .Named("hot dogs")
+    .CanBeUsedWithOtherObject()
+    .DependsOn(fridge, "open")
+    .WithActorInteraction(RelativePosition.InFront, WellKnownStatus.FaceAwayFromCamera)
+    .WithDepthOffset(91)
+    .When.LookAt(() =>
+    {
+        SayLine("'100% premium mystery meat hot dogs!'");
+        SayLine("'Heat up in boiled water for 10 minutes!'");
+    })
+    .When.Give(to =>
+    {
+        if (to == al)
+        {
+            // TODO Use lemonhead dialogue
+            al.SayLine("No thanks, I've already got a package in the fridge.");
+            al.SayLine("I'm saving them to celebrate when the mission is done!");
+        }
+        else
+        {
+            SayLine("I think I'll keep them for now.");
+        }
+    })
+    .When.PickUp(() =>
+    {
+        guy.AddToInventory(saucages);
+    })
+    .When.Use(with =>
+    {
+        if (with == cooker)
+        {
+            if (!IsFlagSet("cookerBoiling"))
+            {
+                SayLine("According to the package, I should boil some water first.");
+            }
+            else
+            {
+                SayLine("Here goes nothing!");
+                guy.RemoveFromInventory(saucages);
+                cooker.ChangeStatus("full");
+                Delay(1500);
 
-//                 SayLine("I wonder if they're supposed to turn green...");
-//                 cooker.ChangeStatus("smoke");
-//                 SayLine("Yikes!");
+                SayLine("I wonder if they're supposed to turn green...");
+                cooker.ChangeStatus("smoke");
+                SayLine("Yikes!");
 
-//                 guy.MoveTo(1310, 425, WellKnownStatus.FaceCamera);
-//                 SayLine("This can't be good!");
+                guy.MoveTo(1310, 425, WellKnownStatus.FaceCamera);
+                SayLine("This can't be good!");
 
-//                 bridge.Place(alarm, 1449, 330);
-//                 shipComputer.SayLine("* WARNING: SMOKE DETECTED IN KITCHEN ZONE *");
+                bridge.Place(alarm, 1449, 330);
+                shipComputer.SayLine("* WARNING: SMOKE DETECTED IN KITCHEN ZONE *");
 
-//                 al.MoveTo(1490, 425, WellKnownStatus.FaceAwayFromCamera);
-//                 al.SayLine("WHAT ARE YOU DOING TO MY HOT DOGS?");
+                al.MoveTo(1490, 425, WellKnownStatus.FaceAwayFromCamera);
+                al.SayLine("WHAT ARE YOU DOING TO MY HOT DOGS?");
 
-//                 ian.MoveTo(1395, 425, WellKnownStatus.FaceAwayFromCamera);
-//                 ian.SayLine("What's going on here?");
-//                 al.SayLine("MY HOT DOGS!");
-//                 ian.SayLine("I told you to wait until the mission was done!");
+                ian.MoveTo(1395, 425, WellKnownStatus.FaceAwayFromCamera);
+                ian.SayLine("What's going on here?");
+                al.SayLine("MY HOT DOGS!");
+                ian.SayLine("I told you to wait until the mission was done!");
 
-//                 ClearFlag("alarm");
-//             }
-//         }
-//     }));
+                ClearFlag("alarm");
+            }
+        }
+    }));
 
 Item terminalDoor = AddItem(nameof(terminalDoor), builder => builder
     .Named("door")
