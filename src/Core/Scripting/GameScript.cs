@@ -65,7 +65,7 @@ public class GameScript : IDisposable
         return _eventQueue.FlushAsync(mediator);
     }
 
-    public Task RestoreGameAsync(GameState gameState, IMediator mediator)
+    public Task LoadGameAsync(GameState gameState, IMediator mediator)
     {
         _eventQueue.Enqueue(new GameStarted(_game));
 
@@ -84,8 +84,8 @@ public class GameScript : IDisposable
         // saving the game.
         _initialState = _game.Save();
 
-        // Restore the save game state.
-        _game.Restore(gameState);
+        // Load the save game state.
+        _game.Load(gameState);
 
         // Let the UI know who/where the protagonist is.
         _eventQueue.Enqueue(new ProtagonistChanged(_game.Protagonist!));

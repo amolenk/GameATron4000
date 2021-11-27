@@ -50,7 +50,7 @@ public class Item : GameObject
 
     internal ItemState Save() => new ItemState(Position, Status);
 
-    internal void Restore(ItemState state)
+    internal void Load(ItemState state)
     {
         if (state.Position.HasValue)
         {

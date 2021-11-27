@@ -10,11 +10,13 @@ public class CSharpScriptLoader : IGameScriptLoader
     public CSharpScriptLoader(IHttpClientFactory httpClientFactory)
     {
         _httpClientFactory = httpClientFactory;
+        _loadMetadataReferencesTask = LoadMetadataReferencesAsync();
 
         ScriptErrors = Enumerable.Empty<ScriptError>();
     }
 
-    public Task PreloadAsync() => LoadMetadataReferencesAsync();
+// TODO Remove
+//    public Task PreloadAsync() => LoadMetadataReferencesAsync();
 
     public async Task<GameScript?> LoadFromManifestAsync(GameManifest manifest)
     {
@@ -65,7 +67,7 @@ public class CSharpScriptLoader : IGameScriptLoader
             sources.Add(new ScriptFile(content, sourceUrl));
         }
 
-        var metadataReferences = await LoadMetadataReferencesAsync();
+        var metadataReferences = await _loadMetadataReferencesTask;
 
         var compilation = Compile(sources, metadataReferences);
 
@@ -77,36 +79,58 @@ public class CSharpScriptLoader : IGameScriptLoader
         return new GameScript(game, eventQueue, assemblyLoadContext);
     }
 
-    private Task<List<MetadataReference>> LoadMetadataReferencesAsync()
+    private async Task<List<MetadataReference>> LoadMetadataReferencesAsync()
     {
-        if (_loadMetadataReferencesTask is null)
+        List<MetadataReference> references = new();
+
+        var httpClient = _httpClientFactory.CreateClient("Default");
+
+        foreach (var assembly in AssemblyLoadContext.Default.Assemblies)
         {
-            _loadMetadataReferencesTask = Task.Run<List<MetadataReference>>(
-                async () =>
-                {
-                    List<MetadataReference> references = new();
+            if (!assembly.IsDynamic)
+            {
+                var response = await httpClient.GetAsync(
+                    $"_framework/{assembly.GetName().Name!}.dll");
 
-                    var httpClient = _httpClientFactory.CreateClient("Default");
-
-                    foreach (var assembly in AssemblyLoadContext.Default.Assemblies)
-                    {
-                        if (!assembly.IsDynamic)
-                        {
-                            var response = await httpClient.GetAsync(
-                                $"_framework/{assembly.GetName().Name!}.dll");
-
-                            using var stream = await response.Content.ReadAsStreamAsync();
-                            references.Add(MetadataReference.CreateFromStream(
-                                stream));
-                        }
-                    }
-
-                    return references;
-                });
+                using var stream = await response.Content.ReadAsStreamAsync();
+                references.Add(MetadataReference.CreateFromStream(
+                    stream));
+            }
         }
 
-        return _loadMetadataReferencesTask;
+        return references;
     }
+
+    //     private async Task<List<MetadataReference>> LoadMetadataReferencesAsync()
+    // {
+    //     if (_loadMetadataReferencesTask is null)
+    //     {
+    //         _loadMetadataReferencesTask = Task.Run<List<MetadataReference>>(
+    //             async () =>
+    //             {
+    //                 List<MetadataReference> references = new();
+
+    //                 var httpClient = _httpClientFactory.CreateClient("Default");
+
+    //                 foreach (var assembly in AssemblyLoadContext.Default.Assemblies)
+    //                 {
+    //                     if (!assembly.IsDynamic)
+    //                     {
+    //                         var response = await httpClient.GetAsync(
+    //                             $"_framework/{assembly.GetName().Name!}.dll");
+
+    //                         using var stream = await response.Content.ReadAsStreamAsync();
+    //                         references.Add(MetadataReference.CreateFromStream(
+    //                             stream));
+    //                     }
+    //                 }
+
+    //                 return references;
+    //             });
+    //     }
+
+    //     return _loadMetadataReferencesTask;
+    // }
 
     private CSharpCompilation Compile(
         IEnumerable<ScriptFile> sources,

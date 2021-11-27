@@ -131,7 +131,7 @@ public class Actor : GameObject
         Status,
         _inventory.Select(item => item.Id).ToList());
 
-    internal void Restore(ActorState state)
+    internal void Load(ActorState state)
     {
         if (state.Position.HasValue)
         {

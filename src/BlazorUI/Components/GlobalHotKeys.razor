@@ -19,8 +19,14 @@
             case "h":
                 await Mediator.SendAsync(new RefreshGameScript());
                 return true;
+            case "l":
+                await Mediator.SendAsync(new LoadGame());
+                return true;
             case "q":
                 _navigationManager.NavigateTo("/");
+                return true;
+            case "s":
+                await Mediator.SendAsync(new SaveGame());
                 return true;
             case ".":
             case " ":

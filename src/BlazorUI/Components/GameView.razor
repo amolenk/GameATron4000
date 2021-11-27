@@ -1,6 +1,7 @@
 ﻿@implements IDisposable
 @inject IGameManifestRepository _gameManifestRepository
-@inject IGameScriptLoader _gameScriptLoader;
+@inject IGameScriptLoader _gameScriptLoader
+@inject ISaveGameRepository _saveGameRepository
 
 @if (_gameScriptLoader.ScriptErrors.Any())
 {
@@ -45,6 +46,8 @@ else
         Mediator.Subscribe<StartGame>(OnStartGameAsync);
         Mediator.Subscribe<ExecutePlayerAction>(OnExecutePlayerActionAsync);
         Mediator.Subscribe<ContinueDialogue>(OnContinueDialogueAsync);
+        Mediator.Subscribe<SaveGame>(OnSaveGameAsync);
+        Mediator.Subscribe<LoadGame>(OnLoadGameAsync);
         Mediator.Subscribe<RefreshGameScript>(OnRefreshGameScriptAsync);
     }
 
@@ -86,26 +89,44 @@ else
         }
     }
 
+    private async Task OnSaveGameAsync(SaveGame _)
+    {
+        if (_manifest is not null && _script is not null)
+        {
+            // There's no UI for saving games yet, always save to slot #1.
+            await _saveGameRepository.SaveGameAsync(
+                _manifest.Metadata.Id,
+                1,
+                _script.SaveGame());
+        }
+    }
+
+    private async Task OnLoadGameAsync(LoadGame _)
+    {
+        if (_manifest is not null && _script is not null)
+        {
+            // There's no UI for loading games yet, always load from slot #1.
+            var state = await _saveGameRepository.LoadGameAsync(
+                _manifest.Metadata.Id,
+                1);
+
+            if (state is not null)
+            {
+                await _script.LoadGameAsync(state, Mediator);
+            }
+        }
+    }
+
     private async Task OnRefreshGameScriptAsync(RefreshGameScript _)
     {
         if (_manifest is not null && _script is not null)
         {
-            var saveGame = _script.SaveGame();
-
-            var options = new JsonSerializerOptions
-            {
-                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-            };
-
-            // TODO Remove
-            var data = JsonSerializer.Serialize(saveGame, options);
-            Console.WriteLine(data);
+            var state = _script.SaveGame();
 
             _script = await _gameScriptLoader.LoadFromManifestAsync(_manifest);
             if (_script is not null)
             {
-                await _script.RestoreGameAsync(saveGame, Mediator);
+                await _script.LoadGameAsync(state, Mediator);
             }
             else
             {

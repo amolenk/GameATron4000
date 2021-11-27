@@ -247,24 +247,24 @@ public class Game
             previousRoom);
     }
 
-    internal void Restore(GameState gameState)
+    internal void Load(GameState gameState)
     {
         foreach (var entry in gameState.Items)
         {
             var item = _items.FirstOrDefault(item => item.Id == entry.Key);
-            item?.Restore(entry.Value);
+            item?.Load(entry.Value);
         }
 
         foreach (var entry in gameState.Actors)
         {
             var actor = _actors.FirstOrDefault(actor => actor.Id == entry.Key);
-            actor?.Restore(entry.Value);
+            actor?.Load(entry.Value);
         }
 
         foreach (var entry in gameState.Rooms)
         {
             var room = _rooms.FirstOrDefault(room => room.Id == entry.Key);
-            room?.Restore(entry.Value);
+            room?.Load(entry.Value);
         }
 
         if (gameState.Flags is not null)

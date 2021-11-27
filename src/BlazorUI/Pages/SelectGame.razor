@@ -18,10 +18,6 @@
 
     protected override async Task OnInitializedAsync()
     {
-        // The GameScriptLoader can start initializing while the player is
-        // still selecting a game.
-        var _ = _gameScriptLoader.PreloadAsync();
-
         _manifests = await _gameManifestRepository.LoadGameManifestsAsync();
     }
 

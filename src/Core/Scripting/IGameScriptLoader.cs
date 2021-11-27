@@ -4,8 +4,6 @@ public interface IGameScriptLoader
 {
     IEnumerable<ScriptError> ScriptErrors { get; }
 
-    Task PreloadAsync();
-
     Task<GameScript?> LoadFromManifestAsync(GameManifest manifest);
 
     void ClearErrors();

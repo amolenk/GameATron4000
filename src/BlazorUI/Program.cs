@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-
-var builder = WebAssemblyHostBuilder.CreateDefault(args);
+﻿var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
@@ -25,8 +23,7 @@ builder.Services.AddHttpClient(
 builder.Services.AddHttpClient<IGameManifestRepository, LocalGameManifestRepository>(
     client => client.BaseAddress = baseAddress);
 
-// builder.Services.AddHttpClient<IGameScriptLoader, CSharpScriptLoader>(
-//     client => client.BaseAddress = baseAddress);
+builder.Services.AddSaveGameRepository();
 
 await builder.Build().RunAsync();
 

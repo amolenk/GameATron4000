@@ -104,7 +104,7 @@ public class Room
     internal RoomState Save() => new RoomState(
         _objects.Select(gameObject => gameObject.Id).ToList());
 
-    internal void Restore(RoomState state)
+    internal void Load(RoomState state)
     {
         if (state.Objects is not null)
         {
