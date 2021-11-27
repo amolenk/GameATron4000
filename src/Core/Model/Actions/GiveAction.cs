@@ -55,10 +55,10 @@ public class GiveAction : IAction
 
     public bool TryExecute()
     {
-        if (_item is { ActionHandlers.HandleGive: not null} &&
+        if (_item is { When.HandleGive: not null} &&
             _actor is not null)
         {
-            _item.ActionHandlers.HandleGive(_actor);
+            _item.When.HandleGive(_actor);
             return true;
         }
         return false;

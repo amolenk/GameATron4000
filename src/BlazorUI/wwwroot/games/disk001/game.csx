@@ -1,4 +1,5 @@
-Item cheesegrater = AddItem(nameof(cheesegrater), builder => builder
+var cheeseGrater = AddItem("cheese-grater");
+cheeseGrater.Configure(options => options
     .Named("cheese grater")
     .CanBeUsedWithOtherObject()
     .When.Use(with =>
@@ -7,17 +8,20 @@ Item cheesegrater = AddItem(nameof(cheesegrater), builder => builder
         protagonist.AddToInventory(gratedCheese);
     }));
 
-Item blockOfCheese = AddItem(nameof(blockOfCheese), builder => builder
+var blockOfCheese = AddItem("block-of-cheese");
+blockOfCheese.Configure(options => options
     .Named("block of cheese")
     .CanBeUsedWithOtherObject()
-    .When.Use(with => cheesegrater.ActionHandlers.HandleUse(blockOfCheese)));
+    .When.Use(with => cheeseGrater.ActionHandlers.HandleUse(blockOfCheese)));
 
-Item gratedCheese = AddItem(nameof(gratedCheese), builder => builder
+var gratedCheese = AddItem("grated-cheese");
+gratedCheese.Configure(options => options
     .Named("grated cheese"));
 
-Actor protagonist = AddActor(nameof(protagonist));
+var protagonist = AddActor("protagonist");
 
-Room emptyRoom = AddRoom(nameof(emptyRoom), builder => builder
+var emptyRoom = AddRoom("park");
+emptyRoom.Configure(options => options
     .WithWalkboxArea(
         new Point(0, 0),
         new Point(1, 0),
@@ -25,7 +29,7 @@ Room emptyRoom = AddRoom(nameof(emptyRoom), builder => builder
 
 OnGameStart(() =>
 {
-    protagonist.AddToInventory(cheesegrater);
+    protagonist.AddToInventory(cheeseGrater);
     protagonist.AddToInventory(blockOfCheese);
 
     SetProtagonist(protagonist);

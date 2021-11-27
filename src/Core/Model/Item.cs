@@ -2,9 +2,9 @@
 
 public class Item : GameObject
 {
-    private readonly ItemDependency? _dependency;
+    private ItemDependency? _dependency;
 
-    public bool CanBeUsedWithOtherObject { get; }
+    public bool CanBeUsedWithOtherObjects { get; set; }
 
     public bool IsVisible
     {
@@ -24,35 +24,26 @@ public class Item : GameObject
         }
     }
 
-    public Item(
-        Game game,
-        string id,
-        ActionHandlers actionHandlers,
-        ItemDependency? dependency,
-        string displayName,
-        RelativePosition interactPosition,
-        string interactStatus,
-        bool isTouchable,
-        int scrollFactor,
-        int depthOffset,
-        string status,
-        bool canBeUsedWithOtherObject)
-        : base(
-            game,
-            id,
-            actionHandlers,
-            displayName,
-            interactPosition,
-            interactStatus,
-            isTouchable,
-            scrollFactor,
-            depthOffset,
-            status)
+    public Item(string id, string displayName, Game game)
+        : base(id, displayName, game)
     {
-        _dependency = dependency;
-
-        CanBeUsedWithOtherObject = canBeUsedWithOtherObject;
     }
+
+    public void DependsOn(Item item, string status)
+    {
+        _dependency = new ItemDependency(item, status);
+    }
+
+    // public void Configure(Action<ItemBuilder> configure)
+    // {
+    //     ItemBuilder options = new();
+    //     configure(options);
+
+    //     base.Configure(options);
+
+    //     _dependency = options.Dependency;
+    //     UseWith = options.UseWith;
+    // }
 
     internal ItemState Save() => new ItemState(Position, Status);
 

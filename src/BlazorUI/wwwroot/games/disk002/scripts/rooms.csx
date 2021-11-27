@@ -1,4 +1,9 @@
-﻿Room beach = AddRoom(nameof(beach), room => room
+﻿var beach = AddRoom("beach");
+var bridge = AddRoom("bridge");
+var park = AddRoom("park");
+var terminal = AddRoom("terminal");
+
+beach.Configure(options => options
     .WithWalkboxArea(
         new Point(0, 370),
         new Point(900, 370),
@@ -32,7 +37,7 @@
 //         start_pos = 370,
 //         end_pos = 450
 
-Room bridge = AddRoom(nameof(bridge), room => room
+bridge.Configure(options => options
     .WithWalkboxArea(
         new Point(0, 420),
         new Point(390, 420),
@@ -87,7 +92,7 @@ Room bridge = AddRoom(nameof(bridge), room => room
 //     },
 
 
-Room park = AddRoom(nameof(park), room => room
+park.Configure(options => options
     .WithWalkboxArea(
         new Point(935, 295),
         new Point(935, 318),
@@ -116,7 +121,7 @@ Room park = AddRoom(nameof(park), room => room
 //     },
 // }
 
-Room terminal = AddRoom(nameof(terminal), builder => builder
+terminal.Configure(options => options
     .WithWalkboxArea(
         new Point(0, 430),
         new Point(180, 335),

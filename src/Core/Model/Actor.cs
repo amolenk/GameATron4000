@@ -4,36 +4,26 @@ public class Actor : GameObject
 {
     private readonly List<Item> _inventory;
 
-    public string TextColor { get; }
+    public string TextColor { get; set; }
 
-    internal Actor(
-        Game game,
-        string id,
-        ActionHandlers actionHandlers,
-        string displayName,
-        RelativePosition interactPosition,
-        string interactStatus,
-        bool isTouchable,
-        int scrollFactor,
-        int depthOffset,
-        string status,
-        string textColor)
-        : base(
-            game,
-            id,
-            actionHandlers,
-            displayName,
-            interactPosition,
-            interactStatus,
-            isTouchable,
-            scrollFactor,
-            depthOffset,
-            status)
+    internal Actor(string id, string displayName, Game game)
+        : base(id, displayName, game)
     {
         _inventory = new();
 
-        TextColor = textColor;
+        Status = WellKnownStatus.FaceCamera;
+        TextColor = "white";
     }
+
+    // public void Configure(Action<ActorBuilder> configure)
+    // {
+    //     ActorBuilder options = new();
+    //     configure(options);
+
+    //     base.Configure(options);
+
+    //     TextColor = options.TextColor;
+    // }
 
     public void FaceCamera() => ChangeStatus(WellKnownStatus.FaceCamera);
 

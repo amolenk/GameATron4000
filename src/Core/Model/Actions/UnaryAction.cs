@@ -48,7 +48,7 @@ public abstract class UnaryAction : IAction
     {
         if (_gameObject is not null)
         {
-            var handler = GetHandler(_gameObject.ActionHandlers);
+            var handler = GetHandler(_gameObject.When);
             if (handler is not null)
             {
                 handler();

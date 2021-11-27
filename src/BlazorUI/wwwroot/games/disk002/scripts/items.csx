@@ -1,4 +1,4 @@
-Item fridge = null;
+
 
 Item alarm = AddItem(nameof(alarm), builder => builder
     .Untouchable());
@@ -277,7 +277,7 @@ Item crateTop = AddItem(nameof(crateTop), builder => builder
         SayLine("It's a decidedly low-tech wooden crate.");
     }));
 
-fridge = AddItem(nameof(fridge), builder => builder
+Item fridge = AddItem(nameof(fridge), builder => builder
     .WithActorInteraction(status: WellKnownStatus.FaceAwayFromCamera)
     .WithDepthOffset(10)
     .WithStatus("closed")

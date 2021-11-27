@@ -13,6 +13,11 @@ public class ActionHandlers
     public Action? HandlePull { get; private set; }
     public Action? HandleWalkTo { get; private set; }
 
+    public ActionHandlers()
+    {
+    }
+
+    // TODO Remove
     public ActionHandlers(
         Action<Actor>? handleGive,
         Action? handlePickUp,
@@ -35,5 +40,54 @@ public class ActionHandlers
         HandleTalkTo = handleTalkTo;
         HandlePull = handlePull;
         HandleWalkTo = handleWalkTo;
+    }
+    public void Give(Action<Actor> give)
+    {
+        HandleGive = give;
+    }
+
+    public void PickUp(Action pickUp)
+    {
+        HandlePickUp = pickUp;
+    }
+
+    public void Use(Action<GameObject?> use)
+    {
+        HandleUse = use;
+    }
+
+    public void Open(Action open)
+    {
+        HandleOpen = open;
+    }
+
+    public void LookAt(Action lookAt)
+    {
+        HandleLookAt = lookAt;
+    }
+
+    public void Push(Action push)
+    {
+        HandlePush = push;
+    }
+
+    public void Close(Action close)
+    {
+        HandleClose = close;
+    }
+
+    public void TalkTo(Action talkTo)
+    {
+        HandleTalkTo = talkTo;
+    }
+
+    public void Pull(Action pull)
+    {
+        HandlePull = pull;
+    }
+
+    public void WalkTo(Action walkTo)
+    {
+        HandleWalkTo = walkTo;
     }
 }

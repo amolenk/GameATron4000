@@ -1,58 +1,49 @@
 namespace Amolenk.GameATron4000.Model.Builders;
 
-public abstract class GameObjectBuilder<TObject, TBuilder>
+public abstract class GameObjectBuilder<TObject, TBuilder> : IGameObjectBuilder
     where TObject : GameObject
     where TBuilder : GameObjectBuilder<TObject, TBuilder>
 {
     private readonly TBuilder _builderInstance;
 
-    protected string _id;
-    protected Game _game;
-    protected string _displayName;
-    protected RelativePosition _interactPosition;
-    protected string _interactStatus;
-    protected bool _isTouchable;
-    protected int _scrollFactor;
-    protected int _depthOffset;
-    protected string _status;
+    public string DisplayName { get; private set; }
+    public RelativePosition InteractPosition { get; private set; }
+    public string InteractStatus { get; private set; }
+    public bool IsTouchable { get; private set; }
+    public int ScrollFactor { get; private set; }
+    public int DepthOffset { get; private set; }
+    public string Status { get; protected set; }
+    public ActionHandlersBuilder When { get; }
 
-    public ActionHandlersBuilder<GameObjectBuilder<TObject, TBuilder>> When
-    { 
-        get;
-    }
-
-    protected GameObjectBuilder(string id, Game game)
+    protected GameObjectBuilder()
     {
         _builderInstance = (TBuilder)this;
 
-        _id = id;
-        _game = game;
-        _displayName = id;
-        _interactPosition = RelativePosition.Center;
-        _interactStatus = WellKnownStatus.FaceCamera;
-        _isTouchable = true;
-        _scrollFactor = -1;
-        _depthOffset = 0;
-        _status = WellKnownStatus.Default;
-
-        When = new(this);
+        DisplayName = string.Empty;
+        InteractPosition = RelativePosition.Center;
+        InteractStatus = WellKnownStatus.FaceCamera;
+        IsTouchable = true;
+        ScrollFactor = -1;
+        DepthOffset = 0;
+        Status = WellKnownStatus.Default;
+        When = new();
     }
 
     public TBuilder FixedToCamera()
     {
-        _scrollFactor = 0;
+        ScrollFactor = 0;
         return _builderInstance;
     }
 
     public TBuilder Named(string displayName)
     {
-        _displayName = displayName;
+        DisplayName = displayName;
         return _builderInstance;
     }
 
     public TBuilder Untouchable()
     {
-        _isTouchable = false;
+        IsTouchable = false;
         return _builderInstance;
     }
 
@@ -62,12 +53,12 @@ public abstract class GameObjectBuilder<TObject, TBuilder>
     {
         if (position.HasValue)
         {
-            _interactPosition = position.Value;
+            InteractPosition = position.Value;
         }
 
         if (status is not null)
         {
-            _interactStatus = status;
+            InteractStatus = status;
         }
 
         return _builderInstance;
@@ -75,27 +66,13 @@ public abstract class GameObjectBuilder<TObject, TBuilder>
 
     public TBuilder WithDepthOffset(int offset)
     {
-        _depthOffset = offset;
+        DepthOffset = offset;
         return _builderInstance;
     }
 
     public TBuilder WithStatus(string status)
     {
-        _status = status;
+        Status = status;
         return _builderInstance;
     }
-
-    public abstract TObject Build();
-
-    protected ActionHandlers BuildActionHandlers() => new ActionHandlers(
-        When.HandleGive,
-        When.HandlePickUp,
-        When.HandleUse,
-        When.HandleOpen,
-        When.HandleLookAt,
-        When.HandlePush,
-        When.HandleClose,
-        When.HandleTalkTo,
-        When.HandlePull,
-        When.HandleWalkTo);
 }

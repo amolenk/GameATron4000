@@ -6,22 +6,34 @@ public class Room
     private readonly List<GameObject> _objects;
 
     public string Id { get; }
-    public Walkbox Walkbox { get; }
+    public Walkbox? Walkbox { get; private set; }
+    public RoomHandlers When { get; private set; }
 
-    internal RoomHandlers Handlers { get; private set; }
-
-    internal Room(
-        string id,
-        Game game,
-        Walkbox walkbox,
-        RoomHandlers handlers)
+    internal Room(string id, Game game)
     {
         _game = game;
         _objects = new();
 
         Id = id;
-        Walkbox = walkbox;
-        Handlers = handlers;
+        When = new();
+    }
+
+    // public void Configure(Action<RoomBuilder> configure)
+    // {
+    //     RoomBuilder roomBuilder = new();
+    //     configure(roomBuilder);
+
+    //     if (roomBuilder.WalkboxArea is not null)
+    //     {
+    //         Walkbox = new Walkbox(roomBuilder.WalkboxArea);
+    //     }
+
+    //     Handlers = roomBuilder.When.Build();
+    // }
+
+    public void SetWalkBox(params Point[] walkBoxVertices)
+    {
+        Walkbox = new Walkbox(new Polygon(walkBoxVertices));
     }
 
     public void Place(GameObject gameObject, double x, double y) =>
@@ -79,7 +91,7 @@ public class Room
 
     internal void Enter()
     {
-        if (Handlers.HandleBeforeEnter is not null)
+        if (When.HandleBeforeEnter is not null)
         {
             // Do not enqueue events while calling the BeforeEnter handler.
             // Any changes happening in the handler should not be made visible
@@ -87,14 +99,14 @@ public class Room
             var originalFilter = _game.EventQueue.Filter;
             _game.EventQueue.IgnoreAll();
 
-            Handlers.HandleBeforeEnter();
+            When.HandleBeforeEnter();
 
             _game.EventQueue.SetFilter(originalFilter);
         }
 
         _game.EventQueue.Enqueue(new RoomEntered(this));
         
-        Handlers.HandleAfterEnter?.Invoke();
+        When.HandleAfterEnter?.Invoke();
     }
 
     internal IEnumerable<GameObject> GetVisibleObjects() =>

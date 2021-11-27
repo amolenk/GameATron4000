@@ -6,11 +6,17 @@ public class RoomHandlers
 
     public Action? HandleAfterEnter { get; private set; }
 
-    public RoomHandlers(
-        Action? handleBeforeEnter,
-        Action? handleAfterEnter)
+    public RoomHandlers()
     {
-        HandleBeforeEnter = handleBeforeEnter;
-        HandleAfterEnter = handleAfterEnter;
+    }
+
+    public void BeforeEnter(Action beforeEnter)
+    {
+        HandleBeforeEnter = beforeEnter;
+    }
+
+    public void AfterEnter(Action afterEnter)
+    {
+        HandleAfterEnter = afterEnter;
     }
 }
