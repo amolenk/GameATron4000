@@ -1,6 +1,6 @@
 metadata:
-  id: cheesequest
-  name: Cheese Quest
+  id: demo1
+  name: "Demo 1: Cheese Quest"
 spec:
   atlasses:
     default:

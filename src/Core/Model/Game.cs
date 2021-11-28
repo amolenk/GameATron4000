@@ -112,7 +112,7 @@ public class Game
         {
             return _cannedResponses[_random.Next(0, _cannedResponses.Count)];
         }
-        return "...";
+        return "I can't do that!";
     }
 
     public void Follow(Actor actor) =>

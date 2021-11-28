@@ -1,6 +1,6 @@
 metadata:
-  id: demo3
-  name: "Demo 3: UFO exploration"
+  id: bodysnatchers
+  name: "Final game: Return of the Body Snatchers"
 spec:
   atlasses:
     default:
