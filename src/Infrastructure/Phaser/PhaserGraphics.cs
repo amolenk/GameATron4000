@@ -70,10 +70,29 @@ public class PhaserGraphics : IGraphics
         _jsInProcessRuntime.Invoke<Point>(
             "getCameraPosition"); // TODO
 
-    public void StartCameraFollow(ISprite sprite) =>
+    public void CameraFollow(ISprite sprite) =>
+        _jsInProcessRuntime.InvokeVoid(
+            "cameraFollow",
+            sprite.Key);
+
+    public async Task StartCameraFollowAsync(ISprite sprite)
+    {
+        var tcs = new TaskCompletionSource();
+
+        var onCompleteHandler = new PhaserCallback(tcs.SetResult);
+
+        // Create DotNetObjectReference instances for the callbacks. These
+        // need to be disposed once we're done with them.
+        using var onCompleteRef = DotNetObjectReference.Create(onCompleteHandler);
+
+        // Start the tween.
         _jsInProcessRuntime.InvokeVoid(
             "startCameraFollow",
-            sprite.Key);
+            sprite.Key,
+            onCompleteRef);
+
+        await tcs.Task;
+    }
 
     public void SetCameraBounds(Size size) =>
         _jsInProcessRuntime.InvokeVoid(

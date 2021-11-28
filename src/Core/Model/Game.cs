@@ -115,6 +115,9 @@ public class Game
         return "...";
     }
 
+    public void Follow(Actor actor) =>
+        EventQueue.Enqueue(new CameraFocusChanged(actor));
+
     // TODO Remove
     public void SayLine(string line) => Protagonist?.SayLine(line);
 
@@ -158,6 +161,9 @@ public class Game
                 $"Cannot start a new dialogue while dialogue tree {_activeDialogueTree.Id} is still active.");
         }
     }
+
+    public void GameOver() =>
+        EventQueue.Enqueue(new GameOver());
 
     internal void ContinueDialogue(DialogueOption option)
     {

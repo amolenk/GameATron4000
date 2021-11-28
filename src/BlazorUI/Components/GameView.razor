@@ -2,6 +2,7 @@
 @inject IGameManifestRepository _gameManifestRepository
 @inject IGameScriptLoader _gameScriptLoader
 @inject ISaveGameRepository _saveGameRepository
+@inject NavigationManager _navigationManager
 
 @if (_gameScriptLoader.ScriptErrors.Any())
 {
@@ -17,20 +18,11 @@
 }
 else
 {
-    <div id="room-view">
-        <RoomView />
-    </div>
-    <div id="action-bar">
-        <ActionBar />
-    </div>
-    <div id="ui-controls">
-        <div id="verb-picker">
-            <VerbPicker />
-        </div>
-        <div id="inventory-view">
-            <InventoryView />
-        </div>
-    </div>
+    <RoomView />
+    <ActionBar />
+    <VerbPicker />
+    <InventoryView />
+    <DialogueTreeView />
 }
 
 @code {
@@ -45,10 +37,11 @@ else
     {
         Mediator.Subscribe<StartGame>(OnStartGameAsync);
         Mediator.Subscribe<ExecutePlayerAction>(OnExecutePlayerActionAsync);
-        Mediator.Subscribe<ContinueDialogue>(OnContinueDialogueAsync);
+        Mediator.Subscribe<DialogueOptionChosen>(OnDialogueOptionChosenAsync);
         Mediator.Subscribe<SaveGame>(OnSaveGameAsync);
         Mediator.Subscribe<LoadGame>(OnLoadGameAsync);
         Mediator.Subscribe<RefreshGameScript>(OnRefreshGameScriptAsync);
+        Mediator.Subscribe<GameOver>(OnGameOverAsync);
     }
 
     private async Task OnStartGameAsync(StartGame command)
@@ -72,11 +65,11 @@ else
         }
     }
 
-    private async Task OnContinueDialogueAsync(ContinueDialogue command)
+    private async Task OnDialogueOptionChosenAsync(DialogueOptionChosen @event)
     {
         if (_script is not null)
         {
-            await _script.ContinueDialogue(command.Option, Mediator);
+            await _script.ContinueDialogue(@event.Option, Mediator);
         }
     }
 
@@ -116,6 +109,12 @@ else
 
             await StartGameScriptAsync(gameState);
         }
+    }
+    
+    private Task OnGameOverAsync(GameOver _)
+    {
+        _navigationManager.NavigateTo("/");
+        return Task.CompletedTask;
     }
 
     private async Task StartGameScriptAsync(GameState? gameState = null)

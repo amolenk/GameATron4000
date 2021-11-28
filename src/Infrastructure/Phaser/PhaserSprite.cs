@@ -154,6 +154,12 @@ public sealed class PhaserSprite : ISprite
         Frame = frame;
     }
 
+    public void SetScale(double scale) =>
+        ((IJSInProcessRuntime)_jsRuntime).InvokeVoid(
+            PhaserConstants.Functions.SetSpriteScale,
+            Key,
+            scale);
+
     public void AddAnimation(
         string key,
         string atlasKey,

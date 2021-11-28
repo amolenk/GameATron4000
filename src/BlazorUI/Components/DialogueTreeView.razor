@@ -1,11 +1,13 @@
 ﻿@if (_options is not null)
 {
-    <ul>
-        @foreach (var option in _options)
-        {
-            <li @onclick="@(() => OnOptionClickAsync(@option))">@option.DisplayText</li>
-        }
-    </ul>
+    <div id="container">
+        <ul>
+            @foreach (var option in _options)
+            {
+                <li @onclick="@(() => OnOptionClickAsync(@option))">@option.DisplayText</li>
+            }
+        </ul>
+    </div>
 }
 
 @code {
@@ -32,7 +34,7 @@
     {
         _options = null;
 
-        await Mediator.SendAsync(new ContinueDialogue(option));
+        await Mediator.PublishAsync(new DialogueOptionChosen(option));
 
         StateHasChanged();
     }

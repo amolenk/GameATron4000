@@ -20,6 +20,7 @@ public static class PhaserConstants
         public const string MoveSprite = "moveSprite";
         public const string SetSpriteDepth = "setSpriteDepth";
         public const string SetSpriteFrame = "setSpriteFrame";
+        public const string SetSpriteScale = "setSpriteScale";
         public const string AddSpriteAnimation = "addSpriteAnimation";
         public const string PlaySpriteAnimation = "playSpriteAnimation";
         public const string StopSpriteAnimation = "stopSpriteAnimation";

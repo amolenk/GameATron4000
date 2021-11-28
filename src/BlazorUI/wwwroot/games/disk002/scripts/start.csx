@@ -1,5 +1,7 @@
 OnGameStart(() =>
 {
+    // TODO Use constants for flags.
+
     AddCannedResponse("I can't do that.");
     AddCannedResponse("Why?");
     AddCannedResponse("Hmm, better not.");
@@ -11,12 +13,11 @@ OnGameStart(() =>
     guy.AddToInventory(groceryList);
 
     // park
-    park.Place(narrator, 450, 150);
+    park.Place(narrator, 400, 150);
     park.Place(newspaper, 410, 420);
     park.Place(parkBench, 323, 408);
 
     // terminal
-    terminal.Place(shipComputer, 450, 150);
     terminal.Place(beamButton, 73, 281);
     terminal.Place(beamGlow, 442, 450);
     terminal.Place(beamTerminal, 442, 403);

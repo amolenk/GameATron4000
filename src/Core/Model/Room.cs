@@ -7,6 +7,7 @@ public class Room
 
     public string Id { get; }
     public Walkbox Walkbox { get; }
+    public RoomScaleSettings? ScaleSettings { get; }
 
     internal RoomHandlers Handlers { get; private set; }
 
@@ -14,7 +15,8 @@ public class Room
         string id,
         Game game,
         Walkbox walkbox,
-        RoomHandlers handlers)
+        RoomHandlers handlers,
+        RoomScaleSettings? scaleSettings)
     {
         _game = game;
         _objects = new();
@@ -22,6 +24,7 @@ public class Room
         Id = id;
         Walkbox = walkbox;
         Handlers = handlers;
+        ScaleSettings = scaleSettings;
     }
 
     public void Place(GameObject gameObject, double x, double y) =>

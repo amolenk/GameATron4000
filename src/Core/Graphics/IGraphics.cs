@@ -23,7 +23,9 @@ public interface IGraphics : IDisposable
 
     void SetCameraBounds(Size size);
 
-    void StartCameraFollow(ISprite sprite);
+    void CameraFollow(ISprite sprite);
+
+    Task StartCameraFollowAsync(ISprite sprite);
 
     IDisposable Pause();
 }

@@ -2,6 +2,7 @@ h1 {
     font-family: 'Onesize';
     color: yellow;
     display: block;
+    font-size: min(7vh, 7vw);
     text-align: center;
     width: 100%;
 }
@@ -14,6 +15,7 @@ ul {
 
 li {
     color: greenyellow;
+    font-size: min(4vh, 4vw);
     list-style-type: none;
 }
 

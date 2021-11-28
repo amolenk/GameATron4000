@@ -4,21 +4,27 @@ public class DefaultMediator : GameATron4000.Mediator.IMediator
 {
     private readonly Dictionary<Type, List<Func<object, Task>>> _handlersByType;
 
-    public DefaultMediator()
+    private readonly ILogger _logger;
+
+    public DefaultMediator(ILogger<DefaultMediator> logger)
     {
         _handlersByType = new();
+        _logger = logger;
     }
 
     public async Task PublishAsync<TEvent>(TEvent @event) where TEvent : IEvent
     {
         var eventType = @event.GetType();
 
+        _logger.LogDebug($"Publishing event {@event.GetType().Name}...");
+
         if (_handlersByType.TryGetValue(
             @event.GetType(),
             out List<Func<object, Task>> handlers))
         {
             var tasks = handlers
-                .Select(handler => handler.Invoke(@event));
+                .Select(handler => handler.Invoke(@event))
+                .ToList();
 
             await Task.WhenAll(tasks);
         }

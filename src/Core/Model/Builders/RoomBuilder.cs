@@ -4,7 +4,8 @@ public class RoomBuilder
 {
     public string Id { get; private set; }
     public Polygon? WalkboxArea { get; private set; }
-    
+    public RoomScaleSettings? ScaleSettings { get; private set; }
+
     public RoomHandlersBuilder When { get; private set; }
     internal Game Game { get; private set; }
 
@@ -18,6 +19,21 @@ public class RoomBuilder
     public RoomBuilder WithWalkboxArea(params Point[] vertices)
     {
         WalkboxArea = new Polygon(vertices);
+        return this;
+    }
+
+    public RoomBuilder WithScaleSettings(
+        int minScale,
+        int maxScale,
+        int startAtY,
+        int endAtY)
+    {
+        ScaleSettings = new RoomScaleSettings(
+            minScale,
+            maxScale,
+            startAtY,
+            endAtY);
+
         return this;
     }
 
@@ -35,6 +51,7 @@ public class RoomBuilder
             new Walkbox(WalkboxArea),
             new RoomHandlers(
                 When.HandleBeforeEnter,
-                When.HandleAfterEnter));
+                When.HandleAfterEnter),
+            ScaleSettings);
     }
 }

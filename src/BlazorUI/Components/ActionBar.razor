@@ -1,13 +1,16 @@
-﻿<div id="container">
-@if (_playerInputEnabled)
+﻿@if (_uiVisible)
 {
-    <p>@_actionText</p>
+    <div id="container">
+    @if (!_gameStarted)
+    {
+        <p>Loading game...</p>
+    }
+    else
+    {
+        <p>@_actionText</p>
+    }
+    </div>
 }
-else if (!_gameStarted)
-{
-    <p>Loading game...</p>
-}
-</div>
 
 @code {
 
@@ -15,7 +18,7 @@ else if (!_gameStarted)
     private IAction _action = null!;
     private string _actionText = string.Empty;
     private bool _gameStarted;
-    private bool _playerInputEnabled;
+    private bool _uiVisible = true;
 
     [CascadingParameter]
     public IMediator Mediator { get; set; } = null!;
@@ -37,7 +40,6 @@ else if (!_gameStarted)
         _actionFactory = new ActionFactory(@event.Game);
         _action = _actionFactory.Create(Verb.WalkTo);
         _actionText = _action.GetDisplayText();
-        _playerInputEnabled = true;
 
         StateHasChanged();
         return Task.CompletedTask;
@@ -84,7 +86,7 @@ else if (!_gameStarted)
 
     private Task OnPlayerCommandStarted(PlayerActionStarted @event)
     {
-        _playerInputEnabled = !@event.Action.DisableUIWhileExecuting;
+        _uiVisible = !@event.Action.DisableUIWhileExecuting;
 
         StateHasChanged();
         return Task.CompletedTask;
@@ -94,7 +96,7 @@ else if (!_gameStarted)
     {
         _action = _actionFactory.Create(Verb.WalkTo);
         _actionText = _action.GetDisplayText();
-        _playerInputEnabled = true;
+        _uiVisible = true;
 
         StateHasChanged();
         return Task.CompletedTask;

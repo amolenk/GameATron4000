@@ -22,7 +22,10 @@ public class DialogueTree
             name,
             out Func<DialogueTree, IEnumerable<DialogueOption>> topic))
         {
-            return topic.Invoke(this);
+            return topic
+                .Invoke(this)
+                .Where(option => option.Condition is null || option.Condition())
+                .ToList();
         }
 
         throw new InvalidOperationException(

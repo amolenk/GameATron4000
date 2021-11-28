@@ -1,12 +1,10 @@
-// TODO Nameof
-
 Actor narrator = AddActor("narrator", builder => builder
     .FixedToCamera()
     .Untouchable()
     .WithTextColor("lightblue")
     .WithStatus("transparent"));
 
-Actor shipComputer = AddActor(nameof(shipComputer), builder => builder
+Actor shipComputer = AddActor("ship-computer", builder => builder
     .FixedToCamera()
     .Untouchable()
     .WithTextColor("red")
@@ -28,7 +26,7 @@ Actor al = AddActor("al", builder => builder
         }
         else
         {
-            //StartDialogue("meetAl");
+            StartDialogue(alDialogue);
         }
     }));
 
@@ -48,8 +46,8 @@ Actor ian = AddActor("ian", builder => builder
     .WithTextColor("magenta")
     .When.LookAt(() =>
     {
-        SayLine("It's an alien looking fellow!");
-        SayLine("He looks a bit more important than the other one!");
+        guy.SayLine("It's an alien looking fellow!");
+        guy.SayLine("He looks a bit more important than the other one!");
         al.SayLine("Hey, I'm right here!");
     })
     .When.TalkTo(() =>
@@ -60,7 +58,7 @@ Actor ian = AddActor("ian", builder => builder
         }
         else
         {
-            //StartDialogue("meetIan");
+            StartDialogue(ianDialogue);
         }
     }));
 
@@ -71,7 +69,7 @@ Actor richard = AddActor("richard", builder => builder
     .When.TalkTo(() =>
     {
         guy.MoveTo(340, 430, WellKnownStatus.FaceAwayFromCamera);
-        StartDialogue(knockKnockDialogue);
+        StartDialogue(richardDialogue);
     })
     .When.WalkTo(() =>
     {

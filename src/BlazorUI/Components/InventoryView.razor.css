@@ -1,6 +1,7 @@
 #container {
-    width: 100%;
-    height: 100%;
+    float: left;
+    height: 20%;
+    width: 50%;
 }
 
 .item {

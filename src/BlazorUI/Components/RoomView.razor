@@ -1,7 +1,9 @@
 ﻿@implements IDisposable
 @inject PhaserGraphicsFactory _graphicsFactory
 
-<div id="phaser">
+<div id="container">
+    <div id="phaser">
+    </div>
 </div>
 
 @code {
@@ -37,6 +39,7 @@
         Mediator.Subscribe<GameObjectStatusChanged>(OnGameObjectStatusChangedAsync);
         Mediator.Subscribe<DebugModeChanged>(OnDebugModeChangedAsync);
         Mediator.Subscribe<SkipWait>(OnSkipWaitAsync);
+        Mediator.Subscribe<CameraFocusChanged>(OnCameraFocusChangedAsync);
     }
 
     private async Task OnGameManifestLoadedAsync(GameManifestLoaded @event)
@@ -210,6 +213,7 @@
                 objectSnapshot.Status,
                 _manifest.Spec.Sprites,
                 _graphics,
+                _roomSprite.Model.ScaleSettings,
                 OnGameObjectPointerDownAsync,
                 OnGameObjectPointerOutAsync,
                 OnGameObjectPointerOverAsync);
@@ -220,7 +224,7 @@
             // with the camera.
             if (actor.Id == _protagonistId)
             {
-                _graphics.StartCameraFollow(actorSprite.Sprite);
+                _graphics.CameraFollow(actorSprite.Sprite);
             } 
         }
         else
@@ -313,8 +317,15 @@
         Point mousePosition) =>
         Mediator.PublishAsync(new GameObjectPointerOver(gameObject));
 
-
-    
+    private async Task OnCameraFocusChangedAsync(CameraFocusChanged @event)
+    {
+        if (_objectSprites.TryGetSprite<ActorSprite>(
+            @event.Actor.Id,
+            out ActorSprite actorSprite))
+        {
+            await _graphics.StartCameraFollowAsync(actorSprite.Sprite);
+        }
+    }
 
     // Exclude the areas around the other actors to make sure the given
     // actor doesn't bump into them.

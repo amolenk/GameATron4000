@@ -4,7 +4,7 @@ Item alarm = AddItem(nameof(alarm), builder => builder
 Item beamButton = AddItem(nameof(beamButton), builder => builder
     .Named("big button")
     .WithActorInteraction(RelativePosition.InFront, WellKnownStatus.FaceAwayFromCamera)
-    .WithStatus("off") // TODO
+    .WithStatus("on")
     .When.LookAt(() =>
     {
         SayLine("Now that's a big button!");
@@ -75,7 +75,7 @@ Item bottle = AddItem(nameof(bottle), builder => builder
             {
                 SayLine("Ok, I guess it's practically the same thing as water.");
                 SayLine("Wow, it's boiling already!");
-                SetFlag("cookerBoiling");
+                SetFlag("cooker-boiling");
                 guy.RemoveFromInventory(bottle);
             }
         }
@@ -125,7 +125,7 @@ Item clawHammer = AddItem(nameof(clawHammer), builder => builder
     {
         if (gameObject == podcastBooth)
         {
-            //StartDialogue("knockKnock");
+            StartDialogue(knockKnockDialogue);
         }
         else if (gameObject == crateLeft || gameObject == crateTop)
         {
@@ -159,7 +159,7 @@ Item cheeseGrater = AddItem(nameof(cheeseGrater), builder => builder
             SayLine("Sure!");
             guy.AddToInventory(clawHammer);
             bridge.Place(cheeseGrater, 245, 350);
-            SetFlag("tradedHammer");
+            SetFlag("traded-hammer");
             guy.FaceCamera();
         }
         else
@@ -348,6 +348,7 @@ Item groceries = AddItem("groceries", builder => builder
 Item groceryList = AddItem("groceryList", builder => builder
     .Named("grocery list")
     .CanBeUsedWithOtherObject()
+    .WithActorInteraction(RelativePosition.InFront, WellKnownStatus.FaceAwayFromCamera)
     .When.LookAt(() =>
     {
         if (guy.Has(groceryList))
@@ -387,7 +388,6 @@ Item groceryList = AddItem("groceryList", builder => builder
 
                 bridge.Place(todoList, todoListPosition);
                 SayLine("Er, nothing!");
-                // TODO Position? Face direction???
                 ian.MoveTo(ianPosition);
                 
                 guy.FaceCamera();
@@ -436,7 +436,25 @@ Item newspaper = AddItem(nameof(newspaper), builder => builder
     .When.PickUp(() =>
     {
         guy.AddToInventory(newspaper);
-        CutScene_BeamUp();
+
+        guy.SayLine("It's yesterday's newspaper!");
+        park.Place(newspaperHeadline, 400, 450);
+        Delay(2000);
+
+        narrator.SayLine("Hmm, there seem to be a LOT of UFO sightings lately!");
+        Delay(1000);
+
+        park.Remove(newspaperHeadline);
+        guy.SayLine("What a bunch of nonsense!");
+        Delay(1000);
+
+        park.Place(beamPark, Protagonist.Position.X, Protagonist.Position.Y + 10);
+        Delay(1000);
+
+        guy.SayLine("Uh oh...");
+        Delay(1500);
+
+        ChangeRoom(terminal);
     }));
 
 Item newspaperHeadline = AddItem(nameof(newspaperHeadline), builder => builder
@@ -491,7 +509,7 @@ Item powerCord = AddItem("powerCord", builder => builder
         Delay(1000);
 
         guy.AddToInventory(powerCord);
-        SetFlag("boothDisconnected");
+        SetFlag("booth-power-cut");
         Delay(500);
 
         for (var i = 0; i < 4; i++)
@@ -507,8 +525,7 @@ Item powerCord = AddItem("powerCord", builder => builder
         richard.SayLine("Er...Carl...");
         carl.SayLine("Yeah?");
         richard.SayLine("Why is the microphone off?");
-        carl.SayLine("Hm, seems like all power is gone!");
-        richard.SayLine("Maybe the solar radiation is interfering with the ships primary capacitators.");
+        carl.SayLine("Hm, the ship must be flying through an ion storm!");
 
         guy.MoveTo(430, 405, WellKnownStatus.FaceCamera);
     })
@@ -562,7 +579,7 @@ Item saucages = AddItem("saucages", builder => builder
     {
         if (with == cooker)
         {
-            if (!IsFlagSet("cookerBoiling"))
+            if (!IsFlagSet("cooker-boiling"))
             {
                 SayLine("According to the package, I should boil some water first.");
             }
@@ -591,7 +608,7 @@ Item saucages = AddItem("saucages", builder => builder
                 al.SayLine("MY HOT DOGS!");
                 ian.SayLine("I told you to wait until the mission was done!");
 
-                ClearFlag("alarm");
+                SetFlag("alarm");
             }
         }
     }));

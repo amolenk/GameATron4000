@@ -44,7 +44,16 @@ public abstract class ObjectSprite<TObject> : IObjectSprite
             Model.Id,
             status);
 
-        Sprite.SetFrame(spriteInfo.FrameName);
+        if (spriteInfo.IsAnimation)
+        {
+            Console.WriteLine("Found animation!!!");
+            Sprite.PlayAnimation(spriteInfo.FrameName);
+        }
+        else
+        {
+            Sprite.StopAnimation();
+            Sprite.SetFrame(spriteInfo.FrameName);
+        }
     }
 
     private ISprite CreateSprite(

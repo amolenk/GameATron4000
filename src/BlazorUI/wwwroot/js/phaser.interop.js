@@ -104,6 +104,10 @@ function setSpriteDepth(spriteKey, index) {
     spriteLookup[spriteKey].setDepth(index);
 }
 
+function setSpriteScale(spriteKey, scale) {
+    spriteLookup[spriteKey].setScale(scale);
+}
+
 function moveSprite(spriteKey, x, y, duration, onUpdate, onComplete) {
     var sprite = spriteLookup[spriteKey];
     scene.tweens.add({
@@ -164,7 +168,20 @@ function destroyText(textKey) {
     textLookup[textKey] = null;
 }
 
-function startCameraFollow(spriteKey) {
+function startCameraFollow(spriteKey, onComplete) {
+    const sprite = spriteLookup[spriteKey];
+    scene.cameras.main.pan(sprite.x, sprite.y, 250, 'Linear', true,
+        (_, progress) =>
+        {
+            if (progress == 1)
+            {
+                scene.cameras.main.startFollow(sprite, true, 0.1, 0.1);
+                onComplete.invokeMethod('Invoke');
+            }
+        });
+}
+
+function cameraFollow(spriteKey) {
     scene.cameras.main.startFollow(spriteLookup[spriteKey], true, 0.1, 0.1);
 }
 

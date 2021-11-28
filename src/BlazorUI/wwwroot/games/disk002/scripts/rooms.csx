@@ -1,14 +1,17 @@
-﻿Room beach = AddRoom(nameof(beach), room => room
+﻿Room beach = AddRoom("beach", room => room
     .WithWalkboxArea(
         new Point(0, 370),
         new Point(900, 370),
         new Point(900, 449),
         new Point(0, 449))
+    .WithScaleSettings(75, 75, 370, 450)
     .When.BeforeEnter(() =>
     {
         beach.Place(guy, 490, 420);
         beach.Place(beamPark, 490, 425);
-        beach.Place(narrator, 450, 150);
+        beach.Place(narrator, 400, 150);
+
+        guy.FaceCamera();
     })
     .When.AfterEnter(() =>
     {
@@ -25,14 +28,11 @@
     
         narrator.SayLine("Thanks for playing!");
         narrator.SayLine("GAME OVER");
-    }));
-//     scale = {
-//         min = 75,
-//         max = 75,
-//         start_pos = 370,
-//         end_pos = 450
 
-Room bridge = AddRoom(nameof(bridge), room => room
+        GameOver();
+    }));
+
+Room bridge = AddRoom("bridge", room => room
     .WithWalkboxArea(
         new Point(0, 420),
         new Point(390, 420),
@@ -56,38 +56,33 @@ Room bridge = AddRoom(nameof(bridge), room => room
         new Point(1740, 415),
         new Point(1740, 449),
         new Point(0, 449))
+    .WithScaleSettings(40, 100, 275, 400)
     .When.BeforeEnter(() =>
     {
+        bridge.Place(shipComputer, 400, 150);
         bridge.Place(guy, 65, 440);
         guy.FaceCamera();
     })
-    // .When.AfterEnter(() =>
-    // {
-    //     if (!IsFlagSet("visitedBridge"))
-    //     {
-    //         Delay(1000);
-    //         ian.SayLine("No, you can't have access to the reactor core!");
-    //         carl.SayLine("Can we at least have a look at the warp drive?");
-    //         ian.SayLine("NO!");
+    .When.AfterEnter(() =>
+    {
+        if (!IsFlagSet("visited-bridge"))
+        {
+            Delay(1000);
+            ian.SayLine("No, you can't have access to the reactor core!");
+            carl.SayLine("Can we at least have a look at the warp drive?");
+            ian.SayLine("NO!");
 
-    //         ian.MoveTo(455, 430);
-    //         //ian.FaceCamera();
-    //         ian.SayLine("Jeez, these earthlings are nosy!");
-    //         ian.MoveTo(810, 300, WellKnownStatus.FaceAwayFromCamera);
+            ian.MoveTo(455, 430);
+            //ian.FaceCamera();
+            ian.SayLine("Jeez, these earthlings are nosy!");
+            ian.MoveTo(810, 300, WellKnownStatus.FaceAwayFromCamera);
 
-    //         SetFlag("visitedBridge");
-    //     }
-    // })
+            SetFlag("visited-bridge");
+        }
+    })
     );
-//     scale = {
-//         min = 40,
-//         max = 100,
-//         start_pos = 275,
-//         end_pos = 400
-//     },
 
-
-Room park = AddRoom(nameof(park), room => room
+Room park = AddRoom("park", room => room
     .WithWalkboxArea(
         new Point(935, 295),
         new Point(935, 318),
@@ -104,19 +99,13 @@ Room park = AddRoom(nameof(park), room => room
         new Point(366, 338),
         new Point(470, 355),
         new Point(804, 316))
+    .WithScaleSettings(70, 100, 270, 400)
     .When.BeforeEnter(() =>
     {
         park.Place(guy, 600, 430);
     }));
-//     scale = {
-//         min = 70,
-//         max = 100,
-//         start_pos = 270,
-//         end_pos = 400
-//     },
-// }
 
-Room terminal = AddRoom(nameof(terminal), builder => builder
+Room terminal = AddRoom("terminal", builder => builder
     .WithWalkboxArea(
         new Point(0, 430),
         new Point(180, 335),
@@ -128,8 +117,11 @@ Room terminal = AddRoom(nameof(terminal), builder => builder
         new Point(80, 400),
         new Point(80, 449),
         new Point(0, 449))
+    .WithScaleSettings(80, 100, 325, 400)
     .When.BeforeEnter(() =>
     {
+        terminal.Place(shipComputer, 400, 150);
+
         if (PreviousRoom == park)
         {
             terminal.Place(guy, 442, 363);
@@ -143,13 +135,7 @@ Room terminal = AddRoom(nameof(terminal), builder => builder
     {
         if (PreviousRoom == park)
         {
-//            Delay(1000);
-//            SayLine("GET ME OUT OF HERE!");
+           Delay(1000);
+           guy.SayLine("GET ME OUT OF HERE!");
         }
     }));
-//     scale = {
-//         min = 80,
-//         max = 100,
-//         start_pos = 325,
-//         end_pos = 400
-//     },

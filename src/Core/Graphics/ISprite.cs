@@ -11,6 +11,8 @@ public interface ISprite : IDisposable
 
     void SetFrame(string frameName);
 
+    void SetScale(double scale);
+
     Task MoveAsync(
         Point target,
         double duration,

@@ -8,12 +8,15 @@ public class ActorSprite : ObjectSprite<Actor>
     private const int DELAY_PER_CHAR = 75;
     private const int MIN_TEXT_DELAY = 1500;
 
+    private readonly RoomScaleSettings? _scaleSettings;
+
     public ActorSprite(
         Actor actor,
         Point position,
         string status,
         SpritesSpec spritesSpec,
         IGraphics graphics,
+        RoomScaleSettings? scaleSettings,
         Func<Actor, Point, Task>? onPointerDown = null,
         Func<Actor, Point, Task>? onPointerOut = null,
         Func<Actor, Point, Task>? onPointerOver = null)
@@ -27,6 +30,9 @@ public class ActorSprite : ObjectSprite<Actor>
             onPointerOut,
             onPointerOver)
     {
+        _scaleSettings = scaleSettings;
+
+        UpdateScale();
     }
 
     public async Task SayLineAsync(string line, string actorStatus, CancellationToken cancellationToken)
@@ -125,6 +131,8 @@ public class ActorSprite : ObjectSprite<Actor>
                 () =>
                 {
                     Sprite.SetDepth(Sprite.Position.Y);
+                    
+                    UpdateScale();
                 },
                 cancellationToken);
         }
@@ -138,30 +146,24 @@ public class ActorSprite : ObjectSprite<Actor>
             UpdateSpriteFrameForStatus(endInStatus);
         }
     }
+
+    private void UpdateScale()
+    {
+        if (_scaleSettings is not null)
+        {
+            if (Sprite.Position.Y < _scaleSettings.StartAtY) {
+                Sprite.SetScale(_scaleSettings.MinScale / 100);
+            }
+            else if (Sprite.Position.Y > _scaleSettings.StartAtY && Sprite.Position.Y < _scaleSettings.EndAtY) {
+                var scaleAreaHeight = _scaleSettings.EndAtY - _scaleSettings.StartAtY;
+                var scaleDiff = _scaleSettings.MaxScale - _scaleSettings.MinScale;
+                var percentageInArea = (Sprite.Position.Y - _scaleSettings.StartAtY) / scaleAreaHeight;
+                var scale = scaleDiff * percentageInArea + _scaleSettings.MinScale;
+                Sprite.SetScale(scale / 100);
+            }
+            else {
+                Sprite.SetScale(_scaleSettings.MaxScale / 100);
+            }
+        }
+    }
 }
-
-
-/////////// TODO
-
-//         this.updateScale();
-
-//     private updateScale() {
-//         if (this.scale) {
-//             if (this.sprite.y < this.scale.start) {
-//                 this.sprite.scale.set(this.scale.min / 100);
-//             }
-//             else if (this.sprite.y > this.scale.start && this.sprite.y < this.scale.end) {
-//                 const scaleAreaHeight = this.scale.end - this.scale.start;
-//                 const scaleDiff = this.scale.max - this.scale.min;
-//                 const percentageInArea = (this.sprite.y - this.scale.start) / scaleAreaHeight;
-//                 const scale = scaleDiff * percentageInArea + this.scale.min;
-//                 this.sprite.scale.set(scale / 100);
-//             }
-//             else {
-//                 this.sprite.scale.set(this.scale.max / 100);
-//             }
-//         }
-//         else {
-//             this.sprite.scale.set(1);
-//         }
-//     }
