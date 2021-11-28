@@ -30,27 +30,45 @@ public class Game
         EventQueue = eventQueue;
     }
 
-    public Item AddItem(string id, string? displayName = null)
+    public Item AddItem(string id, Action<ItemBuilder>? configure = null)
     {
-        Item item = new(id, displayName ?? id, this);
+        ItemBuilder builder = new(id, this);
+        if (configure is not null)
+        {
+            configure(builder);
+        }
+
+        var item = builder.Build();
 
         _items.Add(item);
 
         return item;
     }
 
-    public Actor AddActor(string id, string? displayName = null)
+    public Actor AddActor(string id, Action<ActorBuilder>? configure = null)
     {
-        Actor actor = new(id, displayName ?? id, this);
+        ActorBuilder builder = new(id, this);
+        if (configure is not null)
+        {
+            configure(builder);
+        }
+
+        var actor = builder.Build();
 
         _actors.Add(actor);
 
         return actor;
     }
 
-    public Room AddRoom(string id)
+    public Room AddRoom(string id, Action<RoomBuilder>? configure = null)
     {
-        Room room = new(id, this);
+        RoomBuilder builder = new(id, this);
+        if (configure is not null)
+        {
+            configure(builder);
+        }
+
+        var room = builder.Build();
 
         _rooms.Add(room);
 
@@ -94,7 +112,7 @@ public class Game
         {
             return _cannedResponses[_random.Next(0, _cannedResponses.Count)];
         }
-        return "I can't do that.";
+        return "...";
     }
 
     // TODO Remove

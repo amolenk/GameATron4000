@@ -1,5 +1,7 @@
-var cheeseGrater = AddItem("cheese-grater", "cheese grater")
-    .CanBeUsedWithOtherObjects()
+var cheeseGrater = AddItem("cheese-grater", "cheese grater");
+
+cheeseGrater
+    .AllowUseWithOtherObjects()
     .When
         .Use(with =>
         {
@@ -7,24 +9,24 @@ var cheeseGrater = AddItem("cheese-grater", "cheese grater")
             protagonist.AddToInventory(gratedCheese);
         });
 
-var blockOfCheese = AddItem("block-of-cheese", "block of cheese")
-    .CanBeUsedWithOtherObject()
-    .When
-        .Use(with => cheeseGrater.ActionHandlers.HandleUse(blockOfCheese));
+var blockOfCheese = AddItem("block-of-cheese", "block of cheese");
+    // .AllowUseWithOtherObjects()
+    // .When
+    //     .Use(with => cheeseGrater.ActionHandlers.HandleUse(blockOfCheese));
 
 var gratedCheese = AddItem("grated-cheese", "grated cheese");
 
-var fridge = AddItem("fridge");
-
 var bottle = AddItem("bottle")
-    .DependsOn(fridge, "open");
+    .DependsOn(() => fridge, "open");
 
-fridge.WithStatus("open");
+var fridge = (Item)AddItem("fridge").WithStatus("open");
+
+
 
 var protagonist = AddActor("guy");
 
-var emptyRoom = AddRoom("park");
-emptyRoom.SetWalkBox(
+var emptyRoom = AddRoom("park")
+    .WithWalkboxArea(
         new Point(0, 0),
         new Point(1, 0),
         new Point(1, 1));
@@ -35,8 +37,8 @@ OnGameStart(() =>
     protagonist.AddToInventory(blockOfCheese);
 
     emptyRoom.Place(protagonist, 600, 400);
-    emptyRoom.Place(bottle, 200, 100);
-    emptyRoom.Place(fridge, 200, 400);
+    emptyRoom.Place(fridge, 400, 400);
+    emptyRoom.Place(bottle, 400, 200);
 
     SetProtagonist(protagonist);
 

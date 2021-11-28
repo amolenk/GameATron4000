@@ -17,7 +17,7 @@ public class UseAction : IAction
     {
         // If an item is already set, only accept the object if the set item can
         // be used in combination with another item.
-        if (_item is { CanBeUsedWithOtherObjects: true } && _item != gameObject)
+        if (_item is { CanBeUsedWithOtherObject: true } && _item != gameObject)
         {
             _with = gameObject;
             return true;
@@ -26,7 +26,7 @@ public class UseAction : IAction
         else if (gameObject is Item item)
         {
             _item = item;
-            return !item.CanBeUsedWithOtherObjects;
+            return !item.CanBeUsedWithOtherObject;
         }
 
         return false;
@@ -65,7 +65,7 @@ public class UseAction : IAction
         {
             stringBuilder.Append($" {_item.DisplayName}");
 
-            if (_item.CanBeUsedWithOtherObjects)
+            if (_item.CanBeUsedWithOtherObject)
             {
                 stringBuilder.Append($" with");
             }
@@ -81,10 +81,10 @@ public class UseAction : IAction
 
     public bool TryExecute()
     {
-        if (_item is { When.HandleUse: not null} &&
-            (!_item.CanBeUsedWithOtherObjects || _with is not null))
+        if (_item is { ActionHandlers.HandleUse: not null} &&
+            (!_item.CanBeUsedWithOtherObject || _with is not null))
         {
-            _item.When.HandleUse(_with);
+            _item.ActionHandlers.HandleUse(_with);
             return true;
         }
         return false;
@@ -93,5 +93,5 @@ public class UseAction : IAction
     private bool IsUseWith() =>
         _item is Item item &&
         _game.TryGetOwnerForItem(item, out Actor _) &&
-        _item.CanBeUsedWithOtherObjects;
+        _item.CanBeUsedWithOtherObject;
 }

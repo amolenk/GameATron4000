@@ -1,5 +1,3 @@
-
-
 Item alarm = AddItem(nameof(alarm), builder => builder
     .Untouchable());
 
@@ -29,7 +27,7 @@ Item beamButton = AddItem(nameof(beamButton), builder => builder
 
 
 Item beamGlow = AddItem(nameof(beamGlow), builder => builder
-    .DependsOn(beamButton, "on")
+    .DependsOn(() => beamButton, "on")
     .WithDepthOffset(1)
     .Untouchable());
 
@@ -37,12 +35,12 @@ Item beamPark = AddItem(nameof(beamPark), builder => builder
     .Untouchable());
 
 Item beamTerminal = AddItem(nameof(beamTerminal), builder => builder
-    .DependsOn(beamButton, "on")
+    .DependsOn(() => beamButton, "on")
     .Untouchable());
 
 Item bottle = AddItem(nameof(bottle), builder => builder
     .CanBeUsedWithOtherObject()
-    .DependsOn(fridge, "open")
+    .DependsOn(() => fridge, "open")
     .WithActorInteraction(RelativePosition.InFront, WellKnownStatus.FaceAwayFromCamera)
     .WithDepthOffset(91)
     .When.LookAt(() =>
@@ -217,7 +215,7 @@ Item cooker = AddItem(nameof(cooker), builder => builder
 
 Item cookerInCrate = AddItem(nameof(cookerInCrate), builder => builder
     .Named("thing in crate")
-    .DependsOn(crateRight, "open")
+    .DependsOn(() => crateRight, "open")
     .WithActorInteraction(RelativePosition.Above, WellKnownStatus.FaceCamera)
     .When.LookAt(() =>
     {
@@ -264,7 +262,7 @@ Item crateRight = AddItem(nameof(crateRight), builder => builder
     }));
 
 Item crateRightFront = AddItem(nameof(crateRightFront), builder => builder
-    .DependsOn(crateRight, "open")
+    .DependsOn(() => crateRight, "open")
     .WithDepthOffset(10)
     .Untouchable());
 
@@ -313,7 +311,7 @@ Item fridge = AddItem(nameof(fridge), builder => builder
 
 Item groceries = AddItem("groceries", builder => builder
     .CanBeUsedWithOtherObject()
-    .DependsOn(fridge, "open")
+    .DependsOn(() => fridge, "open")
     .WithDepthOffset(30)
     .Untouchable()
     .When.LookAt(() =>
@@ -535,7 +533,7 @@ Item powerCord = AddItem("powerCord", builder => builder
 Item saucages = AddItem("saucages", builder => builder
     .Named("hot dogs")
     .CanBeUsedWithOtherObject()
-    .DependsOn(fridge, "open")
+    .DependsOn(() => fridge, "open")
     .WithActorInteraction(RelativePosition.InFront, WellKnownStatus.FaceAwayFromCamera)
     .WithDepthOffset(91)
     .When.LookAt(() =>

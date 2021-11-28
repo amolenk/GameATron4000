@@ -2,22 +2,36 @@ namespace Amolenk.GameATron4000.Model.Builders;
 
 public class ItemBuilder : GameObjectBuilder<Item, ItemBuilder>
 {
-    public ItemDependency? Dependency { get; private set; }
-    public bool UseWith { get; private set; }
+    private ItemDependency? _dependency;
+    private bool _canBeUsedWithOtherObject;
 
-    internal ItemBuilder() : base()
+    internal ItemBuilder(string id, Game game) : base(id, game)
     {
     }
 
     public ItemBuilder CanBeUsedWithOtherObject()
     {
-        UseWith = true;
+        _canBeUsedWithOtherObject = true;
         return this;
     }
 
-    public ItemBuilder DependsOn(Item item, string status)
+    public ItemBuilder DependsOn(Func<Item> getItem, string status)
     {
-        Dependency = new ItemDependency(item, status);
+        _dependency = new ItemDependency(getItem, status);
         return this;
     }
+
+    public override Item Build() => new Item(
+        _game,
+        _id,
+        BuildActionHandlers(),
+        _dependency,
+        _displayName,
+        _interactPosition,
+        _interactStatus,
+        _isTouchable,
+        _scrollFactor,
+        _depthOffset,
+        _status,
+        _canBeUsedWithOtherObject);
 }

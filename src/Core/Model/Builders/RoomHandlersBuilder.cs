@@ -1,30 +1,30 @@
-// namespace Amolenk.GameATron4000.Model.Builders;
+namespace Amolenk.GameATron4000.Model.Builders;
 
-// public class RoomHandlersBuilder
-// {
-//     private readonly RoomBuilder _roomBuilder;
+public class RoomHandlersBuilder
+{
+    private readonly RoomBuilder _roomBuilder;
 
-//     public Action? HandleBeforeEnter { get; private set; }
-//     public Action? HandleAfterEnter { get; private set; }
+    public Action? HandleBeforeEnter { get; private set; }
+    public Action? HandleAfterEnter { get; private set; }
 
-//     internal RoomHandlersBuilder(RoomBuilder roomBuilder)
-//     {
-//         _roomBuilder = roomBuilder;
-//     }
+    internal RoomHandlersBuilder(RoomBuilder roomBuilder)
+    {
+        _roomBuilder = roomBuilder;
+    }
 
-//     public RoomBuilder BeforeEnter(Action action)
-//     {
-//         HandleBeforeEnter = action;
-//         return _roomBuilder;
-//     }
+    public RoomBuilder BeforeEnter(Action action)
+    {
+        HandleBeforeEnter = action;
+        return _roomBuilder;
+    }
 
-//     public RoomBuilder AfterEnter(Action action)
-//     {
-//         HandleAfterEnter = action;
-//         return _roomBuilder;
-//     }
+    public RoomBuilder AfterEnter(Action action)
+    {
+        HandleAfterEnter = action;
+        return _roomBuilder;
+    }
 
-//     public RoomHandlers Build() => new RoomHandlers(
-//         HandleBeforeEnter,
-//         HandleAfterEnter);
-// }
+    public void Build() => new RoomHandlers(
+        HandleBeforeEnter,
+        HandleAfterEnter);
+}

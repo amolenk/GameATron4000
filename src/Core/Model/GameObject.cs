@@ -3,32 +3,43 @@
 public abstract class GameObject
 {
     public string Id { get; }
-    public string DisplayName { get; private set; }
-    public RelativePosition InteractPosition { get; set; }
-    public string InteractStatus { get; set; }
-    public bool IsTouchable { get; set; }
-    public int ScrollFactor { get; set; }
-    public int DepthOffset { get; set; }
-    public string Status { get; set; }
-    public ActionHandlers When { get; private set; }
+    public string DisplayName { get; }
+    public RelativePosition InteractPosition { get; }
+    public string InteractStatus { get; }
+    public bool IsTouchable { get; }
+    public int ScrollFactor { get; }
+    public int DepthOffset { get; }
 
     public Point Position { get; protected set; }
+    public string Status { get; protected set; }
+
+    public ActionHandlers ActionHandlers { get; }
 
     protected Game Game;
 
-    protected GameObject(string id, string displayName, Game game)
+    protected GameObject(
+        Game game,
+        string id,
+        ActionHandlers actionHandlers,
+        string displayName,
+        RelativePosition interactPosition,
+        string interactStatus,
+        bool isTouchable,
+        int scrollFactor,
+        int depthOffset,
+        string status)
     {
-        Id = id;
-        DisplayName = displayName;
         Game = game;
-        InteractPosition = RelativePosition.InFront;
-        InteractStatus = WellKnownStatus.FaceCamera;
-        IsTouchable = true;
-        ScrollFactor = -1;
-        DepthOffset = 0;
+        Id = id;
+        ActionHandlers = actionHandlers;
+        DisplayName = displayName;
+        InteractPosition = interactPosition;
+        InteractStatus = interactStatus;
+        IsTouchable = isTouchable;
+        ScrollFactor = scrollFactor;
+        DepthOffset = depthOffset;
         Position = new Point(-1, -1);
-        Status = WellKnownStatus.Default;
-        When = new();
+        Status = status;
     }
 
     public void ChangeStatus(string status)
@@ -80,19 +91,4 @@ public abstract class GameObject
     }
 
     public override int GetHashCode() => Id.GetHashCode();
-
-    // protected void Configure(IGameObjectBuilder builder)
-    // {
-    //     if (builder.DisplayName.Length > 0)
-    //     {
-    //         DisplayName = builder.DisplayName;
-    //     }
-    //     InteractPosition = builder.InteractPosition;
-    //     InteractStatus = builder.InteractStatus;
-    //     IsTouchable = builder.IsTouchable;
-    //     ScrollFactor = builder.ScrollFactor;
-    //     DepthOffset = builder.DepthOffset;
-    //     Status = builder.Status;
-    //     ActionHandlers = builder.When.BuildActionHandlers();
-    // }
 }

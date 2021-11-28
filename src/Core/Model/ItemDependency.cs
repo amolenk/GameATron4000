@@ -2,14 +2,13 @@
 
 public class ItemDependency
 {
-    public ItemDependency(Item item, string status)
+    public ItemDependency(Func<Item> getItem, string status)
     {
-        Item = item;
+        GetItem = getItem;
         Status = status;
     }
 
-    public Item Item { get; set; }
+    public Func<Item> GetItem { get; set; }
 
     public string Status { get; set; }
 }
-//(Item Item, string Status);

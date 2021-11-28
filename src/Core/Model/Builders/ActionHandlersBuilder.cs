@@ -1,7 +1,9 @@
 namespace Amolenk.GameATron4000.Model.Builders;
 
-public class ActionHandlersBuilder
+public class ActionHandlersBuilder<TParentBuilder>
 {
+    private readonly TParentBuilder _parentBuilder;
+
     public Action<Actor>? HandleGive { get; private set; }
     public Action? HandlePickUp { get; private set; }
     public Action<GameObject?>? HandleUse { get; private set; }
@@ -13,75 +15,68 @@ public class ActionHandlersBuilder
     public Action? HandlePull { get; private set; }
     public Action? HandleWalkTo { get; private set; }
 
-    public ActionHandlersBuilder Give(Action<Actor> action)
+    internal ActionHandlersBuilder(TParentBuilder parentBuilder)
+    {
+        _parentBuilder = parentBuilder;
+    }
+
+    public TParentBuilder Give(Action<Actor> action)
     {
         HandleGive = action;
-        return this;
+        return _parentBuilder;
     }
 
-    public ActionHandlersBuilder PickUp(Action action)
+    public TParentBuilder PickUp(Action action)
     {
         HandlePickUp = action;
-        return this;
+        return _parentBuilder;
     }
 
-    public ActionHandlersBuilder Use(Action<GameObject?> action)
+    public TParentBuilder Use(Action<GameObject?> action)
     {
         HandleUse = action;
-        return this;
+        return _parentBuilder;
     }
 
-    public ActionHandlersBuilder Open(Action action)
+    public TParentBuilder Open(Action action)
     {
         HandleOpen = action;
-        return this;
+        return _parentBuilder;
     }
 
-    public ActionHandlersBuilder LookAt(Action action)
+    public TParentBuilder LookAt(Action action)
     {
         HandleLookAt = action;
-        return this;
+        return _parentBuilder;
     }
 
-    public ActionHandlersBuilder Push(Action action)
+    public TParentBuilder Push(Action action)
     {
         HandlePush = action;
-        return this;
+        return _parentBuilder;
     }
 
-    public ActionHandlersBuilder Close(Action action)
+    public TParentBuilder Close(Action action)
     {
         HandleClose = action;
-        return this;
+        return _parentBuilder;
     }
 
-    public ActionHandlersBuilder TalkTo(Action action)
+    public TParentBuilder TalkTo(Action action)
     {
         HandleTalkTo = action;
-        return this;
+        return _parentBuilder;
     }
 
-    public ActionHandlersBuilder Pull(Action action)
+    public TParentBuilder Pull(Action action)
     {
         HandlePull = action;
-        return this;
+        return _parentBuilder;
     }
 
-    public ActionHandlersBuilder WalkTo(Action action)
+    public TParentBuilder WalkTo(Action action)
     {
         HandleWalkTo = action;
-        return this;
+        return _parentBuilder;
     }
-
-    internal ActionHandlers BuildActionHandlers() => new ActionHandlers(
-        HandleGive,
-        HandlePickUp,
-        HandleUse,
-        HandleOpen,
-        HandleLookAt,
-        HandlePush,
-        HandleClose,
-        HandleTalkTo,
-        HandlePull,
-        HandleWalkTo);
 }

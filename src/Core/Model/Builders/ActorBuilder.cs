@@ -2,17 +2,30 @@ namespace Amolenk.GameATron4000.Model.Builders;
 
 public class ActorBuilder : GameObjectBuilder<Actor, ActorBuilder>
 {
-    public string TextColor { get; private set; }
+    private string _textColor;
 
-    internal ActorBuilder() : base()
+    internal ActorBuilder(string id, Game game) : base(id, game)
     {
-        Status = WellKnownStatus.FaceCamera;
-        TextColor = "white";
+        _status = WellKnownStatus.FaceCamera;
+        _textColor = "white";
     }
 
     public ActorBuilder WithTextColor(string textColor)
     {
-        TextColor = textColor;
+        _textColor = textColor;
         return this;
     }
+
+    public override Actor Build() => new Actor(
+        _game,
+        _id,
+        BuildActionHandlers(),
+        _displayName,
+        _interactPosition,
+        _interactStatus,
+        _isTouchable,
+        _scrollFactor,
+        _depthOffset,
+        _status,
+        _textColor);
 }
