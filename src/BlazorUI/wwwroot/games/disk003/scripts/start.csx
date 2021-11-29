@@ -14,7 +14,12 @@ Item crateRight = AddItem(nameof(crateRight), builder => builder
     .WithStatus("closed"));
 
 Item crateTop = AddItem(nameof(crateTop), builder => builder
-    .Untouchable());
+    .Named("top crate")
+    .WithActorInteraction(RelativePosition.None)
+    .When.LookAt(() =>
+    {
+        SayLine("It's a decidedly low-tech wooden crate.");
+    }));
 
 Room terminal = AddRoom("terminal", builder => builder
     .WithWalkboxArea(

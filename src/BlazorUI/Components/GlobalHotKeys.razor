@@ -16,7 +16,7 @@
                 _inDebugMode = !_inDebugMode;
                 await Mediator.PublishAsync(new DebugModeChanged(_inDebugMode));
                 return true;
-            case "h":
+            case "r":
                 await Mediator.SendAsync(new RefreshGameScript());
                 return true;
             case "l":
