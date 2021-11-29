@@ -1,0 +1,10 @@
+metadata:
+  id: demo1
+  name: "Demo 1: Cheese Quest"
+spec:
+  atlasses:
+    default:
+      textureUrl: sprites.png
+      atlasUrl: sprites.json
+  scripts:
+  - game.csx

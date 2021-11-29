@@ -1,0 +1,79 @@
+metadata:
+  id: demo4
+  name: "Demo 4: UFO exploration revisited"
+spec:
+  atlasses:
+    default:
+      textureUrl: assets/sprites.png
+      atlasUrl: assets/sprites.json
+  sprites:
+    al:
+      animations:
+        talk:
+          framePrefix: al/talk/
+          frameStart: 1
+          frameEnd: 4
+          frameZeroPadding: 4
+          frameRate: 9
+        walkLeft:
+          framePrefix: al/walk/left/
+          frameStart: 1
+          frameEnd: 6
+          frameZeroPadding: 4
+          frameRate: 9
+        walkRight:
+          framePrefix: al/walk/right/
+          frameStart: 1
+          frameEnd: 6
+          frameZeroPadding: 4
+          frameRate: 9
+    carl:
+      animations:
+        talk:
+          framePrefix: carl/talk/
+          frameStart: 1
+          frameEnd: 4
+          frameZeroPadding: 4
+          frameRate: 9
+    cooker:
+      animations:
+        smoke:
+          framePrefix: cooker/smoke/
+          frameStart: 1
+          frameEnd: 3
+          frameZeroPadding: 4
+          frameRate: 6
+    guy:
+      animations:
+        talk:
+          framePrefix: guy/talk/
+          frameStart: 1
+          frameEnd: 6
+          frameZeroPadding: 4
+          frameRate: 9
+        walkLeft:
+          framePrefix: guy/walk/left/
+          frameStart: 1
+          frameEnd: 6
+          frameZeroPadding: 4
+          frameRate: 9
+        walkRight:
+          framePrefix: guy/walk/right/
+          frameStart: 1
+          frameEnd: 6
+          frameZeroPadding: 4
+          frameRate: 9
+    richard:
+      animations:
+        talk:
+          framePrefix: richard/talk/
+          frameStart: 1
+          frameEnd: 4
+          frameZeroPadding: 4
+          frameRate: 9
+  scripts:
+  - scripts/actors.csx
+  - scripts/items.csx
+  - scripts/rooms.csx
+  - scripts/start.csx
+  inventorySpritesFolder: assets/inventory
