@@ -1,0 +1,13 @@
+#container {
+    display: table;
+    width: 100%;
+    height: 5%;
+}
+
+p {
+    display: table-cell;
+    font-size: min(3vh, 3vw);
+    margin: 0px;
+    text-align: center;
+    vertical-align: middle;
+}

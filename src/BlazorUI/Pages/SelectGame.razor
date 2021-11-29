@@ -1,0 +1,28 @@
+﻿@page "/"
+@inject IGameManifestRepository _gameManifestRepository
+@inject IGameScriptLoader _gameScriptLoader
+@inject NavigationManager _navigationManager;
+
+<h1>Game-a-Tron 4000</h1>
+
+<ul>
+@foreach (var manifest in _manifests)
+{
+    <li @onclick="@(() => OnGameSelected(manifest))">@manifest.Metadata.Name</li>
+}
+</ul>
+
+@code
+{
+    private IEnumerable<GameManifest> _manifests = Enumerable.Empty<GameManifest>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _manifests = await _gameManifestRepository.LoadGameManifestsAsync();
+    }
+
+    private void OnGameSelected(GameManifest manifest)
+    {
+        _navigationManager.NavigateTo($"play/{manifest.DiskNumber}");
+    }
+}

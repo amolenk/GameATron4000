@@ -1,0 +1,150 @@
+﻿@implements IDisposable
+@inject IGameManifestRepository _gameManifestRepository
+@inject IGameScriptLoader _gameScriptLoader
+@inject ISaveGameRepository _saveGameRepository
+@inject NavigationManager _navigationManager
+
+@if (_gameScriptLoader.ScriptErrors.Any())
+{
+    <p>Whoops! Failed to load game script:</p>
+    <ul class="errorList">
+    @foreach (var error in _gameScriptLoader.ScriptErrors)
+    {
+        <li class="errorMessage">
+            @(error.Path)(@error.Line,@error.Character): @error.Message
+        </li>
+    }
+    </ul>
+}
+else
+{
+    <RoomView />
+    <ActionBar />
+    <VerbPicker />
+    <InventoryView />
+    <DialogueTreeView />
+}
+
+@code {
+
+    private GameManifest? _manifest;
+    private GameScript? _script;
+
+    [CascadingParameter]
+    public IMediator Mediator { get; set; } = null!;
+
+    protected override void OnInitialized()
+    {
+        Mediator.Subscribe<StartGame>(OnStartGameAsync);
+        Mediator.Subscribe<ExecutePlayerAction>(OnExecutePlayerActionAsync);
+        Mediator.Subscribe<DialogueOptionChosen>(OnDialogueOptionChosenAsync);
+        Mediator.Subscribe<SaveGame>(OnSaveGameAsync);
+        Mediator.Subscribe<LoadGame>(OnLoadGameAsync);
+        Mediator.Subscribe<RefreshGameScript>(OnRefreshGameScriptAsync);
+        Mediator.Subscribe<GameOver>(OnGameOverAsync);
+    }
+
+    private async Task OnStartGameAsync(StartGame command)
+    {
+        _manifest = await _gameManifestRepository.TryLoadGameManifest(
+            command.DiskNumber);
+        
+        if (_manifest is not null)
+        {
+            await Mediator.PublishAsync(new GameManifestLoaded(_manifest));
+
+            await StartGameScriptAsync();
+        }
+    }
+
+    private async Task OnExecutePlayerActionAsync(ExecutePlayerAction command)
+    {
+        if (_script is not null)
+        {
+            await _script.ExecutePlayerActionAsync(command.Action, Mediator);
+        }
+    }
+
+    private async Task OnDialogueOptionChosenAsync(DialogueOptionChosen @event)
+    {
+        if (_script is not null)
+        {
+            await _script.ContinueDialogue(@event.Option, Mediator);
+        }
+    }
+
+    private async Task OnSaveGameAsync(SaveGame _)
+    {
+        if (_manifest is not null && _script is not null)
+        {
+            // There's no UI for saving games yet, always save to slot #1.
+            await _saveGameRepository.SaveGameAsync(
+                _manifest.Metadata.Id,
+                1,
+                _script.SaveGame());
+        }
+    }
+
+    private async Task OnLoadGameAsync(LoadGame _)
+    {
+        if (_manifest is not null && _script is not null)
+        {
+            // There's no UI for loading games yet, always load from slot #1.
+            var gameState = await _saveGameRepository.LoadGameAsync(
+                _manifest.Metadata.Id,
+                1);
+
+            if (gameState is not null)
+            {
+                await StartGameScriptAsync(gameState);
+            }
+        }
+    }
+
+    private async Task OnRefreshGameScriptAsync(RefreshGameScript _)
+    {
+        if (_manifest is not null && _script is not null)
+        {
+            var gameState = _script.SaveGame();
+
+            await StartGameScriptAsync(gameState);
+        }
+    }
+    
+    private Task OnGameOverAsync(GameOver _)
+    {
+        _navigationManager.NavigateTo("/");
+        return Task.CompletedTask;
+    }
+
+    private async Task StartGameScriptAsync(GameState? gameState = null)
+    {
+        _script = await _gameScriptLoader.LoadFromManifestAsync(_manifest);
+        if (_script is not null)
+        {
+            if (gameState is not null)
+            {
+                await _script.ContinueGameAsync(gameState, Mediator);
+            }
+            else
+            {
+                await _script.StartGameAsync(Mediator);
+            }
+        }
+        else
+        {
+            // Failed to load script, re-render to show errors.
+            StateHasChanged();
+        }
+    }
+
+    public void Dispose()
+    {
+        if (_script is not null)
+        {
+            _script.Dispose();
+        }
+
+        _gameScriptLoader.ClearErrors();
+    }
+}

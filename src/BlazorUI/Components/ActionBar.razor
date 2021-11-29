@@ -1,0 +1,107 @@
+﻿@if (_uiVisible)
+{
+    <div id="container">
+    @if (!_gameStarted)
+    {
+        <p>Loading game...</p>
+    }
+    else
+    {
+        <p>@_actionText</p>
+    }
+    </div>
+}
+
+@code {
+
+    private ActionFactory _actionFactory = null!;
+    private IAction _action = null!;
+    private string _actionText = string.Empty;
+    private bool _gameStarted;
+    private bool _uiVisible = true;
+
+    [CascadingParameter]
+    public IMediator Mediator { get; set; } = null!;
+
+    protected override void OnInitialized()
+    {
+        Mediator.Subscribe<GameStarted>(OnGameStartedAsync);
+        Mediator.Subscribe<VerbSelected>(OnVerbSelectedAsync);
+        Mediator.Subscribe<GameObjectPointerDown>(OnGameObjectPointerDownAsync);
+        Mediator.Subscribe<GameObjectPointerOut>(OnGameObjectPointerOutAsync);
+        Mediator.Subscribe<GameObjectPointerOver>(OnGameObjectPointerOverAsync);
+        Mediator.Subscribe<PlayerActionStarted>(OnPlayerCommandStarted);
+        Mediator.Subscribe<PlayerActionCompleted>(OnPlayerActionCompleted);
+    }
+
+    private Task OnGameStartedAsync(GameStarted @event)
+    {
+        _gameStarted = true;
+        _actionFactory = new ActionFactory(@event.Game);
+        _action = _actionFactory.Create(Verb.WalkTo);
+        _actionText = _action.GetDisplayText();
+
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private Task OnVerbSelectedAsync(VerbSelected @event)
+    {
+        _action = _actionFactory.Create(@event.Verb);
+        _actionText = _action.GetDisplayText();
+
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private Task OnGameObjectPointerOverAsync(GameObjectPointerOver @event)
+    {
+        _actionText = _action.GetDisplayText(@event.GameObject);
+
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private Task OnGameObjectPointerOutAsync(GameObjectPointerOut @event)
+    {
+        _actionText = _action.GetDisplayText();
+
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private async Task OnGameObjectPointerDownAsync(GameObjectPointerDown @event)
+    {
+        if (_action.Add(@event.GameObject))
+        {
+            await Mediator.SendAsync(new ExecutePlayerAction(_action));
+        }
+        else
+        {
+            _actionText = _action.GetDisplayText();
+        }
+
+        StateHasChanged();
+    }
+
+    private Task OnPlayerCommandStarted(PlayerActionStarted @event)
+    {
+        _uiVisible = !@event.Action.DisableUIWhileExecuting;
+
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private Task OnPlayerActionCompleted(PlayerActionCompleted @event)
+    {
+        if (!@event.OnlyMoved)
+        {
+            _action = _actionFactory.Create(Verb.WalkTo);
+            _actionText = _action.GetDisplayText();
+        }
+        _uiVisible = true;
+
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+}

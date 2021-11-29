@@ -1,0 +1,41 @@
+﻿@if (_options is not null)
+{
+    <div id="container">
+        <ul>
+            @foreach (var option in _options)
+            {
+                <li @onclick="@(() => OnOptionClickAsync(@option))">@option.DisplayText</li>
+            }
+        </ul>
+    </div>
+}
+
+@code {
+
+    private List<DialogueOption>? _options;
+
+    [CascadingParameter]
+    public IMediator Mediator { get; set; } = null!;
+
+    protected override void OnInitialized()
+    {
+        Mediator.Subscribe<DialogueOptionsAvailable>(OnDialogueOptionsAvailableAsync);
+    }
+
+    private Task OnDialogueOptionsAvailableAsync(DialogueOptionsAvailable @event)
+    {
+        _options = @event.Options;
+
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private async Task OnOptionClickAsync(DialogueOption option)
+    {
+        _options = null;
+
+        await Mediator.PublishAsync(new DialogueOptionChosen(option));
+
+        StateHasChanged();
+    }
+}

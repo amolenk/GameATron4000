@@ -1,0 +1,58 @@
+﻿@if (_uiVisible)
+{
+    <div id="container">
+        <span class="verb" @onclick="@(() => OnVerbClickAsync(Verb.Give))">Give</span>
+        <span class="verb" @onclick="@(() => OnVerbClickAsync(Verb.PickUp))">Pick up</span>
+        <span class="verb" @onclick="@(() => OnVerbClickAsync(Verb.Use))">Use</span>
+        <span class="verb" @onclick="@(() => OnVerbClickAsync(Verb.Open))">Open</span>
+        <span class="verb" @onclick="@(() => OnVerbClickAsync(Verb.LookAt))">Look at</span>
+        <span class="verb" @onclick="@(() => OnVerbClickAsync(Verb.Push))">Push</span>
+        <span class="verb" @onclick="@(() => OnVerbClickAsync(Verb.Close))">Close</span>
+        <span class="verb" @onclick="@(() => OnVerbClickAsync(Verb.TalkTo))">Talk to</span>
+        <span class="verb" @onclick="@(() => OnVerbClickAsync(Verb.Pull))">Pull</span>
+    </div>
+}
+
+@code {
+
+    private bool _uiVisible;
+
+    [CascadingParameter]
+    public IMediator Mediator { get; set; } = null!;
+
+    protected override void OnInitialized()
+    {
+        Mediator.Subscribe<GameStarted>(OnGameStartedAsync);
+        Mediator.Subscribe<PlayerActionStarted>(OnPlayerCommandStarted);
+        Mediator.Subscribe<PlayerActionCompleted>(OnPlayerActionCompleted);
+    }
+
+    private Task OnGameStartedAsync(GameStarted @event)
+    {
+        _uiVisible = true;
+
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private Task OnPlayerCommandStarted(PlayerActionStarted @event)
+    {
+        _uiVisible = !@event.Action.DisableUIWhileExecuting;
+
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private Task OnPlayerActionCompleted(PlayerActionCompleted @event)
+    {
+        _uiVisible = true;
+
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private async Task OnVerbClickAsync(Verb verb)
+    {
+        await Mediator.PublishAsync(new VerbSelected(verb));
+    }
+}

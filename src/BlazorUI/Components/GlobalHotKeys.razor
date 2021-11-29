@@ -1,0 +1,50 @@
+﻿@inject IJSRuntime _jsRuntime
+@inject NavigationManager _navigationManager
+@code
+{
+    private bool _inDebugMode = false;
+
+    [CascadingParameter]
+    public IMediator Mediator { get; set; } = null!;
+
+    [JSInvokable]
+    public async Task<bool> OnKeyDownAsync(string key)
+    {
+        switch (key)
+        {
+            case "d":
+                _inDebugMode = !_inDebugMode;
+                await Mediator.PublishAsync(new DebugModeChanged(_inDebugMode));
+                return true;
+            case "r":
+                await Mediator.SendAsync(new RefreshGameScript());
+                return true;
+            case "l":
+                await Mediator.SendAsync(new LoadGame());
+                return true;
+            case "q":
+                _navigationManager.NavigateTo("/");
+                return true;
+            case "s":
+                await Mediator.SendAsync(new SaveGame());
+                return true;
+            case ".":
+            case " ":
+                await Mediator.SendAsync(new SkipWait());
+                return true;
+        }
+
+        return false;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // TODO Async needed?
+            await _jsRuntime.InvokeVoidAsync(
+                "window.CaptureKeyDown",
+                DotNetObjectReference.Create(this));
+        }
+    }
+}

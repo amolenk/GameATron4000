@@ -1,0 +1,15 @@
+﻿.page {
+    /* aspect-ratio: 1 / 1; */
+    width: 100vw; 
+    height: 75vw; /* height:width ratio = 600/800 = .75  */
+    max-height: 100vh;
+    max-width: 133.33vh; /* 800/600 = 1.3333 */
+    min-width: 400px;
+    min-height: 300px;
+    margin: auto;
+    position: absolute;
+    top:0; bottom:0; /* vertical center */
+    left:0; right:0; /* horizontal center */
+    font-family: 'Onesize';
+    font-size: min(2vh, 2vw);
+}

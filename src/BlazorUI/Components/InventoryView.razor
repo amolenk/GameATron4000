@@ -1,0 +1,112 @@
+﻿@if (_playerInputEnabled)
+{
+    <div id="container">
+        @foreach (var item in _items)
+        {
+            <img
+                class="item"
+                src="@GetImageUrl(item)"
+                @onpointerover="@(() => OnItemPointerOverAsync(item))"
+                @onpointerout="@(() => OnItemPointerOutAsync(item))"
+                @onclick="@(() => OnItemClickAsync(item))"
+                alt="@item.DisplayName"
+            />
+        }
+    </div>
+}
+
+@code {
+
+    private GameManifest _manifest = null!;
+    private bool _playerInputEnabled;
+    private Actor? _protagonist;
+    private List<Item> _items = new();
+
+    [CascadingParameter]
+    public IMediator Mediator { get; set; } = null!;
+
+    protected override void OnInitialized()
+    {
+        Mediator.Subscribe<GameManifestLoaded>(OnGameManifestLoadedAsync);
+        Mediator.Subscribe<ProtagonistChanged>(OnProtagonistChangedAsync);
+        Mediator.Subscribe<GameStarted>(OnGameStartedAsync);
+        Mediator.Subscribe<ItemAddedToInventory>(OnItemAddedToInventoryAsync);
+        Mediator.Subscribe<ItemRemovedFromInventory>(OnItemRemovedFromInventoryAsync);
+        Mediator.Subscribe<PlayerActionStarted>(OnPlayerCommandStarted);
+        Mediator.Subscribe<PlayerActionCompleted>(OnPlayerActionCompleted);
+    }
+
+    private Task OnGameManifestLoadedAsync(GameManifestLoaded @event)
+    {
+        _manifest = @event.Manifest;
+        return Task.CompletedTask;
+    }
+
+    private Task OnGameStartedAsync(GameStarted @event)
+    {
+        _playerInputEnabled = true;
+
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private Task OnProtagonistChangedAsync(ProtagonistChanged @event)
+    {
+        // TODO
+        Console.WriteLine(@event.InventoryItems.Count());
+
+        _protagonist = @event.Protagonist;
+        _items = @event.InventoryItems.ToList();
+
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private Task OnItemAddedToInventoryAsync(ItemAddedToInventory @event)
+    {
+        if (_protagonist == @event.NewOwner)
+        {
+            _items.Add(@event.Item);
+        }
+
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private Task OnItemRemovedFromInventoryAsync(ItemRemovedFromInventory @event)
+    {
+        if (_protagonist == @event.PreviousOwner)
+        {
+            _items.Remove(@event.Item);
+        }
+
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private Task OnPlayerCommandStarted(PlayerActionStarted @event)
+    {
+        _playerInputEnabled = !@event.Action.DisableUIWhileExecuting;
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private Task OnPlayerActionCompleted(PlayerActionCompleted @event)
+    {
+        _playerInputEnabled = true;
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private Task OnItemPointerOverAsync(Item item) =>
+        Mediator.PublishAsync(new GameObjectPointerOver(item));
+
+    private Task OnItemPointerOutAsync(Item item) =>
+        Mediator.PublishAsync(new GameObjectPointerOut(item));
+
+    private Task OnItemClickAsync(Item item) =>
+        Mediator.PublishAsync(new GameObjectPointerDown(item));
+
+    private string GetImageUrl(Item item) =>
+        $"games/disk{_manifest.DiskNumber:000}/{_manifest.Spec.InventorySpritesFolder}/{item.Id}.png";
+}
