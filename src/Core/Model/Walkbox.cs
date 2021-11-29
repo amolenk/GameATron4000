@@ -75,17 +75,17 @@ public class Walkbox
 
         // Draw walk graph
         var graph = CreateWalkGraph(walkFrom, walkTo, excludedAreas);
-        // graphics.DrawLines(
-        //     graph.Edges.Select(edge => new Line(edge.Source, edge.Target)),
-        //     2,
-        //     0x0000FF);
+        graphics.DrawLines(
+            graph.Edges.Select(edge => new Line(edge.Source, edge.Target)),
+            2,
+            0x0000FF);
         
         // Find the shortest path and draw it with a green line.
-        //var path = ComputeShortestPath(walkFrom, walkTo, graph);
-        // graphics.DrawLines(
-        //     path.Select(edge => new Line(edge.Source, edge.Target)),
-        //     2,
-        //     0x00FF00);
+        var path = ComputeShortestPath(walkFrom, walkTo, graph);
+        graphics.DrawLines(
+            path.Select(edge => new Line(edge.Source, edge.Target)),
+            2,
+            0x00FF00);
     }
 
     private AdjacencyGraph<Point, Edge<Point>> CreateWalkGraph(

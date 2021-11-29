@@ -1,6 +1,6 @@
 metadata:
-  id: demo4
-  name: "Demo 4: UFO exploration revisited"
+  id: bodysnatchers
+  name: "Final game: Return of the Body Snatchers"
 spec:
   atlasses:
     default:
@@ -63,6 +63,26 @@ spec:
           frameEnd: 6
           frameZeroPadding: 4
           frameRate: 9
+    ian:
+      animations:
+        talk:
+          framePrefix: ian/talk/
+          frameStart: 1
+          frameEnd: 4
+          frameZeroPadding: 4
+          frameRate: 9
+        walkLeft:
+          framePrefix: ian/walk/left/
+          frameStart: 1
+          frameEnd: 6
+          frameZeroPadding: 4
+          frameRate: 9
+        walkRight:
+          framePrefix: ian/walk/right/
+          frameStart: 1
+          frameEnd: 6
+          frameZeroPadding: 4
+          frameRate: 9
     richard:
       animations:
         talk:
@@ -71,9 +91,19 @@ spec:
           frameEnd: 4
           frameZeroPadding: 4
           frameRate: 9
+    narrator:
+      frames:
+        transparent: transparent
+    ship-computer:
+      frames:
+        transparent: transparent
   scripts:
   - scripts/actors.csx
   - scripts/items.csx
   - scripts/rooms.csx
   - scripts/start.csx
+  - scripts/dialogues/al.csx
+  - scripts/dialogues/ian.csx
+  - scripts/dialogues/knock-knock.csx
+  - scripts/dialogues/richard.csx
   inventorySpritesFolder: assets/inventory

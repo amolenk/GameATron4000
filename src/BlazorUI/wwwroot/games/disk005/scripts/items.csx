@@ -269,7 +269,7 @@ Item crateRightFront = AddItem(nameof(crateRightFront), builder => builder
 Item crateTop = AddItem(nameof(crateTop), builder => builder
     .Named("top crate")
     .WithActorInteraction(RelativePosition.Above, WellKnownStatus.FaceCamera)
-//    .WithDepthOffset(50)
+    .WithDepthOffset(50)
     .When.LookAt(() =>
     {
         SayLine("It's a decidedly low-tech wooden crate.");

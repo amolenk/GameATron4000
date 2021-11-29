@@ -1,38 +1,4 @@
-﻿Room beach = AddRoom("beach", room => room
-    .WithWalkboxArea(
-        new Point(0, 370),
-        new Point(900, 370),
-        new Point(900, 449),
-        new Point(0, 449))
-    .WithScaleSettings(75, 75, 370, 450)
-    .When.BeforeEnter(() =>
-    {
-        beach.Place(guy, 490, 420);
-        beach.Place(beamPark, 490, 425);
-        beach.Place(narrator, 400, 150);
-
-        guy.FaceCamera();
-    })
-    .When.AfterEnter(() =>
-    {
-        Delay(1500);
-
-        beach.Remove(beamPark);
-        Delay(1000);
-
-        SayLine("That's just great!");
-        SayLine("I hope there's a supermarket around here...");
-        Delay(1000);
-
-        guy.MoveTo(850, 530);
-    
-        narrator.SayLine("Thanks for playing!");
-        narrator.SayLine("GAME OVER");
-
-        GameOver();
-    }));
-
-Room bridge = AddRoom("bridge", room => room
+﻿Room bridge = AddRoom("bridge", room => room
     .WithWalkboxArea(
         new Point(0, 420),
         new Point(390, 420),
@@ -59,50 +25,8 @@ Room bridge = AddRoom("bridge", room => room
     .WithScaleSettings(40, 100, 275, 400)
     .When.BeforeEnter(() =>
     {
-        bridge.Place(shipComputer, 400, 150);
         bridge.Place(guy, 65, 440);
         guy.FaceCamera();
-    })
-    .When.AfterEnter(() =>
-    {
-        if (!IsFlagSet("visited-bridge"))
-        {
-            Delay(1000);
-            ian.SayLine("No, you can't have access to the reactor core!");
-            carl.SayLine("Can we at least have a look at the warp drive?");
-            ian.SayLine("NO!");
-
-            ian.MoveTo(455, 430);
-            //ian.FaceCamera();
-            ian.SayLine("Jeez, these earthlings are nosy!");
-            ian.MoveTo(810, 300, WellKnownStatus.FaceAwayFromCamera);
-
-            SetFlag("visited-bridge");
-        }
-    })
-    );
-
-Room park = AddRoom("park", room => room
-    .WithWalkboxArea(
-        new Point(935, 295),
-        new Point(935, 318),
-        new Point(710, 375),
-        new Point(710, 385),
-        new Point(935, 442),
-        new Point(935, 449),
-        new Point(591, 449),
-        new Point(393, 375),
-        new Point(108, 336),
-        new Point(0, 330),
-        new Point(0, 312),
-        new Point(130, 315),
-        new Point(366, 338),
-        new Point(470, 355),
-        new Point(804, 316))
-    .WithScaleSettings(70, 100, 270, 400)
-    .When.BeforeEnter(() =>
-    {
-        park.Place(guy, 600, 430);
     }));
 
 Room terminal = AddRoom("terminal", builder => builder
@@ -113,29 +37,19 @@ Room terminal = AddRoom("terminal", builder => builder
         new Point(884, 430),
         new Point(884, 449),
         new Point(360, 449),
-        new Point(360, 400),
-        new Point(80, 400),
+        new Point(360, 390),
+        new Point(80, 390),
         new Point(80, 449),
         new Point(0, 449))
     .WithScaleSettings(80, 100, 325, 400)
     .When.BeforeEnter(() =>
     {
-        terminal.Place(shipComputer, 400, 150);
-
-        if (PreviousRoom == park)
-        {
-            terminal.Place(guy, 442, 363);
-        }
-        else
+        if (PreviousRoom == bridge)
         {
             terminal.Place(guy, 665, 365);
         }
-    })
-    .When.AfterEnter(() =>
-    {
-        if (PreviousRoom == park)
+        else
         {
-           Delay(1000);
-           guy.SayLine("GET ME OUT OF HERE!");
+            terminal.Place(guy, 442, 363);
         }
     }));

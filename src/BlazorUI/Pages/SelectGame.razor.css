@@ -17,6 +17,7 @@ li {
     color: greenyellow;
     font-size: min(4vh, 4vw);
     list-style-type: none;
+    padding-bottom: min(1.5vh, 1.5vw);
 }
 
 li:hover {

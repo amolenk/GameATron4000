@@ -106,14 +106,15 @@ public class GameScript : IDisposable
             _game.Protagonist!.MoveTo(objectToMoveTo);
         }
 
-        if (!action.TryExecute())
+        if (!action.TryExecute() && action is not WalkToObjectAction)
         {
             _game.Protagonist!.SayLine(_game.GetCannedResponse());
         }
 
         if (!_game.DialogueTreeActive)
         {
-            _eventQueue.Enqueue(new PlayerActionCompleted());
+            _eventQueue.Enqueue(new PlayerActionCompleted(
+                action is WalkToPositionAction));
         }
 
         return _eventQueue.FlushAsync(mediator);
@@ -125,7 +126,7 @@ public class GameScript : IDisposable
 
         if (!_game.DialogueTreeActive)
         {
-            _eventQueue.Enqueue(new PlayerActionCompleted());
+            _eventQueue.Enqueue(new PlayerActionCompleted(false));
         }
 
         return _eventQueue.FlushAsync(mediator);

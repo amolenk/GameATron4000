@@ -1,24 +1,32 @@
 namespace Amolenk.GameATron4000.Model.Actions;
 
-// TODO Fix Walk to <inventory item>
 public abstract class UnaryAction : IAction
 {
     private readonly Game _game;
     private readonly Verb _verb;
+    private readonly bool _allowInventoryItems;
     private GameObject? _gameObject;
 
     public bool DisableUIWhileExecuting => true;
 
-    protected UnaryAction(Game game, Verb verb)
+    protected UnaryAction(
+        Game game,
+        Verb verb,
+        bool allowInventoryItems = false)
     {
         _game = game;
         _verb = verb;
+        _allowInventoryItems = allowInventoryItems;
     }
 
     public bool Add(GameObject gameObject)
     {
-        _gameObject = gameObject;
-        return true;
+        if (IsAllowed(gameObject))
+        {
+            _gameObject = gameObject;
+            return true;
+        }
+        return false;
     }
 
     public GameObject? GetObjectToMoveTo()
@@ -36,7 +44,7 @@ public abstract class UnaryAction : IAction
     {
 		var stringBuilder = new StringBuilder(_verb.Text);
 		
-		if (gameObject is not null)
+		if (gameObject is not null && IsAllowed(gameObject))
 		{
 			stringBuilder.Append($" {gameObject.DisplayName}");
 		}
@@ -59,4 +67,10 @@ public abstract class UnaryAction : IAction
     }
 
     public abstract Action? GetHandler(ActionHandlers actionHandlers);
+
+    protected bool IsAllowed(GameObject gameObject) =>
+        gameObject is Actor ||
+        _allowInventoryItems ||
+        (gameObject is Item item &&
+            !_game.TryGetOwnerForItem(item, out Actor _));
 }

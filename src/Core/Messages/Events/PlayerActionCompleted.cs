@@ -1,3 +1,3 @@
 ﻿namespace Amolenk.GameATron4000.Messages.Events;
 
-public record PlayerActionCompleted() : IEvent;
+public record PlayerActionCompleted(bool OnlyMoved) : IEvent;

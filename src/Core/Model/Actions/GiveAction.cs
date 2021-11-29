@@ -15,23 +15,19 @@ public class GiveAction : IAction
 
     public bool Add(GameObject gameObject)
     {
-        if (_item is null)
+        if (!IsValidNextObject(gameObject))
         {
-            if (gameObject is Item item &&
-                _game.TryGetOwnerForItem(item, out _))
-            {
-                _item = item;
-            }
             return false;
         }
 
-        if (gameObject is Actor actor)
+        if (_item is null)
         {
-            _actor = actor;
-            return true;
+           _item = (Item)gameObject;
+            return false;
         }
 
-        return false;
+        _actor = (Actor)gameObject;
+        return true;
     }
 
     public GameObject? GetObjectToMoveTo() => _actor;
@@ -40,15 +36,22 @@ public class GiveAction : IAction
     {
 		var stringBuilder = new StringBuilder("Give");
 		
-        if (_item is not null)
+        if (_item is null)
+        {
+            if (IsValidNextObject(overObject))
+            {
+                stringBuilder.Append($" {overObject!.DisplayName}");
+            }
+        }
+        else
         {
             stringBuilder.Append($" {_item.DisplayName} to");
-        }
 
-		if (overObject is not null)
-		{
-			stringBuilder.Append($" {overObject.DisplayName}");
-		}
+            if (IsValidNextObject(overObject))
+            {
+                stringBuilder.Append($" {overObject!.DisplayName}");
+            }
+        }
 
 		return stringBuilder.ToString();
     }
@@ -62,5 +65,21 @@ public class GiveAction : IAction
             return true;
         }
         return false;
+    }
+
+    private bool IsValidNextObject(GameObject? gameObject)
+    {
+        if (gameObject is null)
+        {
+            return false;
+        }
+
+        if (_item is null)
+        {
+            return gameObject is Item item &&
+                _game.TryGetOwnerForItem(item, out Actor _);
+        }
+
+        return gameObject is Actor;
     }
 }

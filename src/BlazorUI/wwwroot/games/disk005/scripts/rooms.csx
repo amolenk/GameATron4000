@@ -107,11 +107,17 @@ Room park = AddRoom("park", room => room
 
 Room terminal = AddRoom("terminal", builder => builder
     .WithWalkboxArea(
-        new Point(0, 0),
-        new Point(800, 0),
-        new Point(800, 600),
-        new Point(0, 600))
-    .WithScaleSettings(70, 100, 325, 400)
+        new Point(0, 430),
+        new Point(180, 335),
+        new Point(600, 335),
+        new Point(884, 430),
+        new Point(884, 449),
+        new Point(360, 449),
+        new Point(360, 400),
+        new Point(80, 400),
+        new Point(80, 449),
+        new Point(0, 449))
+    .WithScaleSettings(80, 100, 325, 400)
     .When.BeforeEnter(() =>
     {
         terminal.Place(shipComputer, 400, 150);

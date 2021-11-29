@@ -94,8 +94,11 @@
 
     private Task OnPlayerActionCompleted(PlayerActionCompleted @event)
     {
-        _action = _actionFactory.Create(Verb.WalkTo);
-        _actionText = _action.GetDisplayText();
+        if (!@event.OnlyMoved)
+        {
+            _action = _actionFactory.Create(Verb.WalkTo);
+            _actionText = _action.GetDisplayText();
+        }
         _uiVisible = true;
 
         StateHasChanged();
