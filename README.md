@@ -9,7 +9,7 @@ features in combination with an HTML5 client to recreate the look and feel of th
 
 ## Playing the game
 
-The sample game can be played at: https://playgameatron4000.azurewebsites.net/Play?game=ReturnOfTheBodySnatchers
+The sample game can be played at: [bit.ly/gameatron4000](https://bit.ly/gameatron4000)
 
 If you want to run the game yourself, make sure that the following tools are installed:
 
