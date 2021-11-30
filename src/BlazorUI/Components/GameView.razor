@@ -53,7 +53,7 @@ else
         {
             await Mediator.PublishAsync(new GameManifestLoaded(_manifest));
 
-            await StartGameScriptAsync();
+            await RunGameScriptAsync();
         }
     }
 
@@ -96,7 +96,7 @@ else
 
             if (gameState is not null)
             {
-                await StartGameScriptAsync(gameState);
+                await RunGameScriptAsync(gameState);
             }
         }
     }
@@ -107,7 +107,7 @@ else
         {
             var gameState = _script.SaveGame();
 
-            await StartGameScriptAsync(gameState);
+            await RunGameScriptAsync(gameState);
         }
     }
     
@@ -117,19 +117,12 @@ else
         return Task.CompletedTask;
     }
 
-    private async Task StartGameScriptAsync(GameState? gameState = null)
+    private async Task RunGameScriptAsync(GameState? gameState = null)
     {
         _script = await _gameScriptLoader.LoadFromManifestAsync(_manifest);
         if (_script is not null)
         {
-            if (gameState is not null)
-            {
-                await _script.ContinueGameAsync(gameState, Mediator);
-            }
-            else
-            {
-                await _script.StartGameAsync(Mediator);
-            }
+            await _script.RunAsync(Mediator, gameState);
         }
         else
         {

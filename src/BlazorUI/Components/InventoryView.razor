@@ -52,9 +52,6 @@
 
     private Task OnProtagonistChangedAsync(ProtagonistChanged @event)
     {
-        // TODO
-        Console.WriteLine(@event.InventoryItems.Count());
-
         _protagonist = @event.Protagonist;
         _items = @event.InventoryItems.ToList();
 

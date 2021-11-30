@@ -218,12 +218,7 @@ public class Game
         return actor is not null;
     }
 
-    internal void Start()
-    {
-        _onStart?.Invoke();
-
-        EventQueue.Enqueue(new GameStarted(this));
-    } 
+    internal void Start() => _onStart?.Invoke();
 
     internal GameState Save()
     {

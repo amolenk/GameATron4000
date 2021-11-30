@@ -60,9 +60,6 @@ public class Actor : GameObject
             actor.RemoveFromInventory(item);
         }
 
-        // TODO
-        Console.WriteLine("Added: " + item.DisplayName);
-
         // Update state.
         _inventory.Add(item);
 
