@@ -25,12 +25,10 @@ public class CSharpScriptLoader : IGameScriptLoader
         }
         catch (ScriptException ex)
         {
-            Console.WriteLine("Fail!!!" + ex);
             ScriptErrors = ex.Errors;
         }
         catch (Exception ex)
         {
-            Console.WriteLine("Fail!!!" + ex);
             ScriptErrors = new []
             {
                 new ScriptError(ex.Message, string.Empty, 0, 0)
@@ -125,7 +123,7 @@ public class CSharpScriptLoader : IGameScriptLoader
     //     return _loadMetadataReferencesTask;
     // }
 
-    private CSharpCompilation Compile(
+    private static CSharpCompilation Compile(
         IEnumerable<ScriptFile> sources,
         IEnumerable<MetadataReference> references)
     {
@@ -172,7 +170,7 @@ public class CSharpScriptLoader : IGameScriptLoader
     }
 
     
-    private async Task<AssemblyLoadContext> RunAsync(
+    private static async Task<AssemblyLoadContext> RunAsync(
         Compilation compilation,
         Game game)
     {

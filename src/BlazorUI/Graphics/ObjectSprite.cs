@@ -46,7 +46,6 @@ public abstract class ObjectSprite<TObject> : IObjectSprite
 
         if (spriteInfo.IsAnimation)
         {
-            Console.WriteLine("Found animation!!!");
             Sprite.PlayAnimation(spriteInfo.FrameName);
         }
         else

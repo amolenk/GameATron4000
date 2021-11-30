@@ -1,11 +1,15 @@
-﻿@inject IJSRuntime _jsRuntime
+﻿@inject IJSInProcessRuntime _jsRuntime
 @inject NavigationManager _navigationManager
+@implements IDisposable
+
 @code
 {
     private bool _inDebugMode = false;
 
     [CascadingParameter]
     public IMediator Mediator { get; set; } = null!;
+
+    private DotNetObjectReference<GlobalHotKeys>? _objectReference;
 
     [JSInvokable]
     public async Task<bool> OnKeyDownAsync(string key)
@@ -37,14 +41,19 @@
         return false;
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override void OnAfterRender(bool firstRender)
     {
         if (firstRender)
         {
-            // TODO Async needed?
-            await _jsRuntime.InvokeVoidAsync(
-                "window.CaptureKeyDown",
-                DotNetObjectReference.Create(this));
+            _objectReference = DotNetObjectReference.Create(this);
+
+            _jsRuntime.InvokeVoid("captureKeyDown", _objectReference);
         }
+    }
+
+    public void Dispose()
+    {
+        _jsRuntime.InvokeVoid("releaseKeyDown");
+        _objectReference?.Dispose();
     }
 }
