@@ -15,7 +15,6 @@ Item crateRight = AddItem(nameof(crateRight), builder => builder
 
 Item crateTop = AddItem(nameof(crateTop), builder => builder
     .Named("top crate")
-    .WithActorInteraction(RelativePosition.None)
     .When.LookAt(() =>
     {
         SayLine("It's a decidedly low-tech wooden crate.");
