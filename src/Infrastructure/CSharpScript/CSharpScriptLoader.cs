@@ -15,29 +15,22 @@ public class CSharpScriptLoader : IGameScriptLoader
         ScriptErrors = Enumerable.Empty<ScriptError>();
     }
 
-// TODO Remove
-//    public Task PreloadAsync() => LoadMetadataReferencesAsync();
-
     public async Task<GameScript?> LoadFromManifestAsync(GameManifest manifest)
     {
         GameScript? result = null;
 
         try
         {
-            Console.WriteLine("Loading game script!!!");
-
             result = await LoadGameScriptAsync(manifest);
-
-            Console.WriteLine("Succes!!!");
         }
         catch (ScriptException ex)
         {
-            Console.WriteLine("Fail!!!");
+            Console.WriteLine("Fail!!!" + ex);
             ScriptErrors = ex.Errors;
         }
         catch (Exception ex)
         {
-            Console.WriteLine("Fail!!!");
+            Console.WriteLine("Fail!!!" + ex);
             ScriptErrors = new []
             {
                 new ScriptError(ex.Message, string.Empty, 0, 0)
