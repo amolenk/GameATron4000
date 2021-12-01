@@ -1,9 +1,9 @@
 ﻿@if (_uiVisible)
 {
     <div id="container">
-    @if (!_gameStarted)
+    @if (_statusText.Length > 0)
     {
-        <p>Loading game...</p>
+        <p>@_statusText</p>
     }
     else
     {
@@ -16,8 +16,8 @@
 
     private ActionFactory _actionFactory = null!;
     private IAction _action = null!;
+    private string _statusText = "Loading game...";
     private string _actionText = string.Empty;
-    private bool _gameStarted;
     private bool _uiVisible = true;
 
     [CascadingParameter]
@@ -30,13 +30,14 @@
         Mediator.Subscribe<GameObjectPointerDown>(OnGameObjectPointerDownAsync);
         Mediator.Subscribe<GameObjectPointerOut>(OnGameObjectPointerOutAsync);
         Mediator.Subscribe<GameObjectPointerOver>(OnGameObjectPointerOverAsync);
-        Mediator.Subscribe<PlayerActionStarted>(OnPlayerCommandStarted);
-        Mediator.Subscribe<PlayerActionCompleted>(OnPlayerActionCompleted);
+        Mediator.Subscribe<PlayerActionStarted>(OnPlayerActionStartedAsync);
+        Mediator.Subscribe<PlayerActionCompleted>(OnPlayerActionCompletedAsync);
+        Mediator.Subscribe<GameScriptRefreshing>(OnGameScriptRefreshingAsync);
     }
 
     private Task OnGameStartedAsync(GameStarted @event)
     {
-        _gameStarted = true;
+        _statusText = string.Empty;
         _actionFactory = new ActionFactory(@event.Game);
         _action = _actionFactory.Create(Verb.WalkTo);
         _actionText = _action.GetDisplayText();
@@ -84,7 +85,7 @@
         StateHasChanged();
     }
 
-    private Task OnPlayerCommandStarted(PlayerActionStarted @event)
+    private Task OnPlayerActionStartedAsync(PlayerActionStarted @event)
     {
         _uiVisible = !@event.Action.DisableUIWhileExecuting;
 
@@ -92,7 +93,7 @@
         return Task.CompletedTask;
     }
 
-    private Task OnPlayerActionCompleted(PlayerActionCompleted @event)
+    private Task OnPlayerActionCompletedAsync(PlayerActionCompleted @event)
     {
         if (!@event.OnlyMoved)
         {
@@ -100,6 +101,30 @@
             _actionText = _action.GetDisplayText();
         }
         _uiVisible = true;
+
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private Task OnRefreshGameScriptAsync(RefreshGameScript @event)
+    {
+        _statusText = "Refreshing game script...";
+
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private Task OnSaveGameAsync(SaveGame @event)
+    {
+        _statusText = "Refreshing game script...";
+
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+    
+    private Task OnGameScriptRefreshingAsync(GameScriptRefreshing @event)
+    {
+        _statusText = "Refreshing game script...";
 
         StateHasChanged();
         return Task.CompletedTask;

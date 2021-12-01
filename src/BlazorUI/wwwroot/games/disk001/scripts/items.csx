@@ -1,7 +1,7 @@
-Item alarm = AddItem(nameof(alarm), builder => builder
+Item alarm = AddItem(nameof(alarm), item => item
     .Untouchable());
 
-Item beamButton = AddItem(nameof(beamButton), builder => builder
+Item beamButton = AddItem(nameof(beamButton), item => item
     .Named("big button")
     .WithActorInteraction(RelativePosition.InFront, WellKnownStatus.FaceAwayFromCamera)
     .WithStatus("on")
@@ -26,19 +26,19 @@ Item beamButton = AddItem(nameof(beamButton), builder => builder
     }));
 
 
-Item beamGlow = AddItem(nameof(beamGlow), builder => builder
+Item beamGlow = AddItem(nameof(beamGlow), item => item
     .DependsOn(() => beamButton, "on")
     .WithDepthOffset(1)
     .Untouchable());
 
-Item beamPark = AddItem(nameof(beamPark), builder => builder
+Item beamPark = AddItem(nameof(beamPark), item => item
     .Untouchable());
 
-Item beamTerminal = AddItem(nameof(beamTerminal), builder => builder
+Item beamTerminal = AddItem(nameof(beamTerminal), item => item
     .DependsOn(() => beamButton, "on")
     .Untouchable());
 
-Item bottle = AddItem(nameof(bottle), builder => builder
+Item bottle = AddItem(nameof(bottle), item => item
     .CanBeUsedWithOtherObject()
     .DependsOn(() => fridge, "open")
     .WithActorInteraction(RelativePosition.InFront, WellKnownStatus.FaceAwayFromCamera)
@@ -81,7 +81,7 @@ Item bottle = AddItem(nameof(bottle), builder => builder
         }
     }));
 
-Item bridgeDoor = AddItem(nameof(bridgeDoor), builder => builder
+Item bridgeDoor = AddItem(nameof(bridgeDoor), item => item
     .Named("door")
     .WithDepthOffset(-100)
     .When.LookAt(() =>
@@ -101,7 +101,7 @@ Item bridgeDoor = AddItem(nameof(bridgeDoor), builder => builder
         ChangeRoom(terminal);
     }));
 
-Item clawHammer = AddItem(nameof(clawHammer), builder => builder
+Item clawHammer = AddItem(nameof(clawHammer), item => item
     .Named("claw hammer")
     .CanBeUsedWithOtherObject()
     .WithActorInteraction(RelativePosition.InFront, WellKnownStatus.FaceAwayFromCamera)
@@ -138,7 +138,7 @@ Item clawHammer = AddItem(nameof(clawHammer), builder => builder
         }
     }));
 
-Item cheeseGrater = AddItem(nameof(cheeseGrater), builder => builder
+Item cheeseGrater = AddItem(nameof(cheeseGrater), item => item
     .Named("cheese grater")
     .WithActorInteraction(RelativePosition.InFront, WellKnownStatus.FaceAwayFromCamera)
     .When.LookAt(() =>
@@ -181,7 +181,7 @@ Item cheeseGrater = AddItem(nameof(cheeseGrater), builder => builder
         }
     }));
 
-Item cooker = AddItem(nameof(cooker), builder => builder
+Item cooker = AddItem(nameof(cooker), item => item
     .Named("cooker")
     .CanBeUsedWithOtherObject()
     .WithActorInteraction(RelativePosition.InFront, WellKnownStatus.FaceAwayFromCamera)
@@ -213,7 +213,7 @@ Item cooker = AddItem(nameof(cooker), builder => builder
         }
     }));
 
-Item cookerInCrate = AddItem(nameof(cookerInCrate), builder => builder
+Item cookerInCrate = AddItem(nameof(cookerInCrate), item => item
     .Named("thing in crate")
     .DependsOn(() => crateRight, "open")
     .WithActorInteraction(RelativePosition.Above, WellKnownStatus.FaceCamera)
@@ -227,7 +227,7 @@ Item cookerInCrate = AddItem(nameof(cookerInCrate), builder => builder
         guy.AddToInventory(cooker);
     }));
 
-Item counterTop = AddItem(nameof(counterTop), builder => builder
+Item counterTop = AddItem(nameof(counterTop), item => item
     .Named("counter top")
     .WithActorInteraction(RelativePosition.InFront, WellKnownStatus.FaceAwayFromCamera)
     .WithDepthOffset(-10)
@@ -236,7 +236,7 @@ Item counterTop = AddItem(nameof(counterTop), builder => builder
         SayLine("It's a countertop, not much to add here.");
     }));
 
-Item crateLeft = AddItem(nameof(crateLeft), builder => builder
+Item crateLeft = AddItem(nameof(crateLeft), item => item
     .Named("left crate")
     .WithActorInteraction(RelativePosition.Above, WellKnownStatus.FaceCamera)
     .When.LookAt(() =>
@@ -244,7 +244,7 @@ Item crateLeft = AddItem(nameof(crateLeft), builder => builder
         SayLine("It's a decidedly low-tech wooden crate.");
     }));
 
-Item crateRight = AddItem(nameof(crateRight), builder => builder
+Item crateRight = AddItem(nameof(crateRight), item => item
     .Named("right crate")
     .WithActorInteraction(RelativePosition.Above, WellKnownStatus.FaceCamera)
     .WithStatus("closed")
@@ -261,12 +261,12 @@ Item crateRight = AddItem(nameof(crateRight), builder => builder
         SayLine("It's nailed shut.");
     }));
 
-Item crateRightFront = AddItem(nameof(crateRightFront), builder => builder
+Item crateRightFront = AddItem(nameof(crateRightFront), item => item
     .DependsOn(() => crateRight, "open")
     .WithDepthOffset(10)
     .Untouchable());
 
-Item crateTop = AddItem(nameof(crateTop), builder => builder
+Item crateTop = AddItem(nameof(crateTop), item => item
     .Named("top crate")
     .WithActorInteraction(RelativePosition.Above, WellKnownStatus.FaceCamera)
     .WithDepthOffset(50)
@@ -275,7 +275,7 @@ Item crateTop = AddItem(nameof(crateTop), builder => builder
         SayLine("It's a decidedly low-tech wooden crate.");
     }));
 
-Item fridge = AddItem(nameof(fridge), builder => builder
+Item fridge = AddItem(nameof(fridge), item => item
     .WithActorInteraction(status: WellKnownStatus.FaceAwayFromCamera)
     .WithDepthOffset(10)
     .WithStatus("closed")
@@ -309,7 +309,7 @@ Item fridge = AddItem(nameof(fridge), builder => builder
         fridge.ChangeStatus("open");
     }));
 
-Item groceries = AddItem("groceries", builder => builder
+Item groceries = AddItem("groceries", item => item
     .CanBeUsedWithOtherObject()
     .DependsOn(() => fridge, "open")
     .WithDepthOffset(30)
@@ -345,7 +345,7 @@ Item groceries = AddItem("groceries", builder => builder
         }
     }));
 
-Item groceryList = AddItem("groceryList", builder => builder
+Item groceryList = AddItem("groceryList", item => item
     .Named("grocery list")
     .CanBeUsedWithOtherObject()
     .WithActorInteraction(RelativePosition.InFront, WellKnownStatus.FaceAwayFromCamera)
@@ -416,7 +416,7 @@ Item groceryList = AddItem("groceryList", builder => builder
         }
     }));
 
-Item newspaper = AddItem(nameof(newspaper), builder => builder
+Item newspaper = AddItem(nameof(newspaper), item => item
     .Named("old newspaper")
     .When.Give(_ =>
     {
@@ -457,33 +457,33 @@ Item newspaper = AddItem(nameof(newspaper), builder => builder
         ChangeRoom(terminal);
     }));
 
-Item newspaperHeadline = AddItem(nameof(newspaperHeadline), builder => builder
+Item newspaperHeadline = AddItem(nameof(newspaperHeadline), item => item
     .Untouchable()
     .FixedToCamera());
 
-Item onAir = AddItem(nameof(onAir), builder => builder
+Item onAir = AddItem(nameof(onAir), item => item
     .WithStatus("on")
+    .WithDepthOffset(150)
     .Untouchable());
 
-Item outletBooth = AddItem(nameof(outletBooth), builder => builder
+Item outletBooth = AddItem(nameof(outletBooth), item => item
     .Untouchable());
 
-Item outletKitchen = AddItem(nameof(outletKitchen), builder => builder
+Item outletKitchen = AddItem(nameof(outletKitchen), item => item
     .Untouchable());
 
-Item parkBench = AddItem(nameof(parkBench), builder => builder
+Item parkBench = AddItem(nameof(parkBench), item => item
     .Untouchable());
 
-Item podcastBooth = AddItem("podcastBooth", builder => builder
+Item podcastBooth = AddItem("podcastBooth", item => item
     .Named("podcast booth")
     .WithActorInteraction(status: WellKnownStatus.FaceAwayFromCamera)
-    .WithDepthOffset(-400)
     .When.LookAt(() =>
     {
-        SayLine("It's a podcast booth!");
+        guy.SayLine("It's a podcast booth!");
     }));
 
-Item powerCord = AddItem("powerCord", builder => builder
+Item powerCord = AddItem("powerCord", item => item
     .Named("power cord")
     .CanBeUsedWithOtherObject()
     .WithActorInteraction(RelativePosition.Center, WellKnownStatus.FaceAwayFromCamera)
@@ -547,7 +547,7 @@ Item powerCord = AddItem("powerCord", builder => builder
         }
     }));
 
-Item saucages = AddItem("saucages", builder => builder
+Item saucages = AddItem("saucages", item => item
     .Named("hot dogs")
     .CanBeUsedWithOtherObject()
     .DependsOn(() => fridge, "open")
@@ -613,7 +613,7 @@ Item saucages = AddItem("saucages", builder => builder
         }
     }));
 
-Item terminalDoor = AddItem(nameof(terminalDoor), builder => builder
+Item terminalDoor = AddItem(nameof(terminalDoor), item => item
     .Named("door")
     .WithStatus("closed")
     .WithActorInteraction(status: WellKnownStatus.FaceAwayFromCamera)
@@ -649,7 +649,7 @@ Item terminalDoor = AddItem(nameof(terminalDoor), builder => builder
         ChangeRoom(bridge);
     }));
 
-Item todoList = AddItem(nameof(todoList), builder => builder
+Item todoList = AddItem(nameof(todoList), item => item
     .Named("to-do list")
     .WithActorInteraction(RelativePosition.InFront, WellKnownStatus.FaceAwayFromCamera)
     .When.LookAt(() =>

@@ -1,4 +1,4 @@
-﻿@if (_playerInputEnabled)
+﻿@if (_uiVisible)
 {
     <div id="container">
         @foreach (var item in _items)
@@ -18,7 +18,7 @@
 @code {
 
     private GameManifest _manifest = null!;
-    private bool _playerInputEnabled;
+    private bool _uiVisible;
     private Actor? _protagonist;
     private List<Item> _items = new();
 
@@ -34,6 +34,7 @@
         Mediator.Subscribe<ItemRemovedFromInventory>(OnItemRemovedFromInventoryAsync);
         Mediator.Subscribe<PlayerActionStarted>(OnPlayerCommandStarted);
         Mediator.Subscribe<PlayerActionCompleted>(OnPlayerActionCompleted);
+        Mediator.Subscribe<GameScriptRefreshing>(OnGameScriptRefreshingAsync);
     }
 
     private Task OnGameManifestLoadedAsync(GameManifestLoaded @event)
@@ -44,7 +45,7 @@
 
     private Task OnGameStartedAsync(GameStarted @event)
     {
-        _playerInputEnabled = true;
+        _uiVisible = true;
 
         StateHasChanged();
         return Task.CompletedTask;
@@ -83,14 +84,14 @@
 
     private Task OnPlayerCommandStarted(PlayerActionStarted @event)
     {
-        _playerInputEnabled = !@event.Action.DisableUIWhileExecuting;
+        _uiVisible = !@event.Action.DisableUIWhileExecuting;
         StateHasChanged();
         return Task.CompletedTask;
     }
 
     private Task OnPlayerActionCompleted(PlayerActionCompleted @event)
     {
-        _playerInputEnabled = true;
+        _uiVisible = true;
         StateHasChanged();
         return Task.CompletedTask;
     }
@@ -103,6 +104,14 @@
 
     private Task OnItemClickAsync(Item item) =>
         Mediator.PublishAsync(new GameObjectPointerDown(item));
+
+    private Task OnGameScriptRefreshingAsync(GameScriptRefreshing @event)
+    {
+        _uiVisible = false;
+
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
 
     private string GetImageUrl(Item item) =>
         $"games/disk{_manifest.DiskNumber:000}/{_manifest.Spec.InventorySpritesFolder}/{item.Id}.png";
