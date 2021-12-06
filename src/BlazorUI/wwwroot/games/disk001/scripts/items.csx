@@ -646,7 +646,10 @@ Item terminalDoor = AddItem(nameof(terminalDoor), item => item
     })
     .When.WalkTo(() =>
     {
-        ChangeRoom(bridge);
+        if (terminalDoor.Status == "open")
+        {
+            ChangeRoom(bridge);
+        }
     }));
 
 Item todoList = AddItem(nameof(todoList), item => item
