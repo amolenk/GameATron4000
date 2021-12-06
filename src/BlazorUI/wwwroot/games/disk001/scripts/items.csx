@@ -105,6 +105,7 @@ Item clawHammer = AddItem(nameof(clawHammer), item => item
     .Named("claw hammer")
     .CanBeUsedWithOtherObject()
     .WithActorInteraction(RelativePosition.InFront, WellKnownStatus.FaceAwayFromCamera)
+    .WithDepthOffset(70)
     .When.LookAt(() =>
     {
         SayLine("From wikipedia:");
