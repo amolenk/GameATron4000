@@ -25,6 +25,7 @@
         Mediator.Subscribe<GameStarted>(OnGameStartedAsync);
         Mediator.Subscribe<PlayerActionStarted>(OnPlayerCommandStarted);
         Mediator.Subscribe<PlayerActionCompleted>(OnPlayerActionCompleted);
+        Mediator.Subscribe<GameScriptRefreshing>(OnGameScriptRefreshingAsync);
     }
 
     private Task OnGameStartedAsync(GameStarted @event)
@@ -54,5 +55,13 @@
     private async Task OnVerbClickAsync(Verb verb)
     {
         await Mediator.PublishAsync(new VerbSelected(verb));
+    }
+
+    private Task OnGameScriptRefreshingAsync(GameScriptRefreshing @event)
+    {
+        _uiVisible = false;
+
+        StateHasChanged();
+        return Task.CompletedTask;
     }
 }

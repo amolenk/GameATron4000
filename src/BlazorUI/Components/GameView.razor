@@ -105,6 +105,8 @@ else
     {
         if (_manifest is not null && _script is not null)
         {
+            await Mediator.PublishAsync(new GameScriptRefreshing());
+
             var gameState = _script.SaveGame();
 
             await RunGameScriptAsync(gameState);
