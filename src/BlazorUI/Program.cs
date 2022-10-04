@@ -23,7 +23,8 @@ builder.Services.AddHttpClient(
 builder.Services.AddHttpClient<IGameManifestRepository, LocalGameManifestRepository>(
     client => client.BaseAddress = baseAddress);
 
-builder.Services.AddSaveGameRepository();
+builder.Services.AddSingleton<ISaveGameRepository, LocalStorageSaveGameRepository>();
+//builder.Services.AddSaveGameRepository();
 
 await builder.Build().RunAsync();
 
