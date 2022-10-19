@@ -14,6 +14,6 @@ global using System.Reflection;
 global using System.Runtime.Loader;
 global using System.Text.Json;
 global using System.Text.Json.Serialization;
-global using TG.Blazor.IndexedDB;
+global using Blazored.LocalStorage;
 global using YamlDotNet.Serialization;
 global using YamlDotNet.Serialization.NamingConventions;
