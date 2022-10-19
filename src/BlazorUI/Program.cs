@@ -2,7 +2,7 @@
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
-ConfigureLogging(builder);
+builder.Logging.AddConfiguration(builder.Configuration.GetSection("Logging"));
 
 var baseAddress = new Uri(builder.HostEnvironment.BaseAddress);
 
@@ -23,15 +23,6 @@ builder.Services.AddHttpClient(
 builder.Services.AddHttpClient<IGameManifestRepository, LocalGameManifestRepository>(
     client => client.BaseAddress = baseAddress);
 
-builder.Services.AddSingleton<ISaveGameRepository, LocalStorageSaveGameRepository>();
-//builder.Services.AddSaveGameRepository();
+builder.Services.AddSaveGameRepository();
 
 await builder.Build().RunAsync();
-
-// TODO inline
-static void ConfigureLogging(
-  WebAssemblyHostBuilder builder,
-  string section = "Logging")
-{
-    builder.Logging.AddConfiguration(builder.Configuration.GetSection(section));
-}

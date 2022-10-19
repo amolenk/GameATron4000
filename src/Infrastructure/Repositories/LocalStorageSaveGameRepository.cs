@@ -4,11 +4,13 @@ public class LocalStorageSaveGameRepository : ISaveGameRepository
 {
     public const string StoreName = "SaveGame";
 
+    private readonly ILocalStorageService _localStorageService;
     private readonly IJSRuntime _jsRuntime;
     private readonly JsonSerializerOptions _jsonSerializerOptions;
 
-    public LocalStorageSaveGameRepository(IJSRuntime jsRuntime)
+    public LocalStorageSaveGameRepository(ILocalStorageService localStorageService, IJSRuntime jsRuntime)
     {
+        _localStorageService = localStorageService;
         _jsRuntime = jsRuntime;
         _jsonSerializerOptions = new JsonSerializerOptions
         {
@@ -19,19 +21,17 @@ public class LocalStorageSaveGameRepository : ISaveGameRepository
     public async Task SaveGameAsync(string gameId, int slot, GameState state)
     {
         var slotName = $"{gameId}#{slot}";
-        var savedGame = JsonSerializer.Serialize(state, _jsonSerializerOptions);
 
-        await _jsRuntime.InvokeVoidAsync("localStorage.setItem", slotName, savedGame);
+        await _localStorageService.SetItemAsync(slotName, state);
     }
 
     public async Task<GameState?> LoadGameAsync(string gameId, int slot)
     {
         var slotName = $"{gameId}#{slot}";
-        var savedGame = await _jsRuntime.InvokeAsync<string>("localStorage.getItem", slotName);
 
-        if (savedGame is not null)
+        if (await _localStorageService.ContainKeyAsync(slotName))
         {
-            return JsonSerializer.Deserialize<GameState>(savedGame);
+            return await _localStorageService.GetItemAsync<GameState>(slotName);
         }
 
         return null;

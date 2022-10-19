@@ -4,19 +4,11 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddSaveGameRepository(this IServiceCollection serviceCollection)
     {
-        serviceCollection.AddIndexedDB(dbStore =>
-        {
-            dbStore.DbName = "GameATron";
-            dbStore.Version = 1;
+        serviceCollection.AddBlazoredLocalStorage(config =>
+            config.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+        );
 
-            dbStore.Stores.Add(new StoreSchema
-            {
-                Name = IndexedDBSaveGameRepository.StoreName,
-                PrimaryKey = new IndexSpec { Name = "id", KeyPath = "id" }
-            });
-        });
-
-        serviceCollection.AddScoped<ISaveGameRepository, IndexedDBSaveGameRepository>();
+        serviceCollection.AddScoped<ISaveGameRepository, LocalStorageSaveGameRepository>();
 
         return serviceCollection;
     }
