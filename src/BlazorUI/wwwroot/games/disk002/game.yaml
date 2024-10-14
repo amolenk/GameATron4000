@@ -1,0 +1,59 @@
+metadata:
+  id: airportquest
+  name: Airport Quest
+spec:
+  atlasses:
+    default:
+      textureUrl: assets/sprites.png
+      atlasUrl: assets/sprites.json
+  sprites:
+    carl:
+      animations:
+        talk:
+          framePrefix: carl/talk/
+          frameStart: 1
+          frameEnd: 4
+          frameZeroPadding: 4
+          frameRate: 9
+    guy:
+      animations:
+        talk:
+          framePrefix: guy/talk/
+          frameStart: 1
+          frameEnd: 6
+          frameZeroPadding: 4
+          frameRate: 9
+        walkLeft:
+          framePrefix: guy/walk/left/
+          frameStart: 1
+          frameEnd: 6
+          frameZeroPadding: 4
+          frameRate: 9
+        walkRight:
+          framePrefix: guy/walk/right/
+          frameStart: 1
+          frameEnd: 6
+          frameZeroPadding: 4
+          frameRate: 9
+    richard:
+      animations:
+        talk:
+          framePrefix: richard/talk/
+          frameStart: 1
+          frameEnd: 4
+          frameZeroPadding: 4
+          frameRate: 9
+    narrator:
+      frames:
+        transparent: transparent
+    ship-computer:
+      frames:
+        transparent: transparent
+  scripts:
+  - scripts/actors.csx
+  - scripts/items.csx
+  - scripts/rooms.csx
+  - scripts/start.csx
+  - scripts/dialogues/check-in.csx
+  - scripts/dialogues/lounge.csx
+  inventorySpritesFolder: assets/inventory

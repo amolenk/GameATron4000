@@ -3,8 +3,11 @@
 public abstract class GameObject
 {
     public string Id { get; }
+    public string SpriteId { get; }
     public string DisplayName { get; }
     public RelativePosition InteractPosition { get; }
+    public int? InteractPositionOffsetX { get; }
+    public int? InteractPositionOffsetY { get; }
     public string InteractStatus { get; }
     public bool IsTouchable { get; }
     public int ScrollFactor { get; }
@@ -20,9 +23,12 @@ public abstract class GameObject
     protected GameObject(
         Game game,
         string id,
+        string spriteId,
         ActionHandlers actionHandlers,
         string displayName,
         RelativePosition interactPosition,
+        int? interactPositionOffsetX,
+        int? interactPositionOffsetY,
         string interactStatus,
         bool isTouchable,
         int scrollFactor,
@@ -31,9 +37,12 @@ public abstract class GameObject
     {
         Game = game;
         Id = id;
+        SpriteId = spriteId;
         ActionHandlers = actionHandlers;
         DisplayName = displayName;
         InteractPosition = interactPosition;
+        InteractPositionOffsetX = interactPositionOffsetX;
+        InteractPositionOffsetY = interactPositionOffsetY;
         InteractStatus = interactStatus;
         IsTouchable = isTouchable;
         ScrollFactor = scrollFactor;

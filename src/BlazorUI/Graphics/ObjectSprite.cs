@@ -41,7 +41,7 @@ public abstract class ObjectSprite<TObject> : IObjectSprite
     public void UpdateSpriteFrameForStatus(string status)
     {
         var spriteInfo = _spritesSpec.GetSpriteInfo(
-            Model.Id,
+            Model.SpriteId,
             status);
 
         if (spriteInfo.IsAnimation)
@@ -63,7 +63,7 @@ public abstract class ObjectSprite<TObject> : IObjectSprite
         Func<TObject, Point, Task>? onPointerOver)
     {
         var spriteInfo = _spritesSpec.GetSpriteInfo(
-            Model.Id,
+            Model.SpriteId,
             status);
 
         var sprite = Graphics.AddSprite(

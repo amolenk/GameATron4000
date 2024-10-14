@@ -5,6 +5,7 @@
 @inject ISaveGameRepository _saveGameRepository
 @inject IMediator _mediator
 @inject NavigationManager _navigationManager
+@* @inject ExternalApiClient _externalApiClient *@
 
 @if (_gameScriptLoader.ScriptErrors.Any())
 {

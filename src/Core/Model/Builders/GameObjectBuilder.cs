@@ -7,9 +7,12 @@ public abstract class GameObjectBuilder<TObject, TBuilder>
     private readonly TBuilder _builderInstance;
 
     protected string _id;
+    protected string _spriteId;
     protected Game _game;
     protected string _displayName;
     protected RelativePosition _interactPosition;
+    protected int? _interactPositionOffsetX;
+    protected int? _interactPositionOffsetY;
     protected string _interactStatus;
     protected bool _isTouchable;
     protected int _scrollFactor;
@@ -21,14 +24,17 @@ public abstract class GameObjectBuilder<TObject, TBuilder>
         get;
     }
 
-    protected GameObjectBuilder(string id, Game game)
+    protected GameObjectBuilder(string id, string spriteId, Game game)
     {
         _builderInstance = (TBuilder)this;
 
         _id = id;
+        _spriteId = spriteId;
         _game = game;
         _displayName = id;
         _interactPosition = RelativePosition.Center;
+        _interactPositionOffsetX = 0;
+        _interactPositionOffsetY = 0;
         _interactStatus = WellKnownStatus.FaceCamera;
         _isTouchable = true;
         _scrollFactor = -1;
@@ -58,7 +64,9 @@ public abstract class GameObjectBuilder<TObject, TBuilder>
 
     public TBuilder WithActorInteraction(
         RelativePosition? position = null,
-        string? status = null)
+        string? status = null,
+        int? positionOffsetX = null,
+        int? positionOffsetY = null)
     {
         if (position.HasValue)
         {
@@ -69,6 +77,9 @@ public abstract class GameObjectBuilder<TObject, TBuilder>
         {
             _interactStatus = status;
         }
+
+        _interactPositionOffsetX = positionOffsetX;
+        _interactPositionOffsetY = positionOffsetY;
 
         return _builderInstance;
     }

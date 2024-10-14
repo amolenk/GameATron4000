@@ -5,16 +5,19 @@ public class GameScript : IDisposable
     private readonly Game _game;
     private readonly EventQueue _eventQueue;
     private readonly AssemblyLoadContext _assemblyLoadContext;
+    private readonly ExternalApiClient _externalApiClient;
     private GameState _initialState;
 
     public GameScript(
         Game game,
         EventQueue eventQueue,
-        AssemblyLoadContext assemblyLoadContext)
+        AssemblyLoadContext assemblyLoadContext,
+        ExternalApiClient externalApiClient)
     {
         _game = game;
         _eventQueue = eventQueue;
         _assemblyLoadContext = assemblyLoadContext;
+        _externalApiClient = externalApiClient;
     }
 
     // public static async Task<GameScript> LoadAsync(
@@ -71,7 +74,7 @@ public class GameScript : IDisposable
         _eventQueue.Enqueue(new ProtagonistChanged(_game.Protagonist!));
         _eventQueue.Enqueue(new RoomEntered(_game.CurrentRoom!));
 
-        return _eventQueue.FlushAsync(mediator);
+        return _eventQueue.FlushAsync(mediator, _externalApiClient);
     }
 
     // public Task ContinueGameAsync(GameState gameState, IMediator mediator)
@@ -103,7 +106,7 @@ public class GameScript : IDisposable
     //     return _eventQueue.FlushAsync(mediator);
     // }
 
-    public Task ExecutePlayerActionAsync(IAction action, IMediator mediator)
+    public async Task ExecutePlayerActionAsync(IAction action, IMediator mediator)
     {
         _eventQueue.Enqueue(new PlayerActionStarted(action));
 
@@ -119,26 +122,30 @@ public class GameScript : IDisposable
         {
             _game.Protagonist!.SayLine(_game.GetCannedResponse());
         }
-
+        
+        await _eventQueue.ResolveApiCallEventsAsync(_externalApiClient);   
+        
         if (!_game.DialogueTreeActive)
         {
             _eventQueue.Enqueue(new PlayerActionCompleted(
                 action is WalkToPositionAction));
         }
 
-        return _eventQueue.FlushAsync(mediator);
+        await _eventQueue.FlushAsync(mediator, _externalApiClient);
     }
 
-    public Task ContinueDialogue(DialogueOption option, IMediator mediator)
+    public async Task ContinueDialogue(DialogueOption option, IMediator mediator)
     {
         _game.ContinueDialogue(option);
 
+        await _eventQueue.ResolveApiCallEventsAsync(_externalApiClient);   
+        
         if (!_game.DialogueTreeActive)
         {
             _eventQueue.Enqueue(new PlayerActionCompleted(false));
         }
 
-        return _eventQueue.FlushAsync(mediator);
+        await _eventQueue.FlushAsync(mediator, _externalApiClient);
     }
 
     public GameState SaveGame() => _game.Save().GetChanges(_initialState!);

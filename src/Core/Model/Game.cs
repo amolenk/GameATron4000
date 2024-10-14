@@ -1,3 +1,5 @@
+using System.Security.Claims;
+
 namespace Amolenk.GameATron4000.Model;
 
 public class Game
@@ -8,6 +10,7 @@ public class Game
     private readonly List<string> _flags;
     private readonly List<string> _cannedResponses;
     private readonly Random _random;
+    private readonly IHttpClientFactory _httpClientFactory;
     private Action? _onStart;
     private DialogueTree? _activeDialogueTree;
 
@@ -18,7 +21,7 @@ public class Game
 
     internal EventQueue EventQueue { get; private set; }
 
-    public Game(EventQueue eventQueue)
+    public Game(EventQueue eventQueue, IHttpClientFactory httpClientFactory)
     {
         _items = new();
         _actors = new();
@@ -26,13 +29,19 @@ public class Game
         _flags = new();
         _cannedResponses = new();
         _random = new();
+        _httpClientFactory = httpClientFactory;
 
         EventQueue = eventQueue;
     }
 
     public Item AddItem(string id, Action<ItemBuilder>? configure = null)
     {
-        ItemBuilder builder = new(id, this);
+        return AddItem(id, id, configure);
+    }
+    
+    public Item AddItem(string id, string spriteId, Action<ItemBuilder>? configure = null)
+    {
+        ItemBuilder builder = new(id, spriteId, this);
         if (configure is not null)
         {
             configure(builder);
@@ -47,7 +56,12 @@ public class Game
 
     public Actor AddActor(string id, Action<ActorBuilder>? configure = null)
     {
-        ActorBuilder builder = new(id, this);
+        return AddActor(id, id, configure);
+    }
+
+    public Actor AddActor(string id, string spriteId, Action<ActorBuilder>? configure = null)
+    {
+        ActorBuilder builder = new(id, spriteId, this);
         if (configure is not null)
         {
             configure(builder);
@@ -139,7 +153,12 @@ public class Game
     public void ClearFlag(string flag) => _flags.Remove(flag);
 
     public bool IsFlagSet(string flag) => _flags.Contains(flag);
-
+    
+    public void CallApi(string requestUri, Dictionary<string, string> claims, Action<string> onSuccess, Action<string> onFailure)
+    {
+        EventQueue.Enqueue(new ApiCallRequested(requestUri, claims, onSuccess, onFailure));
+    }
+    
     public void StartDialogue(DialogueTree dialogueTree)
     {
         if (_activeDialogueTree is null)

@@ -63,11 +63,11 @@ public class CSharpScriptLoader : IGameScriptLoader
         var compilation = Compile(sources, metadataReferences);
 
         EventQueue eventQueue = new();
-        Game game = new(eventQueue);
+        Game game = new(eventQueue, _httpClientFactory);
 
         var assemblyLoadContext = await RunAsync(compilation, game);
 
-        return new GameScript(game, eventQueue, assemblyLoadContext);
+        return new GameScript(game, eventQueue, assemblyLoadContext, new ExternalApiClient(_httpClientFactory));
     }
 
     private async Task<List<MetadataReference>> LoadMetadataReferencesAsync()
@@ -147,6 +147,7 @@ public class CSharpScriptLoader : IGameScriptLoader
                 "Amolenk.GameATron4000.Model",
                 "Amolenk.GameATron4000.Model.Builders",
                 "System",
+                "System.Collections.Generic",
                 "System.Linq"
             });
 

@@ -9,9 +9,12 @@ public class Actor : GameObject
     internal Actor(
         Game game,
         string id,
+        string spriteId,
         ActionHandlers actionHandlers,
         string displayName,
         RelativePosition interactPosition,
+        int? interactPositionOffsetX,
+        int? interactPositionOffsetY,
         string interactStatus,
         bool isTouchable,
         int scrollFactor,
@@ -21,9 +24,12 @@ public class Actor : GameObject
         : base(
             game,
             id,
+            spriteId,
             actionHandlers,
             displayName,
             interactPosition,
+            interactPositionOffsetX,
+            interactPositionOffsetY,
             interactStatus,
             isTouchable,
             scrollFactor,
@@ -102,17 +108,19 @@ public class Actor : GameObject
     {
         if (gameObject.InteractPosition != RelativePosition.None)
         {
-            var dY = 0;
+            var dX = gameObject.InteractPositionOffsetX ?? 0;
+            var dY = gameObject.InteractPositionOffsetY ?? 0;
+            
             if (gameObject.InteractPosition == RelativePosition.InFront)
             {
-                dY = 20;
+                dY += 20;
             }
             else if (gameObject.InteractPosition == RelativePosition.Above)
             {
-                dY = -20;
+                dY -= 20;
             }
 
-            MoveTo(gameObject.Position.Offset(0, dY), gameObject.InteractStatus);
+            MoveTo(gameObject.Position.Offset(dX, dY), gameObject.InteractStatus);
         }
     }
 
