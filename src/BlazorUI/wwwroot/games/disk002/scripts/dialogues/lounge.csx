@@ -46,7 +46,7 @@ DialogueTree loungeDialogue = AddDialogueTree("lounge", builder => builder
             (content) =>
             {
                 Delay(1000);
-                carl.SayLine("Yes, sir!.\nEnjoy the lounge!");
+                carl.SayLine("Yes, sir!\nEnjoy the lounge!");
                 guy.MoveTo(391, 250);   
                 guy.FaceAwayFromCamera();        
                 Delay(1000);
