@@ -1,14 +1,16 @@
 Item accessDeniedSign = AddItem(nameof(accessDeniedSign), "access_denied_sign", item => item
     .Named("access denied sign")
-    .WithActorInteraction(RelativePosition.InFront, WellKnownStatus.FaceAwayFromCamera)
+    .WithActorInteraction(RelativePosition.None)//, WellKnownStatus.FaceAwayFromCamera)
     .When.LookAt(() =>
     {
         if (guy.Has(accessDeniedSign))
         {
-            SayLine("I'm glad the priority lane didn't stay closed for too long.");
+            guy.SayLine("I'm sure glad the priority lane didn't stay closed for too long.");
         }
         else
         {
+            guy.MoveTo(880, 400);
+            guy.FaceAwayFromCamera();
             guy.SayLine("''Priority lane is currently closed.''");
             guy.FaceCamera();
             guy.MoveTo(840, 420);
@@ -17,11 +19,16 @@ Item accessDeniedSign = AddItem(nameof(accessDeniedSign), "access_denied_sign", 
     })
     .When.PickUp(() =>
     {
+        guy.MoveTo(650, 420);
+        guy.FaceAwayFromCamera();
+        Delay(1000);
+        guy.MoveTo(880, 400);
         guy.FaceAwayFromCamera();
         Delay(500);
         guy.AddToInventory(accessDeniedSign);
         guy.FaceCamera();
-        guy.SayLine("Fixed it!");
+        guy.MoveTo(840, 420);
+        guy.SayLine("I’m sure nobody is going to miss this sign.");
     }));
     
 Item boardingPass = AddItem(nameof(boardingPass), item => item

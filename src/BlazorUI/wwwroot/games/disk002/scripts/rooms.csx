@@ -14,7 +14,7 @@ Room checkIn = AddRoom("check_in", room => room
     .When.BeforeEnter(() =>
     {
         checkIn.Place(guy, 160, 440);
-        guy.FaceAwayFromCamera();
+//         guy.FaceAwayFromCamera();
     }));
     
 Room security = AddRoom("security", room => room

@@ -55,7 +55,7 @@ DialogueTree loungeDialogue = AddDialogueTree("lounge", builder => builder
                 Delay(500);
                 guy.SayLine("It's so beautiful!");
                 Delay(1000);
-                narrator.SayLine("** LAST CALL FOR FLIGHT 815 TO PORTO **");
+                narrator.SayLine("** LAST CALL FOR FLIGHT 815 TO STOCKHOLM **");
                 narrator.SayLine("** PROCEED TO GATE IMMEDIATELY **");
                 lobby.Place(loungeDoorClosed, 391, 231);
                 lobby.Remove(loungeDoorOpen);
